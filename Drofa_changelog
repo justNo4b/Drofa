@@ -1,0 +1,89 @@
+Drofa changelog (initial Shallow_Blue commit -> Drofa 1.0)
+
+1. Fuxed 50-move detection bug
+2. Fixed KillerMove bug causing to have 2 exact killers sometimes
+3. Fixed History updating in the beta cutoff area
+
+-------------> tested movetime decreased for same positions across 1 game.
+4. Implemented NULL move pruning
+-------------> proved depth gain, elo gain not tested
+5. Refactored evaluation
+	a. PSQT - King
+	b. PSQT - Rook
+	c. All PSQT and mobility tweaked
+6. Fixed RookOnOpen bug
+7. Added RookOnSemiOpen evaluation
+
+--------------> proven elo gain
++50,7 +-43; 200 game test (+93; -64; =43) with disabled kingshield.
+TC 30`` + 1``
+------------------------------------------------------------------
+
+8._kingPawnShield replaced with KingSafety function.
+--------------> no proved elo gain for either of them.
+ Rank Name                          Elo     +/-   Games   Score   Draws
+   0 Drofa_newSafety                 9      29     400   51.2%   25.5%
+   1 Drofa_PSQT_rescaled            -9      42     200   48.8%   23.5%
+   2 Drofa_old_Safety               -9      41     200   48.8%   27.5%
+
+-------------> for now testing with king safety disabled.
+----------------------------------------------------------------
+9. IsItDeadDraw function implemented
+-------------> no elo gain in 200-games test (but almost 0 expected i guess)
+
+10. Full rework of the HASH_Table.
+	a) Now allocating memory ~32MB default now
+	b) Persistent throught moves
+
+---------------------------> big elo gain (200 games test)
+Score of Drofa_HT_test(32MB) vs Drofa_DD_noSafety: 98 - 61 - 41 [0.593]
+Elo difference: 65.02 +/- 43.68
+----------------------------------------------------------------
+Bug with 0.00 score is seriously affecting gameplay.
+The bigger HASH  - more frequent bug.
+
+11. HashTable Bug fixed. Minor _nodes counting bug fixed. 256 MB has default now.
+--------------------------------->test vs old HASH (32MB, buggy)
+Score of Drofa_bugFIX vs Drofa_HT_test: 80 - 61 - 59 [0.547]
+Elo difference: 33.11 +/- 40.67
+
+200 of 200 games finished.
+
+Although it is not clear weather it is hash size or no bugs working.
+
+12. Some search Sped UPs. Together ~1.8kk nps vs 0.7kk nps in startpos
+~+90 elo gain (+80 -30 = 90) in 200 games test. Approx, computer crush
+
+40 games match vs Vice:
+
+Score of Drofa__ vs vice: 12 - 17 - 11 [0.438]
+Elo difference: -43.66 +/- 94.35
+
+13. More speed ups. ~2.2kk nps in startpos. Fixed bug that slowed engine down
+the longer game lasts. Fixed bug that caused crush under high search depth.
+
+14. Probe hashentry in _root. Nodes++ now in the root too.
++0 elo over ~300 games test
+
+15. Probe hashentry in _root removed (caused bug with repetition detection).
+
+16. King Safety reactivated. Most Likely elogainer:
+---------------------------------------------------
+	 400 game test: 
+	+26 +/-29 elo
+---------------------------------------------------
+17. Pawn hashtable was rewritten to be structured as regular hashtable.
+Now 250 MB hash and 6 MB pawn hash.
+This also fixed memory leaking.
+Elo gain/loss not tested.
+
+18. Drofa 1.0 release.
+Final stability test before release: 500 games vs VICE 60s + 1s:
+----------------------------------------------------------------
+Score of Drofa( vs vice: 212 - 147 - 141 [0.565]
+Elo difference: 45.42 +/- 25.95
+
+500 of 500 games finished.
+
+0 crushes, 0 mem leaks.
+---------------------------------------------------------------
