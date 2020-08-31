@@ -12,10 +12,14 @@ The mid-goal - get to ~2500 rating on the CCRL
 Far goal (probably will never be reached) - get into top 100 of the CCRL.
 
 ## Chages from Shallow Blue
-For now Drofa can be considered as highly advanced fork of the Shallow Blue, with 2 features
-being completely rewritten by me: hashtable and pawn hashtable.
+For now Drofa can be considered as highly advanced fork of the Shallow Blue, with 3 features
+being completely rewritten by me:
 
-Evaluation function was refactored with an elo-gain in self-play, although its still reqire much
+- Hashtable
+- Pawn Hashtable
+- King Safety Evaluation
+
+Evaluation function in general was refactored with an elo-gain in self-play, although its still reqire much
 work, because for now tapered eval in fact is used much less than in original Shallow Blue, which is a shame.
 
 Some features were added during the work:
