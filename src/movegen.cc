@@ -2,9 +2,6 @@
 #include "movepicker.h"
 #include "eval.h"
 
-const int CAPTURE_BONUS = 4000;
-const int PROMOTION_BONUS = 3000;
-int MVV_LVA [5][6];
 
 MoveGen::MoveGen(const Board &board, bool isCaptureGenerated) {
   setBoard(board, isCaptureGenerated);
@@ -20,25 +17,10 @@ void MoveGen::setBoard(const Board &board, bool isCaptureGenerated) {
   if (!isCaptureGenerated){
      _genMoves(board); 
   } else{
-    initCapArray();
     _genCaptures(board);
   }
 }
 
-void MoveGen::initCapArray(){
-    // Build the MVV LVA table
-  int currScore = 0;
-  PieceType victimsLoToHi[] = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN};
-  PieceType attackersHiToLo[] = {KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN};
-
-  // Iterate over victims (low to high)
-  for (auto victim : victimsLoToHi) {
-    // Iterate over attackers (high to low)
-    for (auto attacker : attackersHiToLo) {
-      MVV_LVA[victim][attacker] = currScore++;
-    }
-  }
-}
 
 MoveList MoveGen::getMoves() {
   return _moves;
@@ -571,11 +553,6 @@ void MoveGen::_addCaps(const Board &board, int from, PieceType pieceType, U64 mo
 
     Move move(from, to, pieceType, Move::CAPTURE);
     move.setCapturedPieceType(board.getPieceAtSquare(board.getInactivePlayer(), to));
-    if (move.getFlags() & Move::CAPTURE) {
-      move.setValue(CAPTURE_BONUS + MVV_LVA[move.getCapturedPieceType()][move.getPieceType()]);
-    } else if (move.getFlags() & Move::PROMOTION) {
-      move.setValue(PROMOTION_BONUS + Eval::getMaterialValue(move.getPromotionPieceType()));
-    }
     _moves.push_back(move);
   }
 }

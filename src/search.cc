@@ -3,7 +3,6 @@
 #include "eval.h"
 #include "movepicker.h"
 #include "generalmovepicker.h"
-#include "qsearchmovepicker.h"
 #include <algorithm>
 #include <iostream>
 
@@ -70,7 +69,9 @@ Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHist
   }
 
   // Debug_evaluation_paste_below:
-    int k = myHASH.HASH_Size();
+    unsigned int k = 203;
+    int l = 1;
+    unsigned int m = 0;
   // std::cout << "Castle_test_ " + std::to_string(k);
     std::cout << "HASH_size " + std::to_string(k);
     std::cout << std::endl;
@@ -431,7 +432,8 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
 
   MoveGen movegen(board, true);
   MoveList legalMoves = movegen.getMoves();
-  QSearchMovePicker movePicker(&legalMoves);
+  GeneralMovePicker movePicker
+      (&_orderingInfo, const_cast<Board *>(&board), &legalMoves);
 
   // If node is quiet, just return eval
   if (!movePicker.hasNext()) {
