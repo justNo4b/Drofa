@@ -1,0 +1,1 @@
+cutechess-cli -engine conf=Drofa_dev tc=0/30+1 -engine conf=Drofa_v.1.0 tc=0/30+1 -tournament round-robin -rounds 1000 -concurrency 4 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout CLI-test.pgn

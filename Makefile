@@ -20,7 +20,7 @@ debug debug-test: LD_FLAGS = -pthread
 
 OBJ_DIR = obj
 
-BIN_NAME = Drofa
+BIN_NAME = Drofa_dev
 TEST_BIN_NAME = DrofaTest
 
 all: $(OBJ_DIR) $(BIN_NAME)

@@ -5,6 +5,8 @@
 #include "movegen.h"
 #include "bitutils.h"
 
+
+#define SC(op, eg) ((int)((unsigned int)(op) << 16 ) + eg)
 /**
  * @brief Namespace containing board evaluation functions
  */

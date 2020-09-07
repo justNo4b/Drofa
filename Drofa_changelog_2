@@ -1,0 +1,17 @@
+Drofa changelog: Drofa 1.0 -> Drofa 2.0
+---------------------------------------
+1.QSearch MovePicker merged with GeneralMovePicker. ProbeTT for a move in QSearch.
+Removed scoring during movegen.
+------------------------------------------
+Test 1 - multy-core, 1000 games.
+Score of Drofa_dev vs Drofa_v.1.0: 381 - 314 - 305  [0.533] 1000
+Elo difference: 23.31 +/- 17.97
+
+Test 2 - confirmation, with UI.
+
+Score of Drofa_v.1.0 vs Drofa_dev: 94 - 106 - 100 [0.480]
+Elo difference: -13.90 +/- 32.16
+
+300 of 300 games finished.
+------------------------------------------
+
