@@ -69,12 +69,9 @@ Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHist
   }
 
   // Debug_evaluation_paste_below:
-    unsigned int k = 203;
-    int l = 1;
-    unsigned int m = 0;
-  // std::cout << "Castle_test_ " + std::to_string(k);
-    std::cout << "HASH_size " + std::to_string(k);
-    std::cout << std::endl;
+  //  std::cout << "Castle_test_ " + std::to_string(k);
+  //  std::cout << "HASH_size " + std::to_string(0);
+  //  std::cout << std::endl;
 }
 
 void Search::iterDeep() {

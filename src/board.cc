@@ -373,6 +373,10 @@ void Board::_removePiece(Color color, PieceType pieceType, int squareIndex) {
 
   _occupied ^= square;
 
+  if (pieceType == PAWN){
+    _pawnStructureZkey.flipPiece(color, PAWN, squareIndex);
+  }
+
   _zKey.flipPiece(color, pieceType, squareIndex);
   _pst.removePiece(color, pieceType, squareIndex);
 }
