@@ -22,3 +22,9 @@ Score of Drofa_1.0.1 vs Drofa_dev: 275 - 437 - 288  [0.419] 1000
 Elo difference: -56.78 +/- 18.30
 Finished match
 -----------------------------------------
+
+3. SpedUP eval by ~12.5 % (but code is much less appealing now)
+----------------------------------------
+Score of Drofa_dev vs Drofa_1.0.2: 261 - 212 - 227  [0.535] 700
+Elo difference: 24.4 +/- 21.1
+
