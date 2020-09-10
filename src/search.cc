@@ -5,6 +5,7 @@
 #include "generalmovepicker.h"
 #include <algorithm>
 #include <iostream>
+#include <math.h>
 
 //search_constants
 //
@@ -19,6 +20,14 @@ int selDepth = 0; // int that is showing maxDepth with extentions we reached in 
 extern int g_TT_MO_hit;
 extern HASH myHASH;
 
+void Search::init_LMR_array(){
+  for (int i = 0; i < 34; i++){
+    for (int j = 0; j< 34; j++){
+      _lmr_R_array[i][j] = 0.1 + (pow(i, 0.15) * pow(j, 0.15))/1.75;
+    }
+  }
+}
+
 Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHistory, bool logUci) :
     _positionHistory(positionHistory),
     _orderingInfo(OrderingInfo()),
@@ -29,6 +38,7 @@ Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHist
     _limitCheckCount(0),
     _bestScore(0) {
 
+  init_LMR_array();
   if (_limits.infinite) { // Infinite search
     _searchDepth = INF;
     _timeAllocated = INF;
@@ -70,8 +80,8 @@ Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHist
 
   // Debug_evaluation_paste_below:
   //  std::cout << "Castle_test_ " + std::to_string(k);
-  //  std::cout << "HASH_size " + std::to_string(0);
-  //  std::cout << std::endl;
+    std::cout << "HASH_size " + std::to_string(_lmr_R_array[25][32]);
+    std::cout << std::endl;
 }
 
 void Search::iterDeep() {
@@ -252,6 +262,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   _nodes++;
   bool AreWeInCheck;
   int score;
+  bool pvNode = alpha != beta - 1;
   
   if (_stop || _checkLimits()) {
     _stop = true;
@@ -330,7 +341,6 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
       (&_orderingInfo, const_cast<Board *>(&board), &legalMoves);
 
   Move bestMove;
-  bool fullWindow = true;
   int  LegalMoveCount = 0;
   // вероятно не самая эффективная конструкция, но оптимизация потом
   while (movePicker.hasNext()) {
@@ -338,20 +348,70 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
     Move move = movePicker.getNext();
     Board movedBoard = board;
     movedBoard.doMove(move);
+    bool doLMR = false;
     
       if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
         LegalMoveCount++;
         int score;
         _orderingInfo.incrementPly();
 
-        if (fullWindow) {
-          score = -_negaMax(movedBoard, depth - 1 + Extension, -beta, -alpha, ply + 1, false );
-        } else {
-          score = -_negaMax(movedBoard, depth - 1 + Extension, -alpha - 1, -alpha, ply + 1, false);
-          if (score > alpha) score = -_negaMax(movedBoard, depth - 1 + Extension, -beta, -alpha, ply + 1, false );
-        }
-        _orderingInfo.deincrementPly();
+        //LATE MOVE REDUCTIONS
+        //mix of ideas from Weiss code and what is written in the chessprogramming wiki
+        //
+        //For now we dont reduce in the PV, if depth too low, when extention is triggered
+        //and when move give check.
+        //This can be a subject for a later tuning
+        //
+        //Currently we try to reduce 4th move and beyond.
 
+        doLMR = !pvNode && depth > 2 && LegalMoveCount > 3 && 
+        Extension == 0 && !movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
+        if (doLMR){
+
+          //Basic reduction is done according to the array
+          //Initiated at the ini() of the Search Class
+          //Now mostly 0 -> 1
+          int reduction = _lmr_R_array[std::min(33, depth)][std::min(33, LegalMoveCount)];
+
+          //if move is quiet, reduce a bit more
+          if (!move.getFlags()){
+            reduction++;
+          }
+          //Avoid to reduce so much that we go to QSearch right away
+          int fDepth = std::max(1, depth - 1 - reduction);
+          
+          //Search with reduced depth around alpha in assumtion
+          // that alpha would not be beaten here
+          score = -_negaMax(movedBoard, fDepth, -alpha - 1 , -alpha, ply + 1, false);
+        }
+        
+        // Code here is restructured based on Weiss
+        // First part is clear here: if we did LMR and score beats alpha
+        // We need to do a re-search.
+        // 
+        // If we did not do LMR: if we are in a non-PV our we already have alpha == beta - 1,
+        // and if we are searching 2nd move and so on we already did full window search - 
+        // So for both of this cases we do limited window search. 
+        //
+        // This system is implemented instead of fullDepth = true/false basic approach.
+        if (doLMR){
+          if (score > alpha){
+            score = -_negaMax(movedBoard, depth - 1 + Extension, -alpha - 1, -alpha, ply + 1, false);
+          }
+        } else if (!pvNode || LegalMoveCount > 1){
+          score = -_negaMax(movedBoard, depth - 1 + Extension, -alpha - 1, -alpha, ply + 1, false);
+        }
+
+        // If we are in the PV 
+        // Search with a full window the first move to calculate bounds
+        // or if score improved alpha during the current round of search.
+        if  (pvNode) {
+          if ((LegalMoveCount == 1) || (score > alpha && score < beta)){
+            score = -_negaMax(movedBoard, depth - 1 + Extension, -beta, -alpha, ply + 1, false );  
+          }
+        }
+
+        _orderingInfo.deincrementPly();
         // Beta cutoff
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
@@ -371,7 +431,6 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           if (!(move.getFlags() & Move::CAPTURE)){
               _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
           }
-          fullWindow = false;
           alpha = score;
           bestMove = move;
         }

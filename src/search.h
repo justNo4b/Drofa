@@ -92,6 +92,13 @@ class Search {
   void stop();
 
  private:
+
+  /**
+   * @brief Array of reductions applied to the branch during 
+   * LATE MOVE REDUCTION during AB-search
+   */ 
+  int _lmr_R_array[34][34];
+
   /**
    * @brief Default depth to search to if no limits are specified.
    */
@@ -251,6 +258,12 @@ class Search {
    * @return MoveList The principal variation for the last performed search
    */
   MoveList _getPv(int);
+
+  /**
+   * @brief this function calculates reductions values and stores
+   * it in the _lmr_R_array
+   */ 
+  void init_LMR_array();
 };
 
 #endif
