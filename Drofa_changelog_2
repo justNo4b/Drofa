@@ -28,3 +28,9 @@ Finished match
 Score of Drofa_dev vs Drofa_1.0.2: 261 - 212 - 227  [0.535] 700
 Elo difference: 24.4 +/- 21.1
 
+4. Late Move Reduction is implemented.
+----------------------------------------
+Score of Drofa_dev vs Drofa_1.0.3: 277 - 124 - 199  [0.627] 600
+Elo difference: 90.59 +/- 23.10
+Finished match
+
