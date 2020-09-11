@@ -37,9 +37,21 @@ Finished match
 5. Extended futility pruning (only in TT nodes).
    Proper DELTA pruning
    NULL move pruning now have -depth/4 component
+------------------------------------------
 Score of Drofa_dev vs Drofa_1.1.0: 167 - 133 - 200  [0.534] 500
 Elo difference: 23.66 +/- 23.61
 Finished match
+-------------------------------------------
+6. Extended futility pruning with static eval itstead of only in TTnode
+-------------------------------------------
+Score of Drofa_dev vs Drofa_1.1.1: 329 - 217 - 454  [0.556] 1000
+Elo difference: 39.08 +/- 15.92
+Finished match
+-------------------------------------------
+7. Reverse futility pruning
+------------------------------------------
+	Test rushed but it was ~60% pts in favor of dev2 version
+	after 200 games.
 
 
 

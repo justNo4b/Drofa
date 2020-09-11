@@ -12,6 +12,7 @@
 const int NULL_MOVE_REDUCTION = 3;
 const int DELTA_MOVE_CONST = 200;
 const int FUTIL_MOVE_CONST = 150;
+const int REVF_MOVE_CONST = 200;
 //
 
 //
@@ -267,8 +268,6 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   bool AreWeInCheck;
   int score;
   bool pvNode = alpha != beta - 1;
-  bool TTmove = false;
-  int  TTscore = 0;
   
   if (_stop || _checkLimits()) {
     _stop = true;
@@ -292,8 +291,6 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   const HASH_Entry probedHASHentry = myHASH.HASH_Get(board.getZKey().getValue());
 
   if (probedHASHentry.Flag != NONE){
-    TTmove = true;
-    TTscore = probedHASHentry.score;
     if (probedHASHentry.depth >= depth){
       int hashScore = probedHASHentry.score;
       if (abs(hashScore)+50 > LOST_SCORE * -1){
@@ -327,19 +324,40 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
             return beta;
           }
   }
-
-  // Transposition table lookups are inconclusive, generate moves and recurse
-  MoveGen movegen(board, false);
-  MoveList legalMoves = movegen.getMoves();
-  int Extension = 0;
+  // Null move inconclusive, we go into the reductions
+  // First check if we must Extend, because than we dont prune
 
   // Extentions are summed up here
   // InCheck extentions - we extend when the sideToMove is inCheck
+  // If we are not in fact in check, evaluate a board for pruning later
+  // We dont evaluate when in check because we dont prune in check
+  int Extension = 0;
+  int statEVAL = 0;
+
   if (AreWeInCheck) {
     Extension++;
+  }else{
+    statEVAL = Eval::evaluate(board, board.getActivePlayer());
   }
 
-  // Eval if depth is 0
+  // 1. Reverse Futility
+  // The idea is so if we are very far ahead of beta at low
+  // depth, we can just return estimated eval (eval - margin)
+  // 
+  // For now dont Prune in PV, in check, and at high depth
+  // btw d < 5 is totally arbitrary, tune it later maybe
+
+  if (!pvNode && Extension == 0 && depth < 5){
+      if ((statEVAL - REVF_MOVE_CONST * depth) >= beta)
+      return statEVAL - REVF_MOVE_CONST * depth;
+  }
+
+
+  // No pruning occured, generate moves and recurse
+  MoveGen movegen(board, false);
+  MoveList legalMoves = movegen.getMoves();
+
+  // Go into the QSearch if depth is 0
   if ((depth + Extension) == 0) {
     selDepth = std::max(ply, selDepth);
     return _qSearch(board, alpha, beta, ply + 1 );
@@ -357,7 +375,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
     Board movedBoard = board;
     movedBoard.doMove(move);
     bool doLMR = false;
-    
+
       if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
         LegalMoveCount++;
         int score;
@@ -374,9 +392,9 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         // We also do not prune if we are close to the MATE
 
         if (!pvNode && Extension == 0 && LegalMoveCount > 1 && depth < 3 
-        && !giveCheck && TTmove && alpha < ((LOST_SCORE * -1) - 50)){
+        && !giveCheck && alpha < ((LOST_SCORE * -1) - 50)){
           int moveGain = Eval::MATERIAL_VALUES[0][move.getCapturedPieceType()];
-          if (TTscore + FUTIL_MOVE_CONST * depth + moveGain < alpha){
+          if (statEVAL + FUTIL_MOVE_CONST * depth + moveGain <= alpha){
               continue;
           }
         }
