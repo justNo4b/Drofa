@@ -34,3 +34,13 @@ Score of Drofa_dev vs Drofa_1.0.3: 277 - 124 - 199  [0.627] 600
 Elo difference: 90.59 +/- 23.10
 Finished match
 
+5. Extended futility pruning (only in TT nodes).
+   Proper DELTA pruning
+   NULL move pruning now have -depth/4 component
+Score of Drofa_dev vs Drofa_1.1.0: 167 - 133 - 200  [0.534] 500
+Elo difference: 23.66 +/- 23.61
+Finished match
+
+
+
+

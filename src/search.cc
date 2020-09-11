@@ -11,6 +11,7 @@
 //
 const int NULL_MOVE_REDUCTION = 3;
 const int DELTA_MOVE_CONST = 200;
+const int FUTIL_MOVE_CONST = 150;
 //
 
 //
@@ -20,6 +21,9 @@ int selDepth = 0; // int that is showing maxDepth with extentions we reached in 
 extern int g_TT_MO_hit;
 extern HASH myHASH;
 
+// i here is DETPTH
+// j here is moveNUM
+// we scale R higher for moveNUM than for DEPTH
 void Search::init_LMR_array(){
   for (int i = 0; i < 34; i++){
     for (int j = 0; j< 34; j++){
@@ -80,7 +84,7 @@ Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHist
 
   // Debug_evaluation_paste_below:
   //  std::cout << "Castle_test_ " + std::to_string(k);
-    std::cout << "HASH_size " + std::to_string(_lmr_R_array[25][32]);
+    std::cout << "HASH_size " + std::to_string(_lmr_R_array[3][7]);
     std::cout << std::endl;
 }
 
@@ -263,6 +267,8 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   bool AreWeInCheck;
   int score;
   bool pvNode = alpha != beta - 1;
+  bool TTmove = false;
+  int  TTscore = 0;
   
   if (_stop || _checkLimits()) {
     _stop = true;
@@ -286,6 +292,8 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   const HASH_Entry probedHASHentry = myHASH.HASH_Get(board.getZKey().getValue());
 
   if (probedHASHentry.Flag != NONE){
+    TTmove = true;
+    TTscore = probedHASHentry.score;
     if (probedHASHentry.depth >= depth){
       int hashScore = probedHASHentry.score;
       if (abs(hashScore)+50 > LOST_SCORE * -1){
@@ -314,7 +322,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   if (ply > 0 && depth >= 3 && !doNool && !AreWeInCheck && board.isThereMajorPiece()){
           Board movedBoard = board;
           movedBoard.doNool();
-          int score = -_negaMax(movedBoard, depth - NULL_MOVE_REDUCTION, -beta, -beta +1, ply + 1, true );
+          int score = -_negaMax(movedBoard, depth - NULL_MOVE_REDUCTION - depth/4, -beta, -beta +1, ply + 1, true );
           if (score >= beta){
             return beta;
           }
@@ -353,6 +361,25 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
       if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
         LegalMoveCount++;
         int score;
+
+        bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
+        bool isQuiet = !move.getFlags();
+
+        // EXTENDED FUTILITY PRUNING
+        // We try to pune a move, if depth is low (1 or 2)
+        // Move should not give check, and should not be the first move
+        // we also should not be in check
+        // We do not prune in the PV nodes.
+        // To avoid Eval(), we try this only if we have a score for a position from TT
+        // We also do not prune if we are close to the MATE
+
+        if (!pvNode && Extension == 0 && LegalMoveCount > 1 && depth < 3 
+        && !giveCheck && TTmove && alpha < ((LOST_SCORE * -1) - 50)){
+          int moveGain = Eval::MATERIAL_VALUES[0][move.getCapturedPieceType()];
+          if (TTscore + FUTIL_MOVE_CONST * depth + moveGain < alpha){
+              continue;
+          }
+        }
         _orderingInfo.incrementPly();
 
         //LATE MOVE REDUCTIONS
@@ -364,8 +391,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         //
         //Currently we try to reduce 4th move and beyond.
 
-        doLMR = !pvNode && depth > 2 && LegalMoveCount > 3 && 
-        Extension == 0 && !movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
+        doLMR = !pvNode && depth > 2 && LegalMoveCount > 3 && Extension == 0 && !giveCheck;
         if (doLMR){
 
           //Basic reduction is done according to the array
@@ -374,7 +400,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           int reduction = _lmr_R_array[std::min(33, depth)][std::min(33, LegalMoveCount)];
 
           //if move is quiet, reduce a bit more
-          if (!move.getFlags()){
+          if (isQuiet){
             reduction++;
           }
           //Avoid to reduce so much that we go to QSearch right away
@@ -477,9 +503,14 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
   }
 
   int standPat = Eval::evaluate(board, board.getActivePlayer());
+  int mvpCost = board.MostFancyPieceCost();
 
   if (standPat >= beta) {
     return beta;
+  }
+    // DELTA MOVE PRUNING. Prune here if were are very far ahead.
+  if (alpha > standPat + mvpCost){
+    return alpha;
   }
   
   if (alpha < standPat) {

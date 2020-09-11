@@ -414,6 +414,26 @@ bool Board:: isThereMajorPiece() const {
   return false;
 }
 
+int  Board:: MostFancyPieceCost() const{
+
+  if (_popCount(getPieces(getInactivePlayer(), QUEEN)) > 0){
+    return 950;
+  }
+
+  if (_popCount(getPieces(getInactivePlayer(), ROOK)) > 0){
+    return 500;
+  }
+
+  if (_popCount(getPieces(getInactivePlayer(), BISHOP)) > 0){
+    return 315;
+  }
+  if (_popCount(getPieces(getInactivePlayer(), KNIGHT)) > 0){
+    return 300;
+  }
+  
+  return 100;
+}
+
 void Board::doMove(Move move) {
   // Clear En passant info after each move if it exists
   if (_enPassant) {
