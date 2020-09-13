@@ -52,6 +52,34 @@ Finished match
 ------------------------------------------
 	Test rushed but it was ~60% pts in favor of dev2 version
 	after 200 games.
+------------------------------------------
+8. Added late move pruning
+-----------------------------------------
+Result was inconclusive
+
+Finished game 500 (Drofa_1.2.0 vs Drofa_dev): 0-1 {Black wins by adjudication}
+Score of Drofa_dev vs Drofa_1.2.0: 137 - 123 - 240  [0.514] 500
+Elo difference: 9.73 +/- 21.96
+
+Turned off for now
+-----------------------------------------
+9. Fixed a bug causing engine to miss forced repetitions during search
+-----------------------------------------
+Did not do a full test, but limited 200 games test.
+Examination of the games shows patch is working
+Score of Drofa_dev vs Drofa_1.2.0: 56 - 49 - 95  [0.517] 200
+Elo difference: 12.17 +/- 34.96
+-----------------------------------------
+10. Improving factor in search, minor code refactoring
+Finished game 919 (Drofa_dev2 vs Drofa_1.2.1): 1-0 {White wins by adjudication}
+Score of Drofa_dev2 vs Drofa_1.2.1: 303 - 258 - 359  [0.524] 920
+
+11. IID+LMR
+-----------------------------------------
+Score of Drofa_dev vs Drofa_1.2.2: 339 - 303 - 358  [0.518] 1000
+Elo difference: 12.51 +/- 17.25
+-----------------------------------------
+Lets take it as a pass
 
 
 

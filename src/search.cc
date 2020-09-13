@@ -350,7 +350,8 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
 
   // 1. REVERSE FUTILITY
   // The idea is so if we are very far ahead of beta at low
-  // depth, we can just return estimated eval (eval - margin)
+  // depth, we can just return estimated eval (eval - margin),
+  // because beta probably wont be beaten
   // 
   // For now dont Prune in PV, in check, and at high depth
   // btw d < 5 is totally arbitrary, tune it later maybe
@@ -360,28 +361,31 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
       return statEVAL - REVF_MOVE_CONST * depth + 100 * improving;
   }
 
-  // 
-
-  // Transposition table lookups are inconclusive, try null move
+  // 2. NULL MOVE
+  // If we are doing so well, that giving opponent 2
+  // moves wont improve his position
+  // we can safely prune this position
+  //
+  // For obvious reasons its turned off with no major pieces
+  // and when we are in check
   if (ply > 0 && depth >= 3 && !doNool && !AreWeInCheck && board.isThereMajorPiece()){
           Board movedBoard = board;
           movedBoard.doNool();
-          int score = -_negaMax(movedBoard, depth - NULL_MOVE_REDUCTION - depth/4, -beta, -beta +1, ply + 1, true );
+          int score = -_negaMax(movedBoard, depth - NULL_MOVE_REDUCTION - depth/4, -beta, -beta +1, ply + 1, true);
           if (score >= beta){
             return beta;
           }
   }
-  // Null move inconclusive, we go into the reductions
-  // First check if we must Extend, because than we dont prune
 
-
-
-
-  // 2. UN_HASHED REDUCTION
+  // 3. UN_HASHED REDUCTION
   // We reduce depth by 1 if the position we currently 
   // analysing isnt hashed.
   // Based on talkchess discussion, replaces 
-  // Internal iterative
+  // Internal iterative deepening.
+  // 
+  // The justification is if our hashing is decent, if the 
+  // position at high depth isnt here, its probably position 
+  // not worth searching
   if (depth >= 5 && !TTmove)
     depth--;
 
@@ -398,6 +402,13 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   while (movePicker.hasNext()) {
 
     Move move = movePicker.getNext();
+
+    // LATE MOVE PRUNING
+    // If we made many quiet moves in the position already
+    // we suppose other moves wont improve our situation
+    //
+    // Formula from Weiss, weirdly working, searchdepth 
+    // is way up, elo gain is not so great
 
     if (!pvNode && Extension == 0 && qCount > 3 + (depth*depth*2)/(2-improving)){
       continue;
@@ -420,7 +431,6 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         // Move should not give check, and should not be the first move
         // we also should not be in check
         // We do not prune in the PV nodes.
-        // To avoid Eval(), we try this only if we have a score for a position from TT
         // We also do not prune if we are close to the MATE
 
         if (!pvNode && Extension == 0 && LegalMoveCount > 1 && depth < 3 
