@@ -348,6 +348,19 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   if (ply > 2)
     improving = !AreWeInCheck && statEVAL > _sEvalArray[ply - 2];  
 
+  // 1. REVERSE FUTILITY
+  // The idea is so if we are very far ahead of beta at low
+  // depth, we can just return estimated eval (eval - margin)
+  // 
+  // For now dont Prune in PV, in check, and at high depth
+  // btw d < 5 is totally arbitrary, tune it later maybe
+
+  if (!pvNode && Extension == 0 && depth < 5){
+      if ((statEVAL - REVF_MOVE_CONST * depth + 100 * improving) >= beta)
+      return statEVAL - REVF_MOVE_CONST * depth + 100 * improving;
+  }
+
+  // 
 
   // Transposition table lookups are inconclusive, try null move
   if (ply > 0 && depth >= 3 && !doNool && !AreWeInCheck && board.isThereMajorPiece()){
@@ -362,17 +375,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   // First check if we must Extend, because than we dont prune
 
 
-  // 1. REVERSE FUTILITY
-  // The idea is so if we are very far ahead of beta at low
-  // depth, we can just return estimated eval (eval - margin)
-  // 
-  // For now dont Prune in PV, in check, and at high depth
-  // btw d < 5 is totally arbitrary, tune it later maybe
 
-  if (!pvNode && Extension == 0 && depth < 5){
-      if ((statEVAL - REVF_MOVE_CONST * depth + 100 * improving) >= beta)
-      return statEVAL - REVF_MOVE_CONST * depth + 100 * improving;
-  }
 
   // 2. UN_HASHED REDUCTION
   // We reduce depth by 1 if the position we currently 
