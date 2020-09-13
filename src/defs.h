@@ -39,6 +39,12 @@ const U64 RANK_8 = 0xff00000000000000ull;
 */
 const int LOST_SCORE = -100000;
 
+/**
+ * Global search constants here 
+ *
+*/
+const int NOSCORE = 333333;
+
 
 /**
  * Global debug variables here 

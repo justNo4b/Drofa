@@ -3,6 +3,7 @@
 #include "eval.h"
 #include "movepicker.h"
 #include "generalmovepicker.h"
+#include <cstring>
 #include <algorithm>
 #include <iostream>
 #include <math.h>
@@ -43,6 +44,7 @@ Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHist
     _limitCheckCount(0),
     _bestScore(0) {
 
+  std::memset(_sEvalArray, 0, sizeof(_sEvalArray));
   init_LMR_array();
   if (_limits.infinite) { // Infinite search
     _searchDepth = INF;
@@ -194,6 +196,8 @@ void Search::_rootMax(const Board &board, int depth, int ply) {
   MoveGen movegen(board, false);
   MoveList legalMoves = movegen.getMoves();
 
+  _sEvalArray[ply] = board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer());
+
   // If no legal moves are available, just return, setting bestmove to a null move
   if (legalMoves.empty()) {
     _bestMove = Move();
@@ -313,9 +317,37 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
       }
     }
   }
-  // Transposition table lookups are inconclusive, try null move
   
+  // Extentions are summed up here
+  // InCheck extentions - we extend when the sideToMove is inCheck
+  // If we are not in fact in check, evaluate a board for pruning later
+  // We dont evaluate when in check because we dont prune in check
+  int Extension = 0;
+  int statEVAL = 0;
+
   AreWeInCheck = board.colorIsInCheck(board.getActivePlayer());
+
+  if (AreWeInCheck) {
+    Extension++;
+    _sEvalArray[ply] = NOSCORE;
+  }else{
+    statEVAL = Eval::evaluate(board, board.getActivePlayer());
+    _sEvalArray[ply] = statEVAL;
+  }
+  // Go into the QSearch if depth is 0
+  if ((depth + Extension) == 0) {
+    selDepth = std::max(ply, selDepth);
+    return _qSearch(board, alpha, beta, ply + 1 );
+  }
+  // Check if we are improving
+  // The idea is if we are not improving in this line
+  // We probably can prune a bit more
+  bool improving = false;
+  if (ply > 2)
+    improving = !AreWeInCheck && statEVAL > _sEvalArray[ply - 2];  
+
+
+  // Transposition table lookups are inconclusive, try null move
   if (ply > 0 && depth >= 3 && !doNool && !AreWeInCheck && board.isThereMajorPiece()){
           Board movedBoard = board;
           movedBoard.doNool();
@@ -327,20 +359,8 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   // Null move inconclusive, we go into the reductions
   // First check if we must Extend, because than we dont prune
 
-  // Extentions are summed up here
-  // InCheck extentions - we extend when the sideToMove is inCheck
-  // If we are not in fact in check, evaluate a board for pruning later
-  // We dont evaluate when in check because we dont prune in check
-  int Extension = 0;
-  int statEVAL = 0;
 
-  if (AreWeInCheck) {
-    Extension++;
-  }else{
-    statEVAL = Eval::evaluate(board, board.getActivePlayer());
-  }
-
-  // 1. Reverse Futility
+  // 1. REVERSE FUTILITY
   // The idea is so if we are very far ahead of beta at low
   // depth, we can just return estimated eval (eval - margin)
   // 
@@ -348,20 +368,15 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   // btw d < 5 is totally arbitrary, tune it later maybe
 
   if (!pvNode && Extension == 0 && depth < 5){
-      if ((statEVAL - REVF_MOVE_CONST * depth) >= beta)
-      return statEVAL - REVF_MOVE_CONST * depth;
+      if ((statEVAL - REVF_MOVE_CONST * depth + 100 * improving) >= beta)
+      return statEVAL - REVF_MOVE_CONST * depth + 100 * improving;
   }
-
 
   // No pruning occured, generate moves and recurse
   MoveGen movegen(board, false);
   MoveList legalMoves = movegen.getMoves();
 
-  // Go into the QSearch if depth is 0
-  if ((depth + Extension) == 0) {
-    selDepth = std::max(ply, selDepth);
-    return _qSearch(board, alpha, beta, ply + 1 );
-  }
+
 
   GeneralMovePicker movePicker
       (&_orderingInfo, const_cast<Board *>(&board), &legalMoves);
@@ -394,11 +409,12 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         if (!pvNode && Extension == 0 && LegalMoveCount > 1 && depth < 3 
         && !giveCheck && alpha < ((LOST_SCORE * -1) - 50)){
           int moveGain = Eval::MATERIAL_VALUES[0][move.getCapturedPieceType()];
-          if (statEVAL + FUTIL_MOVE_CONST * depth + moveGain <= alpha){
+          if (statEVAL + FUTIL_MOVE_CONST * depth + moveGain - 100 * improving <= alpha){
               continue;
           }
         }
         _orderingInfo.incrementPly();
+        _positionHistory.push_back(board.getZKey());
 
         //LATE MOVE REDUCTIONS
         //mix of ideas from Weiss code and what is written in the chessprogramming wiki
@@ -407,9 +423,9 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         //and when move give check.
         //This can be a subject for a later tuning
         //
-        //Currently we try to reduce 4th move and beyond.
+        //Currently we try to reduce 3rd move and beyond and 4th and beyond in the pvNode.
 
-        doLMR = !pvNode && depth > 2 && LegalMoveCount > 3 && Extension == 0 && !giveCheck;
+        doLMR = depth > 2 && LegalMoveCount > 2 + pvNode && Extension == 0 && !giveCheck;
         if (doLMR){
 
           //Basic reduction is done according to the array
@@ -420,6 +436,10 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           //if move is quiet, reduce a bit more
           if (isQuiet){
             reduction++;
+          }
+
+          if (improving){
+            reduction--;
           }
           //Avoid to reduce so much that we go to QSearch right away
           int fDepth = std::max(1, depth - 1 - reduction);
@@ -456,6 +476,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         }
 
         _orderingInfo.deincrementPly();
+        _positionHistory.pop_back();
         // Beta cutoff
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet

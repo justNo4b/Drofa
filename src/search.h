@@ -102,7 +102,7 @@ class Search {
   /**
    * @brief Default depth to search to if no limits are specified.
    */
-  static const int DEFAULT_SEARCH_DEPTH = 7;
+  static const int DEFAULT_SEARCH_DEPTH = 15;
 
   /**
    * @brief Estimated number of moves left in the game when in sudden death
@@ -123,6 +123,14 @@ class Search {
    * This is used to detect threefold repetitions.
    */
   std::vector<ZKey> _positionHistory;
+
+  /**
+   * @brief Array of int, constitutes history of the static eval
+   * 
+   * This is used for calculating "improving" paramenter 
+   * during the search
+   */ 
+  int _sEvalArray[100];
 
   /**
    * @brief OrderingInfo object containing information about the current state
