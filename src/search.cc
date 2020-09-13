@@ -272,7 +272,8 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   bool AreWeInCheck;
   int score;
   bool pvNode = alpha != beta - 1;
-  
+  bool TTmove = false;
+
   if (_stop || _checkLimits()) {
     _stop = true;
     return 0;
@@ -295,6 +296,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   const HASH_Entry probedHASHentry = myHASH.HASH_Get(board.getZKey().getValue());
 
   if (probedHASHentry.Flag != NONE){
+    TTmove = true;
     if (probedHASHentry.depth >= depth){
       int hashScore = probedHASHentry.score;
       if (abs(hashScore)+50 > LOST_SCORE * -1){
@@ -372,21 +374,32 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
       return statEVAL - REVF_MOVE_CONST * depth + 100 * improving;
   }
 
+  // 2. UN_HASHED REDUCTION
+  // We reduce depth by 1 if the position we currently 
+  // analysing isnt hashed.
+  // Based on talkchess discussion, replaces 
+  // Internal iterative
+  if (depth >= 5 && !TTmove)
+    depth--;
+
   // No pruning occured, generate moves and recurse
   MoveGen movegen(board, false);
   MoveList legalMoves = movegen.getMoves();
-
-
-
   GeneralMovePicker movePicker
       (&_orderingInfo, const_cast<Board *>(&board), &legalMoves);
 
   Move bestMove;
   int  LegalMoveCount = 0;
+  int  qCount = 0;
   // вероятно не самая эффективная конструкция, но оптимизация потом
   while (movePicker.hasNext()) {
 
     Move move = movePicker.getNext();
+
+    if (!pvNode && Extension == 0 && qCount > 3 + (depth*depth*2)/(2-improving)){
+      continue;
+    }
+
     Board movedBoard = board;
     movedBoard.doMove(move);
     bool doLMR = false;
@@ -397,7 +410,8 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
 
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
         bool isQuiet = !move.getFlags();
-
+        if (isQuiet)
+          qCount++;
         // EXTENDED FUTILITY PRUNING
         // We try to pune a move, if depth is low (1 or 2)
         // Move should not give check, and should not be the first move
