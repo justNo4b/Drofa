@@ -435,7 +435,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         // We also do not prune if we are close to the MATE
 
         if (!pvNode && Extension == 0 && LegalMoveCount > 1 && depth < 3 
-        && !giveCheck && alpha < ((LOST_SCORE * -1) - 50)){
+        && !giveCheck && alpha < ((LOST_SCORE * -1) - 50) && !(move.getFlags() & Move::PROMOTION)){
           int moveGain = isQuiet ? 0 : Eval::MATERIAL_VALUES[0][move.getCapturedPieceType()];
           if (statEVAL + FUTIL_MOVE_CONST * depth + moveGain - 100 * improving <= alpha){
               continue;
