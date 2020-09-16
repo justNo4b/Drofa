@@ -423,7 +423,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         int score;
 
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
-        bool isQuiet = !move.getFlags();
+        bool isQuiet = !(move.getFlags() & 0x63);
         if (isQuiet)
           qCount++;
         // EXTENDED FUTILITY PRUNING
