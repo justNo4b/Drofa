@@ -1,1 +1,1 @@
-cutechess-cli -engine conf=Drofa_dev tc=0/30+1 -engine conf=Drofa_1.0.3 tc=0/30+1 -tournament round-robin -rounds 40 -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout spdUP.pgn
+cutechess-cli -engine conf=Drofa_dev tc=0/30+1 -engine conf=Drofa_1.2.5 tc=0/30+1 -tournament round-robin -rounds 334 -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout small_test.pgn

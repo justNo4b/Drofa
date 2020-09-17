@@ -1,6 +1,7 @@
 #ifndef MOVEPICKER_H
 #define MOVEPICKER_H
 
+#include "defs.h"
 #include "board.h"
 #include "orderinginfo.h"
 
@@ -15,25 +16,27 @@
 class MovePicker {
  public:
   /**
-   * @brief Constructs a new MovePicker with the given MoveList.
-   * 
-   * @param moveList list of moves to pick from.
+   * @brief Constructs a new GeneralMovePicker for the given OrderingInfo, Board and MoveList.
+   *  
+   * @param orderingInfo OrderingInfo object containing information about the current state of the search
+   * @param board Current board state for all moves in the provided MoveList
+   * @param moveList Pointer to the MoveList to pick moves from
    */
-  MovePicker(MoveList *);
+  MovePicker(const OrderingInfo *, const Board *, MoveList *);
 
   /**
    * @brief Returns the next best move from this MovePicker's MoveList.
    * 
    * @return Move the next best move from this MovePicker's MoveList
    */
-  virtual Move getNext() = 0;
+  Move getNext();
 
   /**
    * @brief Returns true if there are more moves to be picked from this MovePicker's MoveList
    * 
    * @return true if there are more moves to be picked from this MovePicker's MoveList, false otherwise.
    */
-  virtual bool hasNext() const = 0;
+  bool hasNext() const;
 
   /**
    * @brief Initializes constants used in picking moves.
@@ -51,7 +54,48 @@ class MovePicker {
    * @brief Table mapping [victimValue][attackerValue] to an integer represnting move desirability
    * according to MVV/LVA.
    */
-  static int _mvvLvaTable[5][6];
+  int _mvvLvaTable[5][6] = {
+            [PAWN] = {
+              [PAWN]    = 5,
+              [ROOK]    = 2,
+              [KNIGHT]  = 4,
+              [BISHOP]  = 3,
+              [QUEEN]   = 1,
+              [KING]    = 0
+            },
+            [ROOK] = {
+              [PAWN]    = 23,
+              [ROOK]    = 20,
+              [KNIGHT]  = 22,
+              [BISHOP]  = 21,
+              [QUEEN]   = 19,
+              [KING]    = 18
+            },
+            [KNIGHT] = {
+              [PAWN]    = 11,
+              [ROOK]    = 8,
+              [KNIGHT]  = 10,
+              [BISHOP]  = 9,
+              [QUEEN]   = 7,
+              [KING]    = 6
+            },
+            [BISHOP] = {
+              [PAWN]    = 17,
+              [ROOK]    = 14,
+              [KNIGHT]  = 16,
+              [BISHOP]  = 15,
+              [QUEEN]   = 13,
+              [KING]    = 12
+            },
+            [QUEEN] = {
+              [PAWN]    = 29,
+              [ROOK]    = 26,
+              [KNIGHT]  = 28,
+              [BISHOP]  = 27,
+              [QUEEN]   = 25,
+              [KING]    = 24
+            }  
+  };
 
   /**
    * @brief Bonuses applied to specific move types.
@@ -63,6 +107,29 @@ class MovePicker {
   static const int KILLER2_BONUS = 1000;
   static const int QUIET_BONUS = 0;
   /**@}*/
+
+   private:
+  /**
+   * @brief Assigns a value to each move in this GeneralMovePicker's MoveList representing desirability
+   * in a negamax search.
+   */
+  void _scoreMoves();
+
+  /**
+   * @brief Position of the first unpicked move in this GeneralMovePicker's MoveList
+   */
+  size_t _currHead;
+
+  /**
+   * @brief OrderingInfo object containing search related information used by this GeneralMovePicker
+   */
+  const OrderingInfo *_orderingInfo;
+
+  /**
+   * @brief Board for all moves in the provided MoveList
+   */
+  const Board *_board;
+
 };
 
 #endif

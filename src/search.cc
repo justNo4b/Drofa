@@ -2,7 +2,6 @@
 #include "search.h"
 #include "eval.h"
 #include "movepicker.h"
-#include "generalmovepicker.h"
 #include <cstring>
 #include <algorithm>
 #include <iostream>
@@ -206,7 +205,7 @@ void Search::_rootMax(const Board &board, int depth, int ply) {
     return;
   }
 
-  GeneralMovePicker movePicker
+  MovePicker movePicker
       (&_orderingInfo, const_cast<Board *>(&board), &legalMoves);
 
   int alpha = LOST_SCORE;
@@ -405,7 +404,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   // No pruning occured, generate moves and recurse
   MoveGen movegen(board, false);
   MoveList legalMoves = movegen.getMoves();
-  GeneralMovePicker movePicker
+  MovePicker movePicker
       (&_orderingInfo, const_cast<Board *>(&board), &legalMoves);
 
   Move bestMove;
@@ -599,7 +598,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
 
   MoveGen movegen(board, true);
   MoveList legalMoves = movegen.getMoves();
-  GeneralMovePicker movePicker
+  MovePicker movePicker
       (&_orderingInfo, const_cast<Board *>(&board), &legalMoves);
 
   // If node is quiet, just return eval

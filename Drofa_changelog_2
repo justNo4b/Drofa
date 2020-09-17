@@ -93,8 +93,17 @@ Score of Drofa_dev vs Drofa_1.2.4: 335 - 289 - 376  [0.523] 1000
 Elo difference: 15.99 +/- 17.01
 Finished match
 ----------------------------------------
+14. General_movepicker merged into MovePicker. Minor movepicker speedUP.
+(const MMLV_LVA).
+----------------------------------------
+Nodes seems to be the same, while nps is a bit faster.
+Small 334 games stability test:
 
+Score of Drofa_dev vs Drofa_1.2.5: 112 - 95 - 127  [0.525] 334
+Elo difference: 17.70 +/- 29.38
+Finished match
 
+---------------------------------------
 
 
 
