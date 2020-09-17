@@ -14,6 +14,7 @@ const int NULL_MOVE_REDUCTION = 3;
 const int DELTA_MOVE_CONST = 200;
 const int FUTIL_MOVE_CONST = 150;
 const int REVF_MOVE_CONST = 200;
+const int RAZORING_MARGIN = 650;
 //
 
 //
@@ -347,6 +348,18 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   bool improving = false;
   if (ply > 2)
     improving = !AreWeInCheck && statEVAL > _sEvalArray[ply - 2];  
+
+  // 0. RAZORING
+  // In the very leaf nodes (d == 1)
+  // with stat eval << alpha we can assume that no 
+  // Quiet move can save us and drop to the QSearch 
+  // immidiately
+
+  if (!pvNode && Extension == 0 && depth == 1 &&
+      statEVAL + RAZORING_MARGIN < alpha){
+        return _qSearch(board, alpha, beta, ply + 1);
+      }
+
 
   // 1. REVERSE FUTILITY
   // The idea is so if we are very far ahead of beta at low
