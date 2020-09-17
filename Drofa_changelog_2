@@ -81,6 +81,20 @@ Elo difference: 12.51 +/- 17.25
 -----------------------------------------
 Lets take it as a pass
 
+12. Minor bugfiz in the isQuiet bool definition
+-----------------------------------------
+Score of Drofa_dev3 vs Drofa_1.2.3: 660 - 567 - 773  [0.523] 2000
+Elo difference: 16.17 +/- 11.92
+Finished match
+-----------------------------------------
+13. Razoring implemented
+-----------------------------------------
+Score of Drofa_dev vs Drofa_1.2.4: 335 - 289 - 376  [0.523] 1000
+Elo difference: 15.99 +/- 17.01
+Finished match
+----------------------------------------
+
+
 
 
 
