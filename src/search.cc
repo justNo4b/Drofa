@@ -46,6 +46,8 @@ Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHist
 
   std::memset(_sEvalArray, 0, sizeof(_sEvalArray));
   init_LMR_array();
+  _wasThoughtProlonged = false;
+  int ourTime = 0;
   if (_limits.infinite) { // Infinite search
     _searchDepth = INF;
     _timeAllocated = INF;
@@ -56,7 +58,7 @@ Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHist
     _searchDepth = MAX_SEARCH_DEPTH;
     _timeAllocated = _limits.moveTime;
   } else if (_limits.time[_initialBoard.getActivePlayer()] != 0) { // Time search
-    int ourTime = _limits.time[_initialBoard.getActivePlayer()];
+    ourTime = _limits.time[_initialBoard.getActivePlayer()];
     int opponentTime = _limits.time[_initialBoard.getInactivePlayer()];
 
     // Divide up the remaining time (If movestogo not specified we are in 
@@ -70,9 +72,10 @@ Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHist
       int movesToGo = (int) (SUDDEN_DEATH_MOVESTOGO * std::min(2.0, timeRatio));
       _timeAllocated = ourTime / movesToGo;
     } else {
-      // A small constant (3) is added to _limits.movesToGo when dividing to
-      // ensure we don't go over time when movesToGo is small
-      _timeAllocated = ourTime / (_limits.movesToGo + 3);
+      // We substract 100 ms from time_allocated to make sure
+      // We dont get out of time
+      _timeAllocated = ourTime / (_limits.movesToGo);
+      _timeAllocated-= 10;
     }
 
     // Use all of the increment to think
@@ -80,10 +83,12 @@ Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHist
 
     // Depth is infinity in a timed search (ends when time runs out)
     _searchDepth = MAX_SEARCH_DEPTH;
+    _ourTimeLeft = ourTime - _timeAllocated;
   } else { // No limits specified, use default depth
     _searchDepth = DEFAULT_SEARCH_DEPTH;
     _timeAllocated = INF;
   }
+
 
   // Debug_evaluation_paste_below:
   //  std::cout << "Castle_test_ " + std::to_string(k);
@@ -95,12 +100,13 @@ void Search::iterDeep() {
   _start = std::chrono::steady_clock::now();
   _nodes = 0;
   selDepth = 0;
+  _lastPlyTime = 0;
   for (int currDepth = 1; currDepth <= _searchDepth; currDepth++) {
     _rootMax(_initialBoard, currDepth, 0);
 
     int elapsed =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
-
+    _lastPlyTime =  elapsed - _lastPlyTime;
     // If limits were exceeded in the search, break without logging UCI info (search was incomplete)
     if (_stop) break;
 
@@ -108,6 +114,7 @@ void Search::iterDeep() {
       _logUciInfo(_getPv(currDepth), currDepth, _bestScore, _nodes, elapsed);
     }
 
+    if (_wasThoughtProlonged)  break;
     // If the last search has exceeded or hit 50% of the allocated time, stop searching
     if (elapsed >= (_timeAllocated / 2)) break;
   }
@@ -185,7 +192,31 @@ bool Search::_checkLimits() {
       std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
 
   if (_limits.nodes != 0 && (_nodes >= _limits.nodes)) return true;
-  if (elapsed >= (_timeAllocated)) return true;
+
+  // when searching at a time control we will try to use time efficiatnly.
+  // If we already started the search, but it took way longer than expected
+  // we actually do not want to lose all of our effort
+  // So we check if we have enough time to actually finish it
+  // If we have much time left, we will allocate some more
+  // time to finish search and set a flag that search was prolonged
+  // so we didnt prolong it again.
+
+  if (_wasThoughtProlonged && elapsed >= (_timeAllocated)){
+    return true;
+  } else  if (elapsed >= (_timeAllocated)){
+
+    // if we have so much time left that we supposedly
+    // can search last ply ~25 times at least
+    // we can prolong thought here.
+    if (_ourTimeLeft > _lastPlyTime * 20 - 100 ){
+      _timeAllocated += _lastPlyTime * 2;
+      _wasThoughtProlonged = true;
+      return false;
+    }else{
+      return true;
+    }
+
+  } 
 
   return false;
 }

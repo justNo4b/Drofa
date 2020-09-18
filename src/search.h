@@ -109,7 +109,7 @@ class Search {
    * that the Search class uses to calculate the time allocated to a sudden
    * death search.
    */
-  static const int SUDDEN_DEATH_MOVESTOGO = 20;
+  static const int SUDDEN_DEATH_MOVESTOGO = 10;
 
   /**
    * @brief Maximum depth to search to if depth is not explicitly specified
@@ -158,6 +158,27 @@ class Search {
    * @brief Time allocated for this search in ms
    */
   int _timeAllocated;
+
+  /**
+   * @brief This variable holds value of how much time left on our
+   * clock. If it is too low, we do not prolong search.
+   * 
+   */
+  int _ourTimeLeft;
+
+  /**
+   * @brief We keep track of times we prolonged thought
+   * during the search. It is important to not prolong a more 
+   * than one in a row in order not to lose on time.
+   * 
+   */
+  bool _wasThoughtProlonged;
+
+  /**
+   * 
+   * 
+   */
+  int _lastPlyTime; 
 
   /**
    * @brief Depth of this search in plys
