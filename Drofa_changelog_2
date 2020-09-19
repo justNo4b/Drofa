@@ -104,6 +104,23 @@ Elo difference: 17.70 +/- 29.38
 Finished match
 
 ---------------------------------------
+15. Improvements of the time management.
+Elo gains not tested, small stability test to see if it will run out of time:
+---------------------------------------
+30``+1``:
+Score of Drofa_dev vs Drofa_1.2.6: 70 - 62 - 68  [0.520] 200
+Elo difference: 13.90 +/- 39.24
+---------------------------------------
+40/2` :
+---------------------------------------
+Score of Drofa_dev vs Drofa_1.2.6: 166 - 130 - 204  [0.536] 500
+Elo difference: 25.06 +/- 23.45
+Finished match
+---------------------------------------
+16. LMP_tweak
+Score of Drofa_dev vs Drofa_1.2.7: 687 - 633 - 680  [0.513] 2000
+Elo difference: 9.38 +/- 12.36
+Finished match
 
 
 

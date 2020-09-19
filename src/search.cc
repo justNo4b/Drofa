@@ -32,6 +32,11 @@ void Search::init_LMR_array(){
       _lmr_R_array[i][j] = 0.1 + (pow(i, 0.15) * pow(j, 0.15))/1.75;
     }
   }
+
+  for (int i = 0; i < 99; i++){
+    _lmp_Array[i] = pow( i, 2) * 2;
+  }
+
 }
 
 Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHistory, bool logUci) :
@@ -208,7 +213,7 @@ bool Search::_checkLimits() {
     // if we have so much time left that we supposedly
     // can search last ply ~25 times at least
     // we can prolong thought here.
-    if (_ourTimeLeft > _lastPlyTime * 20 - 100 ){
+    if (_ourTimeLeft > _lastPlyTime * 20 + 10 ){
       _timeAllocated += _lastPlyTime * 2;
       _wasThoughtProlonged = true;
       return false;
@@ -453,8 +458,9 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
     // Formula from Weiss, weirdly working, searchdepth 
     // is way up, elo gain is not so great
 
-    if (!pvNode && Extension == 0 && qCount > 3 + (depth*depth*2)/(2-improving)){
-      continue;
+    if (!pvNode && Extension == 0 
+      && qCount > 3 + _lmp_Array[depth]/(2-improving) && alpha < ((LOST_SCORE * -1) - 50) ){
+      break;
     }
 
     Board movedBoard = board;

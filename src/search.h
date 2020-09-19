@@ -100,6 +100,12 @@ class Search {
   int _lmr_R_array[34][34];
 
   /**
+   * 
+   * 
+   */
+  int _lmp_Array [100]; 
+
+  /**
    * @brief Default depth to search to if no limits are specified.
    */
   static const int DEFAULT_SEARCH_DEPTH = 15;
