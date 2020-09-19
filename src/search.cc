@@ -80,7 +80,7 @@ Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHist
       // We substract 100 ms from time_allocated to make sure
       // We dont get out of time
       _timeAllocated = ourTime / (_limits.movesToGo);
-      _timeAllocated-= 10;
+      _timeAllocated-= 100;
     }
 
     // Use all of the increment to think
