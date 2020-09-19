@@ -213,7 +213,7 @@ bool Search::_checkLimits() {
     // if we have so much time left that we supposedly
     // can search last ply ~25 times at least
     // we can prolong thought here.
-    if (_ourTimeLeft > _lastPlyTime * 20 + 10 ){
+    if (_ourTimeLeft > _lastPlyTime * 20 + 30 ){
       _timeAllocated += _lastPlyTime * 2;
       _wasThoughtProlonged = true;
       return false;
@@ -648,8 +648,9 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
     Move move = movePicker.getNext();
 
     // DELTA MOVE PRUNING. Prune here if were are very far ahead.
+    
     int moveGain = Eval::MATERIAL_VALUES[0][move.getCapturedPieceType()];
-    if (standPat + moveGain + DELTA_MOVE_CONST < alpha)
+    if (!(move.getFlags() & Move::PROMOTION) && standPat + moveGain + DELTA_MOVE_CONST < alpha)
       continue;
 
     Board movedBoard = board;

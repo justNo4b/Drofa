@@ -199,6 +199,15 @@ class MoveGen {
   /**@}*/
 
   /**
+   *  @brief Generates pseudo-legal pawn promotions
+   * only to Q. Generates only quiet promotions
+   * @{
+   */
+  void _getWhitePromQonly(const Board &);
+  void _genBlackPromQonly(const Board &); 
+  /**@}*/
+
+  /**
    * @name Black pawn pseudo-legal generation functions
    *
    * These functions generate the four types of pawn moves for black for a given board.

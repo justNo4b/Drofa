@@ -416,6 +416,14 @@ bool Board:: isThereMajorPiece() const {
 
 int  Board:: MostFancyPieceCost() const{
 
+  if (getActivePlayer() == WHITE && _popCount(getPieces(WHITE, PAWN) & RANK_7) > 0 ){
+      return 950;
+  }
+
+  if (getActivePlayer() == BLACK && _popCount(getPieces(BLACK, PAWN) & RANK_2) > 0){
+      return 950;
+  }
+
   if (_popCount(getPieces(getInactivePlayer(), QUEEN)) > 0){
     return 950;
   }
