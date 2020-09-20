@@ -118,9 +118,22 @@ Elo difference: 25.06 +/- 23.45
 Finished match
 ---------------------------------------
 16. LMP_tweak
+---------------------------------------
 Score of Drofa_dev vs Drofa_1.2.7: 687 - 633 - 680  [0.513] 2000
 Elo difference: 9.38 +/- 12.36
 Finished match
+---------------------------------------
+17. Q_Promotions in the QSearch
+---------------------------------------
+Finished game 1149 (Drofa_dev vs Drofa_1.2.8a): 1/2-1/2 {Draw by 3-fold repetition}
+Score of Drofa_dev vs Drofa_1.2.8a: 432 - 324 - 394  [0.547] 1150
+Elo difference: 32.73 +/- 16.33
+
+
+
+
+
+
 
 
 
