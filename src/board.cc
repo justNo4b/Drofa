@@ -373,6 +373,10 @@ void Board::_removePiece(Color color, PieceType pieceType, int squareIndex) {
 
   _occupied ^= square;
 
+  if (pieceType == PAWN){
+    _pawnStructureZkey.flipPiece(color, PAWN, squareIndex);
+  }
+
   _zKey.flipPiece(color, pieceType, squareIndex);
   _pst.removePiece(color, pieceType, squareIndex);
 }
@@ -408,6 +412,34 @@ bool Board:: isThereMajorPiece() const {
   }
 
   return false;
+}
+
+int  Board:: MostFancyPieceCost() const{
+
+  if (getActivePlayer() == WHITE && _popCount(getPieces(WHITE, PAWN) & RANK_7) > 0 ){
+      return 950;
+  }
+
+  if (getActivePlayer() == BLACK && _popCount(getPieces(BLACK, PAWN) & RANK_2) > 0){
+      return 950;
+  }
+
+  if (_popCount(getPieces(getInactivePlayer(), QUEEN)) > 0){
+    return 950;
+  }
+
+  if (_popCount(getPieces(getInactivePlayer(), ROOK)) > 0){
+    return 500;
+  }
+
+  if (_popCount(getPieces(getInactivePlayer(), BISHOP)) > 0){
+    return 315;
+  }
+  if (_popCount(getPieces(getInactivePlayer(), KNIGHT)) > 0){
+    return 300;
+  }
+  
+  return 100;
 }
 
 void Board::doMove(Move move) {

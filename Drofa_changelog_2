@@ -1,5 +1,6 @@
 Drofa changelog: Drofa 1.0 -> Drofa 2.0
 ---------------------------------------
+
 1.QSearch MovePicker merged with GeneralMovePicker. ProbeTT for a move in QSearch.
 Removed scoring during movegen.
 ------------------------------------------
@@ -14,4 +15,125 @@ Elo difference: -13.90 +/- 32.16
 
 300 of 300 games finished.
 ------------------------------------------
+
+2. Fixed _pawnZkey bug in the MakeMove.
+------------------------------------------
+Score of Drofa_1.0.1 vs Drofa_dev: 275 - 437 - 288  [0.419] 1000
+Elo difference: -56.78 +/- 18.30
+Finished match
+-----------------------------------------
+
+3. SpedUP eval by ~12.5 % (but code is much less appealing now)
+----------------------------------------
+Score of Drofa_dev vs Drofa_1.0.2: 261 - 212 - 227  [0.535] 700
+Elo difference: 24.4 +/- 21.1
+
+4. Late Move Reduction is implemented.
+----------------------------------------
+Score of Drofa_dev vs Drofa_1.0.3: 277 - 124 - 199  [0.627] 600
+Elo difference: 90.59 +/- 23.10
+Finished match
+
+5. Extended futility pruning (only in TT nodes).
+   Proper DELTA pruning
+   NULL move pruning now have -depth/4 component
+------------------------------------------
+Score of Drofa_dev vs Drofa_1.1.0: 167 - 133 - 200  [0.534] 500
+Elo difference: 23.66 +/- 23.61
+Finished match
+-------------------------------------------
+6. Extended futility pruning with static eval itstead of only in TTnode
+-------------------------------------------
+Score of Drofa_dev vs Drofa_1.1.1: 329 - 217 - 454  [0.556] 1000
+Elo difference: 39.08 +/- 15.92
+Finished match
+-------------------------------------------
+7. Reverse futility pruning
+------------------------------------------
+	Test rushed but it was ~60% pts in favor of dev2 version
+	after 200 games.
+------------------------------------------
+8. Added late move pruning
+-----------------------------------------
+Result was inconclusive
+
+Finished game 500 (Drofa_1.2.0 vs Drofa_dev): 0-1 {Black wins by adjudication}
+Score of Drofa_dev vs Drofa_1.2.0: 137 - 123 - 240  [0.514] 500
+Elo difference: 9.73 +/- 21.96
+
+Turned off for now
+-----------------------------------------
+9. Fixed a bug causing engine to miss forced repetitions during search
+-----------------------------------------
+Did not do a full test, but limited 200 games test.
+Examination of the games shows patch is working
+Score of Drofa_dev vs Drofa_1.2.0: 56 - 49 - 95  [0.517] 200
+Elo difference: 12.17 +/- 34.96
+-----------------------------------------
+10. Improving factor in search, minor code refactoring
+Finished game 919 (Drofa_dev2 vs Drofa_1.2.1): 1-0 {White wins by adjudication}
+Score of Drofa_dev2 vs Drofa_1.2.1: 303 - 258 - 359  [0.524] 920
+
+11. IID+LMR
+-----------------------------------------
+Score of Drofa_dev vs Drofa_1.2.2: 339 - 303 - 358  [0.518] 1000
+Elo difference: 12.51 +/- 17.25
+-----------------------------------------
+Lets take it as a pass
+
+12. Minor bugfiz in the isQuiet bool definition
+-----------------------------------------
+Score of Drofa_dev3 vs Drofa_1.2.3: 660 - 567 - 773  [0.523] 2000
+Elo difference: 16.17 +/- 11.92
+Finished match
+-----------------------------------------
+13. Razoring implemented
+-----------------------------------------
+Score of Drofa_dev vs Drofa_1.2.4: 335 - 289 - 376  [0.523] 1000
+Elo difference: 15.99 +/- 17.01
+Finished match
+----------------------------------------
+14. General_movepicker merged into MovePicker. Minor movepicker speedUP.
+(const MMLV_LVA).
+----------------------------------------
+Nodes seems to be the same, while nps is a bit faster.
+Small 334 games stability test:
+
+Score of Drofa_dev vs Drofa_1.2.5: 112 - 95 - 127  [0.525] 334
+Elo difference: 17.70 +/- 29.38
+Finished match
+
+---------------------------------------
+15. Improvements of the time management.
+Elo gains not tested, small stability test to see if it will run out of time:
+---------------------------------------
+30``+1``:
+Score of Drofa_dev vs Drofa_1.2.6: 70 - 62 - 68  [0.520] 200
+Elo difference: 13.90 +/- 39.24
+---------------------------------------
+40/2` :
+---------------------------------------
+Score of Drofa_dev vs Drofa_1.2.6: 166 - 130 - 204  [0.536] 500
+Elo difference: 25.06 +/- 23.45
+Finished match
+---------------------------------------
+16. LMP_tweak
+---------------------------------------
+Score of Drofa_dev vs Drofa_1.2.7: 687 - 633 - 680  [0.513] 2000
+Elo difference: 9.38 +/- 12.36
+Finished match
+---------------------------------------
+17. Q_Promotions in the QSearch
+---------------------------------------
+Finished game 1149 (Drofa_dev vs Drofa_1.2.8a): 1/2-1/2 {Draw by 3-fold repetition}
+Score of Drofa_dev vs Drofa_1.2.8a: 432 - 324 - 394  [0.547] 1150
+Elo difference: 32.73 +/- 16.33
+
+
+
+
+
+
+
+
 

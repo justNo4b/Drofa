@@ -92,17 +92,30 @@ class Search {
   void stop();
 
  private:
+
+  /**
+   * @brief Array of reductions applied to the branch during 
+   * LATE MOVE REDUCTION during AB-search
+   */ 
+  int _lmr_R_array[34][34];
+
+  /**
+   * 
+   * 
+   */
+  int _lmp_Array [100]; 
+
   /**
    * @brief Default depth to search to if no limits are specified.
    */
-  static const int DEFAULT_SEARCH_DEPTH = 7;
+  static const int DEFAULT_SEARCH_DEPTH = 15;
 
   /**
    * @brief Estimated number of moves left in the game when in sudden death
    * that the Search class uses to calculate the time allocated to a sudden
    * death search.
    */
-  static const int SUDDEN_DEATH_MOVESTOGO = 20;
+  static const int SUDDEN_DEATH_MOVESTOGO = 10;
 
   /**
    * @brief Maximum depth to search to if depth is not explicitly specified
@@ -116,6 +129,14 @@ class Search {
    * This is used to detect threefold repetitions.
    */
   std::vector<ZKey> _positionHistory;
+
+  /**
+   * @brief Array of int, constitutes history of the static eval
+   * 
+   * This is used for calculating "improving" paramenter 
+   * during the search
+   */ 
+  int _sEvalArray[100];
 
   /**
    * @brief OrderingInfo object containing information about the current state
@@ -143,6 +164,27 @@ class Search {
    * @brief Time allocated for this search in ms
    */
   int _timeAllocated;
+
+  /**
+   * @brief This variable holds value of how much time left on our
+   * clock. If it is too low, we do not prolong search.
+   * 
+   */
+  int _ourTimeLeft;
+
+  /**
+   * @brief We keep track of times we prolonged thought
+   * during the search. It is important to not prolong a more 
+   * than one in a row in order not to lose on time.
+   * 
+   */
+  bool _wasThoughtProlonged;
+
+  /**
+   * 
+   * 
+   */
+  int _lastPlyTime; 
 
   /**
    * @brief Depth of this search in plys
@@ -251,6 +293,12 @@ class Search {
    * @return MoveList The principal variation for the last performed search
    */
   MoveList _getPv(int);
+
+  /**
+   * @brief this function calculates reductions values and stores
+   * it in the _lmr_R_array
+   */ 
+  void init_LMR_array();
 };
 
 #endif

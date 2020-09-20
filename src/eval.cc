@@ -107,43 +107,6 @@ int Eval::getMaterialValue(PieceType pieceType) {
   return MATERIAL_VALUES[OPENING][pieceType];
 }
 
-bool Eval::hasBishopPair(const Board &board, Color color) {
-  return ((board.getPieces(color, BISHOP) & BLACK_SQUARES) != ZERO)
-      && ((board.getPieces(color, BISHOP) & WHITE_SQUARES) != ZERO);
-}
-
-int Eval::evaluateMobility(const Board &board, GamePhase phase, Color color) {
-  int score = 0;
-
-  // Special case for pawn moves
-  U64 pawns = board.getPieces(color, PAWN);
-  U64 singlePawnPushes, doublePawnPushes, pawnAttacks;
-  if (color == WHITE) {
-    singlePawnPushes = (pawns << 8) & board.getNotOccupied();
-    doublePawnPushes = ((singlePawnPushes & RANK_3) << 8) & board.getNotOccupied();
-    pawnAttacks = ((pawns << 7) & ~FILE_H) | ((pawns << 9) & ~FILE_A);
-  } else {
-    singlePawnPushes = (pawns >> 8) & board.getNotOccupied();
-    doublePawnPushes = ((singlePawnPushes & RANK_6) >> 8) & board.getNotOccupied();
-    pawnAttacks = ((pawns >> 7) & ~FILE_A) | ((pawns >> 9) & ~FILE_H);
-  }
-  pawnAttacks &= board.getAttackable(getOppositeColor(color));
-  score += _popCount(singlePawnPushes | doublePawnPushes | pawnAttacks) * MOBILITY_BONUS[phase][PAWN];
-
-  // All other pieces
-  for (auto pieceType : {ROOK, KNIGHT, BISHOP, QUEEN, KING}) {
-    U64 pieces = board.getPieces(color, pieceType);
-
-    while (pieces) {
-      int square = _popLsb(pieces);
-      U64 attackBitBoard = board.getAttacksForSquare(pieceType, color, square);
-      score += _popCount(attackBitBoard) * MOBILITY_BONUS[phase][pieceType];
-    }
-  }
-
-  return score;
-}
-
 int Eval::rooksOnOpenFiles(const Board &board, Color color) {
   Color otherColor = getOppositeColor(color);
   int numRooks = 0;
@@ -335,55 +298,23 @@ int Eval::kingSafety(const Board &board, Color color, int Q_count){
     return KING_HIGH_DANGER;
 }
 
-int Eval::evaluatePawnStructure(const Board &board, Color color, GamePhase phase) {
+int Eval::getPhase(const Board &board) {
+  int phase = detail::PHASE_WEIGHT_SUM;
 
-  pawn_HASH_Entry pENTRY  = myHASH.pHASH_Get(board.getPawnStructureZKey().getValue());
-  if (pENTRY.posKey != 0){
-    int whiteScore;
-    if (phase == OPENING){
-      whiteScore = pENTRY.score_OPENING;       
-    }else{
-      whiteScore = pENTRY.score_ENDGAME;    
-    }
-
-    if (color == BLACK) {
-      return -whiteScore;
-    } else {
-      return whiteScore;
-    }
- 
+  for (auto pieceType : {ROOK, KNIGHT, BISHOP, QUEEN}) {
+    phase -= _popCount(board.getPieces(WHITE, pieceType)) * detail::PHASE_WEIGHTS[pieceType];
+    phase -= _popCount(board.getPieces(BLACK, pieceType)) * detail::PHASE_WEIGHTS[pieceType];
   }
 
-  int scores[2] = {0};
-
-  // Passed pawns
-  int passedPawnDiff = passedPawns(board, WHITE) - passedPawns(board, BLACK);
-  scores[OPENING] += PASSED_PAWN_BONUS[OPENING] * passedPawnDiff;
-  scores[ENDGAME] += PASSED_PAWN_BONUS[ENDGAME] * passedPawnDiff;
-
-  // Doubled pawns
-  int doubledPawnDiff = doubledPawns(board, WHITE) - doubledPawns(board, BLACK);
-  scores[OPENING] += DOUBLED_PAWN_PENALTY[OPENING] * doubledPawnDiff;
-  scores[ENDGAME] += DOUBLED_PAWN_PENALTY[ENDGAME] * doubledPawnDiff;
-
-  // Isolated pawns
-  int isolatedPawnDiff = isolatedPawns(board, WHITE) - isolatedPawns(board, BLACK);
-  scores[OPENING] += ISOLATED_PAWN_PENALTY[OPENING] * isolatedPawnDiff;
-  scores[ENDGAME] += ISOLATED_PAWN_PENALTY[ENDGAME] * isolatedPawnDiff;
-
-  myHASH.pHASH_Store(board.getPawnStructureZKey().getValue(), scores[ENDGAME], scores[OPENING]);
-
-  if (color == BLACK) {
-    return -scores[phase];
-  } else {
-    return scores[phase];
-  }
+  // Transform phase from the range 0 - PHASE_WEIGHT_SUM to 0 - PHASE_WEIGHT_MAX
+  return ((phase * MAX_PHASE) + (detail::PHASE_WEIGHT_SUM / 2)) / detail::PHASE_WEIGHT_SUM;
 }
 
-template<GamePhase phase>
+int Eval::evaluate(const Board &board, Color color) {
 
-int Eval::evaluateForPhase(const Board &board, Color color) {
-  int score = 0;
+  int openingScore = 0;
+  int endgameScore = 0;
+  int tmpint = 0;
 
   Color otherColor = getOppositeColor(color);
 
@@ -404,56 +335,120 @@ int Eval::evaluateForPhase(const Board &board, Color color) {
     return 0;
   }
 
-  score += MATERIAL_VALUES[phase][PAWN] * ( w_P - b_P);
-  score += MATERIAL_VALUES[phase][KNIGHT] * (w_N - b_N);
-  score += MATERIAL_VALUES[phase][BISHOP] * ( w_B - b_B);
-  score += MATERIAL_VALUES[phase][ROOK] * ( w_R - b_R);
-  score += MATERIAL_VALUES[phase][QUEEN] * ( w_Q - b_Q);
+  openingScore += MATERIAL_VALUES[OPENING][PAWN] * ( w_P - b_P);
+  openingScore += MATERIAL_VALUES[OPENING][KNIGHT] * (w_N - b_N);
+  openingScore += MATERIAL_VALUES[OPENING][BISHOP] * ( w_B - b_B);
+  openingScore += MATERIAL_VALUES[OPENING][ROOK] * ( w_R - b_R);
+  openingScore += MATERIAL_VALUES[OPENING][QUEEN] * ( w_Q - b_Q);
+
+  endgameScore += MATERIAL_VALUES[ENDGAME][PAWN] * ( w_P - b_P);
+  endgameScore += MATERIAL_VALUES[ENDGAME][KNIGHT] * (w_N - b_N);
+  endgameScore += MATERIAL_VALUES[ENDGAME][BISHOP] * ( w_B - b_B);
+  endgameScore += MATERIAL_VALUES[ENDGAME][ROOK] * ( w_R - b_R);
+  endgameScore += MATERIAL_VALUES[ENDGAME][QUEEN] * ( w_Q - b_Q);
+
 
   // Piece square tables
-  score += board.getPSquareTable().getScore(phase, color) - board.getPSquareTable().getScore(phase, otherColor);
-
+  openingScore += board.getPSquareTable().getScore(OPENING, color) - board.getPSquareTable().getScore(OPENING, otherColor);
+  endgameScore += board.getPSquareTable().getScore(ENDGAME, color) - board.getPSquareTable().getScore(ENDGAME, otherColor);
+  
   // Mobility
-  score += evaluateMobility(board, phase, color) - evaluateMobility(board, phase, otherColor);
+
+  for (auto pieceType : {ROOK, KNIGHT, BISHOP, QUEEN, KING}) {
+    U64 pieces = board.getPieces(color, pieceType);
+
+    while (pieces) {
+      int square = _popLsb(pieces);
+      U64 attackBitBoard = board.getAttacksForSquare(pieceType, color, square);
+      openingScore += _popCount(attackBitBoard) * MOBILITY_BONUS[OPENING][pieceType];
+      endgameScore += _popCount(attackBitBoard) * MOBILITY_BONUS[ENDGAME][pieceType];
+    }
+  }
+
+  for (auto pieceType : {ROOK, KNIGHT, BISHOP, QUEEN, KING}) {
+    U64 pieces = board.getPieces(otherColor, pieceType);
+
+    while (pieces) {
+      int square = _popLsb(pieces);
+      U64 attackBitBoard = board.getAttacksForSquare(pieceType, otherColor, square);
+      openingScore -= _popCount(attackBitBoard) * MOBILITY_BONUS[OPENING][pieceType];
+      endgameScore -= _popCount(attackBitBoard) * MOBILITY_BONUS[ENDGAME][pieceType];
+    }
+  }
 
   // Rook on open file
-  score += ROOK_OPEN_FILE_BONUS[phase] * (rooksOnOpenFiles(board, color) - rooksOnOpenFiles(board, otherColor));
+  tmpint = rooksOnOpenFiles(board, color) - rooksOnOpenFiles(board, otherColor);
+  openingScore += ROOK_OPEN_FILE_BONUS[OPENING] * tmpint;
+  endgameScore += ROOK_OPEN_FILE_BONUS[ENDGAME] * tmpint;
 
   //Rook on semi-open-file
-  score += ROOK_SEMI_FILE_BONUS[phase] * (rooksOnSemiFiles(board, color) - rooksOnSemiFiles(board, otherColor));
+  tmpint = rooksOnSemiFiles(board, color) - rooksOnSemiFiles(board, otherColor);
+  openingScore += ROOK_SEMI_FILE_BONUS[OPENING] * tmpint; 
+  endgameScore += ROOK_SEMI_FILE_BONUS[ENDGAME] * tmpint;
 
   // Bishop pair
-  score += hasBishopPair(board, color) ? BISHOP_PAIR_BONUS[phase] : 0;
-  score -= hasBishopPair(board, otherColor) ? BISHOP_PAIR_BONUS[phase] : 0;
-
+  openingScore += w_B > 1 ? BISHOP_PAIR_BONUS[OPENING] : 0;
+  endgameScore += w_B > 1 ? BISHOP_PAIR_BONUS[ENDGAME] : 0;
+  openingScore -= b_B > 1 ? BISHOP_PAIR_BONUS[OPENING] : 0;
+  endgameScore -= b_B > 1 ? BISHOP_PAIR_BONUS[ENDGAME] : 0;
+  
   // Pawn structure
-  score += evaluatePawnStructure(board, color, phase);
+  int whiteScore_O = 0;
+  int whiteScore_E = 0;
+  pawn_HASH_Entry pENTRY  = myHASH.pHASH_Get(board.getPawnStructureZKey().getValue());
+  
+  if (pENTRY.posKey != 0){
+    whiteScore_O = pENTRY.score_OPENING;
+    whiteScore_E = pENTRY.score_ENDGAME;
+
+    if (color == BLACK) {
+      openingScore -= whiteScore_O;
+      endgameScore -= whiteScore_E;
+    } else {
+      openingScore += whiteScore_O;
+      endgameScore += whiteScore_E;
+    }
+ 
+  }
+  else
+  {
+  // Passed pawns
+  int passedPawnDiff = passedPawns(board, WHITE) - passedPawns(board, BLACK);
+  whiteScore_O += PASSED_PAWN_BONUS[OPENING] * passedPawnDiff;
+  whiteScore_E += PASSED_PAWN_BONUS[ENDGAME] * passedPawnDiff;
+
+  // Doubled pawns
+  int doubledPawnDiff = doubledPawns(board, WHITE) - doubledPawns(board, BLACK);
+  whiteScore_O += DOUBLED_PAWN_PENALTY[OPENING] * doubledPawnDiff;
+  whiteScore_E += DOUBLED_PAWN_PENALTY[ENDGAME] * doubledPawnDiff;
+
+  // Isolated pawns
+  int isolatedPawnDiff = isolatedPawns(board, WHITE) - isolatedPawns(board, BLACK);
+  whiteScore_O += ISOLATED_PAWN_PENALTY[OPENING] * isolatedPawnDiff;
+  whiteScore_E += ISOLATED_PAWN_PENALTY[ENDGAME] * isolatedPawnDiff;
+
+  myHASH.pHASH_Store(board.getPawnStructureZKey().getValue(), whiteScore_E, whiteScore_O);
+
+    if (color == BLACK) {
+      openingScore -= whiteScore_O;
+      endgameScore -= whiteScore_E;
+    } else {
+      openingScore += whiteScore_O;
+      endgameScore += whiteScore_E;
+    }
+  }
+
 
   // King pawn shield
   // Tapering is included in, so we count it in both phases
   // As of 5.08.20 400 game testing did not showed advantage for any king safety implementation.
   // Changes commitet for further use though
-  score += kingSafety(board, color, b_Q) - kingSafety(board, otherColor, w_Q);
+  tmpint = kingSafety(board, color, b_Q) - kingSafety(board, otherColor, w_Q);
+  openingScore += tmpint;
+  endgameScore += tmpint;
 
 
-  return score;
-}
-
-int Eval::getPhase(const Board &board) {
-  int phase = detail::PHASE_WEIGHT_SUM;
-
-  for (auto pieceType : {ROOK, KNIGHT, BISHOP, QUEEN}) {
-    phase -= _popCount(board.getPieces(WHITE, pieceType)) * detail::PHASE_WEIGHTS[pieceType];
-    phase -= _popCount(board.getPieces(BLACK, pieceType)) * detail::PHASE_WEIGHTS[pieceType];
-  }
-
-  // Transform phase from the range 0 - PHASE_WEIGHT_SUM to 0 - PHASE_WEIGHT_MAX
-  return ((phase * MAX_PHASE) + (detail::PHASE_WEIGHT_SUM / 2)) / detail::PHASE_WEIGHT_SUM;
-}
-
-int Eval::evaluate(const Board &board, Color color) {
-  int openingScore = evaluateForPhase<OPENING>(board, color);
-  int endgameScore = evaluateForPhase<ENDGAME>(board, color);
+  // Calculation of the phase value
   int phase = getPhase(board);
 
   // Interpolate between opening/endgame scores depending on the phase

@@ -257,6 +257,13 @@ class Board {
    */
   bool isThereMajorPiece() const;
 
+  /**
+   * @brief returns the cost of the most valuable piece on the bord
+   * 
+   * Used for DELTA PRUNING
+   */
+  int  MostFancyPieceCost() const;
+
  private:
   /**
    * @name Attack bitboard generation functions.

@@ -10,7 +10,6 @@ int main() {
   Rays::init();
   PSquareTable::init();
   ZKey::init();
-  MovePicker::init();
   Attacks::init();
   Eval::init();
   Uci::init();
