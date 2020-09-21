@@ -5,4 +5,4 @@ cutechess-cli -engine conf=Drofa_dev tc=0/30+1 -engine conf=Drofa_1.2.6 tc=0/30+
 cutechess-cli -engine conf=Drofa_dev tc=40/120+0 -engine conf=Drofa_1.2.6 tc=40/120+0 -tournament round-robin -rounds 500 -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout time_2m.pgn
 
 : 10 сек +0.1 на ход
-cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.2.7 tc=0/10+0.1 -tournament round-robin -rounds 2000 -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout lmp_tweak.pgn
+cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.2.9 tc=0/10+0.1 -tournament round-robin -rounds 2000 -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout lmr_tweak.pgn
