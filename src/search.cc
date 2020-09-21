@@ -23,16 +23,26 @@ int selDepth = 0; // int that is showing maxDepth with extentions we reached in 
 extern int g_TT_MO_hit;
 extern HASH myHASH;
 
-// i here is DETPTH
-// j here is moveNUM
-// we scale R higher for moveNUM than for DEPTH
+
 void Search::init_LMR_array(){
+
+  // 1. Initialization of the LMR_array.
+  // Original formula, came up after plotting 
+  // Weiss formula and trying to came up with 
+  // something similar, but based on the pow (x,y)
+  // function for easier tuning later.
+  // i here is DETPTH
+  // j here is moveNUM
+  // we scale R higher for moveNUM than for DEPTH
+
   for (int i = 0; i < 34; i++){
     for (int j = 0; j< 34; j++){
       _lmr_R_array[i][j] = 0.1 + (pow(i, 0.15) * pow(j, 0.15))/1.75;
     }
   }
-
+  // 2. Initialization of the LMP array.
+  // Current formula is completely based on the 
+  // Weiss chess engine.
   for (int i = 0; i < 99; i++){
     _lmp_Array[i] = pow( i, 2) * 2;
   }
@@ -384,7 +394,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   if (ply > 2)
     improving = !AreWeInCheck && statEVAL > _sEvalArray[ply - 2];  
 
-  // 0. RAZORING
+  // 1. RAZORING
   // In the very leaf nodes (d == 1)
   // with stat eval << alpha we can assume that no 
   // Quiet move can save us and drop to the QSearch 
@@ -396,10 +406,10 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
       }
 
 
-  // 1. REVERSE FUTILITY
+  // 2. REVERSE FUTILITY
   // The idea is so if we are very far ahead of beta at low
   // depth, we can just return estimated eval (eval - margin),
-  // because beta probably wont be beaten
+  // because beta probably will be beaten
   // 
   // For now dont Prune in PV, in check, and at high depth
   // btw d < 5 is totally arbitrary, tune it later maybe
@@ -409,7 +419,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
       return statEVAL - REVF_MOVE_CONST * depth + 100 * improving;
   }
 
-  // 2. NULL MOVE
+  // 3. NULL MOVE
   // If we are doing so well, that giving opponent 2
   // moves wont improve his position
   // we can safely prune this position
@@ -425,7 +435,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           }
   }
 
-  // 3. UN_HASHED REDUCTION
+  // 4. UN_HASHED REDUCTION
   // We reduce depth by 1 if the position we currently 
   // analysing isnt hashed.
   // Based on talkchess discussion, replaces 
@@ -451,12 +461,11 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
 
     Move move = movePicker.getNext();
 
-    // LATE MOVE PRUNING
+    // 5. LATE MOVE PRUNING
     // If we made many quiet moves in the position already
     // we suppose other moves wont improve our situation
     //
-    // Formula from Weiss, weirdly working, searchdepth 
-    // is way up, elo gain is not so great
+    // Weirdly working, searchdepth is way up, elo gain is not so great
 
     if (!pvNode && Extension == 0 
       && qCount > 3 + _lmp_Array[depth]/(2-improving) && alpha < ((LOST_SCORE * -1) - 50) ){
@@ -475,13 +484,11 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         bool isQuiet = !(move.getFlags() & 0x63);
         if (isQuiet)
           qCount++;
-        // EXTENDED FUTILITY PRUNING
+        // 6. EXTENDED FUTILITY PRUNING
         // We try to pune a move, if depth is low (1 or 2)
-        // Move should not give check, and should not be the first move
-        // we also should not be in check
+        // Move should not give check, shoudnt be a promotion and should not be the first move
+        // we also should not be in check and close to the MATE score
         // We do not prune in the PV nodes.
-        // 
-        // We also do not prune if we are close to the MATE
 
         if (!pvNode && Extension == 0 && LegalMoveCount > 1 && depth < 3 
         && !giveCheck && alpha < ((LOST_SCORE * -1) - 50) && !(move.getFlags() & Move::PROMOTION)){
@@ -493,14 +500,15 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         _orderingInfo.incrementPly();
         _positionHistory.push_back(board.getZKey());
 
-        //LATE MOVE REDUCTIONS
+        //7. LATE MOVE REDUCTIONS
         //mix of ideas from Weiss code and what is written in the chessprogramming wiki
         //
-        //For now we dont reduce in the PV, if depth too low, when extention is triggered
+        //For now we dont reduce if depth too low, when extention is triggered
         //and when move give check.
-        //This can be a subject for a later tuning
-        //
         //Currently we try to reduce 3rd move and beyond and 4th and beyond in the pvNode.
+        //Considering tactical blunders are often in Drofa, this should be subject of
+        //modification/tuning
+
 
         doLMR = depth > 2 && LegalMoveCount > 2 + pvNode && Extension == 0 && !giveCheck;
         if (doLMR){
@@ -510,14 +518,18 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           //Now mostly 0 -> 1
           int reduction = _lmr_R_array[std::min(33, depth)][std::min(33, LegalMoveCount)];
 
+          //Reduction tweaks (from Weiss)
           //if move is quiet, reduce a bit more
           if (isQuiet){
             reduction++;
           }
-
+          //if we are improving, reduce a bit less
           if (improving){
             reduction--;
           }
+          // Weiss also reduce less in the PV nodes,
+          // but for current version adding this lose ~30 elo.
+
           //Avoid to reduce so much that we go to QSearch right away
           int fDepth = std::max(1, depth - 1 - reduction);
           

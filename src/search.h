@@ -100,8 +100,8 @@ class Search {
   int _lmr_R_array[34][34];
 
   /**
-   * 
-   * 
+   * @brief Array of the pre-calculated move-nums
+   * used for LATE MOVE PRUNING during AB-search
    */
   int _lmp_Array [100]; 
 
@@ -181,8 +181,9 @@ class Search {
   bool _wasThoughtProlonged;
 
   /**
-   * 
-   * 
+   *  @brief We track how much time we spended while 
+   *  searching last ply. It is used to estimate how much time 
+   *  we grant engine when search be prolonged.
    */
   int _lastPlyTime; 
 
