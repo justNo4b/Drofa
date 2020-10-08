@@ -1,0 +1,16 @@
+obj/attacks.o
+obj/board.o
+obj/book.o
+obj/eval.o
+obj/main.o
+obj/move.o
+obj/movegen.o
+obj/movepicker.o
+obj/option.o
+obj/orderinginfo.o
+obj/psquaretable.o
+obj/rays.o
+obj/search.o
+obj/transptable.o
+obj/uci.o
+obj/zkey.o

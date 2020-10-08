@@ -262,7 +262,7 @@ int evaluateForPhase(const Board &, Color);
  * @param pieceType PieceType to get value of
  * @return The value of the given PieceType used for evaluation purposes
  */
-int getMaterialValue(PieceType);
+int getMaterialValue(int, PieceType);
 
 /**
  * @brief Evaluates pawn structure and returns a score in centipawns
@@ -402,6 +402,12 @@ int kingSafety(const Board &, Color, int);
  */ 
 bool IsItDeadDraw (int w_P, int w_N, int w_B, int w_R, int w_Q,
 int b_P, int b_N, int b_B, int b_R, int b_Q);
+
+/**
+ * @brief Set value for a MATERIAL_VALUES_TUNABLE array
+ * which is used for optuna tuning
+ */ 
+void SetupTuning(int phase, PieceType piece, int value);
 
 };
 

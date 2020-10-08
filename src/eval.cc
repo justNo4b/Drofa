@@ -6,6 +6,26 @@
 
 extern HASH myHASH;
 
+int MATERIAL_VALUES_TUNABLE[2][6] = {
+    [OPENING] = {
+        [PAWN] = 100,
+        [ROOK] = 500,
+        [KNIGHT] = 300,
+        [BISHOP] = 315,
+        [QUEEN] = 950,
+        [KING] = 0
+    },
+    [ENDGAME] = {
+        [PAWN] = 100,
+        [ROOK] = 500,
+        [KNIGHT] = 300,
+        [BISHOP] = 315,
+        [QUEEN] = 950,
+        [KING] = 0
+    }
+};
+
+
 U64 Eval::detail::FILES[8] = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
 U64 Eval::detail::NEIGHBOR_FILES[8]{
     FILE_B,
@@ -103,8 +123,16 @@ void Eval::init() {
   detail::PHASE_WEIGHT_SUM += detail::PHASE_WEIGHTS[QUEEN] * 2;
 }
 
-int Eval::getMaterialValue(PieceType pieceType) {
-  return MATERIAL_VALUES[OPENING][pieceType];
+void Eval::SetupTuning(int phase, PieceType piece, int value){
+  MATERIAL_VALUES_TUNABLE [phase][piece] = value;
+}
+
+int Eval::getMaterialValue(int phase, PieceType pieceType) {
+  #ifdef _TUNE_
+  return MATERIAL_VALUES_TUNABLE [phase][pieceType];
+  #else
+  return MATERIAL_VALUES[phase][pieceType];
+  #endif
 }
 
 int Eval::rooksOnOpenFiles(const Board &board, Color color) {
@@ -335,17 +363,17 @@ int Eval::evaluate(const Board &board, Color color) {
     return 0;
   }
 
-  openingScore += MATERIAL_VALUES[OPENING][PAWN] * ( w_P - b_P);
-  openingScore += MATERIAL_VALUES[OPENING][KNIGHT] * (w_N - b_N);
-  openingScore += MATERIAL_VALUES[OPENING][BISHOP] * ( w_B - b_B);
-  openingScore += MATERIAL_VALUES[OPENING][ROOK] * ( w_R - b_R);
-  openingScore += MATERIAL_VALUES[OPENING][QUEEN] * ( w_Q - b_Q);
+  openingScore += getMaterialValue(OPENING, PAWN) * ( w_P - b_P);
+  openingScore += getMaterialValue(OPENING, KNIGHT) * (w_N - b_N);
+  openingScore += getMaterialValue(OPENING, BISHOP) * ( w_B - b_B);
+  openingScore += getMaterialValue(OPENING, ROOK) * ( w_R - b_R);
+  openingScore += getMaterialValue(OPENING, QUEEN) * ( w_Q - b_Q);
 
-  endgameScore += MATERIAL_VALUES[ENDGAME][PAWN] * ( w_P - b_P);
-  endgameScore += MATERIAL_VALUES[ENDGAME][KNIGHT] * (w_N - b_N);
-  endgameScore += MATERIAL_VALUES[ENDGAME][BISHOP] * ( w_B - b_B);
-  endgameScore += MATERIAL_VALUES[ENDGAME][ROOK] * ( w_R - b_R);
-  endgameScore += MATERIAL_VALUES[ENDGAME][QUEEN] * ( w_Q - b_Q);
+  endgameScore += getMaterialValue(ENDGAME, PAWN) * ( w_P - b_P);
+  endgameScore += getMaterialValue(ENDGAME, KNIGHT) * (w_N - b_N);
+  endgameScore += getMaterialValue(ENDGAME, BISHOP) * ( w_B - b_B);
+  endgameScore += getMaterialValue(ENDGAME, ROOK) * ( w_R - b_R);
+  endgameScore += getMaterialValue(ENDGAME, QUEEN) * ( w_Q - b_Q);
 
 
   // Piece square tables

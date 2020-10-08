@@ -1,6 +1,7 @@
 #include <memory>
 #include "uci.h"
 #include "version.h"
+#include "eval.h"
 #include <iostream>
 #include <thread>
 
@@ -22,9 +23,55 @@ void loadBook() {
   }
 }
 
+
+#ifdef _TUNE_
+void loadCosts(){
+
+Eval::SetupTuning(OPENING, PAWN, atoi(optionsMap["vPawnOP"].getValue().c_str())); 
+Eval::SetupTuning(ENDGAME, PAWN, atoi(optionsMap["vPawnEG"].getValue().c_str()));   
+
+Eval::SetupTuning(OPENING, KNIGHT, atoi(optionsMap["vKnightOP"].getValue().c_str())); 
+Eval::SetupTuning(ENDGAME, KNIGHT, atoi(optionsMap["vKnightEG"].getValue().c_str())); 
+
+Eval::SetupTuning(OPENING, BISHOP, atoi(optionsMap["vBishopOP"].getValue().c_str())); 
+Eval::SetupTuning(ENDGAME, BISHOP, atoi(optionsMap["vBishopEG"].getValue().c_str())); 
+
+Eval::SetupTuning(OPENING, ROOK, atoi(optionsMap["vRookOP"].getValue().c_str())); 
+Eval::SetupTuning(ENDGAME, ROOK, atoi(optionsMap["vRookEG"].getValue().c_str())); 
+
+Eval::SetupTuning(OPENING, QUEEN, atoi(optionsMap["vQueenOP"].getValue().c_str())); 
+Eval::SetupTuning(ENDGAME, QUEEN, atoi(optionsMap["vQueenEG"].getValue().c_str())); 
+}
+#endif
+
 void initOptions() {
   optionsMap["OwnBook"] = Option(false);
   optionsMap["BookPath"] = Option("book.bin", &loadBook);
+
+  // for now only placeholder
+  optionsMap["HashSize"] = Option(256, 1024, 25, &loadBook);
+
+
+  // Options for tuning is defined here.
+  // They are used only if programm is build with "make tune"
+  // Tuning versionshould not be the one playing regular games
+  // but having this options here allows tuner 
+  // to change different parameters via communocation
+  // with the engine.
+
+#ifdef _TUNE_
+  optionsMap["vPawnOP"] =   Option(100, 1024, 25, &loadCosts);
+  optionsMap["vPawnEG"] =   Option(100, 1024, 25, &loadCosts);
+  optionsMap["vKnightOP"] = Option(300, 1024, 25, &loadCosts);
+  optionsMap["vKnightEG"] = Option(300, 1024, 25, &loadCosts);
+  optionsMap["vBishopOP"] = Option(315, 1024, 25, &loadCosts);
+  optionsMap["vBishopEG"] = Option(315, 1024, 25, &loadCosts);
+  optionsMap["vRookOP"] =   Option(500, 1024, 25, &loadCosts);
+  optionsMap["vRookEP"] =   Option(500, 1024, 25, &loadCosts);
+  optionsMap["vQueenOP"] =  Option(900, 2000, 100, &loadCosts);
+  optionsMap["vQueenEG"] =  Option(900, 2000, 100, &loadCosts);
+#endif
+
 }
 
 void uciNewGame() {
@@ -145,6 +192,10 @@ void perftDivide(int depth) {
 void printEngineInfo() {
   std::cout << "id name Drofa " << VER_MAJ << "." << VER_MIN << "." << VER_PATCH << std::endl;
   std::cout << "id authors Rhys Rustad-Elliott and Alexander Litov" << std::endl;
+#ifdef _TUNE_
+  std::cout << "This is _TUNE_ build, do not use it can be bad" << std::endl;
+#endif
+
   std::cout << std::endl;
 
   for (auto optionPair : optionsMap) {
@@ -177,13 +228,7 @@ void setOption(std::istringstream &is) {
 }
 
 void loop() {
-  std::cout << "Drofa " << VER_MAJ << "." << VER_MIN << "." << VER_PATCH;
-  std::cout << " by Rhys Rustad-Elliott and Litov Alexander";
-  std::cout << " (built " << __DATE__ << " " << __TIME__ << ")" << std::endl;
 
-#ifdef __DEBUG__
-  std::cout << "***DEBUG BUILD (This will be slow)***" << std::endl;
-#endif
 
   board.setToStartPos();
 

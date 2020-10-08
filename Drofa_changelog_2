@@ -129,6 +129,17 @@ Finished game 1149 (Drofa_dev vs Drofa_1.2.8a): 1/2-1/2 {Draw by 3-fold repetiti
 Score of Drofa_dev vs Drofa_1.2.8a: 432 - 324 - 394  [0.547] 1150
 Elo difference: 32.73 +/- 16.33
 
+18. Fixed issue where Quiet moves could be sorted ahead of Killers
+STC:
+Score of Drofa_dev vs Drofa_1.2.9: 338 - 323 - 339  [0.507] 1000
+Elo difference: 5.21 +/- 17.50
+Finished match
+Score of Drofa_dev vs Drofa_1.2.9: 826 - 823 - 901  [0.501] 2550
+Started game 2554 of 3000 (Drofa_1.2.9 vs Drofa_dev)
+LTC:
+Score of Drofa_dev vs Drofa_1.2.9: 285 - 301 - 414  [0.492] 1000
+Elo difference: -5.56 +/- 16.47
+
 
 
 

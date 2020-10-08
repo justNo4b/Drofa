@@ -17,6 +17,8 @@ test: CC_FLAGS = -Wall -std=c++11 -O3 -march=native -flto -pthread
 # Debug compile and linker flags (remove optimizations and add debugging symbols)
 debug debug-test: CC_FLAGS = -Wall -std=c++11 -g -D__DEBUG__
 debug debug-test: LD_FLAGS = -pthread
+tune: CC_FLAGS  = -Wall -std=c++11 -O3 -march=native -flto -pthread -fno-exceptions -D_TUNE_
+tune: LD_FLAGS  = -pthread -flto
 
 OBJ_DIR = obj
 
@@ -26,6 +28,8 @@ TEST_BIN_NAME = DrofaTest
 all: $(OBJ_DIR) $(BIN_NAME)
 
 debug: all
+
+tune: all
 
 debug-test: $(OBJ_DIR) $(TEST_BIN_NAME)
 

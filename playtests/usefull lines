@@ -2,7 +2,20 @@
 cutechess-cli -engine conf=Drofa_dev tc=0/30+1 -engine conf=Drofa_1.2.6 tc=0/30+1 -tournament round-robin -rounds 334 -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout small_test.pgn
 
 : 2` на 40 ходов
-cutechess-cli -engine conf=Drofa_dev tc=40/120+0 -engine conf=Drofa_1.2.6 tc=40/120+0 -tournament round-robin -rounds 500 -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout time_2m.pgn
+cutechess-cli -engine conf=Drofa_dev tc=40/120+0 -engine conf=Drofa_1.2.9 tc=40/120+0 -tournament round-robin -rounds 1000 -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout MoveOrdering.pgn
 
 : 10 сек +0.1 на ход
-cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.2.9 tc=0/10+0.1 -tournament round-robin -rounds 2000 -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout lmr_tweak.pgn
+cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.2.9 tc=0/10+0.1 -tournament round-robin -rounds 1000 -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout MoveOrdering.pgn
+
+: 10сек +0.1 на ход, большой тест
+cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.2.9 tc=0/10+0.1 -tournament round-robin -rounds 3000 -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=8moves_OPENBENCH.pgn format=pgn order=random plies=30 -pgnout MoveOrdering_2.pgn
+
+:gauntlet
+cutechess-cli -engine conf=bbc_1.1 tc=0/60+1 -engine conf=Drofa_v.1.0 tc=0/60+1 -engine conf=vice tc=0/60+1 -engine conf=CleverGirl tc=0/60+1 -engine conf=MORA tc=0/60+1 -tournament gauntlet -rounds 48 -recover -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout small_test.pgn
+
+
+
+python3 tuner.py --engine ./engines/Drofa_tune --concurrency 5 --opening-file ./start_opening/ogpt_chess_startpos.epd --input-param "{'vPawnEG': {'default':100, 'min':76, 'max':160, 'step':2}, 'vKnightOP': {'default':300, 'min':250, 'max':350, 'step':3}, 'vKnightEG': {'default':300, 'min':250, 'max':350, 'step':3},'vBishopOP': {'default':315, 'min':270, 'max':400, 'step':3}, 'vBishopEG': {'default':315, 'min':270, 'max':400, 'step':3},'vRookOP': {'default':500, 'min':425, 'max':575, 'step':5}, 'vRookEG': {'default':500, 'min':425, 'max':575, 'step':5}, 'vQueenOP': {'default':950, 'min':890, 'max':1100, 'step':5}, 'vQueenEG': {'default':950, 'min':850, 'max':1200, 'step':5}}" --initial-best-value 0.54 --games-per-trial 100 --plot --base-time-sec 10 --inc-time-sec 0.1 --study-name pValuesTune --pgn-output pValuesTune.pgn --trials 1000 --threshold-pruner result=0.35 acquisition_function=LCB
+
+
+python3 tuner.py --engine ./engines/Drofa_tune --concurrency 5 --opening-file ./start_opening/ogpt_chess_startpos.epd --input-param "{'vPawnEG': {'default':100, 'min':90, 'max':150, 'step':2}}" --initial-best-value 0.54 --games-per-trial 10 --plot --base-time-sec 20 --inc-time-sec 0.4 --study-name pValuesTune --pgn-output pValuesTune.pgn --trials 200 --threshold-pruner result=0.35 acquisition_function=LCB
