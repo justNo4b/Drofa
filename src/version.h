@@ -2,7 +2,7 @@
 #define VERSION_H
 
 #define VER_MAJ 1
-#define VER_MIN 2
-#define VER_PATCH 9
+#define VER_MIN 3
+#define VER_PATCH 0
 
 #endif

@@ -14,3 +14,4 @@ obj/search.o
 obj/transptable.o
 obj/uci.o
 obj/zkey.o
+.vscode/settings.json
