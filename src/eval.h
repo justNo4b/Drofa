@@ -111,22 +111,28 @@ const int MOBILITY_BONUS[2][6] = {
 
 /**
  * @brief Array indexed by [Phase][PieceType] of material values (in centipawns)
+ * 'vBishopEG': 288, 'vBishopOP': 336, 'vKnightEG': 310, 'vKnightOP': 316, 'vPawnEG': 112, 'vQueenEG': 1005, 'vQueenOP': 1100, 'vRookEG': 500, 'vRookOP': 470}
+    Finished game 201 (Drofa_dev vs Drofa_1.2.9): 1-0 {White wins by adjudication}
+    Score of Drofa_dev vs Drofa_1.2.9: 67 - 63 - 70  [0.510] 200
+
+    {'vBishopEG': 357, 'vBishopOP': 336, 'vKnightEG': 328, 'vKnightOP': 304, 'vPawnEG': 86, 'vQueenEG': 995, 'vQueenOP': 1190, 'vRookEG': 565, 'vRookOP': 465}
+
  */
 const int MATERIAL_VALUES[2][6] = {
     [OPENING] = {
         [PAWN] = 100,
-        [ROOK] = 500,
-        [KNIGHT] = 300,
-        [BISHOP] = 315,
-        [QUEEN] = 950,
+        [ROOK] = 465,
+        [KNIGHT] = 304,
+        [BISHOP] = 336,
+        [QUEEN] = 1190,
         [KING] = 0
     },
     [ENDGAME] = {
-        [PAWN] = 100,
-        [ROOK] = 500,
-        [KNIGHT] = 300,
-        [BISHOP] = 315,
-        [QUEEN] = 950,
+        [PAWN] = 86,
+        [ROOK] = 565,
+        [KNIGHT] = 328,
+        [BISHOP] = 357,
+        [QUEEN] = 995,
         [KING] = 0
     }
 };

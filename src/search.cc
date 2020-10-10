@@ -107,7 +107,7 @@ Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHist
 
   // Debug_evaluation_paste_below:
   //  std::cout << "Castle_test_ " + std::to_string(k);
-    std::cout << "HASH_size " + std::to_string(_lmr_R_array[3][7]);
+    std::cout << "HASH_size " + std::to_string(Eval::getMaterialValue(OPENING, BISHOP));
     std::cout << std::endl;
 }
 

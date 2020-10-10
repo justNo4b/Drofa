@@ -128,8 +128,9 @@ Finished match
 Finished game 1149 (Drofa_dev vs Drofa_1.2.8a): 1/2-1/2 {Draw by 3-fold repetition}
 Score of Drofa_dev vs Drofa_1.2.8a: 432 - 324 - 394  [0.547] 1150
 Elo difference: 32.73 +/- 16.33
-
+---------------------------------------
 18. Fixed issue where Quiet moves could be sorted ahead of Killers
+---------------------------------------
 STC:
 Score of Drofa_dev vs Drofa_1.2.9: 338 - 323 - 339  [0.507] 1000
 Elo difference: 5.21 +/- 17.50
@@ -139,6 +140,23 @@ Started game 2554 of 3000 (Drofa_1.2.9 vs Drofa_dev)
 LTC:
 Score of Drofa_dev vs Drofa_1.2.9: 285 - 301 - 414  [0.492] 1000
 Elo difference: -5.56 +/- 16.47
+--------------------------------------
+19. Added -tune complilation mode. Piece values tuned with 
+"https://github.com/fsmosca/Optuna-Game-Parameter-Tuner"
+Tuner parameters:
+initial-best-value 0.54 
+games-per-trial 100 
+base-time-sec 10 
+inc-time-sec 0.1 
+trials 250 (actually run only 231 test, used best params from 225)
+threshold-pruner result=0.35 
+acquisition_function=LCB
+--------------------------------------
+Score of Drofa_dev vs Drofa_1.2.9: 1128 - 950 - 922  [0.530] 3000
+Elo difference: 20.64 +/- 10.35
+Finished match
+---------------------------------------
+
 
 
 

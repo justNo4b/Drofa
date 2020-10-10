@@ -363,6 +363,7 @@ int Eval::evaluate(const Board &board, Color color) {
     return 0;
   }
 
+#ifdef _TUNE_
   openingScore += getMaterialValue(OPENING, PAWN) * ( w_P - b_P);
   openingScore += getMaterialValue(OPENING, KNIGHT) * (w_N - b_N);
   openingScore += getMaterialValue(OPENING, BISHOP) * ( w_B - b_B);
@@ -374,7 +375,19 @@ int Eval::evaluate(const Board &board, Color color) {
   endgameScore += getMaterialValue(ENDGAME, BISHOP) * ( w_B - b_B);
   endgameScore += getMaterialValue(ENDGAME, ROOK) * ( w_R - b_R);
   endgameScore += getMaterialValue(ENDGAME, QUEEN) * ( w_Q - b_Q);
+#else
+  openingScore += MATERIAL_VALUES[OPENING][PAWN] * ( w_P - b_P);
+  openingScore += MATERIAL_VALUES[OPENING][KNIGHT] * (w_N - b_N);
+  openingScore += MATERIAL_VALUES[OPENING][BISHOP] * ( w_B - b_B);
+  openingScore += MATERIAL_VALUES[OPENING][ROOK] * ( w_R - b_R);
+  openingScore += MATERIAL_VALUES[OPENING][QUEEN] * ( w_Q - b_Q);
 
+  endgameScore += MATERIAL_VALUES[ENDGAME][PAWN] * ( w_P - b_P);
+  endgameScore += MATERIAL_VALUES[ENDGAME][KNIGHT] * (w_N - b_N);
+  endgameScore += MATERIAL_VALUES[ENDGAME][BISHOP] * ( w_B - b_B);
+  endgameScore += MATERIAL_VALUES[ENDGAME][ROOK] * ( w_R - b_R);
+  endgameScore += MATERIAL_VALUES[ENDGAME][QUEEN] * ( w_Q - b_Q);
+#endif
 
   // Piece square tables
   openingScore += board.getPSquareTable().getScore(OPENING, color) - board.getPSquareTable().getScore(OPENING, otherColor);

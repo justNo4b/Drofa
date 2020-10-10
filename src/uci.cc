@@ -49,7 +49,7 @@ void initOptions() {
   optionsMap["BookPath"] = Option("book.bin", &loadBook);
 
   // for now only placeholder
-  optionsMap["HashSize"] = Option(256, 1024, 25, &loadBook);
+  optionsMap["Hash"] = Option(256, 25, 1024, &loadBook);
 
 
   // Options for tuning is defined here.
@@ -60,16 +60,16 @@ void initOptions() {
   // with the engine.
 
 #ifdef _TUNE_
-  optionsMap["vPawnOP"] =   Option(100, 1024, 25, &loadCosts);
-  optionsMap["vPawnEG"] =   Option(100, 1024, 25, &loadCosts);
-  optionsMap["vKnightOP"] = Option(300, 1024, 25, &loadCosts);
-  optionsMap["vKnightEG"] = Option(300, 1024, 25, &loadCosts);
-  optionsMap["vBishopOP"] = Option(315, 1024, 25, &loadCosts);
-  optionsMap["vBishopEG"] = Option(315, 1024, 25, &loadCosts);
-  optionsMap["vRookOP"] =   Option(500, 1024, 25, &loadCosts);
-  optionsMap["vRookEP"] =   Option(500, 1024, 25, &loadCosts);
-  optionsMap["vQueenOP"] =  Option(900, 2000, 100, &loadCosts);
-  optionsMap["vQueenEG"] =  Option(900, 2000, 100, &loadCosts);
+  optionsMap["vPawnOP"] =   Option(100, 25, 2048, &loadCosts);
+  optionsMap["vPawnEG"] =   Option(100, 25, 2048, &loadCosts);
+  optionsMap["vKnightOP"] = Option(300, 25, 2048, &loadCosts);
+  optionsMap["vKnightEG"] = Option(300, 25, 2048, &loadCosts);
+  optionsMap["vBishopOP"] = Option(315, 25, 2048, &loadCosts);
+  optionsMap["vBishopEG"] = Option(315, 25, 2048, &loadCosts);
+  optionsMap["vRookOP"] =   Option(500, 25, 2048, &loadCosts);
+  optionsMap["vRookEG"] =   Option(500, 25, 2048, &loadCosts);
+  optionsMap["vQueenOP"] =  Option(900, 25, 2048, &loadCosts);
+  optionsMap["vQueenEG"] =  Option(900, 25, 2048, &loadCosts);
 #endif
 
 }
@@ -228,7 +228,13 @@ void setOption(std::istringstream &is) {
 }
 
 void loop() {
+  std::cout << "Drofa " << VER_MAJ << "." << VER_MIN << "." << VER_PATCH;
+  std::cout << " by Rhys Rustad-Elliott and Litov Alexander";
+  std::cout << " (built " << __DATE__ << " " << __TIME__ << ")" << std::endl;
 
+#ifdef __DEBUG__
+  std::cout << "***DEBUG BUILD (This will be slow)***" << std::endl;
+#endif
 
   board.setToStartPos();
 
