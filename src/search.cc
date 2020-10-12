@@ -33,7 +33,6 @@ void Search::init_LMR_array(){
   // function for easier tuning later.
   // i here is DETPTH
   // j here is moveNUM
-  // we scale R higher for moveNUM than for DEPTH
 
   for (int i = 0; i < 34; i++){
     for (int j = 0; j< 34; j++){
@@ -438,8 +437,8 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   // 4. UN_HASHED REDUCTION
   // We reduce depth by 1 if the position we currently 
   // analysing isnt hashed.
-  // Based on talkchess discussion, replaces 
-  // Internal iterative deepening.
+  // Based on talkchess discussion, replaces Internal
+  // iterative deepening.
   // 
   // The justification is if our hashing is decent, if the 
   // position at high depth isnt here, its probably position 

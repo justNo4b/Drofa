@@ -9,18 +9,18 @@ extern HASH myHASH;
 int MATERIAL_VALUES_TUNABLE[2][6] = {
     [OPENING] = {
         [PAWN] = 100,
-        [ROOK] = 500,
-        [KNIGHT] = 300,
-        [BISHOP] = 315,
-        [QUEEN] = 950,
+        [ROOK] = 465,
+        [KNIGHT] = 304,
+        [BISHOP] = 336,
+        [QUEEN] = 1190,
         [KING] = 0
     },
     [ENDGAME] = {
-        [PAWN] = 100,
-        [ROOK] = 500,
-        [KNIGHT] = 300,
-        [BISHOP] = 315,
-        [QUEEN] = 950,
+        [PAWN] = 86,
+        [ROOK] = 565,
+        [KNIGHT] = 328,
+        [BISHOP] = 357,
+        [QUEEN] = 995,
         [KING] = 0
     }
 };

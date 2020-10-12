@@ -24,16 +24,20 @@ OBJ_DIR = obj
 
 BIN_NAME = Drofa_dev
 TEST_BIN_NAME = DrofaTest
+TUNE_BIN_NAME =Drofa_tune
 
 all: $(OBJ_DIR) $(BIN_NAME)
 
 debug: all
 
-tune: all
+tune: $(OBJ_DIR) $(TUNE_BIN_NAME)
 
 debug-test: $(OBJ_DIR) $(TEST_BIN_NAME)
 
 test: $(OBJ_DIR) $(TEST_BIN_NAME)
+
+$(TUNE_BIN_NAME): $(OBJ_FILES)
+	$(CXX) $(LD_FLAGS) -o $@ $^
 
 $(BIN_NAME): $(OBJ_FILES)
 	$(CXX) $(LD_FLAGS) -o $@ $^
@@ -53,4 +57,5 @@ $(OBJ_DIR):
 clean:
 	rm -rf $(OBJ_DIR)
 	rm -f $(TEST_BIN_NAME)
+	rm -f $(TUNE_BIN_NAME)
 	rm -f $(BIN_NAME)
