@@ -568,8 +568,9 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         // Beta cutoff
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
-          if (!(move.getFlags() & Move::CAPTURE)) {
+          if (isQuiet) {
           _orderingInfo.updateKillers(_orderingInfo.getPly(), move);
+          _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
           }
 
           // Add a new tt entry for this node
@@ -586,6 +587,11 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           }
           alpha = score;
           bestMove = move;
+        }else{
+          // Beta was not beaten and we dont improve alpha
+          // In this case we lower our search history values
+          // In order to improve ordering if some move was beaten at very high depth
+          _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
         }
       } 
 

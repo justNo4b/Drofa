@@ -10,6 +10,10 @@ void OrderingInfo::incrementHistory(Color color, int from, int to, int depth) {
   _history[color][from][to] += depth * depth;
 }
 
+void OrderingInfo::decrementHistory(Color color, int from, int to, int depth) {
+  _history[color][from][to] -= depth * (depth - 1);
+}
+
 int OrderingInfo::getHistory(Color color, int from, int to) const {
   return _history[color][from][to];
 }

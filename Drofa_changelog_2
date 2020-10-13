@@ -156,6 +156,13 @@ Score of Drofa_dev vs Drofa_1.2.9: 1128 - 950 - 922  [0.530] 3000
 Elo difference: 20.64 +/- 10.35
 Finished match
 ---------------------------------------
+20. Beta-cutoff now trigger history increase, Fail to produce cuttoff
+now decrease history (depth * (depth - 1))
+---------------------------------------
+Score of Drofa_dev vs Drofa_1.3.0: 1186 - 889 - 925  [0.549] 3000
+Elo difference: 34.51 +/- 10.36
+Finished match
+
 
 
 

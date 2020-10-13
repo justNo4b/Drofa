@@ -36,7 +36,7 @@ class OrderingInfo {
   int getPly() const;
 
   /**
-   * @brief Increment the beta-cutoff history heuristic value of the board for 
+   * @brief Increment the history heuristic value of the board for 
    * the given color, from square, to square and depth.
    * 
    * @param color Color to increment history for
@@ -45,6 +45,17 @@ class OrderingInfo {
    * @param depth Depth of move that caused this increment
    */
   void incrementHistory(Color, int, int, int);
+
+  /**
+   * @brief Lower history heuristic value of the board for 
+   * the given color, from square, to square and depth.
+   * 
+   * @param color Color to increment history for
+   * @param from From square to increment history for
+   * @param to To square to increment history for
+   * @param depth Depth of move that caused this increment
+   */
+  void decrementHistory(Color, int, int, int);
 
   /**
    * @brief Get beta-cutoff history information for the given color, from square and
