@@ -178,7 +178,7 @@ void Search::_logUciInfo(const MoveList &pv, int depth, int bestScore, int nodes
   std::cout << "seldepth " + std::to_string(selDepth) + " ";
   std::cout << "nodes " + std::to_string(nodes) + " ";
   std::cout << "score " + scoreString + " ";
-  std::cout << "nps " + std::to_string(nodes * 1000 / elapsed) + " ";
+  std::cout << "nps " + std::to_string((nodes / elapsed)* 1000)  + " ";
   std::cout << "time " + std::to_string(elapsed) + " ";
   std::cout << "pv " + pvString;
   //std::cout << "MO_hits " + std::to_string(g_TT_MO_hit);

@@ -49,7 +49,7 @@ void initOptions() {
   optionsMap["BookPath"] = Option("book.bin", &loadBook);
 
   // for now only placeholder
-  optionsMap["Hash"] = Option(256, 25, 1024, &loadBook);
+  // optionsMap["Hash"] = Option(256, 25, 1024, &loadBook);
 
 
   // Options for tuning is defined here.
