@@ -193,7 +193,7 @@ void printEngineInfo() {
   std::cout << "id name Drofa " << VER_MAJ << "." << VER_MIN << "." << VER_PATCH << std::endl;
   std::cout << "id authors Rhys Rustad-Elliott and Alexander Litov" << std::endl;
 #ifdef _TUNE_
-  std::cout << "This is _TUNE_ build, do not use it can be bad" << std::endl;
+  std::cout << "This is _TUNE_ build, it can be slower" << std::endl;
 #endif
 
   std::cout << std::endl;
@@ -231,6 +231,10 @@ void loop() {
   std::cout << "Drofa " << VER_MAJ << "." << VER_MIN << "." << VER_PATCH;
   std::cout << " by Rhys Rustad-Elliott and Litov Alexander";
   std::cout << " (built " << __DATE__ << " " << __TIME__ << ")" << std::endl;
+
+#ifdef _TUNE_
+  std::cout << "This is _TUNE_ build, it can be slower" << std::endl;
+#endif
 
 #ifdef __DEBUG__
   std::cout << "***DEBUG BUILD (This will be slow)***" << std::endl;
