@@ -8,7 +8,7 @@ cutechess-cli -engine conf=Drofa_dev tc=40/120+0 -engine conf=Drofa_1.2.9 tc=40/
 cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.3.0 tc=0/10+0.1 -tournament round-robin -rounds 3000 -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout histUpd.pgn
 
 : 10сек +0.1 на ход, большой тест
-cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.3.0 tc=0/10+0.1 -tournament round-robin -rounds 3000 -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=8moves_OPENBENCH.pgn format=pgn order=random plies=30 -pgnout histUpd.pgn
+cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.3.1 tc=0/10+0.1 -tournament round-robin -rounds 3000 -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=8moves_OPENBENCH.pgn format=pgn order=random plies=30 -pgnout razor.pgn
 
 :gauntlet
 cutechess-cli -engine conf=bbc_1.1 tc=0/60+1 -engine conf=Drofa_v.1.0 tc=0/60+1 -engine conf=vice tc=0/60+1 -engine conf=CleverGirl tc=0/60+1 -engine conf=MORA tc=0/60+1 -tournament gauntlet -rounds 48 -recover -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout small_test.pgn
