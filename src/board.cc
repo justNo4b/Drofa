@@ -402,6 +402,17 @@ if (_popCount(_allPieces[active] ^ _pieces[active][PAWN] ^ _pieces[active][KING]
   return false;
 }
 
+bool Board:: isEndGamePosition() const {
+
+int pieceCount = _popCount(_allPieces[WHITE] ^ _pieces[WHITE][PAWN] ^ _pieces[WHITE][KING]) + 
+_popCount(_allPieces[BLACK] ^ _pieces[BLACK][PAWN] ^ _pieces[BLACK][KING]);
+
+if (pieceCount <= 3){
+  return true;
+}
+  return false;
+}
+
 int  Board:: MostFancyPieceCost() const{
 
   if (getActivePlayer() == WHITE && _popCount(getPieces(WHITE, PAWN) & RANK_7) > 0 ){

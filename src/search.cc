@@ -106,8 +106,8 @@ Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHist
 
   // Debug_evaluation_paste_below:
   //  std::cout << "Castle_test_ " + std::to_string(k);
-    std::cout << "HASH_size " + std::to_string(Eval::getMaterialValue(OPENING, BISHOP));
-    std::cout << std::endl;
+  //  std::cout << "HASH_size " + std::to_string(Eval::getMaterialValue(OPENING, BISHOP));
+  //  std::cout << std::endl;
 }
 
 void Search::iterDeep() {
@@ -331,7 +331,6 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
 
   // Check for 50 move rule draws
   if (board.getHalfmoveClock() >= 100) {
-    
     return 0;
   }
 
@@ -369,20 +368,18 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   // InCheck extentions - we extend when the sideToMove is inCheck
   // If we are not in fact in check, evaluate a board for pruning later
   // We dont evaluate when in check because we dont prune in check
-  int Extension = 0;
   int statEVAL = 0;
 
   AreWeInCheck = board.colorIsInCheck(board.getActivePlayer());
 
   if (AreWeInCheck) {
-    Extension++;
     _sEvalArray[ply] = NOSCORE;
   }else{
     statEVAL = Eval::evaluate(board, board.getActivePlayer());
     _sEvalArray[ply] = statEVAL;
   }
   // Go into the QSearch if depth is 0
-  if ((depth + Extension) == 0) {
+  if (depth == 0 && !AreWeInCheck) {
     selDepth = std::max(ply, selDepth);
     return _qSearch(board, alpha, beta, ply + 1 );
   }
@@ -399,7 +396,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   // Quiet move can beat it and drop to the QSearch 
   // immidiately
 
-  if (!pvNode && Extension == 0 && depth == 1 &&
+  if (!pvNode && !AreWeInCheck && depth == 1 &&
       statEVAL + RAZORING_MARGIN < beta){
         int qVal = _qSearch(board, alpha, beta, ply + 1);
         return std::max (qVal, statEVAL + RAZORING_MARGIN);
@@ -414,7 +411,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   // For now dont Prune in PV, in check, and at high depth
   // btw d < 5 is totally arbitrary, tune it later maybe
 
-  if (!pvNode && Extension == 0 && depth < 5){
+  if (!pvNode && !AreWeInCheck && depth < 5){
       if ((statEVAL - REVF_MOVE_CONST * depth + 100 * improving) >= beta)
       return statEVAL - REVF_MOVE_CONST * depth + 100 * improving;
   }
@@ -467,7 +464,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
     //
     // Weirdly working, searchdepth is way up, elo gain is not so great
 
-    if (!pvNode && Extension == 0 
+    if (!pvNode && !AreWeInCheck 
       && qCount > _lmp_Array[depth]/(2-improving) && alpha < ((LOST_SCORE * - 1) - 50) ){
       break;
     }
@@ -490,7 +487,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         // we also should not be in check and close to the MATE score
         // We do not prune in the PV nodes.
 
-        if (!pvNode && Extension == 0 && LegalMoveCount > 1 && depth < 3 
+        if (!pvNode && !AreWeInCheck && LegalMoveCount > 1 && depth < 3 
         && !giveCheck && alpha < ((LOST_SCORE * -1) - 50) && !(move.getFlags() & Move::PROMOTION)){
           int moveGain = isQuiet ? 0 : Eval::MATERIAL_VALUES[0][move.getCapturedPieceType()];
           if (statEVAL + FUTIL_MOVE_CONST * depth + moveGain - 100 * improving <= alpha){
@@ -510,7 +507,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         //modification/tuning
 
 
-        doLMR = depth > 2 && LegalMoveCount > 2 + pvNode && Extension == 0 && !giveCheck;
+        doLMR = depth > 2 && LegalMoveCount > 2 + pvNode && !AreWeInCheck && !giveCheck;
         if (doLMR){
 
           //Basic reduction is done according to the array
@@ -549,10 +546,10 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         // This system is implemented instead of fullDepth = true/false basic approach.
         if (doLMR){
           if (score > alpha){
-            score = -_negaMax(movedBoard, depth - 1 + Extension, -alpha - 1, -alpha, ply + 1, false);
+            score = -_negaMax(movedBoard, depth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false);
           }
         } else if (!pvNode || LegalMoveCount > 1){
-          score = -_negaMax(movedBoard, depth - 1 + Extension, -alpha - 1, -alpha, ply + 1, false);
+          score = -_negaMax(movedBoard, depth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false);
         }
 
         // If we are in the PV 
@@ -560,7 +557,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         // or if score improved alpha during the current round of search.
         if  (pvNode) {
           if ((LegalMoveCount == 1) || (score > alpha && score < beta)){
-            score = -_negaMax(movedBoard, depth - 1 + Extension, -beta, -alpha, ply + 1, false );  
+            score = -_negaMax(movedBoard, depth - 1 + AreWeInCheck, -beta, -alpha, ply + 1, false );  
           }
         }
 

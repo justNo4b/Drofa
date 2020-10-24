@@ -258,6 +258,13 @@ class Board {
   bool isThereMajorPiece() const;
 
   /**
+   * @brief return true if we are currently in the mid-endgame Position
+   * 
+   * Used for passed Pawns Extention
+   */
+  bool isEndGamePosition() const;
+
+  /**
    * @brief returns the cost of the most valuable piece on the bord
    * 
    * Used for DELTA PRUNING
