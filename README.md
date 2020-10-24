@@ -7,33 +7,18 @@ Drofa started as fork of the <a href="https://github.com/GunshipPenguin/shallow-
 My initial intention was to take weak, but stable and working chess engine and try to improve it,
 learning c++ along the way.
 
-The base-goal is to reach strenght of play comparable to the <a href="https://github.com/peterwankman/vice">VICE</a> chess engine.
+As of Drofa 2.0 
+
+The base-goal is to reach strenght of play comparable to the <a href="https://github.com/peterwankman/vice">VICE</a> chess engine. (completed with Drofa 1.0)
 The mid-goal - get to ~2500 rating on the CCRL
 Far goal (probably will never be reached) - get into top 100 of the CCRL.
 
 ## Chages from Shallow Blue
-For now Drofa can be considered as highly advanced fork of the Shallow Blue, with 3 features
-being completely rewritten by me:
+With Drofa 2.0 many features was added on top of the Shallow Blue, especially in the search section.
 
-- Hashtable
-- Pawn Hashtable
-- King Safety Evaluation
-
-Evaluation function in general was refactored with an elo-gain in self-play, although its still reqire much
-work, because for now tapered eval in fact is used much less than in original Shallow Blue, which is a shame.
-
-Some features were added during the work:
-- QSearch move generator (althought i think current implementation is lazy and it can be done better)
-- Null-move pruning
-- Delta pruning (again, very lazy implementation)
-- Various bugfixes
-
-But most of the elo-gainers was some code restructuring and optimizations.
-It allowed Drofa to be ~8x times faster than Shallow Blue.
-
-Almost-full changelog with elo-gains measured for some of the features
-can be found in the `Drofa_changelog` file.
-
+Almost-full changelog with elo-gains measured for some of the features can be found:
+ - ShallowBlue -> Drofa 1.0 in the `Drofa_changelog` file.
+ - Drofa 1.0 -> Drofa 2.0 in the `Drofa_changelog_2` file
 ## Features
 
   - Board representation
@@ -49,6 +34,12 @@ can be found in the `Drofa_changelog` file.
   - Search Pruning and Reductions
     - [Null move pruning](https://www.chessprogramming.org/Null_Move_Pruning)
     - [Delta pruning](https://www.chessprogramming.org/Delta_Pruning)
+    - [Razoring](https://www.chessprogramming.org/Razoring) - Dropping in the QSearch variation
+    - [Reverse Futility Pruning]
+    - [Un-Hashed Reduction]
+    - [Late Move Pruning]
+    - [Extended Futility Pruning]
+    - [Late Move Reduction]
   - Evaluation
     - [Piece square tables](https://www.chessprogramming.org/Piece-Square_Tables)
     - [Pawn structure](https://www.chessprogramming.org/Pawn_Structure)
@@ -72,7 +63,15 @@ To build on *nix:
 
 ```
 make
+``
+
+If you have Mingw-w64 installed, you can cross compile for Windows on Linux with:
+WARNING - migw-w64 compiles are ~50% slower than native windows compiles, for best performance,
+use native windows g++ compiler.
+
 ```
+./build_windows.sh
+````
 
 You can build with debugging symbols and no optimizations using:
 
@@ -80,11 +79,14 @@ You can build with debugging symbols and no optimizations using:
 make debug
 ```
 
-If you have Mingw-w64 installed, you can cross compile for Windows on Linux with:
+You can build tuning-ready version of the Drofa Engine using:
+Drofa-tune version can be tuned with [Optuna-Game-Parameter-Tuner](https://github.com/fsmosca/Optuna-Game-Parameter-Tuner)
 
 ```
-./build_windows.sh
+make tune
 ```
+
+
 
 ## Documentation
 
@@ -97,7 +99,7 @@ To generate HTML documentation use:
 doxygen
 ```
 
-## Opening Books
+## UCI commands
 
 Drofa, as Shallow Blue, supports PolyGlot formatted (`.bin`) opening books. To use an opening book, the `OwnBook`
 and `BookPath` UCI options must be set to `true` and the path to the opening book file respectively.
@@ -108,6 +110,18 @@ These options can be set from your chess GUI or the UCI interface as follows:
 setoption name OwnBook value true
 setoption name BookPath value /path/to/book.bin
 ```
+
+Drofa tuning version allows additional UCI options for the piece values:
+vPawnEG
+vPawnOP
+vKnightOP
+vKnightEG
+vBishopOP
+vBishopEG
+vRookOP
+vRookEG
+vQueenOP
+vQueenEG
 
 ## Implemented non UCI Commands
 

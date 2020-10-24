@@ -43,7 +43,7 @@ void Search::init_LMR_array(){
   // Current formula is completely based on the 
   // Weiss chess engine.
   for (int i = 0; i < 99; i++){
-    _lmp_Array[i] = pow( i, 2) * 2;
+    _lmp_Array[i] = 3 + pow( i, 2) * 2;
   }
 
 }
@@ -342,7 +342,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
 
   if (probedHASHentry.Flag != NONE){
     TTmove = true;
-    if (probedHASHentry.depth >= depth){
+    if (probedHASHentry.depth >= depth && !pvNode){
       int hashScore = probedHASHentry.score;
       if (abs(hashScore)+50 > LOST_SCORE * -1){
         if (hashScore > 0){
@@ -395,13 +395,14 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
 
   // 1. RAZORING
   // In the very leaf nodes (d == 1)
-  // with stat eval << alpha we can assume that no 
-  // Quiet move can save us and drop to the QSearch 
+  // with stat eval << beta we can assume that no 
+  // Quiet move can beat it and drop to the QSearch 
   // immidiately
 
   if (!pvNode && Extension == 0 && depth == 1 &&
-      statEVAL + RAZORING_MARGIN < alpha){
-        return _qSearch(board, alpha, beta, ply + 1);
+      statEVAL + RAZORING_MARGIN < beta){
+        int qVal = _qSearch(board, alpha, beta, ply + 1);
+        return std::max (qVal, statEVAL + RAZORING_MARGIN);
       }
 
 
@@ -425,7 +426,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   //
   // For obvious reasons its turned off with no major pieces
   // and when we are in check
-  if (ply > 0 && depth >= 3 && !doNool && !AreWeInCheck && board.isThereMajorPiece()){
+  if (!pvNode && ply > 0 && depth >= 3 && !doNool && !AreWeInCheck && board.isThereMajorPiece()){
           Board movedBoard = board;
           movedBoard.doNool();
           int score = -_negaMax(movedBoard, depth - NULL_MOVE_REDUCTION - depth/4, -beta, -beta +1, ply + 1, true);
@@ -467,7 +468,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
     // Weirdly working, searchdepth is way up, elo gain is not so great
 
     if (!pvNode && Extension == 0 
-      && qCount > 3 + _lmp_Array[depth]/(2-improving) && alpha < ((LOST_SCORE * -1) - 50) ){
+      && qCount > _lmp_Array[depth]/(2-improving) && alpha < ((LOST_SCORE * - 1) - 50) ){
       break;
     }
 
