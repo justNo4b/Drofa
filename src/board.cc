@@ -395,22 +395,10 @@ void Board::_addPiece(Color color, PieceType pieceType, int squareIndex) {
 
 bool Board:: isThereMajorPiece() const {
 
-  if (_popCount(getPieces(getActivePlayer(), KNIGHT)) > 0){
-    return true;
-  }
-
-  if (_popCount(getPieces(getActivePlayer(), BISHOP)) > 0){
-    return true;
-  }
-
-  if (_popCount(getPieces(getActivePlayer(), ROOK)) > 0){
-    return true;
-  }
-
-  if (_popCount(getPieces(getActivePlayer(), QUEEN)) > 0){
-    return true;
-  }
-
+Color active = getActivePlayer();
+if (_popCount(_allPieces[active] ^ _pieces[active][PAWN] ^ _pieces[active][KING]) > 0){
+  return true;
+}
   return false;
 }
 
