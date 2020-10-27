@@ -22,7 +22,7 @@ class MovePicker {
    * @param board Current board state for all moves in the provided MoveList
    * @param moveList Pointer to the MoveList to pick moves from
    */
-  MovePicker(const OrderingInfo *, const Board *, MoveList *);
+  MovePicker(const OrderingInfo *, MoveList *, U64, Color, int);
 
   /**
    * @brief Returns the next best move from this MovePicker's MoveList.
@@ -101,11 +101,12 @@ class MovePicker {
    * @brief Bonuses applied to specific move types.
    * @{
    */
-  static const int CAPTURE_BONUS = 400000;
-  static const int PROMOTION_BONUS = 300000;
-  static const int KILLER1_BONUS = 200000;
-  static const int KILLER2_BONUS = 100000;
-  static const int QUIET_BONUS = 0;
+  static const int CAPTURE_BONUS      = 400000;
+  static const int PROMOTION_BONUS    = 300000;
+  static const int KILLER1_BONUS      = 200000;
+  static const int KILLER2_BONUS      = 150000;
+  static const int COUNTERMOVE_BONUS  = 100000;
+  static const int QUIET_BONUS        = 0;
   /**@}*/
 
    private:
@@ -126,10 +127,19 @@ class MovePicker {
   const OrderingInfo *_orderingInfo;
 
   /**
-   * @brief Board for all moves in the provided MoveList
+   * @brief 
    */
-  const Board *_board;
+  U64 _posKey;
 
+  /**
+   * @brief 
+   */ 
+  Color _color;
+
+  /**
+   * @brief
+   */ 
+  int _ply;
 };
 
 #endif

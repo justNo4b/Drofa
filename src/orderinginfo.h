@@ -19,23 +19,6 @@ class OrderingInfo {
   OrderingInfo();
 
   /**
-   * @brief Increment the ply number of this search by one.
-   */
-  void incrementPly();
-
-  /**
-   * @brief Decrement the ply number of this search by one.
-   */
-  void deincrementPly();
-
-  /**
-   * @brief Get the ply number of this search.
-   * 
-   * @return The ply number of this search.
-   */
-  int getPly() const;
-
-  /**
    * @brief Increment the history heuristic value of the board for 
    * the given color, from square, to square and depth.
    * 
@@ -56,6 +39,17 @@ class OrderingInfo {
    * @param depth Depth of move that caused this increment
    */
   void decrementHistory(Color, int, int, int);
+
+  /**
+   * @brief Update countermove.
+   * 
+   */
+  void updateCounterMove(Color, const Move *, Move);
+
+  /**
+   * 
+   */
+  int getCounterMoveINT(Color, PieceType, int) const; 
 
   /**
    * @brief Get beta-cutoff history information for the given color, from square and
@@ -82,7 +76,7 @@ class OrderingInfo {
    * @param ply Ply to get killer move for
    * @return First killer move at the given ply
    */
-  Move getKiller1(int) const;
+  int getKiller1(int) const;
 
   /**
    * @brief Get the second killer move for the given ply.
@@ -90,19 +84,19 @@ class OrderingInfo {
    * @param ply Ply to get killer move for
    * @return Move Second killer move at the given ply
    */
-  Move getKiller2(int) const;
+  int getKiller2(int) const;
 
  private:
 
   /**
    * @brief Array of first killer moves by ply
    */
-  Move _killer1[100];
+  int _killer1[100];
 
   /**
    * @brief Array of second killer moves by ply
    */
-  Move _killer2[100];
+  int _killer2[100];
 
   /**
    * @brief Current ply of search
@@ -113,6 +107,13 @@ class OrderingInfo {
    * @brief Table of beta-cutoff history values indexed by [color][from_square][to_square]
    */
   int _history[2][64][64];
+
+  /**
+   * @brief Array of the moves (represented by their INT), that counter move
+   * made on the previous ply (cause beta - cutoff)
+   * Indexed by [OppositeColor][PieceType][to_square] of the move they countered
+   */
+  int _counterMove[2][6][64]; 
 };
 
 #endif

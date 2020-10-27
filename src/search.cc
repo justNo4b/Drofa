@@ -251,7 +251,7 @@ void Search::_rootMax(const Board &board, int depth, int ply) {
   }
 
   MovePicker movePicker
-      (&_orderingInfo, const_cast<Board *>(&board), &legalMoves);
+      (&_orderingInfo, &legalMoves, board.getZKey().getValue(), board.getActivePlayer(), 0);
 
   int alpha = LOST_SCORE;
   int beta = -LOST_SCORE;
@@ -266,14 +266,12 @@ void Search::_rootMax(const Board &board, int depth, int ply) {
     Board movedBoard = board;
     movedBoard.doMove(move);
     if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
-        _orderingInfo.incrementPly();
         if (fullWindow) {
           currScore = -_negaMax(movedBoard, depth - 1, -beta, -alpha, ply + 1, false);
         } else {
           currScore = -_negaMax(movedBoard, depth - 1, -alpha - 1, -alpha, ply +1, false);
           if (currScore > alpha) currScore = -_negaMax(movedBoard, depth - 1, -beta, -alpha, ply + 1, false);
         }
-        _orderingInfo.deincrementPly();
 
         if (_stop || _checkLimits()) {
           _stop = true;
@@ -448,7 +446,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   MoveGen movegen(board, false);
   MoveList legalMoves = movegen.getMoves();
   MovePicker movePicker
-      (&_orderingInfo, const_cast<Board *>(&board), &legalMoves);
+      (&_orderingInfo, &legalMoves, board.getZKey().getValue(), board.getActivePlayer(), ply);
 
   Move bestMove;
   int  LegalMoveCount = 0;
@@ -494,7 +492,6 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
               continue;
           }
         }
-        _orderingInfo.incrementPly();
         _positionHistory.push_back(board.getZKey());
 
         //7. LATE MOVE REDUCTIONS
@@ -561,13 +558,12 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           }
         }
 
-        _orderingInfo.deincrementPly();
         _positionHistory.pop_back();
         // Beta cutoff
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
           if (isQuiet) {
-          _orderingInfo.updateKillers(_orderingInfo.getPly(), move);
+          _orderingInfo.updateKillers(ply, move);
           _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
           }
 
@@ -651,7 +647,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
   MoveGen movegen(board, true);
   MoveList legalMoves = movegen.getMoves();
   MovePicker movePicker
-      (&_orderingInfo, const_cast<Board *>(&board), &legalMoves);
+      (&_orderingInfo, &legalMoves, board.getZKey().getValue(), board.getActivePlayer(), 99);
 
   // If node is quiet, just return eval
   if (!movePicker.hasNext()) {
