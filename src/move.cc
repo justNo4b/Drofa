@@ -70,6 +70,31 @@ unsigned int Move::getFlags() const {
   return ((_move >> 21) & 0x7f);
 }
 
+bool Move::isItPasserPush(const Board &board) const{
+  Color movingColor = board.getActivePlayer();
+  Color defColor = board.getInactivePlayer();
+  int to = getTo();
+  if (getPieceType() == PAWN &&
+      ((board.getPieces(defColor, PAWN) & Eval::detail::PASSED_PAWN_MASKS[movingColor][to]) == ZERO) &&
+      ((board.getAllPieces(defColor) & (Eval::detail::PASSED_PAWN_MASKS[movingColor][to] ^ Eval::detail::NEIGHBOR_FILES[_col(to)])) == ZERO)){
+        U64 mSqv = ONE << to;
+        switch (movingColor)
+        {
+        case WHITE:
+          if (mSqv & PASSER_ZONE_W){
+            return true;
+          }
+          break;
+        case BLACK:
+          if (mSqv & PASSER_ZONE_B){
+            return true;
+          }
+          break;
+        }
+      }
+  return false;
+}
+
 void Move::setFlag(Flag flag) {
   _move = _move | (flag << 21);
 }

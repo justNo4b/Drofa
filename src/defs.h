@@ -30,6 +30,9 @@ const U64 RANK_5 = 0xff00000000ull;
 const U64 RANK_6 = 0xff0000000000ull;
 const U64 RANK_7 = 0xff000000000000ull;
 const U64 RANK_8 = 0xff00000000000000ull;
+
+const U64 PASSER_ZONE_W = RANK_5 | RANK_6;
+const U64 PASSER_ZONE_B = RANK_3 | RANK_4;
 /**@}*/
 
 

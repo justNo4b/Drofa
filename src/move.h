@@ -147,6 +147,13 @@ class Move {
    */
   unsigned int getTo() const;
 
+    /**
+   * @brief 
+   *
+   * @return 
+   */
+  bool isItPasserPush(const Board &board) const;
+
   /**
    * @brief Return a UCI compliant string representation of this move.
    * @return A UCI compliant string representation of this move.
