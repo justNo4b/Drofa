@@ -10,6 +10,14 @@ cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.3.0 tc=0/1
 : 10сек +0.1 на ход, большой тест
 cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.3.1 tc=0/10+0.1 -tournament round-robin -rounds 3000 -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=8moves_OPENBENCH.pgn format=pgn order=random plies=30 -pgnout razor.pgn
 
+: 10сек +0.1 на ход, огромный тест
+cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.3.2 tc=0/10+0.1 -tournament round-robin -rounds 5000 -resign movecount=6 score=1000 -draw movenumber=45 movecount=5 score=15 -concurrency 5 -repeat -openings file=8moves_OPENBENCH.pgn format=pgn order=random plies=30 -pgnout lateCapExt.pgn
+
+sprs
+cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.3.2 tc=0/10+0.1 -tournament round-robin -rounds 6000 -sprt elo0=6 elo1=10 alpha=0.05 beta=0.05 -resign movecount=6 score=1000 -draw movenumber=45 movecount=5 score=15 -concurrency 5 -repeat -openings file=8moves_OPENBENCH.pgn format=pgn order=random plies=30 -pgnout passer7.pgn
+
+
+
 :gauntlet
 cutechess-cli -engine conf=bbc_1.1 tc=0/60+1 -engine conf=Drofa_v.1.0 tc=0/60+1 -engine conf=vice tc=0/60+1 -engine conf=CleverGirl tc=0/60+1 -engine conf=MORA tc=0/60+1 -tournament gauntlet -rounds 48 -recover -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout small_test.pgn
 
