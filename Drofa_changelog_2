@@ -168,11 +168,6 @@ STC: 10+0.1`
 Score of Drofa_dev vs Drofa_1.3.1: 962 - 920 - 1118  [0.507] 3000
 Elo difference: 4.86 +/- 9.84
 Finished match
---------------------
-LTC: 30 + 1`
-Score of Drofa_dev vs Drofa_1.3.1: 146 - 154 - 200  [0.492] 500
-Elo difference: -5.56 +/- 23.59
-Finished match
 --------------------------------------
 22. No Null move and no TTcut in PVnode
 --------------------------------------
@@ -180,8 +175,13 @@ Score of Drofa_dev vs Drofa_1.3.1: 1675 - 1463 - 1862  [0.521] 5000
 Elo difference: 14.74 +/- 7.62
 Finished match
 -------------------------------------
-
-
+23. More MoveOrdering Fixes (simplified, bugfixed)
+-------------------------------------
+Score of Drofa_dev vs Drofa_1.3.2: 1471 - 1336 - 1667  [0.515] 4474
+Elo difference: 10.49 +/- 8.06
+SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+-------------------------------------
 
 
 
