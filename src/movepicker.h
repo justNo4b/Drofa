@@ -127,22 +127,25 @@ class MovePicker {
   const OrderingInfo *_orderingInfo;
 
   /**
-   * @brief 
+   * @brief posKey of the current position
    */
   U64 _posKey;
 
   /**
-   * @brief 
+   * @brief Color of the current sideToMove
    */ 
   Color _color;
 
   /**
-   * @brief
+   * @brief Current ply of the search
    */ 
   int _ply;
 
-    /**
-   * @brief
+  /**
+   * @brief Previous move made during the search
+   * ie one that lead to the position we are currently in.
+   * 
+   * Used to determine CounterMoves
    */ 
   int _pMove;
 };
