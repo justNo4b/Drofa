@@ -254,10 +254,11 @@ class Search {
    * @param  alpha Alpha value
    * @param  beta  Beta value
    * @param  ply   ply value (distance from root)
-   * @param  doNool waslast move a null one
+   * @param  doNool was last move a null one
+   * @param  int    int of the last move that was made
    * @return The score of the given board
    */
-  int _negaMax(const Board &, int, int, int, int, bool);
+  int _negaMax(const Board &, int, int, int, int, bool, int);
 
   /**
    * @brief Performs a quiescence search

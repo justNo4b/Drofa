@@ -6,13 +6,13 @@ extern HASH myHASH;
 // Indexed by [victimValue][attackerValue]
 
 
-MovePicker::MovePicker(const OrderingInfo *orderingInfo, MoveList *moveList, U64 key, Color color, int ply){
+MovePicker::MovePicker(const OrderingInfo *orderingInfo, MoveList *moveList, U64 key, Color color, int ply, int pMove){
   _orderingInfo = orderingInfo;
   _moves = moveList;
   _posKey = key;
   _color = color;
   _ply = ply;
-//  _pMove = pMove;
+  _pMove = pMove;
   _currHead = 0;
   _scoreMoves();
 }
@@ -27,6 +27,9 @@ void MovePicker::_scoreMoves() {
   }
   int Killer1 = _orderingInfo->getKiller1(_ply);
   int Killer2 = _orderingInfo->getKiller2(_ply);
+  int pType = _pMove & 0x7;
+  int to = (_pMove >> 15) & 0x3f;
+  int Counter = _orderingInfo->getCounterMoveINT(_color, pType, to);
 
   for (auto &move : *_moves) {
     int moveINT = move.getMoveINT();
@@ -42,6 +45,9 @@ void MovePicker::_scoreMoves() {
       move.setValue(KILLER2_BONUS);
     } else { // Quiet
       move.setValue(QUIET_BONUS + _orderingInfo->getHistory(_color, move.getFrom(), move.getTo()));
+      if (moveINT == Counter){
+        move.setValue( move.getValue() + COUNTERMOVE_BONUS );
+      }
     }
   }
 }

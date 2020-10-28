@@ -182,6 +182,13 @@ Elo difference: 10.49 +/- 8.06
 SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
 -------------------------------------
+24. CounterMove bonus for sorting sorting
+-------------------------------------
+Score of Drofa_dev vs Drofa_1.3.3: 1077 - 880 - 1103  [0.532] 3060
+Elo difference: 22.40 +/- 9.84
+SPRT: llr 2.96, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+
 
 
 

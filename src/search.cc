@@ -251,7 +251,7 @@ void Search::_rootMax(const Board &board, int depth, int ply) {
   }
 
   MovePicker movePicker
-      (&_orderingInfo, &legalMoves, board.getZKey().getValue(), board.getActivePlayer(), 0);
+      (&_orderingInfo, &legalMoves, board.getZKey().getValue(), board.getActivePlayer(), 0, 0);
 
   int alpha = LOST_SCORE;
   int beta = -LOST_SCORE;
@@ -267,10 +267,10 @@ void Search::_rootMax(const Board &board, int depth, int ply) {
     movedBoard.doMove(move);
     if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
         if (fullWindow) {
-          currScore = -_negaMax(movedBoard, depth - 1, -beta, -alpha, ply + 1, false);
+          currScore = -_negaMax(movedBoard, depth - 1, -beta, -alpha, ply + 1, false, move.getMoveINT());
         } else {
-          currScore = -_negaMax(movedBoard, depth - 1, -alpha - 1, -alpha, ply +1, false);
-          if (currScore > alpha) currScore = -_negaMax(movedBoard, depth - 1, -beta, -alpha, ply + 1, false);
+          currScore = -_negaMax(movedBoard, depth - 1, -alpha - 1, -alpha, ply +1, false, move.getMoveINT());
+          if (currScore > alpha) currScore = -_negaMax(movedBoard, depth - 1, -beta, -alpha, ply + 1, false, move.getMoveINT());
         }
 
         if (_stop || _checkLimits()) {
@@ -309,7 +309,7 @@ void Search::_rootMax(const Board &board, int depth, int ply) {
 
 // this is basically my main search
 // 
-int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply, bool doNool) {
+int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply, bool doNool, int pMove) {
   // Check search limits
   _nodes++;
   bool AreWeInCheck;
@@ -424,7 +424,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   if (!pvNode && ply > 0 && depth >= 3 && !doNool && !AreWeInCheck && board.isThereMajorPiece()){
           Board movedBoard = board;
           movedBoard.doNool();
-          int score = -_negaMax(movedBoard, depth - NULL_MOVE_REDUCTION - depth/4, -beta, -beta +1, ply + 1, true);
+          int score = -_negaMax(movedBoard, depth - NULL_MOVE_REDUCTION - depth/4, -beta, -beta +1, ply + 1, true, 0);
           if (score >= beta){
             return beta;
           }
@@ -446,7 +446,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   MoveGen movegen(board, false);
   MoveList legalMoves = movegen.getMoves();
   MovePicker movePicker
-      (&_orderingInfo, &legalMoves, board.getZKey().getValue(), board.getActivePlayer(), ply);
+      (&_orderingInfo, &legalMoves, board.getZKey().getValue(), board.getActivePlayer(), ply, pMove);
 
   Move bestMove;
   int  LegalMoveCount = 0;
@@ -529,7 +529,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           
           //Search with reduced depth around alpha in assumtion
           // that alpha would not be beaten here
-          score = -_negaMax(movedBoard, fDepth, -alpha - 1 , -alpha, ply + 1, false);
+          score = -_negaMax(movedBoard, fDepth, -alpha - 1 , -alpha, ply + 1, false, move.getMoveINT());
         }
         
         // Code here is restructured based on Weiss
@@ -543,10 +543,10 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         // This system is implemented instead of fullDepth = true/false basic approach.
         if (doLMR){
           if (score > alpha){
-            score = -_negaMax(movedBoard, depth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false);
+            score = -_negaMax(movedBoard, depth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT());
           }
         } else if (!pvNode || LegalMoveCount > 1){
-          score = -_negaMax(movedBoard, depth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false);
+          score = -_negaMax(movedBoard, depth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT());
         }
 
         // If we are in the PV 
@@ -554,7 +554,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         // or if score improved alpha during the current round of search.
         if  (pvNode) {
           if ((LegalMoveCount == 1) || (score > alpha && score < beta)){
-            score = -_negaMax(movedBoard, depth - 1 + AreWeInCheck, -beta, -alpha, ply + 1, false );  
+            score = -_negaMax(movedBoard, depth - 1 + AreWeInCheck, -beta, -alpha, ply + 1, false, move.getMoveINT());  
           }
         }
 
@@ -565,6 +565,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           if (isQuiet) {
           _orderingInfo.updateKillers(ply, move);
           _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
+          _orderingInfo.updateCounterMove(board.getActivePlayer(), pMove, move.getMoveINT());
           }
 
           // Add a new tt entry for this node
@@ -647,7 +648,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
   MoveGen movegen(board, true);
   MoveList legalMoves = movegen.getMoves();
   MovePicker movePicker
-      (&_orderingInfo, &legalMoves, board.getZKey().getValue(), board.getActivePlayer(), 99);
+      (&_orderingInfo, &legalMoves, board.getZKey().getValue(), board.getActivePlayer(), 99, 0);
 
   // If node is quiet, just return eval
   if (!movePicker.hasNext()) {

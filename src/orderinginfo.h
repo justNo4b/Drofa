@@ -44,12 +44,12 @@ class OrderingInfo {
    * @brief Update countermove.
    * 
    */
-  void updateCounterMove(Color, const Move *, Move);
+  void updateCounterMove(Color, int , int);
 
   /**
    * 
    */
-  int getCounterMoveINT(Color, PieceType, int) const; 
+  int getCounterMoveINT(Color, int, int) const; 
 
   /**
    * @brief Get beta-cutoff history information for the given color, from square and

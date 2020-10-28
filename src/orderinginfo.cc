@@ -7,11 +7,13 @@ OrderingInfo::OrderingInfo() {
   std::memset(_counterMove, 0, sizeof(_counterMove));
 }
 
-void OrderingInfo::updateCounterMove(Color color, const Move *counteredMove, Move counterMove){
-  _counterMove[color][counteredMove->getPieceType()][counteredMove->getTo()] = counterMove.getMoveINT();
+void OrderingInfo::updateCounterMove(Color color, int counteredMove, int counterMove){
+  int pType = counteredMove & 0x7;
+  int to = (counteredMove >> 15) & 0x3f;
+  _counterMove[color][pType][to] = counterMove;
 }
 
-int OrderingInfo::getCounterMoveINT(Color color, PieceType type, int to) const{
+int OrderingInfo::getCounterMoveINT(Color color, int type, int to) const{
   return _counterMove[color][type][to];
 }
 
