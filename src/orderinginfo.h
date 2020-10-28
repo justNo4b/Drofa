@@ -43,13 +43,20 @@ class OrderingInfo {
   /**
    * @brief Update countermove.
    * 
+   * @param color Color of the current sideToMove 
+   * @param counteredMove Previous move made in the Search
+   * @param counterMove Move that rejected counteredMove
+   * 
    */
   void updateCounterMove(Color, int , int);
 
   /**
+   * @brief Gets CounterMove using last move made in the position as info
    * 
+   * @param color Color of the current sideToMove
+   * @param pMove Previous move made in the Search
    */
-  int getCounterMoveINT(Color, int, int) const; 
+  int getCounterMoveINT(Color, int) const; 
 
   /**
    * @brief Get beta-cutoff history information for the given color, from square and

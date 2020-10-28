@@ -13,7 +13,9 @@ void OrderingInfo::updateCounterMove(Color color, int counteredMove, int counter
   _counterMove[color][pType][to] = counterMove;
 }
 
-int OrderingInfo::getCounterMoveINT(Color color, int type, int to) const{
+int OrderingInfo::getCounterMoveINT(Color color, int pMove) const{
+  int type = pMove & 0x7;
+  int to = (pMove >> 15) & 0x3f;
   return _counterMove[color][type][to];
 }
 

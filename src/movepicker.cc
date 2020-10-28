@@ -27,9 +27,7 @@ void MovePicker::_scoreMoves() {
   }
   int Killer1 = _orderingInfo->getKiller1(_ply);
   int Killer2 = _orderingInfo->getKiller2(_ply);
-  int pType = _pMove & 0x7;
-  int to = (_pMove >> 15) & 0x3f;
-  int Counter = _orderingInfo->getCounterMoveINT(_color, pType, to);
+  int Counter = _orderingInfo->getCounterMoveINT(_color, _pMove);
 
   for (auto &move : *_moves) {
     int moveINT = move.getMoveINT();
