@@ -189,6 +189,16 @@ Elo difference: 22.40 +/- 9.84
 SPRT: llr 2.96, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
 
+////////LTC TEST (1` + 1``) improvement Drofa_1.3.0 vs Drofa_1.3.4/////////
+
+Score of Drofa_1.3.4 vs Drofa_1.3.0: 131 - 78 - 140  [0.576] 349
+Elo difference: 53.17 +/- 28.34
+SPRT: llr 2.98, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+
+////////////////////////////////////////////////////////////////////////////
+
+25. CounterMove History reduction
 
 
 
