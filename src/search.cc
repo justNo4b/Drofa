@@ -524,6 +524,8 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           // Weiss also reduce less in the PV nodes,
           // but for current version adding this lose ~30 elo.
 
+          // Avoid reduction being less than 0
+          reduction = std::max(0, reduction);
           //Avoid to reduce so much that we go to QSearch right away
           int fDepth = std::max(1, depth - 1 - reduction);
           
@@ -557,7 +559,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
             score = -_negaMax(movedBoard, depth - 1 + AreWeInCheck, -beta, -alpha, ply + 1, false, move.getMoveINT());  
           }
         }
-
+        
         _positionHistory.pop_back();
         // Beta cutoff
         if (score >= beta) {
