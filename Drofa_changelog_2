@@ -198,7 +198,15 @@ Finished match
 
 ////////////////////////////////////////////////////////////////////////////
 
-25. CounterMove History reduction
+25. LMR patch (reduction cant be negative)
+-------------------------------------------------
+Score of Drofa_dev vs Drofa_1.3.4: 1868 - 1970 - 2162  [0.491] 6000
+Elo difference: -5.91 +/- 7.02
+SPRT: llr -1.21, lbound -2.94, ubound 2.94
+Finished match
+
+Accepted because this may block future good changes.
+--------------------------------------------------
 
 
 
