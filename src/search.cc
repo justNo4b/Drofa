@@ -479,16 +479,23 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         bool isQuiet = !(move.getFlags() & 0x63);
         if (isQuiet)
           qCount++;
+        int tDepth = depth;
+        //Passed pawn push extention
+        if (depth < 5 && board.isEndGamePosition() && move.isItPasserPush(board)){
+              tDepth++;
+            }
+
+
         // 6. EXTENDED FUTILITY PRUNING
         // We try to pune a move, if depth is low (1 or 2)
         // Move should not give check, shoudnt be a promotion and should not be the first move
         // we also should not be in check and close to the MATE score
         // We do not prune in the PV nodes.
 
-        if (!pvNode && !AreWeInCheck && LegalMoveCount > 1 && depth < 3 
+        if (!pvNode && !AreWeInCheck && LegalMoveCount > 1 && tDepth < 3 
         && !giveCheck && alpha < ((LOST_SCORE * -1) - 50) && !(move.getFlags() & Move::PROMOTION)){
           int moveGain = isQuiet ? 0 : Eval::MATERIAL_VALUES[0][move.getCapturedPieceType()];
-          if (statEVAL + FUTIL_MOVE_CONST * depth + moveGain - 100 * improving <= alpha){
+          if (statEVAL + FUTIL_MOVE_CONST * tDepth + moveGain - 100 * improving <= alpha){
               continue;
           }
         }
@@ -504,13 +511,13 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         //modification/tuning
 
 
-        doLMR = depth > 2 && LegalMoveCount > 2 + pvNode && !AreWeInCheck && !giveCheck;
+        doLMR = tDepth > 2 && LegalMoveCount > 2 + pvNode && !AreWeInCheck && !giveCheck;
         if (doLMR){
 
           //Basic reduction is done according to the array
           //Initiated at the ini() of the Search Class
           //Now mostly 0 -> 1
-          int reduction = _lmr_R_array[std::min(33, depth)][std::min(33, LegalMoveCount)];
+          int reduction = _lmr_R_array[std::min(33, tDepth)][std::min(33, LegalMoveCount)];
 
           //Reduction tweaks (from Weiss)
           //if move is quiet, reduce a bit more
@@ -527,7 +534,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           // Avoid reduction being less than 0
           reduction = std::max(0, reduction);
           //Avoid to reduce so much that we go to QSearch right away
-          int fDepth = std::max(1, depth - 1 - reduction);
+          int fDepth = std::max(1, tDepth - 1 - reduction);
           
           //Search with reduced depth around alpha in assumtion
           // that alpha would not be beaten here
@@ -545,10 +552,10 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         // This system is implemented instead of fullDepth = true/false basic approach.
         if (doLMR){
           if (score > alpha){
-            score = -_negaMax(movedBoard, depth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT());
+            score = -_negaMax(movedBoard, tDepth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT());
           }
         } else if (!pvNode || LegalMoveCount > 1){
-          score = -_negaMax(movedBoard, depth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT());
+          score = -_negaMax(movedBoard, tDepth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT());
         }
 
         // If we are in the PV 
@@ -556,7 +563,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         // or if score improved alpha during the current round of search.
         if  (pvNode) {
           if ((LegalMoveCount == 1) || (score > alpha && score < beta)){
-            score = -_negaMax(movedBoard, depth - 1 + AreWeInCheck, -beta, -alpha, ply + 1, false, move.getMoveINT());  
+            score = -_negaMax(movedBoard, tDepth - 1 + AreWeInCheck, -beta, -alpha, ply + 1, false, move.getMoveINT());  
           }
         }
         

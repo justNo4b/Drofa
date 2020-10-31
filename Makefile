@@ -22,7 +22,7 @@ tune: LD_FLAGS  = -pthread -flto
 
 OBJ_DIR = obj
 
-BIN_NAME = Drofa_dev
+BIN_NAME = Drofa_dev2
 TEST_BIN_NAME = DrofaTest
 TUNE_BIN_NAME = Drofa_tune
 

@@ -407,7 +407,7 @@ bool Board:: isEndGamePosition() const {
 int pieceCount = _popCount(_allPieces[WHITE] ^ _pieces[WHITE][PAWN] ^ _pieces[WHITE][KING]) + 
 _popCount(_allPieces[BLACK] ^ _pieces[BLACK][PAWN] ^ _pieces[BLACK][KING]);
 
-if (pieceCount < 2){
+if (pieceCount < 3){
   return true;
 }
   return false;
