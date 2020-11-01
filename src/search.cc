@@ -480,11 +480,16 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         if (isQuiet)
           qCount++;
         int tDepth = depth;
-        //Passed pawn push extention
+        // 6. EXTENTIONS
+        // 
+        // 6.1. Passed pawn push extention
+        // In the late game  we fear that we may miss
+        // some pawn promotions near the leafs of the search tree
+        // Thus we extend in the endgame pushes of the non-blocked 
+        // passers that are near the middle of the board
         if (depth < 5 && board.isEndGamePosition() && move.isItPasserPush(board)){
               tDepth++;
             }
-        //Recapture extention
         
 
         // 6. EXTENDED FUTILITY PRUNING
@@ -520,22 +525,26 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           //Now mostly 0 -> 1
           int reduction = _lmr_R_array[std::min(33, tDepth)][std::min(33, LegalMoveCount)];
 
-          //Reduction tweaks (from Weiss)
-          //if move is quiet, reduce a bit more
+          // Reduction tweaks
+          // We generally want to guess if the move will not improve alpha
+          // and guess right to do no re-searches
+
+          // if move is quiet, reduce a bit more (from Weiss)
           if (isQuiet){
             reduction++;
           }
-          //if we are improving, reduce a bit less
+          //if we are improving, reduce a bit less (from Weiss)
           if (improving){
             reduction--;
           }
-          // Weiss also reduce less in the PV nodes,
-          // but for current version adding this lose ~30 elo.
-          // reduce less for CounterMove and both Killers
+
+          // Reduce less for CounterMove and both Killers
           if (move.getMoveINT() == _orderingInfo.getCounterMoveINT(board.getActivePlayer(), pMove) ||
           move == _orderingInfo.getKiller1(ply) ||  move == _orderingInfo.getKiller2(ply)){
             reduction--;
           }
+
+          // We finished reduction tweaking, calculate final depth and search
           // Avoid reduction being less than 0
           reduction = std::max(0, reduction);
           //Avoid to reduce so much that we go to QSearch right away
