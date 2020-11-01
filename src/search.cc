@@ -484,7 +484,8 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         if (depth < 5 && board.isEndGamePosition() && move.isItPasserPush(board)){
               tDepth++;
             }
-
+        //Recapture extention
+        
 
         // 6. EXTENDED FUTILITY PRUNING
         // We try to pune a move, if depth is low (1 or 2)
@@ -530,7 +531,11 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           }
           // Weiss also reduce less in the PV nodes,
           // but for current version adding this lose ~30 elo.
-
+          // reduce less for CounterMove and both Killers
+          if (move.getMoveINT() == _orderingInfo.getCounterMoveINT(board.getActivePlayer(), pMove) ||
+          move == _orderingInfo.getKiller1(ply) ||  move == _orderingInfo.getKiller2(ply)){
+            reduction--;
+          }
           // Avoid reduction being less than 0
           reduction = std::max(0, reduction);
           //Avoid to reduce so much that we go to QSearch right away
