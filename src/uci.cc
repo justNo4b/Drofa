@@ -41,6 +41,9 @@ Eval::SetupTuning(ENDGAME, ROOK, atoi(optionsMap["vRookEG"].getValue().c_str()))
 
 Eval::SetupTuning(OPENING, QUEEN, atoi(optionsMap["vQueenOP"].getValue().c_str())); 
 Eval::SetupTuning(ENDGAME, QUEEN, atoi(optionsMap["vQueenEG"].getValue().c_str())); 
+
+Eval::SetupFeatureTuning(OPENING, BISHOP_PAIR, atoi(optionsMap["vBPairOP"].getValue().c_str())); 
+Eval::SetupFeatureTuning(ENDGAME, BISHOP_PAIR, atoi(optionsMap["vBPairEG"].getValue().c_str())); 
 }
 #endif
 
@@ -70,6 +73,9 @@ void initOptions() {
   optionsMap["vRookEG"] =   Option(500, 25, 2048, &loadCosts);
   optionsMap["vQueenOP"] =  Option(900, 25, 2048, &loadCosts);
   optionsMap["vQueenEG"] =  Option(900, 25, 2048, &loadCosts);
+
+  optionsMap["vBPairOP"] =  Option(20, -10, 200, &loadCosts);
+  optionsMap["vBPairEG"] =  Option(20, -10, 200, &loadCosts);
 #endif
 
 }

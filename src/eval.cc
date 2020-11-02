@@ -24,7 +24,10 @@ int MATERIAL_VALUES_TUNABLE[2][6] = {
         [KING] = 0
     }
 };
-
+int BISHOP_PAIR_TUNABLE [2] = {
+    [OPENING] = 20,
+    [ENDGAME] = 20
+};
 
 U64 Eval::detail::FILES[8] = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
 U64 Eval::detail::NEIGHBOR_FILES[8]{
@@ -126,6 +129,19 @@ void Eval::init() {
 void Eval::SetupTuning(int phase, PieceType piece, int value){
   MATERIAL_VALUES_TUNABLE [phase][piece] = value;
 }
+
+void Eval::SetupFeatureTuning(int phase, TuningFeature feature, int value){
+  switch (feature)
+  {
+  case BISHOP_PAIR:
+    BISHOP_PAIR_TUNABLE[phase] = value;
+    break;
+  
+  default:
+    break;
+  }
+}
+
 
 int Eval::getMaterialValue(int phase, PieceType pieceType) {
   #ifdef _TUNE_
@@ -428,10 +444,17 @@ int Eval::evaluate(const Board &board, Color color) {
   endgameScore += ROOK_SEMI_FILE_BONUS[ENDGAME] * tmpint;
 
   // Bishop pair
+  #ifdef _TUNE_
+  openingScore += w_B > 1 ? BISHOP_PAIR_TUNABLE[OPENING] : 0;
+  endgameScore += w_B > 1 ? BISHOP_PAIR_TUNABLE[ENDGAME] : 0;
+  openingScore -= b_B > 1 ? BISHOP_PAIR_TUNABLE[OPENING] : 0;
+  endgameScore -= b_B > 1 ? BISHOP_PAIR_TUNABLE[ENDGAME] : 0;
+  #else
   openingScore += w_B > 1 ? BISHOP_PAIR_BONUS[OPENING] : 0;
   endgameScore += w_B > 1 ? BISHOP_PAIR_BONUS[ENDGAME] : 0;
   openingScore -= b_B > 1 ? BISHOP_PAIR_BONUS[OPENING] : 0;
   endgameScore -= b_B > 1 ? BISHOP_PAIR_BONUS[ENDGAME] : 0;
+  #endif
   
   // Pawn structure
   int whiteScore_O = 0;

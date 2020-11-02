@@ -5,6 +5,14 @@
 #include "movegen.h"
 #include "bitutils.h"
 
+/**
+ * @brief Represent CuttOffState of the node saved in the transposition table.
+ */ 
+enum TuningFeature{
+        BISHOP_PAIR,
+        ROOK_OPEN,
+        ROOK_SEMI
+};
 
 #define SC(op, eg) ((int)((unsigned int)(op) << 16 ) + eg)
 /**
@@ -414,6 +422,12 @@ int b_P, int b_N, int b_B, int b_R, int b_Q);
  * which is used for optuna tuning
  */ 
 void SetupTuning(int phase, PieceType piece, int value);
+
+/**
+ * @brief Set value for a MATERIAL_VALUES_TUNABLE array
+ * which is used for optuna tuning
+ */ 
+void SetupFeatureTuning(int phase, TuningFeature feature, int value);
 
 };
 
