@@ -238,17 +238,17 @@ Elo difference: 12.79 +/- 7.72
 ////////////////////////////////////////////////////////////////////////////
 
 29. Do LMR and extended futility for bad quiet checks.
+-----------------------------------------------------
+Score of Drofa_dev vs Drofa_1.3.7: 6091 - 5878 - 7031  [0.506] 19000
+Elo difference: 3.90 +/- 3.92
 
-Score of Drofa_dev vs Drofa_1.3.7: 1633 - 1587 - 1780  [0.505] 5000
-Elo difference: 3.20 +/- 7.72
-SPRT: llr -0.361, lbound -2.94, ubound 2.94
-Finished match
-
-
-
+Summ of two matches (5k and 9k)
+Lets say it is a pass
+-----------------------------------------------------
 30. Do not do stat eval if we are going int QSearch, and if last move was NULL
-Elo gain not tested, same NODES count, ~10% nps count.
+Elo gain not tested, same NODES count, ~5-7% nps count.
 Version merged into 1.3.8
+-----------------------------------------------------
 
 
 
