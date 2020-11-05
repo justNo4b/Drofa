@@ -370,17 +370,23 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
 
   AreWeInCheck = board.colorIsInCheck(board.getActivePlayer());
 
-  if (AreWeInCheck) {
-    _sEvalArray[ply] = NOSCORE;
-  }else{
-    statEVAL = Eval::evaluate(board, board.getActivePlayer());
-    _sEvalArray[ply] = statEVAL;
-  }
   // Go into the QSearch if depth is 0
   if (depth == 0 && !AreWeInCheck) {
     selDepth = std::max(ply, selDepth);
     return _qSearch(board, alpha, beta, ply + 1 );
   }
+
+  if (AreWeInCheck) {
+    _sEvalArray[ply] = NOSCORE;
+  }else if (pMove == 0){
+    // last Move was Null, so we can omit stat eval here
+    statEVAL = -_sEvalArray[ply - 1];
+    _sEvalArray[ply] = statEVAL;
+  }else{
+    statEVAL = Eval::evaluate(board, board.getActivePlayer());
+    _sEvalArray[ply] = statEVAL;
+  }
+
   // Check if we are improving
   // The idea is if we are not improving in this line
   // We probably can prune a bit more
