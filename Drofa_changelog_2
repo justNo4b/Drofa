@@ -197,6 +197,7 @@ SPRT: llr 2.98, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
 
 ////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 
 25. LMR patch (reduction cant be negative)
 -------------------------------------------------
@@ -219,6 +220,41 @@ core of Drofa_dev vs Drofa_1.3.6: 1632 - 1503 - 1865  [0.513] 5000
 Elo difference: 8.97 +/- 7.62
 Finished match
 ---------------------------------------------------
+28. Threat - weak test, maybe at bigger TC later
+Finished game 4727 (Drofa_dev2 vs Drofa_1.3.7): 1-0 {White wins by adjudication}
+Score of Drofa_dev2 vs Drofa_1.3.7: 1553 - 1530 - 1644  [0.502] 4727
+(not implemented)
+---------------------------------------------------
+---------------------------------------------------
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+//////////_____________Drofa_1.3.7 vs Drofa 1.3.4___________////////////////
+
+Progress test, because some of the test can be negative)
+Score of Drofa_1.3.7 vs Drofa_1.3.4: 1700 - 1516 - 1784  [0.518] 5000
+Elo difference: 12.79 +/- 7.72
+
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+
+29. Do LMR and extended futility for bad quiet checks.
+
+Score of Drofa_dev vs Drofa_1.3.7: 1633 - 1587 - 1780  [0.505] 5000
+Elo difference: 3.20 +/- 7.72
+SPRT: llr -0.361, lbound -2.94, ubound 2.94
+Finished match
+
+
+
+30. Do not do stat eval if we are going int QSearch, and if last move was NULL
+Elo gain not tested, same NODES count, ~10% nps count.
+Version merged into 1.3.8
+
+
+
+
+
+
 
 
 
