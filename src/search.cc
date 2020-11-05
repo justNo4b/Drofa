@@ -483,6 +483,8 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
 
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
         bool isQuiet = !(move.getFlags() & 0x63);
+        bool badHistory = (isQuiet 
+                            && _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) < -3*depth*depth);                
         if (isQuiet)
           qCount++;
         int tDepth = depth;
@@ -505,7 +507,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         // We do not prune in the PV nodes.
 
         if (!pvNode && !AreWeInCheck && LegalMoveCount > 1 && tDepth < 3 
-        && !giveCheck && alpha < ((LOST_SCORE * -1) - 50) && !(move.getFlags() & Move::PROMOTION)){
+        && (!giveCheck || badHistory) && alpha < ((LOST_SCORE * -1) - 50) && !(move.getFlags() & Move::PROMOTION)){
           int moveGain = isQuiet ? 0 : Eval::MATERIAL_VALUES[0][move.getCapturedPieceType()];
           if (statEVAL + FUTIL_MOVE_CONST * tDepth + moveGain - 100 * improving <= alpha){
               continue;
@@ -523,7 +525,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         //modification/tuning
 
 
-        doLMR = tDepth > 2 && LegalMoveCount > 2 + pvNode && !AreWeInCheck && !giveCheck;
+        doLMR = tDepth > 2 && LegalMoveCount > 2 + pvNode && !AreWeInCheck && (!giveCheck || badHistory);
         if (doLMR){
 
           //Basic reduction is done according to the array
