@@ -7,11 +7,16 @@ Drofa started as fork of the <a href="https://github.com/GunshipPenguin/shallow-
 My initial intention was to take weak, but stable and working chess engine and try to improve it,
 learning c++ along the way.
 
-As of Drofa 2.0 
+During my Drofa experiments huge chunk of knowlenge were received from:
 
-The base-goal is to reach strenght of play comparable to the <a href="https://github.com/peterwankman/vice">VICE</a> chess engine. (completed with Drofa 1.0)
-The mid-goal - get to ~2500 rating on the CCRL (probably reached in Drofa 2.0)
-Far goal (probably will never be reached) - get into top 100 of the CCRL.
+<a href="https://github.com/peterwankman/vice">VICE</a> chess engine and tutorials.
+<a href="https://www.chessprogramming.org">Chessprogramming WIKI</a> great place for all chessprogramming-related knowledge.
+
+Special thanks to the Terje Kirstihagen and his <a href="https://www.chessprogramming.org">Weiss</a> chess engine, from where
+I took LMP and LMR base reduction formulas and some of the conditions.
+## Chages from Shallow Blue
+Strength:
+Drofa 2.0.0 will be probably a little less than 2500 CCRL elo.
 
 ## Chages from Shallow Blue
 With Drofa 2.0 many features was added on top of the Shallow Blue, especially in the search section.
@@ -39,7 +44,7 @@ Almost-full changelog with elo-gains measured for some of the features can be fo
     - [Un-Hashed Reduction](http://talkchess.com/forum3/viewtopic.php?f=7&t=74769) - Rebels idea
     - [Late Move Pruning] - based on the Weiss formula
     - [Extended Futility Pruning](https://www.chessprogramming.org/Futility_Pruning)
-    - [Late Move Reduction](https://www.chessprogramming.org/Late_Move_Reductions)
+    - [Late Move Reduction](https://www.chessprogramming.org/Late_Move_Reductions) - based on the Weiss formula
   - Evaluation
     - [Piece square tables](https://www.chessprogramming.org/Piece-Square_Tables)
     - [Pawn structure](https://www.chessprogramming.org/Pawn_Structure)
@@ -53,7 +58,8 @@ Almost-full changelog with elo-gains measured for some of the features can be fo
     - [Hash move](https://www.chessprogramming.org/Hash_Move)
     - [MVV/LVA](https://www.chessprogramming.org/MVV-LVA)
     - [Killer heuristic](https://www.chessprogramming.org/Killer_Heuristic)
-    - [History heuristic](https://www.chessprogramming.org/History_Heuristic)
+    - [History heuristic](https://www.chessprogramming.org/History_Heuristic)	
+    - [CounterMove heuristic](https://www.chessprogramming.org/Countermove_Heuristic) - only for Quiet moves
   - Other
     - [Opening book support](https://www.chessprogramming.org/Opening_Book) (PolyGlot format)
 
