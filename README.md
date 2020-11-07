@@ -13,7 +13,7 @@ During my Drofa experiments huge chunk of knowlenge were received from:
 <a href="https://www.chessprogramming.org">Chessprogramming WIKI</a> great place for all chessprogramming-related knowledge.
 
 Special thanks to the Terje Kirstihagen and his <a href="https://www.chessprogramming.org">Weiss</a> chess engine, from where
-I took LMP and LMR base reduction formulas and some of the conditions.
+I took LMP and LMR base reduction formulas, and idead of using IMPROVING factor in pruning.
 ## Chages from Shallow Blue
 Strength:
 Drofa 2.0.0 will be probably a little less than 2500 CCRL elo.
