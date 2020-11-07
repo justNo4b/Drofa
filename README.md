@@ -10,7 +10,7 @@ learning c++ along the way.
 As of Drofa 2.0 
 
 The base-goal is to reach strenght of play comparable to the <a href="https://github.com/peterwankman/vice">VICE</a> chess engine. (completed with Drofa 1.0)
-The mid-goal - get to ~2500 rating on the CCRL
+The mid-goal - get to ~2500 rating on the CCRL (probably reached in Drofa 2.0)
 Far goal (probably will never be reached) - get into top 100 of the CCRL.
 
 ## Chages from Shallow Blue
@@ -35,11 +35,16 @@ Almost-full changelog with elo-gains measured for some of the features can be fo
     - [Null move pruning](https://www.chessprogramming.org/Null_Move_Pruning)
     - [Delta pruning](https://www.chessprogramming.org/Delta_Pruning)
     - [Razoring](https://www.chessprogramming.org/Razoring) - Dropping in the QSearch variation
-    - [Reverse Futility Pruning]
-    - [Un-Hashed Reduction]
-    - [Late Move Pruning]
-    - [Extended Futility Pruning]
-    - [Late Move Reduction]
+    - [Reverse Futility Pruning](https://www.chessprogramming.org/Reverse_Futility_Pruning)
+    - [Un-Hashed Reduction](http://talkchess.com/forum3/viewtopic.php?f=7&t=74769) - Rebels idea
+    - [Late Move Pruning] - based on the Weiss formula
+    - [Extended Futility Pruning](https://www.chessprogramming.org/Futility_Pruning)
+    - [Late Move Reduction](https://www.chessprogramming.org/Late_Move_Reductions)
+	- LMR formula from Weiss
+	- Do not reduce checking moves with good history
+	- Reduce less when improving (Weiss)
+	- Reduce more for Quiet moves (Weiss)
+	- Do not reduce both Killers and a CounterMove
   - Evaluation
     - [Piece square tables](https://www.chessprogramming.org/Piece-Square_Tables)
     - [Pawn structure](https://www.chessprogramming.org/Pawn_Structure)
