@@ -22,7 +22,7 @@ cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.3.3 tc=0/1
 
 
 :gauntlet
-cutechess-cli -engine conf=bbc_1.1 tc=0/60+1 -engine conf=Drofa_v.1.0 tc=0/60+1 -engine conf=vice tc=0/60+1 -engine conf=CleverGirl tc=0/60+1 -engine conf=MORA tc=0/60+1 -tournament gauntlet -rounds 48 -recover -resign movecount=6 score=1000 -concurrency 4 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout small_test.pgn
+cutechess-cli -engine conf=Drofa_1.3.8 tc=0/60+1 -engine conf=Raven1.10 tc=0/60+1 -engine conf=Galjoen tc=0/60+1 -engine conf=Velvet-v1.0.0 tc=0/60+1 -engine conf=Weiss_0.6 tc=0/60+1 -tournament gauntlet -rounds 75 -recover -resign movecount=6 score=1000 -draw movenumber=45 movecount=5 score=15 -concurrency 5 -repeat -openings file=Popbooks-MiLo.pgn format=pgn order=random plies=30 -pgnout final_test.pgn
 
 
 tuning:
