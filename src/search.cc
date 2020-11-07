@@ -425,8 +425,8 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   // moves wont improve his position
   // we can safely prune this position
   //
-  // For obvious reasons its turned off with no major pieces
-  // and when we are in check
+  // For obvious reasons its turned off with no major pieces,
+  // when we are in check, and at pvNodes
   if (!pvNode && ply > 0 && depth >= 3 && !doNool && !AreWeInCheck && board.isThereMajorPiece()){
           Board movedBoard = board;
           movedBoard.doNool();
@@ -518,8 +518,8 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         //7. LATE MOVE REDUCTIONS
         //mix of ideas from Weiss code and what is written in the chessprogramming wiki
         //
-        //For now we dont reduce if depth too low, when extention is triggered
-        //and when move give check.
+        //For now we dont reduce if depth too low, when we are in check
+        //and when move give check (with good history).
         //Currently we try to reduce 3rd move and beyond and 4th and beyond in the pvNode.
         //Considering tactical blunders are often in Drofa, this should be subject of
         //modification/tuning
