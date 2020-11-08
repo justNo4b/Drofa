@@ -77,7 +77,7 @@ use native windows g++ compiler.
 
 ```
 ./build_windows.sh
-````
+```
 
 You can build with debugging symbols and no optimizations using:
 
