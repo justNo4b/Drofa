@@ -69,7 +69,7 @@ To build on *nix:
 
 ```
 make
-``
+```
 
 If you have Mingw-w64 installed, you can cross compile for Windows on Linux with:
 WARNING - migw-w64 compiles are ~50% slower than native windows compiles, for best performance,
