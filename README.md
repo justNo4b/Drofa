@@ -118,16 +118,16 @@ setoption name BookPath value /path/to/book.bin
 ```
 
 Drofa tuning version allows additional UCI options for the piece values:
-vPawnEG
-vPawnOP
-vKnightOP
-vKnightEG
-vBishopOP
-vBishopEG
-vRookOP
-vRookEG
-vQueenOP
-vQueenEG
+`vPawnEG`
+`vPawnOP`
+`vKnightOP`
+`vKnightEG`
+`vBishopOP`
+`vBishopEG`
+`vRookOP`
+`vRookEG`
+`vQueenOP`
+`vQueenEG`
 
 ## Implemented non UCI Commands
 
