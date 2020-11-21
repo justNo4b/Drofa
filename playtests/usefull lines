@@ -14,10 +14,10 @@ cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.3.1 tc=0/1
 cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.3.2 tc=0/10+0.1 -tournament round-robin -rounds 5000 -resign movecount=6 score=1000 -draw movenumber=45 movecount=5 score=15 -concurrency 5 -repeat -openings file=8moves_OPENBENCH.pgn format=pgn order=random plies=30 -pgnout lateCapExt.pgn
 
 sprs
-cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.3.3 tc=0/10+0.1 -tournament round-robin -rounds 6000 -sprt elo0=5 elo1=10 alpha=0.05 beta=0.05 -resign movecount=6 score=1000 -draw movenumber=45 movecount=5 score=15 -concurrency 6 -repeat -openings file=8moves_OPENBENCH.pgn format=pgn order=random plies=30 -pgnout moCounterMove.pgn
+cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_2.0.1 tc=0/10+0.1 -tournament round-robin -rounds 3000 -sprt elo0=0 elo1=3 alpha=0.05 beta=0.05 -resign movecount=6 score=1000 -draw movenumber=45 movecount=5 score=15 -concurrency 6 -repeat -openings file=8moves_OPENBENCH.pgn format=pgn order=random plies=30 -pgnout eval_.pgn
 
 sprs reduce stuff
-cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_1.3.3 tc=0/10+0.1 -tournament round-robin -rounds 6000 -sprt elo0=-4 elo1=0 alpha=0.05 beta=0.05 -resign movecount=6 score=1000 -draw movenumber=45 movecount=5 score=15 -concurrency 6 -repeat -openings file=8moves_OPENBENCH.pgn format=pgn order=random plies=30 -pgnout moCounterMove.pgn
+cutechess-cli -engine conf=Drofa_dev tc=0/10+0.1 -engine conf=Drofa_2.0.0 tc=0/10+0.1 -tournament round-robin -rounds 6000 -sprt elo0=-4 elo1=0 alpha=0.05 beta=0.05 -resign movecount=6 score=1000 -draw movenumber=45 movecount=5 score=15 -concurrency 6 -repeat -openings file=8moves_OPENBENCH.pgn format=pgn order=random plies=30 -pgnout moCounterMove.pgn
 
 
 

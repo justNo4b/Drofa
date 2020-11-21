@@ -14,7 +14,24 @@ enum TuningFeature{
         ROOK_SEMI
 };
 
-#define SC(op, eg) ((int)((unsigned int)(op) << 16 ) + eg)
+struct gS
+{
+    int16_t OP;
+    int16_t EG;
+
+    gS() : OP(0), EG(0) {}
+    gS( int16_t o, int16_t e) : OP(o), EG(e) {}
+
+    inline gS operator+(gS other_gS){
+        return gS(OP + other_gS.OP, EG + other_gS.EG);
+    }
+
+    inline gS operator-(gS other_gS){
+        return gS(OP - other_gS.OP, EG - other_gS.EG);
+    }
+};
+
+
 /**
  * @brief Namespace containing board evaluation functions
  */
@@ -148,7 +165,7 @@ const int MATERIAL_VALUES[2][6] = {
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
-const int ROOK_OPEN_FILE_BONUS[2] = {[OPENING] = 25, [ENDGAME] = 25};
+const int ROOK_OPEN_FILE_BONUS[2] = {[OPENING] = 40, [ENDGAME] = 40};
 
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
@@ -256,27 +273,18 @@ int getMaterialValue(int, PieceType);
 int evaluatePawnStructure(const Board &, Color, GamePhase);
 
 
-/**
- * @brief Returns the number of rooks on open files that the given color has on
- * the given board
- *
- * @param board Board to check for rooks on open files
- * @param color Color of player to check for rooks on open files
- * @return The number of rooks on open files that the given color has on the
- * given board
- */
-int rooksOnOpenFiles(const Board &, Color);
+  /**
+    * @name Functions used for the evaluating positions of the Major Pieces
+    * @brief Returns structure that contain opening and enggame scores
+    * @{
+    */
+    gS evaluateQUEEN(const Board &, Color);
+    gS evaluateROOK(const Board &, Color);
+    gS evaluateBISHOP(const Board &, Color);
+    gS evaluateKNIGHT(const Board &, Color);
+    gS evaluateKING(const Board &, Color);
 
-/**
- * @brief Returns the number of rooks on semi-open files that the given color has on
- * the given board
- *
- * @param board Board to check for rooks on open files
- * @param color Color of player to check for rooks on open files
- * @return The number of rooks on semi-open files that the given color has on the
- * given board
- */
-int rooksOnSemiFiles(const Board &, Color);
+  /**@}*/
 
 /**
  * @brief Returns the number of passed pawns that the given color has on the

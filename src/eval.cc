@@ -142,41 +142,12 @@ void Eval::SetupFeatureTuning(int phase, TuningFeature feature, int value){
   }
 }
 
-
 int Eval::getMaterialValue(int phase, PieceType pieceType) {
   #ifdef _TUNE_
   return MATERIAL_VALUES_TUNABLE [phase][pieceType];
   #else
   return MATERIAL_VALUES[phase][pieceType];
   #endif
-}
-
-int Eval::rooksOnOpenFiles(const Board &board, Color color) {
-  Color otherColor = getOppositeColor(color);
-  int numRooks = 0;
-
-  for (U64 file : detail::FILES) {
-    if ((file & board.getPieces(color, ROOK))
-        && ((file & board.getPieces(color, PAWN)) == 0)
-        && ((file & board.getPieces(otherColor, PAWN)) == 0)
-        ) {
-      numRooks += _popCount(file & board.getPieces(color, ROOK));
-    }
-  }
-  return numRooks;
-}
-
-int Eval::rooksOnSemiFiles(const Board &board, Color color) {
-  int numRooks = 0;
-
-  for (U64 file : detail::FILES) {
-    if ((file & board.getPieces(color, ROOK))
-        && ((file & board.getPieces(color, PAWN)) == 0)
-        ) {
-      numRooks += _popCount(file & board.getPieces(color, ROOK));
-    }
-  }
-  return numRooks;
 }
 
 int Eval::passedPawns(const Board &board, Color color) {
@@ -354,6 +325,109 @@ int Eval::getPhase(const Board &board) {
   return ((phase * MAX_PHASE) + (detail::PHASE_WEIGHT_SUM / 2)) / detail::PHASE_WEIGHT_SUM;
 }
 
+gS Eval::evaluateQUEEN(const Board & board, Color color){
+  int op = 0;
+  int eg = 0;
+
+  U64 pieces = board.getPieces(color, QUEEN);
+
+  // Mobility
+
+    while (pieces) {
+      int square = _popLsb(pieces);
+      U64 attackBitBoard = board.getAttacksForSquare(QUEEN, color, square);
+      op += _popCount(attackBitBoard) * MOBILITY_BONUS[OPENING][QUEEN];
+      eg += _popCount(attackBitBoard) * MOBILITY_BONUS[ENDGAME][QUEEN];
+    }
+
+  return gS(op, eg);
+}
+
+gS Eval::evaluateROOK(const Board & board, Color color){
+  int op = 0;
+  int eg = 0;
+  Color otherColor = getOppositeColor(color);
+
+  U64 pieces = board.getPieces(color, ROOK);
+
+
+
+    while (pieces) {
+
+      // Mobility
+      int square = _popLsb(pieces);
+      U64 attackBitBoard = board.getAttacksForSquare(ROOK, color, square);
+      op += _popCount(attackBitBoard) * MOBILITY_BONUS[OPENING][ROOK];
+      eg += _popCount(attackBitBoard) * MOBILITY_BONUS[ENDGAME][ROOK];
+
+      U64 file = detail::FILES[_col(square)];
+
+      if ( ((file & board.getPieces(color, PAWN)) == 0)
+        && ((file & board.getPieces(otherColor, PAWN)) == 0)){
+          op += ROOK_OPEN_FILE_BONUS[OPENING];
+          eg += ROOK_OPEN_FILE_BONUS[ENDGAME]; 
+      }
+      else if ((file & board.getPieces(color, PAWN)) == 0){
+          op += ROOK_SEMI_FILE_BONUS[OPENING];
+          eg += ROOK_SEMI_FILE_BONUS[ENDGAME];
+      }
+    }
+
+  return gS(op, eg);
+}
+
+gS Eval::evaluateBISHOP(const Board & board, Color color){
+  int op = 0;
+  int eg = 0;
+
+  U64 pieces = board.getPieces(color, BISHOP);
+
+    while (pieces) {
+      
+      // Mobility
+      int square = _popLsb(pieces);
+      U64 attackBitBoard = board.getAttacksForSquare(BISHOP, color, square);
+      op += _popCount(attackBitBoard) * MOBILITY_BONUS[OPENING][BISHOP];
+      eg += _popCount(attackBitBoard) * MOBILITY_BONUS[ENDGAME][BISHOP];
+    }
+
+  return gS(op, eg);
+}
+
+gS Eval::evaluateKNIGHT(const Board & board, Color color){
+  int op = 0;
+  int eg = 0;
+
+  U64 pieces = board.getPieces(color, KNIGHT);
+
+    while (pieces) {
+      
+      // Mobility
+      int square = _popLsb(pieces);
+      U64 attackBitBoard = board.getAttacksForSquare(KNIGHT, color, square);
+      op += _popCount(attackBitBoard) * MOBILITY_BONUS[OPENING][KNIGHT];
+      eg += _popCount(attackBitBoard) * MOBILITY_BONUS[ENDGAME][KNIGHT];
+    }
+
+  return gS(op, eg);
+}
+
+gS Eval::evaluateKING(const Board & board, Color color){
+  int op = 0;
+  int eg = 0;
+
+
+
+  U64 pieces = board.getPieces(color, KING);
+  int square = _popLsb(pieces);
+  // Mobility
+  U64 attackBitBoard = board.getAttacksForSquare(KING, color, square);
+  op += _popCount(attackBitBoard) * MOBILITY_BONUS[OPENING][KING];
+  eg += _popCount(attackBitBoard) * MOBILITY_BONUS[ENDGAME][KING];
+
+  return gS(op, eg);
+}
+
 int Eval::evaluate(const Board &board, Color color) {
 
   int openingScore = 0;
@@ -408,40 +482,16 @@ int Eval::evaluate(const Board &board, Color color) {
   // Piece square tables
   openingScore += board.getPSquareTable().getScore(OPENING, color) - board.getPSquareTable().getScore(OPENING, otherColor);
   endgameScore += board.getPSquareTable().getScore(ENDGAME, color) - board.getPSquareTable().getScore(ENDGAME, otherColor);
-  
-  // Mobility
 
-  for (auto pieceType : {ROOK, KNIGHT, BISHOP, QUEEN, KING}) {
-    U64 pieces = board.getPieces(color, pieceType);
+  // Evaluate pieces
+  gS pieceS = evaluateBISHOP(board, color) - evaluateBISHOP(board, otherColor)
+            + evaluateKNIGHT(board, color) - evaluateKNIGHT(board, otherColor)
+            + evaluateROOK  (board, color) - evaluateROOK  (board, otherColor)
+            + evaluateQUEEN (board, color) - evaluateQUEEN (board, otherColor)
+            + evaluateKING (board, color) - evaluateKING (board, otherColor);
 
-    while (pieces) {
-      int square = _popLsb(pieces);
-      U64 attackBitBoard = board.getAttacksForSquare(pieceType, color, square);
-      openingScore += _popCount(attackBitBoard) * MOBILITY_BONUS[OPENING][pieceType];
-      endgameScore += _popCount(attackBitBoard) * MOBILITY_BONUS[ENDGAME][pieceType];
-    }
-  }
-
-  for (auto pieceType : {ROOK, KNIGHT, BISHOP, QUEEN, KING}) {
-    U64 pieces = board.getPieces(otherColor, pieceType);
-
-    while (pieces) {
-      int square = _popLsb(pieces);
-      U64 attackBitBoard = board.getAttacksForSquare(pieceType, otherColor, square);
-      openingScore -= _popCount(attackBitBoard) * MOBILITY_BONUS[OPENING][pieceType];
-      endgameScore -= _popCount(attackBitBoard) * MOBILITY_BONUS[ENDGAME][pieceType];
-    }
-  }
-
-  // Rook on open file
-  tmpint = rooksOnOpenFiles(board, color) - rooksOnOpenFiles(board, otherColor);
-  openingScore += ROOK_OPEN_FILE_BONUS[OPENING] * tmpint;
-  endgameScore += ROOK_OPEN_FILE_BONUS[ENDGAME] * tmpint;
-
-  //Rook on semi-open-file
-  tmpint = rooksOnSemiFiles(board, color) - rooksOnSemiFiles(board, otherColor);
-  openingScore += ROOK_SEMI_FILE_BONUS[OPENING] * tmpint; 
-  endgameScore += ROOK_SEMI_FILE_BONUS[ENDGAME] * tmpint;
+  openingScore += pieceS.OP;
+  endgameScore += pieceS.EG;
 
   // Bishop pair
   #ifdef _TUNE_
