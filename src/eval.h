@@ -255,30 +255,6 @@ int getMaterialValue(int, PieceType);
  */
 int evaluatePawnStructure(const Board &, Color, GamePhase);
 
-/**
- * @brief Returns true if the given color has at least one bishop on black squares
- * and at least one bishop on white squares on the given board
- *
- * @param board Board to check bishops of
- * @param color Color to check for bishop pair
- * @return true if the given color has at least one bishop on a black square and
- * at least one bishop on a white square, false otherwise
- */
-bool hasBishopPair(const Board &, Color);
-
-/**
- * @brief Returns the weighted mobility score (in centipawns) for the given
- * phase and color
- *
- * This method calculates all pseudo-legal moves for the given colors, and sums
- * the number of moves, weighting the sum as per Eval::MOBILITY_BONUS.
- *
- * @param board Board to use when generating moves
- * @param phase GamePhase to evaluate board for
- * @param color Color to count pseudo-legal moves for
- * @return The number of pseudo-legal moves avaliable to the given color
- */
-int evaluateMobility(const Board &board, GamePhase phase, Color color);
 
 /**
  * @brief Returns the number of rooks on open files that the given color has on
