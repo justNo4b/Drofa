@@ -630,11 +630,10 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   }
 
   // If the best move was not set in the main search loop
-  // alpha was not raised at any point, just pick the first move
-  // avaliable (arbitrary) to avoid putting a null move in the
-  // transposition table
+  // alpha was not raised at any point, just return alpha 
+  // (ie do not write in the TT)
   if (bestMove.getFlags() & Move::NULL_MOVE) {
-    bestMove = legalMoves.at(0);
+    return alpha;
   }
 
   // Store bestScore in transposition table
