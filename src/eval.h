@@ -151,41 +151,6 @@ const int MATERIAL_VALUES[2][6] = {
 const int ROOK_OPEN_FILE_BONUS[2] = {[OPENING] = 25, [ENDGAME] = 25};
 
 /**
- * @brief If a piece has less than this amount of moves
- * We will give a penalty to the score
- */ 
-const int RESTRICTED_COUNT [6] = {
-    [PAWN] = 0,
-    [ROOK] = 5,
-    [KNIGHT] = 3,
-    [BISHOP] = 3,
-    [QUEEN] = 6,
-    [KING] = 0
-};
-
-/**
- * @brief Array for penalties for low move amount 
- */ 
-const int RESTRICTED_PENALTY[2][6] = {
-    [OPENING] = {
-        [PAWN] = 0,
-        [ROOK] = -17,
-        [KNIGHT] = -35,
-        [BISHOP] = -13,
-        [QUEEN] = -20,
-        [KING] = 0
-    },
-    [ENDGAME] = {
-        [PAWN] = 0,
-        [ROOK] = -25,
-        [KNIGHT] = -16,
-        [BISHOP] = -25,
-        [QUEEN] = -30,
-        [KING] = 0
-    }
-};
-
-/**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
 const int ROOK_SEMI_FILE_BONUS[2] = {[OPENING] = 15, [ENDGAME] = 15};
@@ -210,10 +175,6 @@ const int ISOLATED_PAWN_PENALTY[2] = {[OPENING] = -15, [ENDGAME] = -30};
  */
 const int BISHOP_PAIR_BONUS[2] = {[OPENING] = 20, [ENDGAME] = 20};
 
-/**
- * @brief Bonuses given to a player for each pawn shielding their king (opening/endgame)
- */
-const int KING_PAWN_SHIELD_BONUS[2] = {[OPENING] = 10, [ENDGAME] = 0};
 
 /**
  * @brief Initializes all inner constants used by functions in the Eval namespace
