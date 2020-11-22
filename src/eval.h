@@ -47,6 +47,8 @@ extern U64 FILES[8];
  */
 extern U64 NEIGHBOR_FILES[8];
 
+extern U64 OUTPOST_MASK[2][64];
+
 /**
  * @brief Array of masks indexed by [Color][square] containing all squares that
  * must be free of enemy pawns for a pawn of the given color on the given
@@ -71,13 +73,6 @@ extern U64 KING_OO_MASKS[2][2];
  * maskNUMs - just all masks
  */
 extern U64 KING_PAWN_MASKS[2][2][7];
-
-/**
- * @brief Array of masks indexed by [Color][square] containing all squares
- * considered part of the "pawn shield" for a king of the given color on the
- * given square
- */
-extern U64 PAWN_SHIELD_MASKS[2][64];
 
 /**
  * @brief Weights for each piece used to calculate the game phase based off
@@ -191,7 +186,6 @@ const int ISOLATED_PAWN_PENALTY[2] = {[OPENING] = -15, [ENDGAME] = -30};
  * @brief Bonuses given to a player for having bishops on black and white squares (opening/endgame)
  */
 const int BISHOP_PAIR_BONUS[2] = {[OPENING] = 20, [ENDGAME] = 20};
-
 
 /**
  * @brief Initializes all inner constants used by functions in the Eval namespace
@@ -322,23 +316,6 @@ int doubledPawns(const Board &, Color);
  * board
  */
 int isolatedPawns(const Board &, Color);
-
-/**
- * @brief Returns the number of pawns shielding the king of the given color on
- * the given board
- *
- * "Pawns shielding the king" are defined to be the three pawns to the
- * north, northeast and northwest (for white) or south, southeast and
- * southwest (for black). If the king is on the A or H files, the missing
- * square will be disregarded. Pawn shields are only considered if the pawns
- * are on rank 2 (for white) or rank 7 (for black).
- *
- * @param board Board to check shield pawns for
- * @param color Color to check shield pawns for
- * @return The number of pawns shielding the king of the given color on the
- * given board
- */
-int pawnsShieldingKing(const Board &, Color);
 
 /**
  * @brief This function analyses king safety.

@@ -1,12 +1,23 @@
 Drofa changelog: Drofa 2.0 -> Drofa 3.0
 
 1. Fixed occasional writing illegal moves in the TT
-
+------------------------------------------------------------
 Score of Drofa_dev vs Drofa_master: 1707 - 1466 - 1755  [0.524] 4928
 Elo difference: 17.0 +/- 7.8
 SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
-
-2. Fully refactored eval, no NODES difference, so not tested.
-   NPS is ~10-15% faster now.
+-------------------------------------------------------------
+2. Fully refactored eval, no NODES difference, NPS is ~10-15% faster now.
+-------------------------------------------------------------
+Score of Drofa_dev vs Drofa_master: 1885 - 1650 - 2217  [0.520] 5752
+Elo difference: 14.2 +/- 7.0
+SPRT: llr 2.96, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+-------------------------------------------------------------
+3. OutPosts implemented
+-------------------------------------------------------------
+Score of Drofa_dev vs Drofa_master: 6324 - 6035 - 7641  [0.507] 20000
+Elo difference: 5.0 +/- 3.8
+SPRT: llr 2.83  (96,2%), lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
 

@@ -1,6 +1,7 @@
 #include "defs.h"
 #include "rays.h"
 #include "movegen.h"
+#include "outposts.h"
 #include "eval.h"
 #include "transptable.h"
 
@@ -41,7 +42,7 @@ U64 Eval::detail::NEIGHBOR_FILES[8]{
     FILE_G
 };
 U64 Eval::detail::PASSED_PAWN_MASKS[2][64];
-U64 Eval::detail::PAWN_SHIELD_MASKS[2][64];
+U64 Eval::detail::OUTPOST_MASK[2][64];
 int Eval::detail::PHASE_WEIGHT_SUM = 0;
 U64 Eval::detail::KING_OO_MASKS[2][2] = {
         [WHITE] = {
@@ -96,19 +97,11 @@ U64 Eval::detail::KING_PAWN_MASKS[2][2][7] = {
         }
     };
 
+
 void Eval::init() {
-  // Initialize king pawn shield masks
-  for (int i = 0; i < 64; i++) {
-    U64 square = ONE << i;
-
-    detail::PAWN_SHIELD_MASKS[WHITE][i] = ((square << 8) | ((square << 7) & ~FILE_H) |
-        ((square << 9) & ~FILE_A)) & RANK_2;
-    detail::PAWN_SHIELD_MASKS[BLACK][i] = ((square >> 8) | ((square >> 7) & ~FILE_A) |
-        ((square >> 9) & ~FILE_H)) & RANK_7;
-  }
-
   // Initialize passed pawn masks
   for (int square = 0; square < 64; square++) {
+
     U64 currNorthRay = Rays::getRay(Rays::NORTH, square);
     U64 currSouthRay = Rays::getRay(Rays::SOUTH, square);
 
@@ -116,6 +109,10 @@ void Eval::init() {
         currNorthRay | _eastN(currNorthRay, 1) | _westN(currNorthRay, 1);
     detail::PASSED_PAWN_MASKS[BLACK][square] =
         currSouthRay | _westN(currSouthRay, 1) | _eastN(currSouthRay, 1);
+
+    detail::OUTPOST_MASK[WHITE][square] = detail::PASSED_PAWN_MASKS[WHITE][square] & detail::NEIGHBOR_FILES[_col(square)];  
+    detail::OUTPOST_MASK[BLACK][square] = detail::PASSED_PAWN_MASKS[BLACK][square] & detail::NEIGHBOR_FILES[_col(square)];  
+
   }
 
   // Initialize PHASE_WEIGHT_SUM
@@ -188,11 +185,6 @@ int Eval::isolatedPawns(const Board &board, Color color) {
   }
 
   return isolated;
-}
-
-int Eval::pawnsShieldingKing(const Board &board, Color color) {
-  int kingSquare = _bitscanForward(board.getPieces(color, KING));
-  return _popCount(detail::PAWN_SHIELD_MASKS[color][kingSquare] & board.getPieces(color, PAWN));
 }
 
 bool Eval::IsItDeadDraw (int w_P, int w_N, int w_B, int w_R, int w_Q,
@@ -389,6 +381,11 @@ gS Eval::evaluateBISHOP(const Board & board, Color color){
       U64 attackBitBoard = board.getAttacksForSquare(BISHOP, color, square);
       op += _popCount(attackBitBoard) * MOBILITY_BONUS[OPENING][BISHOP];
       eg += _popCount(attackBitBoard) * MOBILITY_BONUS[ENDGAME][BISHOP];
+
+      // OUTPOSTED BISHOP
+      if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
+        op += BISHOP_OUTPOST_OPENING[color][square];
+      }
     }
 
   return gS(op, eg);
@@ -407,8 +404,12 @@ gS Eval::evaluateKNIGHT(const Board & board, Color color){
       U64 attackBitBoard = board.getAttacksForSquare(KNIGHT, color, square);
       op += _popCount(attackBitBoard) * MOBILITY_BONUS[OPENING][KNIGHT];
       eg += _popCount(attackBitBoard) * MOBILITY_BONUS[ENDGAME][KNIGHT];
-    }
 
+      // OUTPOSTED KNIGHT
+      if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
+        op += KNIGHT_OUTPOST_OPENING[color][square];
+      }
+    }
   return gS(op, eg);
 }
 

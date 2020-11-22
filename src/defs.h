@@ -31,8 +31,6 @@ const U64 RANK_6 = 0xff0000000000ull;
 const U64 RANK_7 = 0xff000000000000ull;
 const U64 RANK_8 = 0xff00000000000000ull;
 
-const U64 PASSER_ZONE_W = RANK_5 | RANK_6;
-const U64 PASSER_ZONE_B = RANK_3 | RANK_4;
 /**@}*/
 
 
@@ -47,13 +45,6 @@ const int LOST_SCORE = -100000;
  *
 */
 const int NOSCORE = 333333;
-
-
-/**
- * Global debug variables here 
- * 
-*/
-
 
 /**
  * @name File bitboards
@@ -76,6 +67,16 @@ const U64 FILE_A = 0x101010101010101ull;
 const U64 BLACK_SQUARES = 0xAA55AA55AA55AA55;
 const U64 WHITE_SQUARES = 0x55AA55AA55AA55AA;
 /**@}*/
+
+/**
+ * @name Other helpfull bitboards
+ */
+const U64 CENTER        = 0x1818000000;
+const U64 FIGHTING_AREA = RANK_3 | RANK_4 | RANK_5 | RANK_6;
+const U64 PASSER_ZONE_W = RANK_5 | RANK_6;
+const U64 PASSER_ZONE_B = RANK_3 | RANK_4;
+/**@}*/
+
 
 /**
  * @brief An empty bitboard. (ie. the number 0)
