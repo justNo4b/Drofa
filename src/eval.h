@@ -111,23 +111,29 @@ const int KING_SAFE = 5;         // хороший пешечный щит
 /**
  * @brief Bonuses given to a player having a move available (opening/endgame)
  */
-const int MOBILITY_BONUS[2][6] = {
-    [OPENING] = {
-        [PAWN] = 0,
-        [ROOK] = 0,
-        [KNIGHT] = 3,
-        [BISHOP] = 2,
-        [QUEEN] = 0,
-        [KING] = 0
-    },
-    [ENDGAME] = {
-        [PAWN] = 0,
-        [ROOK] = 1,
-        [KNIGHT] = 4,
-        [BISHOP] = 2,
-        [QUEEN] = 1,
-        [KING] = 2
-    }
+const int BISHOP_MOBILITY [2][14] = {
+            [OPENING] = {-25, -13,   0,   4,  8, 10, 12, 14, 16, 18, 20, 22, 23, 23},
+            [ENDGAME] = {-25, -17, -13,  -5,  0,  6,  9, 12, 15, 17, 19, 21, 23, 23},
+};
+
+const int KNIGHT_MOBILITY [2][9] = {
+            [OPENING] = {-25, -10,  0,  5,  9, 13, 18, 21, 21},
+            [ENDGAME] = {-25, -17,-10,  0,  5, 10, 18, 24, 24},
+};
+
+const int KING_MOBILITY [2][9] = {
+            [OPENING] = {-3,  0,  5,  5,  3, -1,  -3, -5, -7},
+            [ENDGAME] = {-4, -1,  0,  2,  5,  8,  11, 11,  8},
+};
+
+const int ROOK_MOBILITY [2][15] = {
+            [OPENING] = {-21,-13,  -7,  -3, -1,  0,  2,  5,  7, 10, 13, 14, 14, 13, 12},
+            [ENDGAME] = {-13, -7,  -5,  -1,  0,  2,  4,  6,  8, 12, 14, 16, 16, 15, 15},
+};
+
+const int QUEEN_MOBILITY [2][28] = {
+            [OPENING] = {-34, -17,  -11,   -7,  -3,  -1,   0,  1,  3, 5, 7, 9, 11, 13, 15, 16, 17, 18, 19, 21, 23, 25, 25, 26, 26, 26},
+            [ENDGAME] = {-50, -20,  -13,   -9,  -5,  -3,  -1,  0,  1, 3, 5, 7,  9, 11, 13, 15, 17, 18, 19, 21, 23, 25, 25, 26, 26, 26},
 };
 
 /**

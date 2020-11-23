@@ -333,8 +333,8 @@ gS Eval::evaluateQUEEN(const Board & board, Color color){
     while (pieces) {
       int square = _popLsb(pieces);
       U64 attackBitBoard = board.getAttacksForSquare(QUEEN, color, square);
-      op += _popCount(attackBitBoard) * MOBILITY_BONUS[OPENING][QUEEN];
-      eg += _popCount(attackBitBoard) * MOBILITY_BONUS[ENDGAME][QUEEN];
+      op += QUEEN_MOBILITY[OPENING][_popCount(attackBitBoard)];
+      eg += QUEEN_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
     }
 
   return gS(op, eg);
@@ -354,8 +354,8 @@ gS Eval::evaluateROOK(const Board & board, Color color){
       // Mobility
       int square = _popLsb(pieces);
       U64 attackBitBoard = board.getAttacksForSquare(ROOK, color, square);
-      op += _popCount(attackBitBoard) * MOBILITY_BONUS[OPENING][ROOK];
-      eg += _popCount(attackBitBoard) * MOBILITY_BONUS[ENDGAME][ROOK];
+      op += ROOK_MOBILITY[OPENING][_popCount(attackBitBoard)];
+      eg += ROOK_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
 
       U64 file = detail::FILES[_col(square)];
 
@@ -384,8 +384,8 @@ gS Eval::evaluateBISHOP(const Board & board, Color color){
       // Mobility
       int square = _popLsb(pieces);
       U64 attackBitBoard = board.getAttacksForSquare(BISHOP, color, square);
-      op += _popCount(attackBitBoard) * MOBILITY_BONUS[OPENING][BISHOP];
-      eg += _popCount(attackBitBoard) * MOBILITY_BONUS[ENDGAME][BISHOP];
+      op += BISHOP_MOBILITY[OPENING][_popCount(attackBitBoard)];
+      eg += BISHOP_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
 
       // OUTPOSTED BISHOP
       if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
@@ -412,8 +412,8 @@ gS Eval::evaluateKNIGHT(const Board & board, Color color){
       // Mobility
       int square = _popLsb(pieces);
       U64 attackBitBoard = board.getAttacksForSquare(KNIGHT, color, square);
-      op += _popCount(attackBitBoard) * MOBILITY_BONUS[OPENING][KNIGHT];
-      eg += _popCount(attackBitBoard) * MOBILITY_BONUS[ENDGAME][KNIGHT];
+      op += KNIGHT_MOBILITY[OPENING][_popCount(attackBitBoard)];
+      eg += KNIGHT_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
 
       // OUTPOSTED KNIGHT
       if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
@@ -437,8 +437,8 @@ gS Eval::evaluateKING(const Board & board, Color color){
   int square = _popLsb(pieces);
   // Mobility
   U64 attackBitBoard = board.getAttacksForSquare(KING, color, square);
-  op += _popCount(attackBitBoard) * MOBILITY_BONUS[OPENING][KING];
-  eg += _popCount(attackBitBoard) * MOBILITY_BONUS[ENDGAME][KING];
+      op += KING_MOBILITY[OPENING][_popCount(attackBitBoard)];
+      eg += KING_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
 
   return gS(op, eg);
 }
