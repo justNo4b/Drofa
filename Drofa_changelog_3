@@ -31,5 +31,13 @@ Finished match
 As we will tune the tables later anyway, smth lilke 3 +/- 7.5 is fine.
 Thus merged into 2.0.4
 -----------------------------------------------------------
+5. Mobility using array[moves] instead of (moves*const) bonus.
+   Weights in the array tweaked to be non-linear.
+-----------------------------------------------------------
+Score of Drofa_dev vs Drofa_2.0.4: 861 - 643 - 959  [0.544] 2463
+Elo difference: 30.83 +/- 10.73
+SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+-----------------------------------------------------------
 
 
