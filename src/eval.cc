@@ -43,6 +43,7 @@ U64 Eval::detail::NEIGHBOR_FILES[8]{
 };
 U64 Eval::detail::PASSED_PAWN_MASKS[2][64];
 U64 Eval::detail::OUTPOST_MASK[2][64];
+U64 Eval::detail::OUTPOST_PROTECTION[2][64];
 int Eval::detail::PHASE_WEIGHT_SUM = 0;
 U64 Eval::detail::KING_OO_MASKS[2][2] = {
         [WHITE] = {
@@ -112,6 +113,10 @@ void Eval::init() {
 
     detail::OUTPOST_MASK[WHITE][square] = detail::PASSED_PAWN_MASKS[WHITE][square] & detail::NEIGHBOR_FILES[_col(square)];  
     detail::OUTPOST_MASK[BLACK][square] = detail::PASSED_PAWN_MASKS[BLACK][square] & detail::NEIGHBOR_FILES[_col(square)];  
+
+    U64 sqv = ONE << square;
+    detail::OUTPOST_PROTECTION[WHITE][square] = ((sqv >> 9) & ~FILE_H) | ((sqv >> 7) & ~FILE_A);
+    detail::OUTPOST_PROTECTION[BLACK][square] = ((sqv << 9) & ~FILE_A) | ((sqv << 7) & ~FILE_H);
 
   }
 
@@ -384,7 +389,12 @@ gS Eval::evaluateBISHOP(const Board & board, Color color){
 
       // OUTPOSTED BISHOP
       if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
-        op += BISHOP_OUTPOST_OPENING[color][square];
+        if (detail::OUTPOST_PROTECTION[color][square] & board.getPieces(color, PAWN)){
+          op += BISHOP_PROT_OUTPOST_OPENING[color][square];
+        }else{
+          op += BISHOP_OUTPOST_OPENING[color][square];          
+        }
+
       }
     }
 
@@ -407,7 +417,11 @@ gS Eval::evaluateKNIGHT(const Board & board, Color color){
 
       // OUTPOSTED KNIGHT
       if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
-        op += KNIGHT_OUTPOST_OPENING[color][square];
+        if (detail::OUTPOST_PROTECTION[color][square] & board.getPieces(color, PAWN)){
+          op += KNIGHT_PROT_OUTPOST_OPENING[color][square];
+        }else{
+          op += KNIGHT_OUTPOST_OPENING[color][square];         
+        }
       }
     }
   return gS(op, eg);

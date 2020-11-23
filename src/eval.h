@@ -48,6 +48,7 @@ extern U64 FILES[8];
 extern U64 NEIGHBOR_FILES[8];
 
 extern U64 OUTPOST_MASK[2][64];
+extern U64 OUTPOST_PROTECTION[2][64];
 
 /**
  * @brief Array of masks indexed by [Color][square] containing all squares that

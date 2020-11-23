@@ -20,4 +20,16 @@ Score of Drofa_dev vs Drofa_master: 6324 - 6035 - 7641  [0.507] 20000
 Elo difference: 5.0 +/- 3.8
 SPRT: llr 2.83  (96,2%), lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
+------------------------------------------------------------
+4. Protected outposts implemented
+------------------------------------------------------------
+Score of Drofa_dev2 vs Drofa_dev: 1524 - 1485 - 1991  [0.504] 5000
+Elo difference: 2.71 +/- 7.46
+SPRT: llr 0.25, lbound -2.94, ubound 2.94
+Finished match
+
+As we will tune the tables later anyway, smth lilke 3 +/- 7.5 is fine.
+Thus merged into 2.0.4
+-----------------------------------------------------------
+
 
