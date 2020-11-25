@@ -67,6 +67,37 @@ U64 Board::getAttacksForSquare(PieceType pieceType, Color color, int square) con
   return attacks;
 }
 
+U64 Board::getMobilityForSquare(PieceType pieceType, Color color, int square) const {
+
+  U64 own;
+  U64 attacks;
+  switch (pieceType) {
+    case ROOK: 
+      own = getAllPieces(color) ^ getPieces(color, ROOK) ^ getPieces (color, QUEEN);
+      attacks = _getRookAttacksForSquare(square, own);
+      break;
+    case KNIGHT: 
+      own = getAllPieces(color);
+      attacks = _getKnightAttacksForSquare(square, own);
+      break;
+    case BISHOP: 
+      own = getAllPieces(color) ^ getPieces (color, QUEEN);
+      attacks = _getBishopAttacksForSquare(square, own);
+      break;
+    case QUEEN: 
+      own = getAllPieces(color) ^ getPieces(color, BISHOP) ^ getPieces (color, ROOK);
+      attacks = _getQueenAttacksForSquare(square, own);
+      break;
+    case KING: 
+      own = getAllPieces(color);
+      attacks = _getKingAttacksForSquare(square, own);
+      break;
+  }
+
+  return attacks;
+}
+
+
 Color Board::getInactivePlayer() const {
   return _activePlayer == WHITE ? BLACK : WHITE;
 }

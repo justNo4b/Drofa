@@ -332,7 +332,7 @@ gS Eval::evaluateQUEEN(const Board & board, Color color){
 
     while (pieces) {
       int square = _popLsb(pieces);
-      U64 attackBitBoard = board.getAttacksForSquare(QUEEN, color, square);
+      U64 attackBitBoard = board.getMobilityForSquare(QUEEN, color, square);
       op += QUEEN_MOBILITY[OPENING][_popCount(attackBitBoard)];
       eg += QUEEN_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
     }
@@ -353,7 +353,7 @@ gS Eval::evaluateROOK(const Board & board, Color color){
 
       // Mobility
       int square = _popLsb(pieces);
-      U64 attackBitBoard = board.getAttacksForSquare(ROOK, color, square);
+      U64 attackBitBoard = board.getMobilityForSquare(ROOK, color, square);
       op += ROOK_MOBILITY[OPENING][_popCount(attackBitBoard)];
       eg += ROOK_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
 
@@ -383,7 +383,7 @@ gS Eval::evaluateBISHOP(const Board & board, Color color){
       
       // Mobility
       int square = _popLsb(pieces);
-      U64 attackBitBoard = board.getAttacksForSquare(BISHOP, color, square);
+      U64 attackBitBoard = board.getMobilityForSquare(BISHOP, color, square);
       op += BISHOP_MOBILITY[OPENING][_popCount(attackBitBoard)];
       eg += BISHOP_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
 
@@ -411,7 +411,7 @@ gS Eval::evaluateKNIGHT(const Board & board, Color color){
       
       // Mobility
       int square = _popLsb(pieces);
-      U64 attackBitBoard = board.getAttacksForSquare(KNIGHT, color, square);
+      U64 attackBitBoard = board.getMobilityForSquare(KNIGHT, color, square);
       op += KNIGHT_MOBILITY[OPENING][_popCount(attackBitBoard)];
       eg += KNIGHT_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
 
@@ -436,7 +436,7 @@ gS Eval::evaluateKING(const Board & board, Color color){
   U64 pieces = board.getPieces(color, KING);
   int square = _popLsb(pieces);
   // Mobility
-  U64 attackBitBoard = board.getAttacksForSquare(KING, color, square);
+  U64 attackBitBoard = board.getMobilityForSquare(KING, color, square);
       op += KING_MOBILITY[OPENING][_popCount(attackBitBoard)];
       eg += KING_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
 
