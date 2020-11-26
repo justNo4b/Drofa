@@ -31,6 +31,12 @@ struct gS
     }
 };
 
+struct evalBits{
+    // number of different pieces attacking oppponents KING
+    int King_Attackers_Count[2];
+    // number of attack points awarded
+    int King_Attack_Score[2];
+};
 
 /**
  * @brief Namespace containing board evaluation functions
@@ -49,6 +55,7 @@ extern U64 NEIGHBOR_FILES[8];
 
 extern U64 OUTPOST_MASK[2][64];
 extern U64 OUTPOST_PROTECTION[2][64];
+extern U64 KINGZONE[2][64];
 
 /**
  * @brief Array of masks indexed by [Color][square] containing all squares that
@@ -279,11 +286,11 @@ int evaluatePawnStructure(const Board &, Color, GamePhase);
     * @brief Returns structure that contain opening and enggame scores
     * @{
     */
-    gS evaluateQUEEN(const Board &, Color);
-    gS evaluateROOK(const Board &, Color);
-    gS evaluateBISHOP(const Board &, Color);
-    gS evaluateKNIGHT(const Board &, Color);
-    gS evaluateKING(const Board &, Color);
+    gS evaluateQUEEN(const Board &, Color, evalBits *);
+    gS evaluateROOK(const Board &, Color, evalBits *);
+    gS evaluateBISHOP(const Board &, Color, evalBits *);
+    gS evaluateKNIGHT(const Board &, Color, evalBits *);
+    gS evaluateKING(const Board &, Color, const evalBits &);
 
   /**@}*/
 
