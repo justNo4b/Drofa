@@ -1,6 +1,7 @@
 #include "defs.h"
 #include "rays.h"
 #include "movegen.h"
+#include "attacks.h"
 #include "outposts.h"
 #include "eval.h"
 #include "transptable.h"
@@ -44,6 +45,7 @@ U64 Eval::detail::NEIGHBOR_FILES[8]{
 U64 Eval::detail::PASSED_PAWN_MASKS[2][64];
 U64 Eval::detail::OUTPOST_MASK[2][64];
 U64 Eval::detail::OUTPOST_PROTECTION[2][64];
+U64 Eval::detail::KINGZONE[2][64];
 int Eval::detail::PHASE_WEIGHT_SUM = 0;
 U64 Eval::detail::KING_OO_MASKS[2][2] = {
         [WHITE] = {
@@ -117,6 +119,10 @@ void Eval::init() {
     U64 sqv = ONE << square;
     detail::OUTPOST_PROTECTION[WHITE][square] = ((sqv >> 9) & ~FILE_H) | ((sqv >> 7) & ~FILE_A);
     detail::OUTPOST_PROTECTION[BLACK][square] = ((sqv << 9) & ~FILE_A) | ((sqv << 7) & ~FILE_H);
+
+    U64 kingAttack = Attacks::getNonSlidingAttacks(KING, square, WHITE); 
+    detail::KINGZONE[WHITE][square] = sqv | kingAttack | (kingAttack << 8);
+    detail::KINGZONE[BLACK][square] = sqv | kingAttack | (kingAttack >> 8);
 
   }
 
@@ -322,7 +328,7 @@ int Eval::getPhase(const Board &board) {
   return ((phase * MAX_PHASE) + (detail::PHASE_WEIGHT_SUM / 2)) / detail::PHASE_WEIGHT_SUM;
 }
 
-gS Eval::evaluateQUEEN(const Board & board, Color color){
+gS Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
   int op = 0;
   int eg = 0;
 
@@ -340,7 +346,7 @@ gS Eval::evaluateQUEEN(const Board & board, Color color){
   return gS(op, eg);
 }
 
-gS Eval::evaluateROOK(const Board & board, Color color){
+gS Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
   int op = 0;
   int eg = 0;
   Color otherColor = getOppositeColor(color);
@@ -373,7 +379,7 @@ gS Eval::evaluateROOK(const Board & board, Color color){
   return gS(op, eg);
 }
 
-gS Eval::evaluateBISHOP(const Board & board, Color color){
+gS Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB){
   int op = 0;
   int eg = 0;
 
@@ -401,7 +407,7 @@ gS Eval::evaluateBISHOP(const Board & board, Color color){
   return gS(op, eg);
 }
 
-gS Eval::evaluateKNIGHT(const Board & board, Color color){
+gS Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB){
   int op = 0;
   int eg = 0;
 
@@ -427,11 +433,9 @@ gS Eval::evaluateKNIGHT(const Board & board, Color color){
   return gS(op, eg);
 }
 
-gS Eval::evaluateKING(const Board & board, Color color){
+gS Eval::evaluateKING(const Board & board, Color color, const evalBits & eB){
   int op = 0;
   int eg = 0;
-
-
 
   U64 pieces = board.getPieces(color, KING);
   int square = _popLsb(pieces);
@@ -498,12 +502,20 @@ int Eval::evaluate(const Board &board, Color color) {
   openingScore += board.getPSquareTable().getScore(OPENING, color) - board.getPSquareTable().getScore(OPENING, otherColor);
   endgameScore += board.getPSquareTable().getScore(ENDGAME, color) - board.getPSquareTable().getScore(ENDGAME, otherColor);
 
+  // Create evalBits stuff
+  evalBits eB;
+  eB.King_Attackers_Count[0] = 0;
+  eB.King_Attackers_Count[1] = 0;
+  eB.King_Attack_Score[0] = 0;
+  eB.King_Attack_Score[1] = 0;
+
+
   // Evaluate pieces
-  gS pieceS = evaluateBISHOP(board, color) - evaluateBISHOP(board, otherColor)
-            + evaluateKNIGHT(board, color) - evaluateKNIGHT(board, otherColor)
-            + evaluateROOK  (board, color) - evaluateROOK  (board, otherColor)
-            + evaluateQUEEN (board, color) - evaluateQUEEN (board, otherColor)
-            + evaluateKING (board, color) - evaluateKING (board, otherColor);
+  gS pieceS = evaluateBISHOP(board, color, &eB) - evaluateBISHOP(board, otherColor, &eB)
+            + evaluateKNIGHT(board, color, &eB) - evaluateKNIGHT(board, otherColor, &eB)
+            + evaluateROOK  (board, color, &eB) - evaluateROOK  (board, otherColor, &eB)
+            + evaluateQUEEN (board, color, &eB) - evaluateQUEEN (board, otherColor, &eB)
+            + evaluateKING (board, color, eB) - evaluateKING (board, otherColor, eB);
 
   openingScore += pieceS.OP;
   endgameScore += pieceS.EG;
