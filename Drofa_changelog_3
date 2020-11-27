@@ -41,6 +41,7 @@ Finished match
 -----------------------------------------------------------
 6. Mobility scanning through (ie R attacks scan through R and Q)
 -----------------------------------------------------------
+<<<<<<< HEAD
 Score of Drofa_dev vs Drofa_2.0.5: 3581 - 3321 - 4202  [0.512] 11104
 Elo difference: 8.1 +/- 5.1
 SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
@@ -55,4 +56,10 @@ Finished match
 -----------------------------------------------------------
 8. 
 
+=======
+Score of Drofa_dev vs Drofa_2.0.4: 3581 - 3321 - 4202  [0.512] 11104
+Elo difference: 8.1 +/- 5.1
+SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+>>>>>>> cf82eb8d6abe6f3ee31b73543f4ef7c5414c6872
 
