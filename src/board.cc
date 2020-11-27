@@ -67,7 +67,7 @@ U64 Board::getAttacksForSquare(PieceType pieceType, Color color, int square) con
   return attacks;
 }
 
-U64 Board::getMobilityForSquare(PieceType pieceType, Color color, int square) const {
+U64 Board::getMobilityForSquare(PieceType pieceType, Color color, int square, U64 pBB) const {
 
   U64 own;
   U64 attacks;
@@ -93,7 +93,7 @@ U64 Board::getMobilityForSquare(PieceType pieceType, Color color, int square) co
       attacks = _getKingAttacksForSquare(square, own);
       break;
   }
-
+  attacks = attacks & (~pBB);
   return attacks;
 }
 

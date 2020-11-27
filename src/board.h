@@ -260,9 +260,10 @@ class Board {
    * @param  pieceType The piece type to lookup move locations for
    * @param  color     The color of the piece to lookup move locations for.
    * @param  square       The little endian rank file mapping of the destination square.
+   * @param  pawnBB    Opponent pawn attack biboard
    * @return           A bitboard containing all of the squares that a piece of the specified piece type and color could move to.
    */
-  U64 getMobilityForSquare(PieceType, Color, int) const;
+  U64 getMobilityForSquare(PieceType, Color, int, U64) const;
 
   /**
    * @brief return true if current sideToMove have at least 1 non-pawn on the board.

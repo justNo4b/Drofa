@@ -134,6 +134,15 @@ void Eval::init() {
   detail::PHASE_WEIGHT_SUM += detail::PHASE_WEIGHTS[QUEEN] * 2;
 }
 
+evalBits Eval::Setupbits(const Board &board){
+  evalBits eB;
+  U64 pBB = board.getPieces(WHITE, PAWN);
+  eB.EnemyPawnAttackMap[BLACK] = ((pBB << 9) & ~FILE_A) | ((pBB << 7) & ~FILE_H);
+  pBB = board.getPieces(BLACK, PAWN);
+  eB.EnemyPawnAttackMap[WHITE] = ((pBB >> 9) & ~FILE_H) | ((pBB >> 7) & ~FILE_A);
+  return eB;
+}
+
 void Eval::SetupTuning(int phase, PieceType piece, int value){
   MATERIAL_VALUES_TUNABLE [phase][piece] = value;
 }
@@ -338,7 +347,7 @@ gS Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
 
     while (pieces) {
       int square = _popLsb(pieces);
-      U64 attackBitBoard = board.getMobilityForSquare(QUEEN, color, square);
+      U64 attackBitBoard = board.getMobilityForSquare(QUEEN, color, square, eB->EnemyPawnAttackMap[color]);
       op += QUEEN_MOBILITY[OPENING][_popCount(attackBitBoard)];
       eg += QUEEN_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
     }
@@ -359,7 +368,7 @@ gS Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
 
       // Mobility
       int square = _popLsb(pieces);
-      U64 attackBitBoard = board.getMobilityForSquare(ROOK, color, square);
+      U64 attackBitBoard = board.getMobilityForSquare(ROOK, color, square, eB->EnemyPawnAttackMap[color]);
       op += ROOK_MOBILITY[OPENING][_popCount(attackBitBoard)];
       eg += ROOK_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
 
@@ -389,7 +398,7 @@ gS Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB){
       
       // Mobility
       int square = _popLsb(pieces);
-      U64 attackBitBoard = board.getMobilityForSquare(BISHOP, color, square);
+      U64 attackBitBoard = board.getMobilityForSquare(BISHOP, color, square, eB->EnemyPawnAttackMap[color]);
       op += BISHOP_MOBILITY[OPENING][_popCount(attackBitBoard)];
       eg += BISHOP_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
 
@@ -417,7 +426,7 @@ gS Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB){
       
       // Mobility
       int square = _popLsb(pieces);
-      U64 attackBitBoard = board.getMobilityForSquare(KNIGHT, color, square);
+      U64 attackBitBoard = board.getMobilityForSquare(KNIGHT, color, square,eB->EnemyPawnAttackMap[color]);
       op += KNIGHT_MOBILITY[OPENING][_popCount(attackBitBoard)];
       eg += KNIGHT_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
 
@@ -440,7 +449,7 @@ gS Eval::evaluateKING(const Board & board, Color color, const evalBits & eB){
   U64 pieces = board.getPieces(color, KING);
   int square = _popLsb(pieces);
   // Mobility
-  U64 attackBitBoard = board.getMobilityForSquare(KING, color, square);
+  U64 attackBitBoard = board.getMobilityForSquare(KING, color, square, eB.EnemyPawnAttackMap[color]);
       op += KING_MOBILITY[OPENING][_popCount(attackBitBoard)];
       eg += KING_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
 
@@ -503,12 +512,7 @@ int Eval::evaluate(const Board &board, Color color) {
   endgameScore += board.getPSquareTable().getScore(ENDGAME, color) - board.getPSquareTable().getScore(ENDGAME, otherColor);
 
   // Create evalBits stuff
-  evalBits eB;
-  eB.King_Attackers_Count[0] = 0;
-  eB.King_Attackers_Count[1] = 0;
-  eB.King_Attack_Score[0] = 0;
-  eB.King_Attack_Score[1] = 0;
-
+  evalBits eB = Eval::Setupbits(board);
 
   // Evaluate pieces
   gS pieceS = evaluateBISHOP(board, color, &eB) - evaluateBISHOP(board, otherColor, &eB)

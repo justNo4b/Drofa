@@ -32,10 +32,7 @@ struct gS
 };
 
 struct evalBits{
-    // number of different pieces attacking oppponents KING
-    int King_Attackers_Count[2];
-    // number of attack points awarded
-    int King_Attack_Score[2];
+    U64 EnemyPawnAttackMap[2];
 };
 
 /**
@@ -293,6 +290,8 @@ int evaluatePawnStructure(const Board &, Color, GamePhase);
     gS evaluateKING(const Board &, Color, const evalBits &);
 
   /**@}*/
+
+evalBits Setupbits(const Board &);
 
 /**
  * @brief Returns the number of passed pawns that the given color has on the

@@ -41,8 +41,18 @@ Finished match
 -----------------------------------------------------------
 6. Mobility scanning through (ie R attacks scan through R and Q)
 -----------------------------------------------------------
-Score of Drofa_dev vs Drofa_2.0.4: 3581 - 3321 - 4202  [0.512] 11104
+Score of Drofa_dev vs Drofa_2.0.5: 3581 - 3321 - 4202  [0.512] 11104
 Elo difference: 8.1 +/- 5.1
 SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
+-----------------------------------------------------------
+7. Exclude squares attacked by enemy pawns from mobility
+-----------------------------------------------------------
+Score of Drofa_dev vs Drofa_2.0.6: 5051 - 4770 - 5925  [0.509] 15746
+Elo difference: 6.2 +/- 4.3
+SPRT: llr 2.95 (100.2%), lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+-----------------------------------------------------------
+8. 
+
 
