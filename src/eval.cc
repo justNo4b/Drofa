@@ -167,17 +167,22 @@ int Eval::getMaterialValue(int phase, PieceType pieceType) {
   #endif
 }
 
-int Eval::passedPawns(const Board &board, Color color) {
-  int passed = 0;
+gS Eval::passedPawns(const Board &board, Color color) {
+  int op = 0;
+  int eg = 0;
+
   U64 pawns = board.getPieces(color, PAWN);
 
   while (pawns != ZERO) {
     int square = _popLsb(pawns);
-    if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO) passed++;
-    pawns &= ~detail::FILES[square % 8];
+    if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
+      int r = color == WHITE ? _row(square) : 8 - _row(square);
+      op += PASSED_PAWN_RANKS[OPENING][r];
+      eg += PASSED_PAWN_RANKS[ENDGAME][r]; 
+    } 
   }
 
-  return passed;
+  return gS(op,eg);
 }
 
 int Eval::doubledPawns(const Board &board, Color color) {
@@ -558,9 +563,9 @@ int Eval::evaluate(const Board &board, Color color) {
   else
   {
   // Passed pawns
-  int passedPawnDiff = passedPawns(board, WHITE) - passedPawns(board, BLACK);
-  whiteScore_O += PASSED_PAWN_BONUS[OPENING] * passedPawnDiff;
-  whiteScore_E += PASSED_PAWN_BONUS[ENDGAME] * passedPawnDiff;
+  gS passedPawn = passedPawns(board, WHITE) - passedPawns(board, BLACK);
+  whiteScore_O += passedPawn.OP;
+  whiteScore_E += passedPawn.EG;
 
   // Doubled pawns
   int doubledPawnDiff = doubledPawns(board, WHITE) - doubledPawns(board, BLACK);

@@ -53,6 +53,12 @@ Elo difference: 6.2 +/- 4.3
 SPRT: llr 2.95 (100.2%), lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
 -----------------------------------------------------------
-8. 
+8. Rank-dependant passed-pawn evaluation.
+-----------------------------------------------------------
+Score of Drofa_dev vs Drofa_2.0.7: 2067 - 1828 - 2381  [0.519] 6276
+Elo difference: 13.2 +/- 6.8
+SPRT: llr 2.95 (100.2%), lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+-----------------------------------------------------------
 
 

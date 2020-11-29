@@ -182,6 +182,10 @@ const int ROOK_SEMI_FILE_BONUS[2] = {[OPENING] = 15, [ENDGAME] = 15};
  * @brief Bonuses given to a player for having a passed pawn (opening/endgame)
  */
 const int PASSED_PAWN_BONUS[2] = {[OPENING] = 10, [ENDGAME] = 35};
+const int PASSED_PAWN_RANKS[2][8] = {
+            [OPENING] = {0,  4,  7, 10, 15, 20, 45, 0}, 
+            [ENDGAME] = {0, 10, 15, 35, 40, 45, 75, 0}
+};
 
 /**
  * @brief Penalties given to a player for having a doubled pawn (opening/endgame)
@@ -301,7 +305,7 @@ evalBits Setupbits(const Board &);
  * @param color Color of player to check for passed pawns
  * @return
  */
-int passedPawns(const Board &, Color);
+gS passedPawns(const Board &, Color);
 
 /**
  * @brief Returns the number doubled pawns for the given color on the
