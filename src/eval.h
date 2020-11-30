@@ -33,6 +33,7 @@ struct gS
 
 struct evalBits{
     U64 EnemyPawnAttackMap[2];
+    int RammedCount;
 };
 
 /**

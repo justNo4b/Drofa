@@ -140,6 +140,9 @@ evalBits Eval::Setupbits(const Board &board){
   eB.EnemyPawnAttackMap[BLACK] = ((pBB << 9) & ~FILE_A) | ((pBB << 7) & ~FILE_H);
   pBB = board.getPieces(BLACK, PAWN);
   eB.EnemyPawnAttackMap[WHITE] = ((pBB >> 9) & ~FILE_H) | ((pBB >> 7) & ~FILE_A);
+  
+  eB.RammedCount = _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN));
+
   return eB;
 }
 
@@ -398,7 +401,8 @@ gS Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB){
   int eg = 0;
 
   U64 pieces = board.getPieces(color, BISHOP);
-
+  op += eB->RammedCount * _popCount(pieces) * BISHOP_RAMMED_PENALTY[OPENING];
+  eg += eB->RammedCount * _popCount(pieces) * BISHOP_RAMMED_PENALTY[ENDGAME];
     while (pieces) {
       
       // Mobility
