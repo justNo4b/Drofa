@@ -168,6 +168,11 @@ const int MATERIAL_VALUES[2][6] = {
     }
 };
 
+
+
+const int BISHOP_RAMMED_PENALTY[2] = {-2, -4};
+
+const int PAWN_SUPPORTED[2] = {7, 3};
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */

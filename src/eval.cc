@@ -562,6 +562,14 @@ int Eval::evaluate(const Board &board, Color color) {
   }
   else
   {
+
+  // PawnSupported  
+  whiteScore_O += PAWN_SUPPORTED[OPENING] * _popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
+  whiteScore_O -= PAWN_SUPPORTED[OPENING] * _popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
+
+  whiteScore_E += PAWN_SUPPORTED[ENDGAME] * _popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
+  whiteScore_E -= PAWN_SUPPORTED[ENDGAME] * _popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
+
   // Passed pawns
   gS passedPawn = passedPawns(board, WHITE) - passedPawns(board, BLACK);
   whiteScore_O += passedPawn.OP;
