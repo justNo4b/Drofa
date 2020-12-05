@@ -192,6 +192,11 @@ const int PASSED_PAWN_RANKS[2][8] = {
             [ENDGAME] = {0, 10, 15, 35, 40, 45, 75, 0}
 };
 
+const int PASSED_PAWN_FILES[2][8] = {
+            [OPENING] = {4,  2,  1,  0,  0,  1,  2,  4}, 
+            [ENDGAME] = {3,  2,  1,  0,  0,  1,  2,  3},
+};
+
 /**
  * @brief Penalties given to a player for having a doubled pawn (opening/endgame)
  */
