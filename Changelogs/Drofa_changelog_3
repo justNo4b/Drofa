@@ -69,11 +69,19 @@ Finished match
 ------------------------------------------------------------
 10. Bishop rammed pawns downscale
 ------------------------------------------------------------
-
-
-
+Score of Drofa_dev vs Drofa_master: 6171 - 6084 - 7745  [0.502] 20000
+Elo difference: 1.5 +/- 3.8, LOS: 78,4%
+Finished match
 ------------------------------------------------------------
 9 and 10 both integrated into the 2.0.9
+Bishop_Rammed_Pawns should be adjasted/re-tested.
 ------------------------------------------------------------
+11. Passed pawns by file bonus
+Score of Drofa_dev vs Drofa_2.0.9: 3086 - 2922 - 3992  [0.508] 10000
+Elo difference: 5.70 +/- 5.28
+Finished match
+------------------------------------------------------------
+
+
 
 
