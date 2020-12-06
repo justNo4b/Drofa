@@ -142,7 +142,7 @@ evalBits Eval::Setupbits(const Board &board){
   eB.EnemyPawnAttackMap[WHITE] = ((pBB >> 9) & ~FILE_H) | ((pBB >> 7) & ~FILE_A);
   
   eB.RammedCount = _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN));
-
+  eB.OutPostedLines[0] = 0, eB.OutPostedLines[1] = 0;
   return eB;
 }
 
@@ -180,8 +180,8 @@ gS Eval::passedPawns(const Board &board, Color color) {
     int square = _popLsb(pawns);
     if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
       int r = color == WHITE ? _row(square) : 8 - _row(square);
-      op += PASSED_PAWN_RANKS[OPENING][r] + PASSED_PAWN_FILES[OPENING][_col(square)];
-      eg += PASSED_PAWN_RANKS[ENDGAME][r] + PASSED_PAWN_FILES[ENDGAME][_col(square)]; 
+      op += PASSED_PAWN_RANKS[OPENING][r]; + PASSED_PAWN_FILES[OPENING][_col(square)];
+      eg += PASSED_PAWN_RANKS[ENDGAME][r]; + PASSED_PAWN_FILES[ENDGAME][_col(square)]; 
     } 
   }
 
@@ -384,12 +384,21 @@ gS Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
 
       if ( ((file & board.getPieces(color, PAWN)) == 0)
         && ((file & board.getPieces(otherColor, PAWN)) == 0)){
-          op += ROOK_OPEN_FILE_BONUS[OPENING];
-          eg += ROOK_OPEN_FILE_BONUS[ENDGAME]; 
+            op += ROOK_OPEN_FILE_BONUS[OPENING];
+            eg += ROOK_OPEN_FILE_BONUS[ENDGAME];    
+            if ((file & eB->OutPostedLines[otherColor]) != 0){
+              op += ROOK_OUTPOSTED_LINE[OPENING];
+              eg += ROOK_OUTPOSTED_LINE[ENDGAME]; 
+            }
       }
       else if ((file & board.getPieces(color, PAWN)) == 0){
           op += ROOK_SEMI_FILE_BONUS[OPENING];
           eg += ROOK_SEMI_FILE_BONUS[ENDGAME];
+            if ((file & eB->OutPostedLines[otherColor]) != 0){
+              op += ROOK_OUTPOSTED_LINE[OPENING];
+              eg += ROOK_OUTPOSTED_LINE[ENDGAME]; 
+            }
+
       }
     }
 
@@ -415,6 +424,7 @@ gS Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB){
       if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
         if (detail::OUTPOST_PROTECTION[color][square] & board.getPieces(color, PAWN)){
           op += BISHOP_PROT_OUTPOST_OPENING[color][square];
+          eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
         }else{
           op += BISHOP_OUTPOST_OPENING[color][square];          
         }
@@ -443,6 +453,7 @@ gS Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB){
       if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
         if (detail::OUTPOST_PROTECTION[color][square] & board.getPieces(color, PAWN)){
           op += KNIGHT_PROT_OUTPOST_OPENING[color][square];
+          eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
         }else{
           op += KNIGHT_OUTPOST_OPENING[color][square];         
         }

@@ -34,6 +34,7 @@ struct gS
 struct evalBits{
     U64 EnemyPawnAttackMap[2];
     int RammedCount;
+    U64 OutPostedLines[2];
 };
 
 /**
@@ -183,6 +184,11 @@ const int ROOK_OPEN_FILE_BONUS[2] = {[OPENING] = 40, [ENDGAME] = 40};
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
 const int ROOK_SEMI_FILE_BONUS[2] = {[OPENING] = 15, [ENDGAME] = 15};
+
+/**
+ * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
+ */
+const int ROOK_OUTPOSTED_LINE[2] = {[OPENING] = -10, [ENDGAME] = -10};
 
 /**
  * @brief Bonuses given to a player for having a passed pawn (opening/endgame)
