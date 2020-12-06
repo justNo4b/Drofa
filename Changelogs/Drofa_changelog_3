@@ -81,6 +81,17 @@ Score of Drofa_dev vs Drofa_2.0.9: 3086 - 2922 - 3992  [0.508] 10000
 Elo difference: 5.70 +/- 5.28
 Finished match
 ------------------------------------------------------------
+12. Decrease open/semiopen bonus is there is enemy protected 
+outpost on the line
+------------------------------------------------------------
+Score of Drofa_dev vs Drofa_2.0.9: 9586 - 9362 - 11052  [0.504] 30000
+Elo difference: 2.59 +/- 3.12
+Finished match
+------------------------------------------------------------
+11 and 12 merged into 2.0.10
+------------------------------------------------------------
+
+
 
 
 
