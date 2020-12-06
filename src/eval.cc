@@ -180,8 +180,8 @@ gS Eval::passedPawns(const Board &board, Color color) {
     int square = _popLsb(pawns);
     if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
       int r = color == WHITE ? _row(square) : 8 - _row(square);
-      op += PASSED_PAWN_RANKS[OPENING][r]; + PASSED_PAWN_FILES[OPENING][_col(square)];
-      eg += PASSED_PAWN_RANKS[ENDGAME][r]; + PASSED_PAWN_FILES[ENDGAME][_col(square)]; 
+      op += PASSED_PAWN_RANKS[OPENING][r] + PASSED_PAWN_FILES[OPENING][_col(square)];
+      eg += PASSED_PAWN_RANKS[ENDGAME][r] + PASSED_PAWN_FILES[ENDGAME][_col(square)]; 
     } 
   }
 
