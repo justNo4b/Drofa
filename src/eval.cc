@@ -345,7 +345,7 @@ int Eval::getPhase(const Board &board) {
   return ((phase * MAX_PHASE) + (detail::PHASE_WEIGHT_SUM / 2)) / detail::PHASE_WEIGHT_SUM;
 }
 
-gS Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
+inline gS Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
   int op = 0;
   int eg = 0;
 
@@ -363,7 +363,7 @@ gS Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
   return gS(op, eg);
 }
 
-gS Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
+inline gS Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
   int op = 0;
   int eg = 0;
   Color otherColor = getOppositeColor(color);
@@ -405,7 +405,7 @@ gS Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
   return gS(op, eg);
 }
 
-gS Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB){
+inline gS Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB){
   int op = 0;
   int eg = 0;
 
@@ -435,7 +435,7 @@ gS Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB){
   return gS(op, eg);
 }
 
-gS Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB){
+inline gS Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB){
   int op = 0;
   int eg = 0;
 
@@ -462,7 +462,7 @@ gS Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB){
   return gS(op, eg);
 }
 
-gS Eval::evaluateKING(const Board & board, Color color, const evalBits & eB){
+inline gS Eval::evaluateKING(const Board & board, Color color, const evalBits & eB){
   int op = 0;
   int eg = 0;
 
@@ -472,6 +472,45 @@ gS Eval::evaluateKING(const Board & board, Color color, const evalBits & eB){
   U64 attackBitBoard = board.getMobilityForSquare(KING, color, square, eB.EnemyPawnAttackMap[color]);
       op += KING_MOBILITY[OPENING][_popCount(attackBitBoard)];
       eg += KING_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
+
+  return gS(op, eg);
+}
+
+inline gS Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
+
+  //passed
+  int op = 0;
+  int eg = 0;
+
+  U64 pawns = board.getPieces(color, PAWN);
+  U64 tmpPawns = pawns;
+
+  while (tmpPawns != ZERO) {
+
+    // add bonuses if the pawn is passed
+
+    int square = _popLsb(tmpPawns);
+    int pawnCol = _col(square);
+    if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
+      int r = color == WHITE ? _row(square) : 8 - _row(square);
+      op += PASSED_PAWN_RANKS[OPENING][r] + PASSED_PAWN_FILES[OPENING][pawnCol];
+      eg += PASSED_PAWN_RANKS[ENDGAME][r] + PASSED_PAWN_FILES[ENDGAME][pawnCol]; 
+    }
+
+    // add penalties for the doubled pawns
+    if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0){
+      op += DOUBLED_PAWN_PENALTY[OPENING];
+      eg += DOUBLED_PAWN_PENALTY[ENDGAME];
+
+    // for the last pawn on the column determine if it is isolated.
+    }
+    else if (!(detail::NEIGHBOR_FILES[pawnCol] & pawns)){
+      op += ISOLATED_PAWN_PENALTY[OPENING];
+      eg += ISOLATED_PAWN_PENALTY[ENDGAME];
+    }
+
+
+  }
 
   return gS(op, eg);
 }
@@ -586,19 +625,9 @@ int Eval::evaluate(const Board &board, Color color) {
   whiteScore_E -= PAWN_SUPPORTED[ENDGAME] * _popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
 
   // Passed pawns
-  gS passedPawn = passedPawns(board, WHITE) - passedPawns(board, BLACK);
+  gS passedPawn = evaluatePAWNS(board, WHITE, &eB) - evaluatePAWNS(board, BLACK, &eB);
   whiteScore_O += passedPawn.OP;
   whiteScore_E += passedPawn.EG;
-
-  // Doubled pawns
-  int doubledPawnDiff = doubledPawns(board, WHITE) - doubledPawns(board, BLACK);
-  whiteScore_O += DOUBLED_PAWN_PENALTY[OPENING] * doubledPawnDiff;
-  whiteScore_E += DOUBLED_PAWN_PENALTY[ENDGAME] * doubledPawnDiff;
-
-  // Isolated pawns
-  int isolatedPawnDiff = isolatedPawns(board, WHITE) - isolatedPawns(board, BLACK);
-  whiteScore_O += ISOLATED_PAWN_PENALTY[OPENING] * isolatedPawnDiff;
-  whiteScore_E += ISOLATED_PAWN_PENALTY[ENDGAME] * isolatedPawnDiff;
 
   myHASH.pHASH_Store(board.getPawnStructureZKey().getValue(), whiteScore_E, whiteScore_O);
 

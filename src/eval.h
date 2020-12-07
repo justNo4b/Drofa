@@ -303,11 +303,12 @@ int evaluatePawnStructure(const Board &, Color, GamePhase);
     * @brief Returns structure that contain opening and enggame scores
     * @{
     */
-    gS evaluateQUEEN(const Board &, Color, evalBits *);
-    gS evaluateROOK(const Board &, Color, evalBits *);
-    gS evaluateBISHOP(const Board &, Color, evalBits *);
-    gS evaluateKNIGHT(const Board &, Color, evalBits *);
-    gS evaluateKING(const Board &, Color, const evalBits &);
+   inline gS evaluateQUEEN(const Board &, Color, evalBits *);
+   inline gS evaluateROOK(const Board &, Color, evalBits *);
+   inline gS evaluateBISHOP(const Board &, Color, evalBits *);
+   inline gS evaluateKNIGHT(const Board &, Color, evalBits *);
+   inline gS evaluatePAWNS(const Board &, Color, evalBits *);
+   inline gS evaluateKING(const Board &, Color, const evalBits &);
 
   /**@}*/
 
