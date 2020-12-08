@@ -55,6 +55,7 @@ extern U64 NEIGHBOR_FILES[8];
 extern U64 OUTPOST_MASK[2][64];
 extern U64 OUTPOST_PROTECTION[2][64];
 extern U64 KINGZONE[2][64];
+extern U64 PAWN_DUOS [64];
 
 /**
  * @brief Array of masks indexed by [Color][square] containing all squares that
@@ -201,6 +202,11 @@ const int PASSED_PAWN_RANKS[2][8] = {
 const int PASSED_PAWN_FILES[2][8] = {
             [OPENING] = {4,  2,  1,  0,  0,  1,  2,  4}, 
             [ENDGAME] = {3,  2,  1,  0,  0,  1,  2,  3},
+};
+
+const int PASSED_PAWN_DUOS[2][8] = {
+            [OPENING] = {0,  0,  0,  0,  3, 10, 25, 0}, 
+            [ENDGAME] = {0,  0,  0,  0,  7, 25, 50, 0}
 };
 
 /**
