@@ -46,6 +46,7 @@ U64 Eval::detail::PASSED_PAWN_MASKS[2][64];
 U64 Eval::detail::OUTPOST_MASK[2][64];
 U64 Eval::detail::OUTPOST_PROTECTION[2][64];
 U64 Eval::detail::KINGZONE[2][64];
+U64 Eval::detail::PAWN_DUOS[64];
 int Eval::detail::PHASE_WEIGHT_SUM = 0;
 U64 Eval::detail::KING_OO_MASKS[2][2] = {
         [WHITE] = {
@@ -123,6 +124,8 @@ void Eval::init() {
     U64 kingAttack = Attacks::getNonSlidingAttacks(KING, square, WHITE); 
     detail::KINGZONE[WHITE][square] = sqv | kingAttack | (kingAttack << 8);
     detail::KINGZONE[BLACK][square] = sqv | kingAttack | (kingAttack >> 8);
+
+    detail::PAWN_DUOS[square] = Attacks::getNonSlidingAttacks(KING, square, WHITE) & detail::NEIGHBOR_FILES[_col(square)];
 
   }
 
@@ -483,6 +486,7 @@ inline gS Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   int eg = 0;
 
   U64 pawns = board.getPieces(color, PAWN);
+  U64 passers = ZERO;
   U64 tmpPawns = pawns;
 
   while (tmpPawns != ZERO) {
@@ -492,6 +496,7 @@ inline gS Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     int square = _popLsb(tmpPawns);
     int pawnCol = _col(square);
     if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
+      passers = passers | (ONE << square);
       int r = color == WHITE ? _row(square) : 8 - _row(square);
       op += PASSED_PAWN_RANKS[OPENING][r] + PASSED_PAWN_FILES[OPENING][pawnCol];
       eg += PASSED_PAWN_RANKS[ENDGAME][r] + PASSED_PAWN_FILES[ENDGAME][pawnCol]; 
@@ -508,6 +513,23 @@ inline gS Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       op += ISOLATED_PAWN_PENALTY[OPENING];
       eg += ISOLATED_PAWN_PENALTY[ENDGAME];
     }
+  }
+
+  // try to analyze if there is coupled passers for us
+  // we do it by popping every passer from BB and tring to find 
+  // another one near it 
+  // Doubled pawns are not counted with this
+  while (passers != ZERO){
+        int square = _popLsb(passers);
+        int fpRow = color == WHITE ? _row(square) : 8 - _row(square);
+        U64 NeibPasser = passers & detail::PAWN_DUOS[square];
+        if (NeibPasser != ZERO){
+          int nSQV = _popLsb(NeibPasser);
+          int spRow = color == WHITE ? _row(nSQV) : 8 - _row(nSQV);
+          int finalROW = fpRow > spRow ? fpRow : spRow;
+          op += PASSED_PAWN_DUOS[OPENING][finalROW];
+          eg += PASSED_PAWN_DUOS[ENDGAME][finalROW];
+        }
 
 
   }
