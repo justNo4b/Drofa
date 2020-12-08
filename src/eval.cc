@@ -662,7 +662,7 @@ int Eval::evaluate(const Board &board, Color color) {
       w_B == 1 && b_B == 1){
         U64 bothBishops = board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP);
         if (_popCount(bothBishops & WHITE_SQUARES) == 1){
-          final_eval = final_eval / 4;
+          final_eval = final_eval / 2;
         }
       }
 
