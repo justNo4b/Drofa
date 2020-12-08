@@ -204,11 +204,6 @@ const int PASSED_PAWN_FILES[2][8] = {
             [ENDGAME] = {3,  2,  1,  0,  0,  1,  2,  3},
 };
 
-const int PASSED_PAWN_DUOS[2][8] = {
-            [OPENING] = {0,  0,  0,  0,  3, 10, 25, 0}, 
-            [ENDGAME] = {0,  0,  0,  0,  7, 25, 50, 0}
-};
-
 /**
  * @brief Penalties given to a player for having a doubled pawn (opening/endgame)
  */
