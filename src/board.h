@@ -305,6 +305,11 @@ class Board {
   U64 _getQueenAttacksForSquare(int, U64) const;
   /**@}*/
 
+  U64 _getKnightMobilityForSquare(int, U64) const;
+  U64 _getBishopMobilityForSquare(int, U64, U64) const;
+  U64 _getRookMobilityForSquare(int, U64, U64) const;
+  U64 _getQueenMobilityForSquare(int, U64, U64) const;
+
   /**
    * @brief Array indexed by [color][piecetype] of piece bitboards
    */

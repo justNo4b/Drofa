@@ -69,28 +69,32 @@ U64 Board::getAttacksForSquare(PieceType pieceType, Color color, int square) con
 
 U64 Board::getMobilityForSquare(PieceType pieceType, Color color, int square, U64 pBB) const {
 
-  U64 own;
+  U64 scan;
+    U64 own = getAllPieces(color);
   U64 attacks;
   switch (pieceType) {
     case ROOK: 
-      own = getAllPieces(color) ^ getPieces(color, ROOK) ^ getPieces (color, QUEEN);
-      attacks = _getRookAttacksForSquare(square, own);
+      own = own ^  getPieces(color, ROOK) ^ getPieces (color, QUEEN);
+      scan =  getPieces(color, ROOK) | getPieces (color, QUEEN);
+      attacks = _getRookMobilityForSquare(square, own, scan);
       break;
     case KNIGHT: 
-      own = getAllPieces(color);
-      attacks = _getKnightAttacksForSquare(square, own);
+      scan = getAllPieces(color);
+      attacks = _getKnightMobilityForSquare(square, scan);
       break;
     case BISHOP: 
-      own = getAllPieces(color) ^ getPieces (color, QUEEN);
-      attacks = _getBishopAttacksForSquare(square, own);
+      own = own ^ getPieces (color, QUEEN);
+      scan = getPieces (color, QUEEN);
+      attacks = _getBishopMobilityForSquare(square, own, scan);
       break;
     case QUEEN: 
-      own = getAllPieces(color) ^ getPieces(color, BISHOP) ^ getPieces (color, ROOK);
-      attacks = _getQueenAttacksForSquare(square, own);
+      own = own ^ getPieces(color, BISHOP) ^ getPieces (color, ROOK);
+      scan = getPieces(color, BISHOP) | getPieces (color, ROOK);
+      attacks = _getQueenMobilityForSquare(square, own, scan);
       break;
     case KING: 
-      own = getAllPieces(color);
-      attacks = _getKingAttacksForSquare(square, own);
+      scan = getAllPieces(color);
+      attacks = _getKingAttacksForSquare(square, scan);
       break;
   }
   attacks = attacks & (~pBB);
@@ -664,4 +668,20 @@ U64 Board::_getRookAttacksForSquare(int square, U64 own) const {
 
 U64 Board::_getQueenAttacksForSquare(int square, U64 own) const {
   return Attacks::getSlidingAttacks(QUEEN, square, _occupied) & ~own;
+}
+
+U64 Board::_getBishopMobilityForSquare(int square, U64 own, U64 scanthrough) const {
+  return Attacks::getSlidingAttacks(BISHOP, square, _occupied ^ scanthrough)& ~own;
+}
+
+U64 Board::_getRookMobilityForSquare(int square, U64 own, U64 scanthrough) const {
+  return Attacks::getSlidingAttacks(ROOK, square, _occupied ^ scanthrough) & ~own;
+}
+
+U64 Board::_getQueenMobilityForSquare(int square, U64 own, U64 scanthrough) const {
+  return Attacks::getSlidingAttacks(QUEEN, square, _occupied ^ scanthrough) & ~own;
+}
+
+U64 Board::_getKnightMobilityForSquare(int square, U64 own) const {
+  return Attacks::getNonSlidingAttacks(KNIGHT, square) & ~own;
 }
