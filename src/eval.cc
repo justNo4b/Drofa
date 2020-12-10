@@ -140,9 +140,16 @@ evalBits Eval::Setupbits(const Board &board){
   eB.EnemyPawnAttackMap[BLACK] = ((pBB << 9) & ~FILE_A) | ((pBB << 7) & ~FILE_H);
   pBB = board.getPieces(BLACK, PAWN);
   eB.EnemyPawnAttackMap[WHITE] = ((pBB >> 9) & ~FILE_H) | ((pBB >> 7) & ~FILE_A);
+
+  U64 king = board.getPieces(WHITE, KING);
+  eB.EnemyKingZone[BLACK] = detail::KINGZONE[WHITE][_bitscanForward(king)];
+      king = board.getPieces(BLACK, KING);
+  eB.EnemyKingZone[WHITE] = detail::KINGZONE[BLACK][_bitscanForward(king)];
   
   eB.RammedCount = _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN));
   eB.OutPostedLines[0] = 0, eB.OutPostedLines[1] = 0;
+  eB.KingAttackers[0] = 0, eB.KingAttackers[1] = 0;
+  eB.KingAttackPower[0] = 0, eB.KingAttackPower[1] = 0;
   return eB;
 }
 
@@ -358,6 +365,11 @@ inline gS Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
       U64 attackBitBoard = board.getMobilityForSquare(QUEEN, color, square, eB->EnemyPawnAttackMap[color]);
       op += QUEEN_MOBILITY[OPENING][_popCount(attackBitBoard)];
       eg += QUEEN_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
+      int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
+      if (kingAttack > 0){
+        eB->KingAttackers[color]++;
+        eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[QUEEN];
+      }
     }
 
   return gS(op, eg);
@@ -379,6 +391,11 @@ inline gS Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
       U64 attackBitBoard = board.getMobilityForSquare(ROOK, color, square, eB->EnemyPawnAttackMap[color]);
       op += ROOK_MOBILITY[OPENING][_popCount(attackBitBoard)];
       eg += ROOK_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
+      int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
+      if (kingAttack > 0){
+        eB->KingAttackers[color]++;
+        eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[ROOK];
+      }
 
       U64 file = detail::FILES[_col(square)];
 
@@ -419,6 +436,11 @@ inline gS Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB){
       U64 attackBitBoard = board.getMobilityForSquare(BISHOP, color, square, eB->EnemyPawnAttackMap[color]);
       op += BISHOP_MOBILITY[OPENING][_popCount(attackBitBoard)];
       eg += BISHOP_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
+      int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
+      if (kingAttack > 0){
+        eB->KingAttackers[color]++;
+        eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[BISHOP];
+      }
 
       // OUTPOSTED BISHOP
       if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
@@ -448,6 +470,11 @@ inline gS Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB){
       U64 attackBitBoard = board.getMobilityForSquare(KNIGHT, color, square,eB->EnemyPawnAttackMap[color]);
       op += KNIGHT_MOBILITY[OPENING][_popCount(attackBitBoard)];
       eg += KNIGHT_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
+      int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
+      if (kingAttack > 0){
+        eB->KingAttackers[color]++;
+        eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[KNIGHT];
+      }
 
       // OUTPOSTED KNIGHT
       if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
@@ -470,8 +497,10 @@ inline gS Eval::evaluateKING(const Board & board, Color color, const evalBits & 
   int square = _popLsb(pieces);
   // Mobility
   U64 attackBitBoard = board.getMobilityForSquare(KING, color, square, eB.EnemyPawnAttackMap[color]);
-      op += KING_MOBILITY[OPENING][_popCount(attackBitBoard)];
-      eg += KING_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
+  op += KING_MOBILITY[OPENING][_popCount(attackBitBoard)];
+  eg += KING_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
+
+   
 
   return gS(op, eg);
 }
@@ -583,6 +612,13 @@ int Eval::evaluate(const Board &board, Color color) {
   openingScore += pieceS.OP;
   endgameScore += pieceS.EG;
 
+  // evluate king danger
+
+  int attackScore = eB.KingAttackPower[color] * COUNT_TO_POWER[std::min(7, eB.KingAttackers[color])] / 100;
+  openingScore += std::max(0, attackScore);
+  attackScore = eB.KingAttackPower[otherColor] * COUNT_TO_POWER[std::min(7, eB.KingAttackers[otherColor])] / 100;
+  openingScore -= std::max(0, attackScore);
+
   // Bishop pair
   #ifdef _TUNE_
   openingScore += w_B > 1 ? BISHOP_PAIR_TUNABLE[OPENING] : 0;
@@ -671,5 +707,13 @@ int Eval::evaluate(const Board &board, Color color) {
 
 int Eval::evalTestSuite(const Board &board, Color color)
 {
-  return 0;
+    evalBits eB = Eval::Setupbits(board);
+
+  // Evaluate pieces
+  gS pieceS = evaluateBISHOP(board, color, &eB) 
+            + evaluateKNIGHT(board, color, &eB) 
+            + evaluateROOK  (board, color, &eB) 
+            + evaluateQUEEN (board, color, &eB) 
+            + evaluateKING (board, color, eB);
+  return eB.KingAttackPower[color] * COUNT_TO_POWER[std::min(7, eB.KingAttackers[color])] / 100;
 }

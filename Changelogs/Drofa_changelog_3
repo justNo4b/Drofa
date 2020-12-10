@@ -101,7 +101,15 @@ Finished match
 ~3-4 elo after 5000 games, electricity out
 no proper data
 ------------------------------------------------------------
+15. KingAttack calculations implemented
+------------------------------------------------------------
+Score of Drofa_dev2 vs Drofa_dev: 686 - 529 - 498  [0.546] 1713
+Elo difference: 31.93 +/- 13.88
+SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
 
+14 and 15 Merged into 2.1.0
+------------------------------------------------------------
 
 
 

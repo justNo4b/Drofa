@@ -33,8 +33,11 @@ struct gS
 
 struct evalBits{
     U64 EnemyPawnAttackMap[2];
-    int RammedCount;
     U64 OutPostedLines[2];
+    U64 EnemyKingZone[2];
+    int RammedCount;
+    int KingAttackers[2];
+    int KingAttackPower[2];
 };
 
 /**
@@ -142,6 +145,9 @@ const int QUEEN_MOBILITY [2][28] = {
             [OPENING] = {-34, -17,  -11,   -7,  -3,  -1,   0,  1,  3, 5, 7, 9, 11, 13, 15, 16, 17, 18, 19, 21, 23, 25, 25, 26, 26, 26},
             [ENDGAME] = {-50, -20,  -13,   -9,  -5,  -3,  -1,  0,  1, 3, 5, 7,  9, 11, 13, 15, 17, 18, 19, 21, 23, 25, 25, 26, 26, 26},
 };
+
+const int PIECE_ATTACK_POWER[6] = {0, 40, 35, 20, 80, 0};
+const int COUNT_TO_POWER[8] = {0, 0, 50, 75, 80, 88, 95, 100};
 
 /**
  * @brief Array indexed by [Phase][PieceType] of material values (in centipawns)
