@@ -110,11 +110,21 @@ Finished match
 
 14 and 15 Merged into 2.1.0
 ------------------------------------------------------------
+16. Better promotion sorting (Q as is, N after both killers, R as neutral quiet
+B as high negative quiet)
+------------------------------------------------------------
+Score of Drofa_dev vs Drofa_2.1.0: 3113 - 2923 - 3964  [0.509] 10000
+Elo difference: 6.60 +/- 5.28
+SPRT: llr 2.82, lbound -2.94, ubound 2.94
+Finished match
+------------------------------------------------------------
 
 
 
 
 
+
+ 
 
 
 

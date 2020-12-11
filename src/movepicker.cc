@@ -36,7 +36,7 @@ void MovePicker::_scoreMoves() {
     } else if (move.getFlags() & Move::CAPTURE) {
       move.setValue(CAPTURE_BONUS + _mvvLvaTable[move.getCapturedPieceType()][move.getPieceType()]);
     } else if (move.getFlags() & Move::PROMOTION) {
-      move.setValue(PROMOTION_BONUS + Eval::getMaterialValue(ENDGAME, move.getPromotionPieceType()));
+      move.setValue(PROMOTION_SORT[move.getPromotionPieceType()]);
     } else if (moveINT == Killer1) {
       move.setValue(KILLER1_BONUS);
     } else if (moveINT == Killer2) {

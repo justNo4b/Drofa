@@ -107,6 +107,8 @@ class MovePicker {
   static const int KILLER2_BONUS      = 150000;
   static const int COUNTERMOVE_BONUS  = 50000;
   static const int QUIET_BONUS        = 0;
+
+  const int PROMOTION_SORT[6] = {0, 0, 100000, -50000, 300000, 0};
   /**@}*/
 
    private:
