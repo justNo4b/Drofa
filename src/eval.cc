@@ -702,7 +702,7 @@ int Eval::evaluate(const Board &board, Color color) {
         }
       }
 
-  return final_eval;
+  return final_eval + TEMPO;
 }
 
 int Eval::evalTestSuite(const Board &board, Color color)

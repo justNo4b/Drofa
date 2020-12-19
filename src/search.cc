@@ -380,7 +380,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
     _sEvalArray[ply] = NOSCORE;
   }else if (pMove == 0){
     // last Move was Null, so we can omit stat eval here
-    statEVAL = -_sEvalArray[ply - 1];
+    statEVAL = -_sEvalArray[ply - 1] + 10;
     _sEvalArray[ply] = statEVAL;
   }else{
     statEVAL = Eval::evaluate(board, board.getActivePlayer());

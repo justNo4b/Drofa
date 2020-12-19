@@ -178,7 +178,7 @@ const int MATERIAL_VALUES[2][6] = {
 };
 
 
-
+const int TEMPO = 5;
 const int BISHOP_RAMMED_PENALTY[2] = {-2, -4};
 
 const int PAWN_SUPPORTED[2] = {7, 3};
