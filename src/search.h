@@ -192,6 +192,8 @@ class Search {
    */
   int _searchDepth;
 
+  int _curMaxDepth;
+
   /**
    * @brief If this flag is set, calls to _negaMax() and _rootMax() will end as soon
    * as possible and calls to _rootMax will not set the best move and best score.

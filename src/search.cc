@@ -116,6 +116,7 @@ void Search::iterDeep() {
   selDepth = 0;
   _lastPlyTime = 0;
   for (int currDepth = 1; currDepth <= _searchDepth; currDepth++) {
+    _curMaxDepth = currDepth;
     _rootMax(_initialBoard, currDepth, 0);
 
     int elapsed =
@@ -551,6 +552,11 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           move == _orderingInfo.getKiller1(ply) ||  move == _orderingInfo.getKiller2(ply)){
             reduction--;
           }
+
+          if (isQuiet && 
+              _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) < -3*_curMaxDepth*_curMaxDepth){
+                reduction++;
+              }  
 
           // We finished reduction tweaking, calculate final depth and search
           // Avoid reduction being less than 0
