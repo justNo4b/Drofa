@@ -50,7 +50,7 @@ void  HASH::HASH_Store(U64 posKey, int cMove, CutOffState bound, int score, int 
 
       U64 index = posKey % TableSize;
       if (index < TableSize){
-        hashTable[index] = HASH_Entry(posKey, cMove, bound, score, depth);
+        hashTable[index] = HASH_Entry(posKey, cMove, (int16_t)score, depth, bound);
       }
 }
 
