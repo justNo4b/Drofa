@@ -124,8 +124,19 @@ Score of Drofa_dev vs Drofa_2.1.1: 4633 - 4415 - 5952  [0.507] 15000
 Elo difference: 5.05 +/- 4.32
 Finished match
 ------------------------------------------------------------
-
-
+18. Smaller TT-entry
+------------------------------------------------------------
+Score of Drofa_dev vs Drofa_2.1.2: 2364 - 2228 - 2959  [0.509] 7551
+Elo difference: 6.26 +/- 6.10
+SPRT: llr 2.96, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+------------------------------------------------------------
+19. Reduce more for nodes with bad history (in LMR)
+------------------------------------------------------------
+Score of Drofa_dev vs Drofa_2.1.2: 1448 - 1221 - 1707  [0.526] 4376
+Elo difference: 18.0 +/- 8.0
+SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
 
 
  
