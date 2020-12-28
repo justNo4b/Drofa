@@ -137,6 +137,10 @@ Score of Drofa_dev vs Drofa_2.1.2: 1448 - 1221 - 1707  [0.526] 4376
 Elo difference: 18.0 +/- 8.0
 SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
+// very strange. Although it seems like at least +10 elo, further re-tests showed
+that it is much less (2-3 maybe....)
+can be a fluke with different compiles....
+-------------------------------------------------------------
 
 
  
