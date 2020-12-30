@@ -141,6 +141,46 @@ Finished match
 that it is much less (2-3 maybe....)
 can be a fluke with different compiles....
 -------------------------------------------------------------
+20. Update killers/history/counters with TTcutoffs
+-------------------------------------------------------------
+Score of Drofa_dev vs Drofa_master: 1471 - 1314 - 1822  [0.517] 4607
+Elo difference: 11.8 +/- 7.8
+SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+-------------------------------------------------------------
+21. Reduce less for Q promotions
+-------------------------------------------------------------
+Score of Drofa_dev vs Drofa_master: 2292 - 2116 - 2917  [0.512] 7325
+Elo difference: 8.3 +/- 6.2
+SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+/////////////////////////////////////////////////////////////
+20 + 21 joined into the 2.1.4 version
+Regression teset 2.1.4 vs 2.1.2 (LTC, 1` + 1``):
+
+/////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
  

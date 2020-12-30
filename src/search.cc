@@ -352,12 +352,26 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
 
       }
       if (probedHASHentry.Flag == EXACT){
+		Move move = Move(probedHASHentry.move);  
+		if (!(move.getFlags() & 0x63)){
+              _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
+          }
         return hashScore;
       }
       if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){
+		Move move = Move(probedHASHentry.move);  
+		if (!(move.getFlags() & 0x63)){
+              _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
+          }
         return alpha;
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
+		Move move = Move(probedHASHentry.move); 
+		if (!(move.getFlags() & 0x63)) {
+          _orderingInfo.updateKillers(ply, move);
+          _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
+          _orderingInfo.updateCounterMove(board.getActivePlayer(), pMove, move.getMoveINT());
+          }  
         return beta;
       }
     }
@@ -545,6 +559,10 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           //if we are improving, reduce a bit less (from Weiss)
           if (improving){
             reduction--;
+          }
+
+          if ((move.getFlags() & Move::PROMOTION) && (move.getPromotionPieceType() == QUEEN)){
+          reduction--;
           }
 
           // Reduce less for CounterMove and both Killers
