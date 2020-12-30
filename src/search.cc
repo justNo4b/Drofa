@@ -335,6 +335,8 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
 
   int alphaOrig = alpha;
   // Check transposition table cache
+  // If TT is causing a cuttoff, we update 
+  // move ordering stuff
 
   const HASH_Entry probedHASHentry = myHASH.HASH_Get(board.getZKey().getValue());
 
@@ -352,22 +354,22 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
 
       }
       if (probedHASHentry.Flag == EXACT){
-		Move move = Move(probedHASHentry.move);  
-		if (!(move.getFlags() & 0x63)){
-              _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
+		    Move move = Move(probedHASHentry.move);  
+		    if (!(move.getFlags() & 0x63)){
+            _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
           }
         return hashScore;
       }
       if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){
-		Move move = Move(probedHASHentry.move);  
-		if (!(move.getFlags() & 0x63)){
-              _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
-          }
+		    Move move = Move(probedHASHentry.move);  
+		    if (!(move.getFlags() & 0x63)){
+          _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
+        }
         return alpha;
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
-		Move move = Move(probedHASHentry.move); 
-		if (!(move.getFlags() & 0x63)) {
+		    Move move = Move(probedHASHentry.move); 
+		    if (!(move.getFlags() & 0x63)) {
           _orderingInfo.updateKillers(ply, move);
           _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
           _orderingInfo.updateCounterMove(board.getActivePlayer(), pMove, move.getMoveINT());
@@ -395,6 +397,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
     _sEvalArray[ply] = NOSCORE;
   }else if (pMove == 0){
     // last Move was Null, so we can omit stat eval here
+    // just negate prev eval and add 2x tempo bonus (10)
     statEVAL = -_sEvalArray[ply - 1] + 10;
     _sEvalArray[ply] = statEVAL;
   }else{
@@ -560,9 +563,10 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           if (improving){
             reduction--;
           }
-
+          
+          // reduce less when move is a Queen promotion
           if ((move.getFlags() & Move::PROMOTION) && (move.getPromotionPieceType() == QUEEN)){
-          reduction--;
+            reduction--;
           }
 
           // Reduce less for CounterMove and both Killers
@@ -571,10 +575,11 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
             reduction--;
           }
 
+          // reduce more if move has a bad history
           if (isQuiet && 
               _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) < -3*_curMaxDepth*_curMaxDepth){
                 reduction++;
-              }  
+          }  
 
           // We finished reduction tweaking, calculate final depth and search
           // Avoid reduction being less than 0
