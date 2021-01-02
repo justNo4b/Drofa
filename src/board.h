@@ -286,6 +286,11 @@ class Board {
    */
   int  MostFancyPieceCost() const;
 
+  /**
+   * @brief Calculates SEE of the Move
+   */ 
+  int Calculate_SEE(Move move) const;
+
  private:
   /**
    * @name Attack bitboard generation functions.
@@ -309,6 +314,11 @@ class Board {
   U64 _getBishopMobilityForSquare(int, U64, U64) const;
   U64 _getRookMobilityForSquare(int, U64, U64) const;
   U64 _getQueenMobilityForSquare(int, U64, U64) const;
+
+  /**
+   * @brief Array of Piece costs used for SEE
+   */
+  int _SEE_cost[6] = {100, 500, 300, 300, 900};
 
   /**
    * @brief Array indexed by [color][piecetype] of piece bitboards

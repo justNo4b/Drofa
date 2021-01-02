@@ -476,6 +476,27 @@ int  Board:: MostFancyPieceCost() const{
   return 100;
 }
 
+int  Board:: Calculate_SEE(Move move) const{
+  
+  // 1. Can SEE be negative?
+  // We dont need to know how positive SEE is
+  // so if cost of captured => cost of capturing 
+  // return 0
+
+  if (_SEE_cost[move.getPieceType()] <= _SEE_cost[move.getCapturedPieceType()]){
+    return 0;
+  }
+
+  // 2. Calculate SEE
+  // Capture can be negative
+  // So we need to calculate IF its negative 
+  // and by how much
+
+
+
+  return 0;
+}
+
 void Board::doMove(Move move) {
   // Clear En passant info after each move if it exists
   if (_enPassant) {
