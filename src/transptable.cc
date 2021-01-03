@@ -39,13 +39,8 @@ void HASH::HASH_Clear(){
 }
 
 void  HASH::HASH_Store(U64 posKey, int cMove, CutOffState bound, int score, int depth, int ply){
-      if (abs(score) + 50 > LOST_SCORE * -1){
-        if (score > 0){
-          score -= ply;
-        }
-        if (score < 0){
-          score += ply;
-        }
+      if (abs(score) > WON_IN_X){
+        score = (score > 0) ? (score - ply) : (score + ply);
       }
 
       U64 index = posKey % TableSize;

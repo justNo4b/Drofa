@@ -50,7 +50,7 @@ int Move::getValue() {
   return _value;
 }
 
-int Move::getMoveINT(){
+int Move::getMoveINT() const{
   return _move;
 }
 

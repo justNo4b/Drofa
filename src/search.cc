@@ -236,6 +236,20 @@ bool Search::_checkLimits() {
   return false;
 }
 
+inline void Search::_updateAlpha(const Move move, Color color, int depth){
+  if (!(move.getFlags() & 0x63)){
+    _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
+  }
+}
+
+inline void Search::_updateBeta(const Move move, Color color, int pMove, int ply, int depth){
+	if (!(move.getFlags() & 0x63)) {
+    _orderingInfo.updateKillers(ply, move);
+    _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
+    _orderingInfo.updateCounterMove(color, pMove, move.getMoveINT());
+  }
+}
+
 void Search::_rootMax(const Board &board, int depth, int ply) {
   _nodes++;
   
@@ -344,36 +358,20 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
     TTmove = true;
     if (probedHASHentry.depth >= depth && !pvNode){
       int hashScore = probedHASHentry.score;
-      if (abs(hashScore)+50 > LOST_SCORE * -1){
-        if (hashScore > 0){
-          hashScore -= ply;
-        }
-        if (hashScore < 0){
-          hashScore += ply;
-        }
 
+      if (abs(hashScore) > WON_IN_X){
+        hashScore = (hashScore > 0) ? (hashScore - ply) :  (hashScore + ply);   
       }
       if (probedHASHentry.Flag == EXACT){
-		    Move move = Move(probedHASHentry.move);  
-		    if (!(move.getFlags() & 0x63)){
-            _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
-          }
+        _updateAlpha(Move(probedHASHentry.move), board.getActivePlayer(), depth);
         return hashScore;
       }
-      if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){
-		    Move move = Move(probedHASHentry.move);  
-		    if (!(move.getFlags() & 0x63)){
-          _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
-        }
+      if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){ 
+        _updateAlpha(Move(probedHASHentry.move), board.getActivePlayer(), depth);
         return alpha;
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
-		    Move move = Move(probedHASHentry.move); 
-		    if (!(move.getFlags() & 0x63)) {
-          _orderingInfo.updateKillers(ply, move);
-          _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
-          _orderingInfo.updateCounterMove(board.getActivePlayer(), pMove, move.getMoveINT());
-          }  
+        _updateBeta(Move(probedHASHentry.move), board.getActivePlayer(), pMove, ply, depth);
         return beta;
       }
     }
@@ -487,7 +485,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
     // Weirdly working, searchdepth is way up, elo gain is not so great
 
     if (!pvNode && !AreWeInCheck 
-      && qCount > _lmp_Array[depth]/(2-improving) && alpha < ((LOST_SCORE * - 1) - 50) ){
+      && qCount > _lmp_Array[depth]/(2-improving) && alpha < WON_IN_X ){
       break;
     }
 
@@ -525,7 +523,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         // We do not prune in the PV nodes.
 
         if (!pvNode && !AreWeInCheck && LegalMoveCount > 1 && tDepth < 3 
-        && (!giveCheck || badHistory) && alpha < ((LOST_SCORE * -1) - 50) && !(move.getFlags() & Move::PROMOTION)){
+        && (!giveCheck || badHistory) && alpha < WON_IN_X && !(move.getFlags() & Move::PROMOTION)){
           int moveGain = isQuiet ? 0 : Eval::MATERIAL_VALUES[0][move.getCapturedPieceType()];
           if (statEVAL + FUTIL_MOVE_CONST * tDepth + moveGain - 100 * improving <= alpha){
               continue;
@@ -622,12 +620,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         // Beta cutoff
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
-          if (isQuiet) {
-          _orderingInfo.updateKillers(ply, move);
-          _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
-          _orderingInfo.updateCounterMove(board.getActivePlayer(), pMove, move.getMoveINT());
-          }
-
+          _updateBeta(move, board.getActivePlayer(), pMove, ply, depth);
           // Add a new tt entry for this node
           if (!_stop){
             myHASH.HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
@@ -637,9 +630,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
 
         // Check if alpha raised (new best move)
         if (score > alpha) {
-          if (!(move.getFlags() & Move::CAPTURE)){
-              _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
-          }
+          _updateAlpha(move, board.getActivePlayer(), depth);
           alpha = score;
           bestMove = move;
         }else{

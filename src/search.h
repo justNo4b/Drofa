@@ -237,6 +237,26 @@ class Search {
   int _bestScore;
 
   /**
+   * @brief updating heuristics when alpha cut occured 
+   *
+   * @param move  Move that caused cut
+   * @param color moving player
+   * @param depth search depth
+   */
+  inline void _updateAlpha(const Move move, Color Color, int depth);
+
+  /**
+   * @brief updating heuristics when beta cut occured 
+   *
+   * @param move Move that caused cut
+   * @param color moving player
+   * @param pMove previous move
+   * @param ply   search ply
+   * @param depth search depth
+   */
+  inline void _updateBeta(const Move move, Color color, int pMove, int ply, int depth);
+
+  /**
    * @brief Root negamax function.
    *
    * Starts performing a search to the given depth using recursive minimax

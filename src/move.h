@@ -120,7 +120,7 @@ class Move {
   /**
    * @brief Get move in the form of INT
    */
-  int getMoveINT();
+  int getMoveINT() const;
 
   /**
    * @brief Compare moves

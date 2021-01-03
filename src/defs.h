@@ -39,12 +39,8 @@ const U64 RANK_8 = 0xff00000000000000ull;
  *
 */
 const int LOST_SCORE = -30000;
-
-/**
- * Global search constants here 
- *
-*/
 const int NOSCORE = 32666;
+const int WON_IN_X = 30000 - 50;
 
 /**
  * @name File bitboards
