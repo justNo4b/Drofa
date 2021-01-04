@@ -8,7 +8,7 @@ TEST_CPP_FILES = $(filter-out src/main.cc, $(sort $(CPP_FILES) $(wildcard test/*
 OBJ_FILES = $(addprefix obj/,$(notdir $(CPP_FILES:.cc=.o)))
 TEST_OBJ_FILES = $(addprefix obj/,$(notdir $(TEST_CPP_FILES:.cc=.o)))
 
-LD_FLAGS ?= -pthread -flto -static
+LD_FLAGS ?= -pthread -flto
 CC_FLAGS ?= -Wall -std=c++11 -O3 -march=native -flto -pthread -fno-exceptions
 
 # Catch makes use of C++ exceptions, so remove -fno-exceptions when making a test build
