@@ -68,10 +68,10 @@ void HASH::pHASH_Clear(){
   }
 }
 
-void HASH::pHASH_Store(U64 posKey, int END_score, int OP_Score){
+void HASH::pHASH_Store(U64 posKey, U64 whitePassers, U64 blackPassers, int END_score, int OP_Score){
   U64 index = posKey % pTableSize;
   if (index < pTableSize){
-    pHASH[index] = pawn_HASH_Entry(posKey, END_score, OP_Score);
+    pHASH[index] = pawn_HASH_Entry(posKey, whitePassers, blackPassers, END_score, OP_Score);
   }
 }
 

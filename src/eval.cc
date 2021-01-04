@@ -32,6 +32,7 @@ int BISHOP_PAIR_TUNABLE [2] = {
 };
 
 U64 Eval::detail::FILES[8] = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
+U64 Eval::detail::DISTANCE[64][64];
 U64 Eval::detail::NEIGHBOR_FILES[8]{
     FILE_B,
     FILE_A | FILE_C,
@@ -124,6 +125,10 @@ void Eval::init() {
     detail::KINGZONE[WHITE][square] = sqv | kingAttack | (kingAttack << 8);
     detail::KINGZONE[BLACK][square] = sqv | kingAttack | (kingAttack >> 8);
 
+    for (int i =0; i < 64; i++){
+      detail::DISTANCE[square][i] = std::max(abs(_col(square) - _col(i)), abs(_row(square) - _row(i)));
+    }
+
   }
 
   // Initialize PHASE_WEIGHT_SUM
@@ -150,6 +155,7 @@ evalBits Eval::Setupbits(const Board &board){
   eB.OutPostedLines[0] = 0, eB.OutPostedLines[1] = 0;
   eB.KingAttackers[0] = 0, eB.KingAttackers[1] = 0;
   eB.KingAttackPower[0] = 0, eB.KingAttackPower[1] = 0;
+  eB.Passers[0] = 0, eB.Passers[1] = 0;
   return eB;
 }
 
@@ -499,8 +505,22 @@ inline gS Eval::evaluateKING(const Board & board, Color color, const evalBits & 
   U64 attackBitBoard = board.getMobilityForSquare(KING, color, square, eB.EnemyPawnAttackMap[color]);
   op += KING_MOBILITY[OPENING][_popCount(attackBitBoard)];
   eg += KING_MOBILITY[ENDGAME][_popCount(attackBitBoard)];
+  
+  U64 tmpPawns = eB.Passers[color];
+  while (tmpPawns != ZERO) {
 
-   
+    int passerSquare = _popLsb(tmpPawns);
+    op += KING_PASSER_DISTANCE_FRIENDLY[OPENING][Eval::detail::DISTANCE[square][passerSquare]];
+    eg += KING_PASSER_DISTANCE_FRIENDLY[ENDGAME][Eval::detail::DISTANCE[square][passerSquare]];
+  }
+
+  tmpPawns = eB.Passers[getOppositeColor(color)];
+  while (tmpPawns != ZERO) {
+
+    int passerSquare = _popLsb(tmpPawns);
+    op += KING_PASSER_DISTANCE_ENEMY[OPENING][Eval::detail::DISTANCE[square][passerSquare]];
+    eg += KING_PASSER_DISTANCE_ENEMY[ENDGAME][Eval::detail::DISTANCE[square][passerSquare]];
+  }
 
   return gS(op, eg);
 }
@@ -512,7 +532,6 @@ inline gS Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   int eg = 0;
 
   U64 pawns = board.getPieces(color, PAWN);
-  U64 passers = ZERO;
   U64 tmpPawns = pawns;
 
   while (tmpPawns != ZERO) {
@@ -522,7 +541,7 @@ inline gS Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     int square = _popLsb(tmpPawns);
     int pawnCol = _col(square);
     if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
-      passers = passers | (ONE << square);
+      eB->Passers[color] = eB->Passers[color] | (ONE << square);
       int r = color == WHITE ? _row(square) : 8 - _row(square);
       op += PASSED_PAWN_RANKS[OPENING][r] + PASSED_PAWN_FILES[OPENING][pawnCol];
       eg += PASSED_PAWN_RANKS[ENDGAME][r] + PASSED_PAWN_FILES[ENDGAME][pawnCol]; 
@@ -602,6 +621,52 @@ int Eval::evaluate(const Board &board, Color color) {
   // Create evalBits stuff
   evalBits eB = Eval::Setupbits(board);
 
+  // Pawn structure
+  int whiteScore_O = 0;
+  int whiteScore_E = 0;
+  pawn_HASH_Entry pENTRY  = myHASH.pHASH_Get(board.getPawnStructureZKey().getValue());
+  
+  if (pENTRY.posKey != 0){
+    whiteScore_O = pENTRY.score_OPENING;
+    whiteScore_E = pENTRY.score_ENDGAME;
+    eB.Passers[WHITE] = pENTRY.wPassers;
+    eB.Passers[BLACK] = pENTRY.bPassers;
+
+    if (color == BLACK) {
+      openingScore -= whiteScore_O;
+      endgameScore -= whiteScore_E;
+    } else {
+      openingScore += whiteScore_O;
+      endgameScore += whiteScore_E;
+    }
+ 
+  }
+  else
+  {
+
+  // PawnSupported  
+  whiteScore_O += PAWN_SUPPORTED[OPENING] * _popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
+  whiteScore_O -= PAWN_SUPPORTED[OPENING] * _popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
+
+  whiteScore_E += PAWN_SUPPORTED[ENDGAME] * _popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
+  whiteScore_E -= PAWN_SUPPORTED[ENDGAME] * _popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
+
+  // Passed pawns
+  gS passedPawn = evaluatePAWNS(board, WHITE, &eB) - evaluatePAWNS(board, BLACK, &eB);
+  whiteScore_O += passedPawn.OP;
+  whiteScore_E += passedPawn.EG;
+
+  myHASH.pHASH_Store(board.getPawnStructureZKey().getValue(), eB.Passers[WHITE], eB.Passers[BLACK], whiteScore_E, whiteScore_O);
+
+    if (color == BLACK) {
+      openingScore -= whiteScore_O;
+      endgameScore -= whiteScore_E;
+    } else {
+      openingScore += whiteScore_O;
+      endgameScore += whiteScore_E;
+    }
+  }
+
   // Evaluate pieces
   gS pieceS = evaluateBISHOP(board, color, &eB) - evaluateBISHOP(board, otherColor, &eB)
             + evaluateKNIGHT(board, color, &eB) - evaluateKNIGHT(board, otherColor, &eB)
@@ -632,51 +697,6 @@ int Eval::evaluate(const Board &board, Color color) {
   endgameScore -= b_B > 1 ? BISHOP_PAIR_BONUS[ENDGAME] : 0;
   #endif
   
-  // Pawn structure
-  int whiteScore_O = 0;
-  int whiteScore_E = 0;
-  pawn_HASH_Entry pENTRY  = myHASH.pHASH_Get(board.getPawnStructureZKey().getValue());
-  
-  if (pENTRY.posKey != 0){
-    whiteScore_O = pENTRY.score_OPENING;
-    whiteScore_E = pENTRY.score_ENDGAME;
-
-    if (color == BLACK) {
-      openingScore -= whiteScore_O;
-      endgameScore -= whiteScore_E;
-    } else {
-      openingScore += whiteScore_O;
-      endgameScore += whiteScore_E;
-    }
- 
-  }
-  else
-  {
-
-  // PawnSupported  
-  whiteScore_O += PAWN_SUPPORTED[OPENING] * _popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
-  whiteScore_O -= PAWN_SUPPORTED[OPENING] * _popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
-
-  whiteScore_E += PAWN_SUPPORTED[ENDGAME] * _popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
-  whiteScore_E -= PAWN_SUPPORTED[ENDGAME] * _popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
-
-  // Passed pawns
-  gS passedPawn = evaluatePAWNS(board, WHITE, &eB) - evaluatePAWNS(board, BLACK, &eB);
-  whiteScore_O += passedPawn.OP;
-  whiteScore_E += passedPawn.EG;
-
-  myHASH.pHASH_Store(board.getPawnStructureZKey().getValue(), whiteScore_E, whiteScore_O);
-
-    if (color == BLACK) {
-      openingScore -= whiteScore_O;
-      endgameScore -= whiteScore_E;
-    } else {
-      openingScore += whiteScore_O;
-      endgameScore += whiteScore_E;
-    }
-  }
-
-
   // King pawn shield
   // Tapering is included in, so we count it in both phases
   // As of 5.08.20 400 game testing did not showed advantage for any king safety implementation.

@@ -170,7 +170,13 @@ Elo difference: -2.46 +/- 4.24
 SPRT: llr 1.11, lbound -2.94, ubound 2.94
 Finished match
 ----------------------------------------------------------------
-23.
+23. King proximity to the passed pawn eval
+----------------------------------------------------------------
+Score of Drofa_dev vs Drofa_2.1.5: 1389 - 1235 - 1800  [0.517] 4424
+Elo difference: 12.10 +/- 7.88
+SPRT: llr 2.97, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+-----------------------------------------------------------------
 
 
 

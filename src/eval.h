@@ -35,6 +35,7 @@ struct evalBits{
     U64 EnemyPawnAttackMap[2];
     U64 OutPostedLines[2];
     U64 EnemyKingZone[2];
+    U64 Passers[2];
     int RammedCount;
     int KingAttackers[2];
     int KingAttackPower[2];
@@ -54,11 +55,11 @@ extern U64 FILES[8];
  * @brief Array of the files neighboring each file as bitboards
  */
 extern U64 NEIGHBOR_FILES[8];
-
 extern U64 OUTPOST_MASK[2][64];
 extern U64 OUTPOST_PROTECTION[2][64];
 extern U64 KINGZONE[2][64];
 extern U64 PAWN_DUOS [64];
+extern U64 DISTANCE[64][64];
 
 /**
  * @brief Array of masks indexed by [Color][square] containing all squares that
@@ -182,6 +183,17 @@ const int TEMPO = 5;
 const int BISHOP_RAMMED_PENALTY[2] = {-2, -4};
 
 const int PAWN_SUPPORTED[2] = {7, 3};
+
+const int KING_PASSER_DISTANCE_FRIENDLY[2][9] = {
+        [OPENING] = {0,  0,  0,  0,  0,  0,  0,  0,  0},
+        [ENDGAME] = {0,  15,  7,  3,  0,  -1,  -5,  -10,  -10}
+};
+
+const int KING_PASSER_DISTANCE_ENEMY[2][9] = {
+        [OPENING] = {0,  0,  0,  0,  0,  0,  0,  0,  0},
+        [ENDGAME] = {0,  15,  7,  3,  0,  -1,  -5,  -10,  -10}
+};
+
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
