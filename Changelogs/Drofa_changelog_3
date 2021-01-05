@@ -177,6 +177,13 @@ Elo difference: 12.10 +/- 7.88
 SPRT: llr 2.97, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
 -----------------------------------------------------------------
+24. RookOpen / RookSemiOpen values tweak
+-----------------------------------------------------------------
+Score of Drofa_dev vs Drofa_2.1.6: 6551 - 6274 - 8771  [0.506] 21596
+Elo difference: 4.5 +/- 3.6
+SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+-----------------------------------------------------------------
 
 
 

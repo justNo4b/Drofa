@@ -197,12 +197,12 @@ const int KING_PASSER_DISTANCE_ENEMY[2][9] = {
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
-const int ROOK_OPEN_FILE_BONUS[2] = {[OPENING] = 40, [ENDGAME] = 40};
+const int ROOK_OPEN_FILE_BONUS[2] = {[OPENING] = 50, [ENDGAME] = 25};
 
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
-const int ROOK_SEMI_FILE_BONUS[2] = {[OPENING] = 15, [ENDGAME] = 15};
+const int ROOK_SEMI_FILE_BONUS[2] = {[OPENING] = 12, [ENDGAME] = 37};
 
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
