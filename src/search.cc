@@ -126,7 +126,7 @@ void Search::iterDeep() {
     if (_stop) break;
 
     if (_logUci) {
-      _logUciInfo(_getPv(currDepth), currDepth, _bestScore, _nodes, elapsed);
+      _logUciInfo(_getPv(), currDepth, _bestScore, _nodes, elapsed);
     }
 
     if (_wasThoughtProlonged)  break;
@@ -137,19 +137,10 @@ void Search::iterDeep() {
   if (_logUci) std::cout << "bestmove " << getBestMove().getNotation() << std::endl;
 }
 
-MoveList Search::_getPv(int length) {
+MoveList Search::_getPv() {
   MoveList pv;
-  Board currBoard = _initialBoard;
-  HASH_Entry currHASH;
-  int currLength = 0;
-
-  while (currLength++ < length) {
-    currHASH = myHASH.HASH_Get(currBoard.getZKey().getValue());
-    if (currHASH.Flag == NONE){
-      break;
-    }
-    pv.push_back(Move(currHASH.move));
-    currBoard.doMove(Move(currHASH.move));
+  for (int i = 0; i < _ourPV.length; i++){
+    pv.push_back(Move(_ourPV.pVmoves[i]));
   }
 
   return pv;
@@ -255,6 +246,7 @@ void Search::_rootMax(const Board &board, int depth, int ply) {
   
   MoveGen movegen(board, false);
   MoveList legalMoves = movegen.getMoves();
+  pV rootPV = pV();
 
   _sEvalArray[ply] = board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer());
 
@@ -282,10 +274,10 @@ void Search::_rootMax(const Board &board, int depth, int ply) {
     movedBoard.doMove(move);
     if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
         if (fullWindow) {
-          currScore = -_negaMax(movedBoard, depth - 1, -beta, -alpha, ply + 1, false, move.getMoveINT());
+          currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, ply + 1, false, move.getMoveINT());
         } else {
-          currScore = -_negaMax(movedBoard, depth - 1, -alpha - 1, -alpha, ply +1, false, move.getMoveINT());
-          if (currScore > alpha) currScore = -_negaMax(movedBoard, depth - 1, -beta, -alpha, ply + 1, false, move.getMoveINT());
+          currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -alpha - 1, -alpha, ply +1, false, move.getMoveINT());
+          if (currScore > alpha) currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, ply + 1, false, move.getMoveINT());
         }
 
         if (_stop || _checkLimits()) {
@@ -298,7 +290,10 @@ void Search::_rootMax(const Board &board, int depth, int ply) {
           fullWindow = false;
           bestMove = move;
           alpha = currScore;
-
+          _ourPV.length = rootPV.length + 1;
+          _ourPV.pVmoves[0] = move.getMoveINT();
+          // memcpy - (куда, откуда, длина)
+          std::memcpy(_ourPV.pVmoves + 1, rootPV.pVmoves, sizeof(int) * rootPV.length);
           // Break if we've found a checkmate
         }
     
@@ -324,26 +319,32 @@ void Search::_rootMax(const Board &board, int depth, int ply) {
 
 // this is basically my main search
 // 
-int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply, bool doNool, int pMove) {
+int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int beta, int ply, bool doNool, int pMove) {
   // Check search limits
   _nodes++;
   bool AreWeInCheck;
   int score;
   bool pvNode = alpha != beta - 1;
   bool TTmove = false;
+  pV   thisPV = pV();
 
   if (_stop || _checkLimits()) {
+    up_pV->length = 0;
     _stop = true;
     return 0;
   }
 
   // Check for threefold repetition draws
   if (std::find(_positionHistory.begin(), _positionHistory.end(), board.getZKey()) != _positionHistory.end()) {
+    // cut pV out if we found rep
+    up_pV->length = 0;
     return 0;
   }
 
   // Check for 50 move rule draws
   if (board.getHalfmoveClock() >= 100) {
+    // cut pV out if we found 50-move draw
+    up_pV->length = 0;
     return 0;
   }
 
@@ -388,6 +389,8 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   // Go into the QSearch if depth is 0
   if (depth == 0 && !AreWeInCheck) {
     selDepth = std::max(ply, selDepth);
+    // cut our pv if we are dropping in the qSearch
+    up_pV->length = 0;
     return _qSearch(board, alpha, beta, ply + 1 );
   }
 
@@ -446,7 +449,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   if (!pvNode && ply > 0 && depth >= 3 && !doNool && !AreWeInCheck && board.isThereMajorPiece()){
           Board movedBoard = board;
           movedBoard.doNool();
-          int score = -_negaMax(movedBoard, depth - NULL_MOVE_REDUCTION - depth/4, -beta, -beta +1, ply + 1, true, 0);
+          int score = -_negaMax(movedBoard, &thisPV, depth - NULL_MOVE_REDUCTION - depth/4, -beta, -beta +1, ply + 1, true, 0);
           if (score >= beta){
             return beta;
           }
@@ -587,7 +590,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           
           //Search with reduced depth around alpha in assumtion
           // that alpha would not be beaten here
-          score = -_negaMax(movedBoard, fDepth, -alpha - 1 , -alpha, ply + 1, false, move.getMoveINT());
+          score = -_negaMax(movedBoard, &thisPV, fDepth, -alpha - 1 , -alpha, ply + 1, false, move.getMoveINT());
         }
         
         // Code here is restructured based on Weiss
@@ -601,10 +604,10 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         // This system is implemented instead of fullDepth = true/false basic approach.
         if (doLMR){
           if (score > alpha){
-            score = -_negaMax(movedBoard, tDepth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT());
+            score = -_negaMax(movedBoard, &thisPV, tDepth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT());
           }
         } else if (!pvNode || LegalMoveCount > 1){
-          score = -_negaMax(movedBoard, tDepth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT());
+          score = -_negaMax(movedBoard, &thisPV, tDepth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT());
         }
 
         // If we are in the PV 
@@ -612,7 +615,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
         // or if score improved alpha during the current round of search.
         if  (pvNode) {
           if ((LegalMoveCount == 1) || (score > alpha && score < beta)){
-            score = -_negaMax(movedBoard, tDepth - 1 + AreWeInCheck, -beta, -alpha, ply + 1, false, move.getMoveINT());  
+            score = -_negaMax(movedBoard, &thisPV, tDepth - 1 + AreWeInCheck, -beta, -alpha, ply + 1, false, move.getMoveINT());  
           }
         }
         
@@ -625,6 +628,15 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           if (!_stop){
             myHASH.HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
           }
+          // we updated alpha and in the pVNode
+          // so we should update our pV
+          if (pvNode && !_stop){
+            up_pV->length = thisPV.length + 1;
+            up_pV->pVmoves[0] = move.getMoveINT();
+            // memcpy - (куда, откуда, длина)
+            std::memcpy(up_pV->pVmoves + 1, thisPV.pVmoves, sizeof(int) * thisPV.length);            
+          }
+
           return beta;
         }
 
@@ -633,6 +645,15 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
           _updateAlpha(move, board.getActivePlayer(), depth);
           alpha = score;
           bestMove = move;
+          // we updated alpha and in the pVNode
+          // so we should update our pV
+          if (pvNode && !_stop){
+            up_pV->length = thisPV.length + 1;
+            up_pV->pVmoves[0] = move.getMoveINT();
+            // memcpy - (куда, откуда, длина)
+            std::memcpy(up_pV->pVmoves + 1, thisPV.pVmoves, sizeof(int) * thisPV.length);            
+          }
+
         }else{
           // Beta was not beaten and we dont improve alpha
           // In this case we lower our search history values
@@ -646,6 +667,7 @@ int Search::_negaMax(const Board &board, int depth, int alpha, int beta, int ply
   // Check for checkmate and stalemate
   if (LegalMoveCount == 0) {
     score = AreWeInCheck ? LOST_SCORE + ply : 0; // LOST_SCORE = checkmate, 0 = stalemate (draw)
+    up_pV->length = 0;
     return score;
   }
 

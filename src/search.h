@@ -63,6 +63,13 @@ class Search {
     int increment[2];
   };
 
+  struct pV {
+    int     pVmoves [100];
+    uint8_t length;
+
+    pV () : pVmoves {0}, length(0) {};
+  };
+
   /**
    * @brief Constructs a new Search for the given board.
    *
@@ -237,6 +244,12 @@ class Search {
   int _bestScore;
 
   /**
+   * 
+   * 
+   */
+  pV _ourPV; 
+
+  /**
    * @brief updating heuristics when alpha cut occured 
    *
    * @param move  Move that caused cut
@@ -280,7 +293,7 @@ class Search {
    * @param  int    int of the last move that was made
    * @return The score of the given board
    */
-  int _negaMax(const Board &, int, int, int, int, bool, int);
+  int _negaMax(const Board &, pV *myPV, int, int, int, int, bool, int);
 
   /**
    * @brief Performs a quiescence search
@@ -313,10 +326,9 @@ class Search {
    * Internally, this method probes the transposition table for the PV of the last
    * performed search.
    * 
-   * @param length Length of the principal variation
    * @return MoveList The principal variation for the last performed search
    */
-  MoveList _getPv(int);
+  MoveList _getPv();
 
   /**
    * @brief this function calculates reductions values and stores
