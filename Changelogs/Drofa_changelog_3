@@ -184,6 +184,13 @@ Elo difference: 4.5 +/- 3.6
 SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
 -----------------------------------------------------------------
+24. PV is now aquired from array instead of TT
+-----------------------------------------------------------------
+Score of Drofa_dev vs Drofa_2.1.7: 4360 - 4498 - 6142  [0.495] 15000
+Elo difference: -3.20 +/- 4.27
+SPRT: llr -0.733, lbound -2.94, ubound 2.94
+Finished match
+-----------------------------------------------------------------
 
 
 
