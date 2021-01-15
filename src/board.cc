@@ -476,25 +476,65 @@ int  Board:: MostFancyPieceCost() const{
   return 100;
 }
 
-int  Board:: Calculate_SEE(Move move) const{
+bool  Board:: Calculate_SEE(Move move, int limit) const{
   
-  // 1. Can SEE be negative?
-  // We dont need to know how positive SEE is
-  // so if cost of captured => cost of capturing 
-  // return 0
+  // in search we do not need full SEE
+  // but rather need to know if SEE
+  // of the move is good enough
+  // so we use limit to calculate it faster
 
-  if (_SEE_cost[move.getPieceType()] <= _SEE_cost[move.getCapturedPieceType()]){
-    return 0;
+  // 0. Early exits
+  // If move is special (promotion, enpass, castle)
+  // its SEE is at least 0
+  // so just return true
+
+  unsigned int flags = move.getFlags();
+  if ((flags & Move::PROMOTION) || (flags & Move::EN_PASSANT)
+     ||(flags & Move::KSIDE_CASTLE) || (flags & Move::QSIDE_CASTLE)){
+       return true;
+     }
+
+  // 1. Calculate move 'worst case' value
+  // If it is a Capture value would be 
+  // (victim - attacker) otherwise (-movingPiece)
+  int val = 0;
+  if (flags & Move::CAPTURE){
+    val = _SEE_cost[move.getCapturedPieceType()] - _SEE_cost[move.getPieceType()];
+  }
+    else if (!flags)
+  {
+    val = - _SEE_cost[move.getPieceType()];
+  }
+
+  // if our worstcase beats limit
+  // we are fine
+  if (val > limit){
+    return true;
   }
 
   // 2. Calculate SEE
-  // Capture can be negative
-  // So we need to calculate IF its negative 
-  // and by how much
+  // We are actually forced to calculate SEE
+  // Start by tracking from and to sqv
+  // grabbing and updating btboards
+
+
+  int from = move.getFrom();
+  int to = move.getTo();
+
+  U64 occupied = _occupied;
+  occupied = occupied ^ (ONE << from);
+  occupied = occupied | (ONE <<  to);
 
 
 
-  return 0;
+  // 3.SEE Negamax Cycle
+  while (true)
+  {
+    
+  }
+  
+
+  return true;
 }
 
 void Board::doMove(Move move) {
