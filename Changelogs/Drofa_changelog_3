@@ -191,6 +191,12 @@ Elo difference: -3.20 +/- 4.27
 SPRT: llr -0.733, lbound -2.94, ubound 2.94
 Finished match
 -----------------------------------------------------------------
+25. Fixed Queen mobility bug, fixed mobility-related warnings 
+-----------------------------------------------------------------
+Score of Drofa_dev vs Drofa_2.1.8: 1506 - 1522 - 1972  [0.498] 5000
+Elo difference: -1.11 +/- 7.48
+Finished match
+-----------------------------------------------------------------ы
 
 
 

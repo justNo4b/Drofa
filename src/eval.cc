@@ -727,13 +727,5 @@ int Eval::evaluate(const Board &board, Color color) {
 
 int Eval::evalTestSuite(const Board &board, Color color)
 {
-    evalBits eB = Eval::Setupbits(board);
-
-  // Evaluate pieces
-  gS pieceS = evaluateBISHOP(board, color, &eB) 
-            + evaluateKNIGHT(board, color, &eB) 
-            + evaluateROOK  (board, color, &eB) 
-            + evaluateQUEEN (board, color, &eB) 
-            + evaluateKING (board, color, eB);
-  return eB.KingAttackPower[color] * COUNT_TO_POWER[std::min(7, eB.KingAttackers[color])] / 100;
+  return 0;
 }
