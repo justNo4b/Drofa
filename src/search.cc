@@ -387,7 +387,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   AreWeInCheck = board.colorIsInCheck(board.getActivePlayer());
 
   // Go into the QSearch if depth is 0
-  if (depth == 0 && !AreWeInCheck) {
+  if (depth <= 0 && !AreWeInCheck) {
     selDepth = std::max(ply, selDepth);
     // cut our pv if we are dropping in the qSearch
     up_pV->length = 0;
@@ -446,10 +446,13 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   //
   // For obvious reasons its turned off with no major pieces,
   // when we are in check, and at pvNodes
-  if (!pvNode && ply > 0 && depth >= 3 && !doNool && !AreWeInCheck && board.isThereMajorPiece()){
+  if (!pvNode && ply > 0 && depth >= 3 &&
+      !doNool && !AreWeInCheck && board.isThereMajorPiece() &&
+       statEVAL >= beta){
           Board movedBoard = board;
           movedBoard.doNool();
-          int score = -_negaMax(movedBoard, &thisPV, depth - NULL_MOVE_REDUCTION - depth/4, -beta, -beta +1, ply + 1, true, 0);
+          int fDepth = depth - NULL_MOVE_REDUCTION - depth/4 - std::min((statEVAL - beta)/128, 4); 
+          int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, ply + 1, true, 0);
           if (score >= beta){
             return beta;
           }

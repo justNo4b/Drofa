@@ -196,7 +196,14 @@ Finished match
 Score of Drofa_dev vs Drofa_2.1.8: 1506 - 1522 - 1972  [0.498] 5000
 Elo difference: -1.11 +/- 7.48
 Finished match
------------------------------------------------------------------ы
+-----------------------------------------------------------------
+26. Null move pruning taking into account how much is statEval>beta
+-----------------------------------------------------------------
+Score of Drofa_dev vs Drofa_2.1.9: 953 - 812 - 1275  [0.523] 3040
+Elo difference: 16.13 +/- 9.40
+SPRT: llr 2.96, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+------------------------------------------------------------------
 
 
 
