@@ -5,6 +5,8 @@
 #include <iostream>
 #include <thread>
 
+extern HASH myHASH;
+
 namespace {
 Book book;
 std::shared_ptr<Search> search;
@@ -23,6 +25,14 @@ void loadBook() {
   }
 }
 
+void changeTTsize(){
+  int size = atoi(optionsMap["Hash"].getValue().c_str());
+  // make sure we do not overstep bounds
+  size = std::min(size, 1024);
+  size = std::max(size, 25);
+  // call TT
+  myHASH.HASH_Initalize_MB(size);
+}
 
 #ifdef _TUNE_
 void loadCosts(){
@@ -50,9 +60,7 @@ Eval::SetupFeatureTuning(ENDGAME, BISHOP_PAIR, atoi(optionsMap["vBPairEG"].getVa
 void initOptions() {
   optionsMap["OwnBook"] = Option(false);
   optionsMap["BookPath"] = Option("book.bin", &loadBook);
-
-  // for now only placeholder
-  // optionsMap["Hash"] = Option(256, 25, 1024, &loadBook);
+  optionsMap["Hash"] = Option(250, 25, 1024, &changeTTsize);
 
 
   // Options for tuning is defined here.

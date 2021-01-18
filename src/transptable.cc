@@ -27,6 +27,20 @@ HASH::HASH(){
 
 }
 
+void  HASH::HASH_Initalize_MB(const int MB){
+
+  //delete previous TT
+  delete hashTable;
+
+  // set new size
+  double hashSize = MB;
+  TableSize = hashSize / (double) sizeof(HASH_Entry) *  0x100000; 
+
+  // Initalize main hash table for transpositions
+  TableSize = TableSize - 2;
+  hashTable = new HASH_Entry [TableSize];
+}
+
 U64 HASH::HASH_Size(){
   int k = TableSize;
   return k;
