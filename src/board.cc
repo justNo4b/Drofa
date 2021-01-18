@@ -479,7 +479,7 @@ int  Board:: MostFancyPieceCost() const{
   return 100;
 }
 
-bool  Board:: Calculate_SEE(Move move, int limit) const{
+int  Board:: Calculate_SEE(const Move move) const{
   
   // in search we do not need full SEE
   // but rather need to know if SEE
@@ -487,57 +487,57 @@ bool  Board:: Calculate_SEE(Move move, int limit) const{
   // so we use limit to calculate it faster
 
   // 0. Early exits
-  // If move is special (promotion, enpass, castle)
-  // its SEE is at least 0
+  // If move is special case (promotion, enpass, castle)
+  // its SEE is at least 0 (well, not exactly, Prom could be -100, but still)
   // so just return true
 
   unsigned int flags = move.getFlags();
   if ((flags & Move::PROMOTION) || (flags & Move::EN_PASSANT)
      ||(flags & Move::KSIDE_CASTLE) || (flags & Move::QSIDE_CASTLE)){
-       return true;
+       return 1024;
      }
 
-  // 1. Calculate move 'worst case' value
-  // If it is a Capture value would be 
-  // (victim - attacker) otherwise (-movingPiece)
-  int val = 0;
-  if (flags & Move::CAPTURE){
-    val = _SEE_cost[move.getCapturedPieceType()] - _SEE_cost[move.getPieceType()];
-  }
-    else if (!flags)
-  {
-    val = - _SEE_cost[move.getPieceType()];
-  }
 
-  // if our worstcase beats limit
-  // we are fine
-  if (val > limit){
-    return true;
-  }
-
-  // 2. Calculate SEE
-  // We are actually forced to calculate SEE
-  // Start by tracking from and to sqv
-  // grabbing and updating btboards
-
-
+  // 1. Set variables
+  int gain[32], d = 0;
   int from = move.getFrom();
   int to = move.getTo();
+  Color side = getActivePlayer();
 
   U64 occupied = _occupied;
   occupied = occupied ^ (ONE << from);
   occupied = occupied | (ONE <<  to);
 
-
-
-  // 3.SEE Negamax Cycle
-  while (true)
-  {
-    
-  }
+  U64 mayXray = getPieces(WHITE, PAWN) | getPieces(WHITE, ROOK) | getPieces(WHITE, BISHOP) | getPieces(WHITE, QUEEN) |
+                getPieces(BLACK, PAWN) | getPieces(BLACK, ROOK) | getPieces(BLACK, BISHOP) | getPieces(BLACK, QUEEN);
+  U64 fromBit = (ONE << from);
+  U64 aBoard  = 0;
   
 
-  return true;
+  if (flags & Move::CAPTURE){
+    gain[0] = _SEE_cost[move.getCapturedPieceType()];
+  }
+
+  // 3.SEE Negamax Cycle
+  do
+  {
+    d++;
+    gain[d]  = _SEE_cost[getPieceAtSquare(side, from)] - gain[d-1];
+    if ( std::max(-gain[d-1], gain[d]) < 0) break;
+    aBoard = aBoard ^ fromBit;
+    occupied = occupied ^ fromBit;
+    if (mayXray & fromBit){
+      aBoard = 0;
+    }
+    fromBit = 0;
+  } while (fromBit);
+  
+  // 4.Calculate value
+  while (d--){
+    gain[d-1] = - std::max(-gain[d-1], gain[d]);
+  }
+  
+  return gain[0];
 }
 
 void Board::doMove(Move move) {

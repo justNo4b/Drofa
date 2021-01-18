@@ -289,7 +289,7 @@ class Board {
   /**
    * @brief Calculates SEE of the Move
    */ 
-  bool Calculate_SEE(Move move, int limit) const;
+  int Calculate_SEE(const Move move) const;
 
  private:
   /**
