@@ -242,7 +242,7 @@ inline void Search::_updateBeta(const Move move, Color color, int pMove, int ply
 }
 
 inline bool Search::_isRepetitionDraw(const U64 currKey, const int clock){
-  for (int i = _posHist.head - 1; (i >= 0 && i >= _posHist.head - clock ); i--){
+  for (int i = _posHist.head - 2; (i >= 0 && i >= _posHist.head - clock); i-=2){
     if (_posHist.hisKey[i] == currKey){
       return true;
     }
