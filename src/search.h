@@ -269,7 +269,7 @@ class Search {
    */
   inline void _updateBeta(const Move move, Color color, int pMove, int ply, int depth);
 
-  inline bool _isRepetitionDraw(const U64, const int);
+  inline bool _isRepetitionDraw(U64);
 
   /**
    * @brief Root negamax function.

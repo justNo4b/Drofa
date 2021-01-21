@@ -241,8 +241,8 @@ inline void Search::_updateBeta(const Move move, Color color, int pMove, int ply
   }
 }
 
-inline bool Search::_isRepetitionDraw(const U64 currKey, const int clock){
-  for (int i = _posHist.head - 2; (i >= 0 && i >= _posHist.head - clock); i-=2){
+inline bool Search::_isRepetitionDraw(U64 currKey){
+  for (int i = _posHist.head - 1; i >= 0; i--){
     if (_posHist.hisKey[i] == currKey){
       return true;
     }
@@ -344,7 +344,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
   // Check for threefold repetition draws
-  if (_isRepetitionDraw(board.getZKey().getValue(), board.getHalfmoveClock())) {
+  if (_isRepetitionDraw(board.getZKey().getValue())) {
     // cut pV out if we found rep
     up_pV->length = 0;
     return 0;
