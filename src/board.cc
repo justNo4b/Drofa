@@ -104,7 +104,6 @@ U64 Board::getMobilityForSquare(PieceType pieceType, Color color, int square, U6
   return attacks;
 }
 
-
 Color Board::getInactivePlayer() const {
   return _activePlayer == WHITE ? BLACK : WHITE;
 }
@@ -504,14 +503,22 @@ int  Board:: Calculate_SEE(const Move move) const{
   int to = move.getTo();
   Color side = getActivePlayer();
 
+  // Get pieces that attack target sqv
+  U64 aBoard[2];
+  aBoard[WHITE] = _squareAttackedBy(WHITE, to);
+  aBoard[BLACK] = _squareAttackedBy(BLACK, to);
+
+  // get occupied
   U64 occupied = _occupied;
   occupied = occupied ^ (ONE << from);
   occupied = occupied | (ONE <<  to);
 
-  U64 mayXray = getPieces(WHITE, PAWN) | getPieces(WHITE, ROOK) | getPieces(WHITE, BISHOP) | getPieces(WHITE, QUEEN) |
-                getPieces(BLACK, PAWN) | getPieces(BLACK, ROOK) | getPieces(BLACK, BISHOP) | getPieces(BLACK, QUEEN);
+  U64 horiXray = getPieces(WHITE, ROOK) | getPieces(WHITE, QUEEN) |  getPieces(BLACK, ROOK) | getPieces(BLACK, QUEEN);
+  U64 diagXray = getPieces(WHITE, PAWN) | getPieces(WHITE, BISHOP) | getPieces(WHITE, QUEEN) |
+                 getPieces(BLACK, PAWN) | getPieces(BLACK, BISHOP) | getPieces(BLACK, QUEEN);              
   U64 fromBit = (ONE << from);
-  U64 aBoard  = 0;
+
+
   
 
   if (flags & Move::CAPTURE){
@@ -524,12 +531,20 @@ int  Board:: Calculate_SEE(const Move move) const{
     d++;
     gain[d]  = _SEE_cost[getPieceAtSquare(side, from)] - gain[d-1];
     if ( std::max(-gain[d-1], gain[d]) < 0) break;
-    aBoard = aBoard ^ fromBit;
+    aBoard[side] = aBoard[side] ^ fromBit;
     occupied = occupied ^ fromBit;
-    if (mayXray & fromBit){
-      aBoard = 0;
+    if (horiXray & fromBit){
+      aBoard[side] |= _squareAttackedByRook(side, to, occupied);
     }
+    if (diagXray & fromBit){
+      aBoard[side] |= _squareAttackedByBishop(side, to, occupied);
+    }
+    // switch side and get next attacker
+    side = getOppositeColor(side);
     fromBit = 0;
+
+    // getNextAttacker
+
   } while (fromBit);
   
   // 4.Calculate value
@@ -662,6 +677,37 @@ bool Board::_squareUnderAttack(Color color, int squareIndex) const {
   if (_getRookAttacksForSquare(squareIndex, ZERO) & rooksQueens) return true;
 
   return false;
+}
+
+U64 Board::_squareAttackedBy(Color color, int squareIndex) const {
+  // Check for pawn, knight and king attacks
+  U64 Attackers;
+
+  Attackers  = Attacks::getNonSlidingAttacks(PAWN, squareIndex, getOppositeColor(color)) & getPieces(color, PAWN);
+  Attackers |= Attacks::getNonSlidingAttacks(KNIGHT, squareIndex) & getPieces(color, KNIGHT);
+  Attackers |= Attacks::getNonSlidingAttacks(KING, squareIndex) & getPieces(color, KING);
+
+  // Check for bishop/queen attacks
+  U64 bishopsQueens = getPieces(color, BISHOP) | getPieces(color, QUEEN);
+  Attackers |= (_getBishopAttacksForSquare(squareIndex, ZERO) & bishopsQueens);
+
+  // Check for rook/queen attacks
+  U64 rooksQueens = getPieces(color, ROOK) | getPieces(color, QUEEN);
+  Attackers |= (_getRookAttacksForSquare(squareIndex, ZERO) & rooksQueens);
+
+  return Attackers;
+}
+
+U64 Board::_squareAttackedByRook(Color color, int square, U64 occupied) const{
+  U64 rooksQueens = getPieces(color, ROOK) | getPieces(color, QUEEN);
+  U64 Attackers = Attacks::getSlidingAttacks(ROOK, square, occupied) & rooksQueens;
+  return Attackers;
+}
+
+U64 Board::_squareAttackedByBishop(Color color, int square, U64 occupied) const{
+  U64 bishopsQueens = getPieces(color, BISHOP) | getPieces(color, QUEEN);
+  U64 Attackers = Attacks::getSlidingAttacks(BISHOP, square, occupied) & bishopsQueens;
+  return Attackers;
 }
 
 void Board::_updateCastlingRightsForMove(Move move) {

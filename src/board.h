@@ -390,6 +390,9 @@ class Board {
    * @return True if the square is under attack, false otherwise
    */
   bool _squareUnderAttack(Color, int) const;
+  U64  _squareAttackedBy(Color, int)  const;
+  U64  _squareAttackedByRook(Color, int, U64) const;
+  U64  _squareAttackedByBishop(Color, int, U64) const;
 
   /**
    * @brief Update the castling rights for the given move.
