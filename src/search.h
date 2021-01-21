@@ -40,7 +40,7 @@ class Search {
     /**
      * @brief Maximum number of nodes to search
      */
-    int nodes;
+    U64 nodes;
 
     /**
      * @brief Moves left to the next time control
@@ -231,7 +231,7 @@ class Search {
   /**
    * @brief Number of nodes searched in the last search.
    */
-  int _nodes;
+  U64 _nodes;
 
   /**
    * @brief Best move found on last search.
@@ -320,7 +320,7 @@ class Search {
    * @param nodes     Number of nodes searched
    * @param elapsed   Time taken to complete the search in milliseconds
    */
-  void _logUciInfo(const MoveList &, int, int, int, int);
+  void _logUciInfo(const MoveList &, int, int, U64, int);
 
   /**
    * @brief Returns the principal variation for the last performed search.

@@ -146,7 +146,7 @@ MoveList Search::_getPv() {
   return pv;
 }
 
-void Search::_logUciInfo(const MoveList &pv, int depth, int bestScore, int nodes, int elapsed) {
+void Search::_logUciInfo(const MoveList &pv, int depth, int bestScore, U64 nodes, int elapsed) {
   std::string pvString;
   for (auto move : pv) {
     pvString += move.getNotation() + " ";
