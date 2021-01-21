@@ -45,23 +45,11 @@ class MoveGen {
    */
   MoveList getMoves();
 
-  /**
-   * @brief Returns the subset of pseudo-legal moves that are legal.
-   *
-   * @return A MoveList of all legal moves that have been generated for the current board.
-   */
-  MoveList getLegalMoves();
-
  private:
   /**
    * @brief A vector containing generated pseudo-legal moves
    */
   MoveList _moves;
-
-  /**
-   * @brief MoveList of legal moves.
-   */
-  MoveList _legalMoves;
 
   /**
    * @brief Size of _moves to pre-reserve before generating moves.

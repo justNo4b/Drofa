@@ -9,6 +9,22 @@
 
 class Move;
 
+struct Hist{
+    U64         hisKey[MAX_GAME_PLY];
+    uint16_t    head; 
+
+    Hist() : hisKey {0}, head(0)  {};
+    void Add(U64 key){
+      hisKey[head] = key;
+      head++;
+    };
+
+    void Remove(){
+      head--;
+    };
+};
+
+
 /**
  * @brief Represents a chess board.
  *

@@ -11,7 +11,7 @@ namespace {
 Book book;
 std::shared_ptr<Search> search;
 Board board;
-std::vector<ZKey> positionHistory;
+Hist positionHistory;
 
 void loadBook() {
   std::ifstream bookFile(optionsMap["BookPath"].getValue());
@@ -90,7 +90,7 @@ void initOptions() {
 
 void uciNewGame() {
   board.setToStartPos();
-  positionHistory.clear();
+  positionHistory = Hist();
 }
 
 void setPosition(std::istringstream &is) {
@@ -119,9 +119,9 @@ void setPosition(std::istringstream &is) {
       if (move.getNotation() == token) {
         board.doMove(move);
         if ((move.getPieceType() == PAWN) || (move.getFlags() & Move::CAPTURE) ){
-          positionHistory.clear();
+          positionHistory = Hist();
         }
-        positionHistory.push_back(board.getZKey());
+        positionHistory.Add(board.getZKey().getValue());
         break;
       }
     }
@@ -162,13 +162,13 @@ unsigned long long perft(const Board &board, int depth) {
   if (depth <= 0) {
     return 1;
   } else if (depth == 1) {
-    return MoveGen(board, false).getLegalMoves().size();
+    return MoveGen(board, false).getMoves().size();
   }
 
   MoveGen movegen(board, false);
 
   unsigned long long nodes = 0;
-  for (auto move : movegen.getLegalMoves()) {
+  for (auto move : movegen.getMoves()) {
     Board movedBoard = board;
     movedBoard.doMove(move);
 
@@ -185,7 +185,7 @@ void perftDivide(int depth) {
 
   std::cout << std::endl;
   auto start = std::chrono::steady_clock::now();
-  for (auto move : movegen.getLegalMoves()) {
+  for (auto move : movegen.getMoves()) {
     Board movedBoard = board;
     movedBoard.doMove(move);
 
@@ -286,7 +286,7 @@ void loop() {
     else if (token == "printboard") {
       std::cout << std::endl << board.getStringRep() << std::endl;
     } else if (token == "printmoves") {
-      for (auto move : MoveGen(board, false).getLegalMoves()) {
+      for (auto move : MoveGen(board, false).getMoves()) {
         std::cout << move.getNotation() << " ";
       }
       std::cout << std::endl;

@@ -48,8 +48,7 @@ void Search::init_LMR_array(){
 
 }
 
-Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHistory, bool logUci) :
-    _positionHistory(positionHistory),
+Search::Search(const Board &board, Limits limits, Hist positionHistory, bool logUci) :
     _orderingInfo(OrderingInfo()),
     _limits(limits),
     _initialBoard(board),
@@ -61,6 +60,7 @@ Search::Search(const Board &board, Limits limits, std::vector<ZKey> positionHist
   std::memset(_sEvalArray, 0, sizeof(_sEvalArray));
   init_LMR_array();
   _wasThoughtProlonged = false;
+  _posHist = positionHistory;
   int ourTime = 0;
   if (_limits.infinite) { // Infinite search
     _searchDepth = INF;
@@ -241,6 +241,15 @@ inline void Search::_updateBeta(const Move move, Color color, int pMove, int ply
   }
 }
 
+inline bool Search::_isRepetitionDraw(const U64 currKey, const int clock){
+  for (int i = _posHist.head - 1; (i >= 0 && i >= _posHist.head - clock ); i--){
+    if (_posHist.hisKey[i] == currKey){
+      return true;
+    }
+  }
+  return false;
+}
+
 void Search::_rootMax(const Board &board, int depth, int ply) {
   _nodes++;
   
@@ -335,7 +344,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
   // Check for threefold repetition draws
-  if (std::find(_positionHistory.begin(), _positionHistory.end(), board.getZKey()) != _positionHistory.end()) {
+  if (_isRepetitionDraw(board.getZKey().getValue(), board.getHalfmoveClock())) {
     // cut pV out if we found rep
     up_pV->length = 0;
     return 0;
@@ -535,7 +544,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               continue;
           }
         }
-        _positionHistory.push_back(board.getZKey());
+        _posHist.Add(board.getZKey().getValue());
 
         //7. LATE MOVE REDUCTIONS
         //mix of ideas from Weiss code and what is written in the chessprogramming wiki
@@ -622,7 +631,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           }
         }
         
-        _positionHistory.pop_back();
+        _posHist.Remove();
         // Beta cutoff
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
