@@ -13,7 +13,6 @@ MoveGen::MoveGen() {
 
 void MoveGen::setBoard(const Board &board, bool isCaptureGenerated) {
   _moves = MoveList();
-  _legalMoves = MoveList();
   if (!isCaptureGenerated){
      _genMoves(board); 
   } else{
@@ -24,10 +23,6 @@ void MoveGen::setBoard(const Board &board, bool isCaptureGenerated) {
 
 MoveList MoveGen::getMoves() {
   return _moves;
-}
-
-MoveList MoveGen::getLegalMoves() {
-  return _legalMoves;
 }
 
 void MoveGen::_genMoves(const Board &board) {

@@ -80,7 +80,7 @@ class Search {
    * @param logUci If logUci is set, UCI info commands about the search will be printed
    * to standard output in real time.k
    */
-  Search(const Board &, Limits, std::vector<ZKey>, bool= true);
+  Search(const Board &, Limits, Hist, bool= true);
 
   /**
    * @brief Performs an iterative deepening search within the constraints of the given limits.
@@ -135,7 +135,7 @@ class Search {
    * 
    * This is used to detect threefold repetitions.
    */
-  std::vector<ZKey> _positionHistory;
+  Hist  _posHist;
 
   /**
    * @brief Array of int, constitutes history of the static eval
@@ -268,6 +268,8 @@ class Search {
    * @param depth search depth
    */
   inline void _updateBeta(const Move move, Color color, int pMove, int ply, int depth);
+
+  inline bool _isRepetitionDraw(U64);
 
   /**
    * @brief Root negamax function.
