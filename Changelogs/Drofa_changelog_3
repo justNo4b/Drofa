@@ -219,13 +219,17 @@ Finished match
 /////////////      Drofa_2.2.0 vs Drofa_2.1.0   	//////////
 //////////////////////////////////////////////////////////////////
 
-STC:
+STC	(10``+0.1``):
+Score of Drofa_2.2.0 vs Drofa_2.1.0: 582 - 406 - 559  [0.557] 1547
+Elo difference: 39.70 +/- 13.86
+SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
 
-
-
-
-LTC:
-
+LTC	(60`+1`):
+Score of Drofa_2.2.0 vs Drofa_2.1.0: 321 - 197 - 465  [0.563] 983
+Elo difference: 44.06 +/- 15.77
+SPRT: llr 2.98, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
 
 //////////////////////////////////////////////////////////////////
 
