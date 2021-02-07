@@ -266,8 +266,10 @@ void Search::_rootMax(const Board &board, int depth, int ply) {
     return;
   }
 
+const HASH_Entry probedHASHentry = myHASH.HASH_Get(board.getZKey().getValue());
+int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
   MovePicker movePicker
-      (&_orderingInfo, &legalMoves, board.getZKey().getValue(), board.getActivePlayer(), 0, 0);
+      (&_orderingInfo, &legalMoves, hashMove, board.getActivePlayer(), 0, 0);
 
   int alpha = LOST_SCORE;
   int beta = -LOST_SCORE;
@@ -358,6 +360,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
   int alphaOrig = alpha;
+  int hashedMove = 0;
   // Check transposition table cache
   // If TT is causing a cuttoff, we update 
   // move ordering stuff
@@ -366,6 +369,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   if (probedHASHentry.Flag != NONE){
     TTmove = true;
+    hashedMove = probedHASHentry.move;
     if (probedHASHentry.depth >= depth && !pvNode){
       int hashScore = probedHASHentry.score;
 
@@ -483,7 +487,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   MoveGen movegen(board, false);
   MoveList legalMoves = movegen.getMoves();
   MovePicker movePicker
-      (&_orderingInfo, &legalMoves, board.getZKey().getValue(), board.getActivePlayer(), ply, pMove);
+      (&_orderingInfo, &legalMoves, hashedMove, board.getActivePlayer(), ply, pMove);
 
   Move bestMove;
   int  LegalMoveCount = 0;
@@ -732,7 +736,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
   MoveGen movegen(board, true);
   MoveList legalMoves = movegen.getMoves();
   MovePicker movePicker
-      (&_orderingInfo, &legalMoves, board.getZKey().getValue(), board.getActivePlayer(), 99, 0);
+      (&_orderingInfo, &legalMoves, 0, board.getActivePlayer(), 99, 0);
 
   // If node is quiet, just return eval
   if (!movePicker.hasNext()) {

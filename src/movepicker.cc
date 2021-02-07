@@ -6,10 +6,10 @@ extern HASH myHASH;
 // Indexed by [victimValue][attackerValue]
 
 
-MovePicker::MovePicker(const OrderingInfo *orderingInfo, MoveList *moveList, U64 key, Color color, int ply, int pMove){
+MovePicker::MovePicker(const OrderingInfo *orderingInfo, MoveList *moveList, int hMove, Color color, int ply, int pMove){
   _orderingInfo = orderingInfo;
   _moves = moveList;
-  _posKey = key;
+  _hashMove = hMove;
   _color = color;
   _ply = ply;
   _pMove = pMove;
@@ -18,20 +18,13 @@ MovePicker::MovePicker(const OrderingInfo *orderingInfo, MoveList *moveList, U64
 }
 
 void MovePicker::_scoreMoves() {
-  int pvMove;
-  HASH_Entry pvEntry = myHASH.HASH_Get(_posKey);
-  if (pvEntry.Flag != NONE){
-    pvMove = pvEntry.move;
-  }else{
-    pvMove = 0;
-  }
   int Killer1 = _orderingInfo->getKiller1(_ply);
   int Killer2 = _orderingInfo->getKiller2(_ply);
   int Counter = _orderingInfo->getCounterMoveINT(_color, _pMove);
 
   for (auto &move : *_moves) {
     int moveINT = move.getMoveINT();
-    if (moveINT == pvMove) {
+    if (_hashMove != 0 && moveINT == _hashMove) {
       move.setValue(INF);
     } else if (move.getFlags() & Move::CAPTURE) {
       move.setValue(CAPTURE_BONUS + _mvvLvaTable[move.getCapturedPieceType()][move.getPieceType()]);
