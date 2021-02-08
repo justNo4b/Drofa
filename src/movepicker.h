@@ -22,7 +22,7 @@ class MovePicker {
    * @param board Current board state for all moves in the provided MoveList
    * @param moveList Pointer to the MoveList to pick moves from
    */
-  MovePicker(const OrderingInfo *, MoveList *, U64, Color, int, int);
+  MovePicker(const OrderingInfo *, MoveList *, int, Color, int, int);
 
   /**
    * @brief Returns the next best move from this MovePicker's MoveList.
@@ -131,7 +131,7 @@ class MovePicker {
   /**
    * @brief posKey of the current position
    */
-  U64 _posKey;
+  int _hashMove;
 
   /**
    * @brief Color of the current sideToMove
