@@ -14,22 +14,9 @@ enum TuningFeature{
         ROOK_SEMI
 };
 
-struct gS
-{
-    int16_t OP;
-    int16_t EG;
-
-    gS() : OP(0), EG(0) {}
-    gS( int16_t o, int16_t e) : OP(o), EG(e) {}
-
-    inline gS operator+(gS other_gS){
-        return gS(OP + other_gS.OP, EG + other_gS.EG);
-    }
-
-    inline gS operator-(gS other_gS){
-        return gS(OP - other_gS.OP, EG - other_gS.EG);
-    }
-};
+#define gS(opS, egS) (int)((unsigned int)(opS) << 16) + (egS)
+#define opS(gS) (int16_t)((uint16_t)((unsigned)((gS) + 0x8000) >> 16))
+#define egS(gS) (int16_t)((uint16_t)((unsigned)((gS))))
 
 struct evalBits{
     U64 EnemyPawnAttackMap[2];
@@ -122,29 +109,32 @@ const int KING_SAFE = 5;         // хороший пешечный щит
 /**
  * @brief Bonuses given to a player having a move available (opening/endgame)
  */
-const int BISHOP_MOBILITY [2][14] = {
-            [OPENING] = {-25, -13,   0,   4,  8, 10, 12, 14, 16, 18, 20, 22, 23, 23},
-            [ENDGAME] = {-25, -17, -13,  -5,  0,  6,  9, 12, 15, 17, 19, 21, 23, 23},
+const int BISHOP_MOBILITY[14] = {
+            gS(-25, -25), gS(-13,-17), gS(  0,-13), gS(  4, -5), gS(  8,  0), gS( 10,  6), gS( 12,  9),
+            gS( 14,  12), gS( 16, 15), gS( 18, 17), gS( 20, 19), gS( 22, 21), gS( 23, 23), gS( 23, 23),
 };
 
-const int KNIGHT_MOBILITY [2][9] = {
-            [OPENING] = {-25, -10,  0,  5,  9, 13, 18, 21, 21},
-            [ENDGAME] = {-25, -17,-10,  0,  5, 10, 18, 24, 24},
+const int KNIGHT_MOBILITY[9] = {
+            gS(-25,-25), gS(-10,-17), gS( 0,-10), gS( 5,  0), gS( 9, 5),
+            gS( 13, 10), gS( 18, 18), gS(21, 24), gS(21, 24)
 };
 
-const int KING_MOBILITY [2][9] = {
-            [OPENING] = {-3,  0,  5,  5,  3, -1,  -3, -5, -7},
-            [ENDGAME] = {-4, -1,  0,  2,  5,  8,  11, 11,  8},
+const int KING_MOBILITY[9] = {
+            gS( -3, -4), gS(  0, -1), gS( 5,  0), gS( 5,  2), gS( 3, 5),
+            gS( -1,  8), gS( -3, 11), gS(-5, 11), gS(-7,  8)
 };
 
-const int ROOK_MOBILITY [2][15] = {
-            [OPENING] = {-21,-13,  -7,  -3, -1,  0,  2,  5,  7, 10, 13, 14, 14, 13, 12},
-            [ENDGAME] = {-13, -7,  -5,  -1,  0,  2,  4,  6,  8, 12, 14, 16, 16, 15, 15},
+const int ROOK_MOBILITY[15] = {
+            gS(-21,-13), gS(-13, -7), gS( -7, -5), gS( -3, -1), gS( -1,  0), gS( 0,  2), gS(  2,  4),
+            gS(  5,  6), gS(  7,  8), gS( 10, 12), gS( 13, 14), gS( 14, 16), gS( 14, 16), gS( 13, 15),
+            gS( 12, 15),
 };
 
-const int QUEEN_MOBILITY [2][28] = {
-            [OPENING] = {-34, -17,  -11,   -7,  -3,  -1,   0,  1,  3, 5, 7, 9, 11, 13, 15, 16, 17, 18, 19, 21, 23, 25, 25, 26, 26, 26},
-            [ENDGAME] = {-50, -20,  -13,   -9,  -5,  -3,  -1,  0,  1, 3, 5, 7,  9, 11, 13, 15, 17, 18, 19, 21, 23, 25, 25, 26, 26, 26},
+const int QUEEN_MOBILITY[28] = {
+            gS(-34,-50), gS(-17,-20), gS(-11,-13), gS( -7, -9), gS( -3, -5), gS( -1, -3), gS(  0, -1),
+            gS(  1,  0), gS(  3,  1), gS(  5,  3), gS(  7,  5), gS(  9,  7), gS( 11,  9), gS( 13, 11),
+            gS( 15, 13), gS( 16, 15), gS( 17, 17), gS( 18, 18), gS( 19, 19), gS( 21, 21), gS( 23, 23),
+            gS( 25, 25), gS( 25, 25), gS( 26, 26), gS( 26, 26), gS( 26, 26), gS( 26, 26), gS( 26, 26),
 };
 
 const int PIECE_ATTACK_POWER[6] = {0, 40, 35, 20, 80, 0};
@@ -159,83 +149,72 @@ const int COUNT_TO_POWER[8] = {0, 0, 50, 75, 80, 88, 95, 100};
     {'vBishopEG': 357, 'vBishopOP': 336, 'vKnightEG': 328, 'vKnightOP': 304, 'vPawnEG': 86, 'vQueenEG': 995, 'vQueenOP': 1190, 'vRookEG': 565, 'vRookOP': 465}
 
  */
-const int MATERIAL_VALUES[2][6] = {
-    [OPENING] = {
-        [PAWN] = 100,
-        [ROOK] = 465,
-        [KNIGHT] = 304,
-        [BISHOP] = 336,
-        [QUEEN] = 1190,
-        [KING] = 0
-    },
-    [ENDGAME] = {
-        [PAWN] = 86,
-        [ROOK] = 565,
-        [KNIGHT] = 328,
-        [BISHOP] = 357,
-        [QUEEN] = 995,
-        [KING] = 0
-    }
+const int MATERIAL_VALUES[6] = {
+        [PAWN] = gS(100, 86),
+        [ROOK] = gS(465, 565),
+        [KNIGHT] = gS(304, 328),
+        [BISHOP] = gS(336, 357),
+        [QUEEN] = gS(1190, 995),
+        [KING] = gS(0, 0)
 };
 
 
 const int TEMPO = 5;
-const int BISHOP_RAMMED_PENALTY[2] = {-2, -4};
+const int BISHOP_RAMMED_PENALTY = gS(-2, -4);
 
-const int PAWN_SUPPORTED[2] = {7, 3};
+const int PAWN_SUPPORTED = gS(7, 3);
 
-const int KING_PASSER_DISTANCE_FRIENDLY[2][9] = {
-        [OPENING] = {0,  0,  0,  0,  0,  0,  0,  0,  0},
-        [ENDGAME] = {0,  15,  7,  3,  0,  -1,  -5,  -10,  -10}
+const int KING_PASSER_DISTANCE_FRIENDLY[9] = {
+        gS(0,  0), gS(0, 15), gS(0, 7), gS(0, 3), gS(0, 0),
+        gS(0, -1), gS(0, -5), gS(0, -10), gS(0, -10)
 };
 
-const int KING_PASSER_DISTANCE_ENEMY[2][9] = {
-        [OPENING] = {0,  0,  0,  0,  0,  0,  0,  0,  0},
-        [ENDGAME] = {0,  15,  7,  3,  0,  -1,  -5,  -10,  -10}
+const int KING_PASSER_DISTANCE_ENEMY[9] = {
+        gS(0,  0), gS(0, 15), gS(0, 7), gS(0, 3), gS(0, 0),
+        gS(0, -1), gS(0, -5), gS(0, -10), gS(0, -10)
 };
 
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
-const int ROOK_OPEN_FILE_BONUS[2] = {[OPENING] = 50, [ENDGAME] = 25};
+const int ROOK_OPEN_FILE_BONUS = gS(50, 25);
 
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
-const int ROOK_SEMI_FILE_BONUS[2] = {[OPENING] = 12, [ENDGAME] = 37};
+const int ROOK_SEMI_FILE_BONUS = gS (12, 37);
 
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
-const int ROOK_OUTPOSTED_LINE[2] = {[OPENING] = -10, [ENDGAME] = -10};
-
+const int ROOK_OUTPOSTED_LINE =  gS(-10, -10); 
 /**
  * @brief Bonuses given to a player for having a passed pawn (opening/endgame)
  */
-const int PASSED_PAWN_RANKS[2][8] = {
-            [OPENING] = {0,  4,  7, 10, 15, 20, 45, 0}, 
-            [ENDGAME] = {0, 10, 15, 35, 40, 45, 75, 0}
+const int PASSED_PAWN_RANKS[8] = {
+            gS( 0, 0), gS( 4, 10), gS( 7, 15), gS( 10, 35),
+            gS(15,40), gS(20, 45), gS(45, 75), gS( 0, 0)
 };
 
-const int PASSED_PAWN_FILES[2][8] = {
-            [OPENING] = {4,  2,  1,  0,  0,  1,  2,  4}, 
-            [ENDGAME] = {3,  2,  1,  0,  0,  1,  2,  3},
+const int PASSED_PAWN_FILES[8] = {
+            gS( 4, 3), gS( 2, 2), gS( 1, 1), gS( 0, 0),
+            gS( 0, 0), gS( 1, 1), gS( 2, 2), gS( 4, 3)
 };
 
 /**
  * @brief Penalties given to a player for having a doubled pawn (opening/endgame)
  */
-const int DOUBLED_PAWN_PENALTY[2] = {[OPENING] = -20, [ENDGAME] = -30};
+const int DOUBLED_PAWN_PENALTY = gS(-20, -30);
 
 /**
  * @brief Penalties given to a player for having an isolated pawn (opening/endgame)
  */
-const int ISOLATED_PAWN_PENALTY[2] = {[OPENING] = -15, [ENDGAME] = -30};
+const int ISOLATED_PAWN_PENALTY = gS(-15, -30);
 
 /**
  * @brief Bonuses given to a player for having bishops on black and white squares (opening/endgame)
  */
-const int BISHOP_PAIR_BONUS[2] = {[OPENING] = 20, [ENDGAME] = 20};
+const int BISHOP_PAIR_BONUS = gS (20, 20);
 
 /**
  * @brief Initializes all inner constants used by functions in the Eval namespace
@@ -322,53 +301,16 @@ int evaluatePawnStructure(const Board &, Color, GamePhase);
     * @brief Returns structure that contain opening and enggame scores
     * @{
     */
-   inline gS evaluateQUEEN(const Board &, Color, evalBits *);
-   inline gS evaluateROOK(const Board &, Color, evalBits *);
-   inline gS evaluateBISHOP(const Board &, Color, evalBits *);
-   inline gS evaluateKNIGHT(const Board &, Color, evalBits *);
-   inline gS evaluatePAWNS(const Board &, Color, evalBits *);
-   inline gS evaluateKING(const Board &, Color, const evalBits &);
+   inline int evaluateQUEEN(const Board &, Color, evalBits *);
+   inline int evaluateROOK(const Board &, Color, evalBits *);
+   inline int evaluateBISHOP(const Board &, Color, evalBits *);
+   inline int evaluateKNIGHT(const Board &, Color, evalBits *);
+   inline int evaluatePAWNS(const Board &, Color, evalBits *);
+   inline int evaluateKING(const Board &, Color, const evalBits &);
 
   /**@}*/
 
 evalBits Setupbits(const Board &);
-
-/**
- * @brief Returns the number of passed pawns that the given color has on the
- * given board
- *
- * @param board Board to check for passed pawns
- * @param color Color of player to check for passed pawns
- * @return
- */
-gS passedPawns(const Board &, Color);
-
-/**
- * @brief Returns the number doubled pawns for the given color on the
- * given board
- *
- * A doubled pawn is defined as being one of two pawns on the same file. Each
- * extra pawn on the same file is counted as another doubled pawn. For
- * example, a file with 2 pawns would count as having one doubled pawn
- * and a file with 3 pawns would count has having two.
- *
- * @param board Board to check for doubled pawns
- * @param color Color of doubled pawns to check
- * @return The number of doubled pawns that the given color has on the given
- * board
- */
-int doubledPawns(const Board &, Color);
-
-/**
- * @brief Returns the number of isolated pawns on the given board for the
- * given color
- *
- * @param board Board to check for isolated pawns
- * @param color Color of isolated pawns to check
- * @return The number of isolated pawns that the given color has on the given
- * board
- */
-int isolatedPawns(const Board &, Color);
 
 /**
  * @brief This function analyses king safety.
