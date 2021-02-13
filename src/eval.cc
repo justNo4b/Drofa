@@ -612,6 +612,13 @@ int Eval::evaluate(const Board &board, Color color) {
   score -= b_B > 1 ? BISHOP_PAIR_BONUS : 0;
   #endif
 
+    // King pawn shield
+  // Tapering is included in, so we count it in both phases
+  // As of 5.08.20 400 game testing did not showed advantage for any king safety implementation.
+  // Changes commitet for further use though
+  tmpint = kingSafety(board, color, b_Q) - kingSafety(board, otherColor, w_Q);
+  score += gS(tmpint, tmpint);
+
 
   // Calculation of the phase value
   int phase = getPhase(board);
