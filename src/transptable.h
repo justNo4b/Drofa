@@ -26,7 +26,7 @@ class HASH{
 
   void            pHASH_Clear();
   pawn_HASH_Entry pHASH_Get(U64 posKey);
-  void            pHASH_Store(U64 posKey, U64, U64, int END_score, int OP_Score);
+  void            pHASH_Store(U64 posKey, U64, U64, int score);
   U64             pHASH_Size();
 
   private:

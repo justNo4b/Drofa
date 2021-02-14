@@ -543,7 +543,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         if (!pvNode && !AreWeInCheck && LegalMoveCount > 1 && tDepth < 3 
         && (!giveCheck || badHistory) && alpha < WON_IN_X && !(move.getFlags() & Move::PROMOTION)){
-          int moveGain = isQuiet ? 0 : Eval::MATERIAL_VALUES[0][move.getCapturedPieceType()];
+          int moveGain = isQuiet ? 0 : opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]);
           if (statEVAL + FUTIL_MOVE_CONST * tDepth + moveGain - 100 * improving <= alpha){
               continue;
           }
@@ -749,7 +749,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
 
     // DELTA MOVE PRUNING. Prune here if were are very far ahead.
     
-    int moveGain = Eval::MATERIAL_VALUES[0][move.getCapturedPieceType()];
+    int moveGain = opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]);
     if (!(move.getFlags() & Move::PROMOTION) && standPat + moveGain + DELTA_MOVE_CONST < alpha)
       continue;
 

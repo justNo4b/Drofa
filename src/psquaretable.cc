@@ -1,19 +1,20 @@
 #include "psquaretable.h"
 #include "board.h"
+#include "eval.h"
 #include <algorithm>
 
-int PSquareTable::PIECE_VALUES[2][2][6][64];
+int PSquareTable::PIECE_VALUES[2][6][64];
 
 std::vector<int> PSquareTable::_mirrorList(std::vector<int> list) {
   std::reverse(list.begin(), list.end());
   return list;
 }
 
-void PSquareTable::_setValues(std::vector<int> list, PieceType pieceType, GamePhase phase) {
-  std::copy(list.begin(), list.end(), PIECE_VALUES[phase][BLACK][pieceType]);
+void PSquareTable::_setValues(std::vector<int> list, PieceType pieceType) {
+  std::copy(list.begin(), list.end(), PIECE_VALUES[BLACK][pieceType]);
 
   std::vector<int> mirrored = _mirrorList(list);
-  std::copy(mirrored.begin(), mirrored.end(), PIECE_VALUES[phase][WHITE][pieceType]);
+  std::copy(mirrored.begin(), mirrored.end(), PIECE_VALUES[WHITE][pieceType]);
 }
 
 
@@ -22,137 +23,75 @@ void PSquareTable::_setValues(std::vector<int> list, PieceType pieceType, GamePh
 
 void PSquareTable::init() {
   _setValues(std::vector<int>({
-    0,  0,  0,  0,  0,  0,  0,  0,
-    50, 50, 50, 50, 50, 50, 50, 50,
-    10, 10, 20, 30, 30, 20, 10, 10,
-    5,  5, 10, 25, 25, 10,  5,  5,
-    0,  0,  0, 20, 20,  0,  0,  0,
-    5, -5,-10,  0,  0,-10, -5,  5,
-    5, 10, 10,-20,-20, 10, 10,  5,
-    0,  0,  0,  0,  0,  0,  0,  0
-  }), PAWN, OPENING);
+    gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),
+    gS( 50, 90),  gS( 50, 90),  gS( 50, 90),  gS( 50, 90),  gS( 50, 90),  gS( 50, 90),  gS( 50, 90),  gS( 50, 90),
+    gS( 10, 48),  gS( 10, 48),  gS( 20, 48),  gS( 30, 48),  gS( 30, 48),  gS( 20, 48),  gS( 10, 48),  gS( 10, 48),
+    gS(  5, 28),  gS(  5, 28),  gS( 10, 28),  gS( 25, 28),  gS( 25, 28),  gS( 10, 28),  gS(  5, 28),  gS(  5, 28),
+    gS(  0, 12),  gS(  0, 12),  gS(  0, 12),  gS( 20, 12),  gS( 20, 12),  gS(  0, 12),  gS(  0, 12),  gS(  0, 12),
+    gS(  5,  4),  gS(  -5, 4),  gS(-10,  4),  gS(  0,  4),  gS(  0,  4),  gS( -10, 4),  gS( -5,  4),  gS(  5,  4),
+    gS(  5,  0),  gS( 10,  0),  gS( 10,  0),  gS(-20,  0),  gS(-20,  0),  gS( 10,  0),  gS( 10,  0),  gS(  5,  0),
+    gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0)
+  }), PAWN);
 
   _setValues(std::vector<int>({
-    -15,-10,-10,-10,-10,-10,-10,-15,
-    -10,  0,  0,  0,  0,  0,  0,-10,
-    -10,  0, 10, 10, 10, 10,  0,-10,
-    -10,  7, 10, 10, 10, 10,  7,-10,
-    -10,  0, 10, 10, 10, 10,  0,-10,
-    -10,  7, 10, 10, 10, 10,  7,-10,
-    -10,  0,  0,  5,  5,  0,  0,-10,
-    -15,-10,-10,-10,-10,-10,-10,-15
-  }), KNIGHT, OPENING);
+    gS( -15, -15), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS( -15, -15),
+    gS( -10, -10), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS( -10, -10),
+    gS( -10, -10), gS(  0,  0), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS(  0,  0), gS( -10, -10),
+    gS( -10, -10), gS(  7,  7), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS(  7,  7), gS( -10, -10),
+    gS( -10, -10), gS(  0,  0), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS(  0,  0), gS( -10, -10),
+    gS( -10, -10), gS(  7,  7), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS(  7,  7), gS( -10, -10),
+    gS( -10, -10), gS(  0,  0), gS(  0,  0), gS(  5,  5), gS(  5,  5), gS(  0,  0), gS(  0,  0), gS( -10, -10),
+    gS( -15, -15), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS( -15, -15)
+  }), KNIGHT);
+
 
   _setValues(std::vector<int>({
-    -15,-10,-10,-10,-10,-10,-10,-15,
-    -10,  0,  0,  0,  0,  0,  0,-10,
-    -10,  0,  5, 10, 10,  5,  0,-10,
-    -10,  5,  5, 10, 10,  5,  5,-10,
-    -10,  0, 10, 10, 10, 10,  0,-10,
-    -10, 10, 10, 10, 10, 10, 10,-10,
-    -10, 10,  0,  0,  0,  0, 10,-10,
-    -15,-10,-10,-10,-10,-10,-10,-15
-  }), BISHOP, OPENING);
+    gS(-15,-15), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-15,-15),
+    gS(-10,-10), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(-10,-10),
+    gS(-10,-10), gS(  0,  0), gS(  5,  5), gS( 10, 10), gS( 10, 10), gS(  5,  5), gS(  0,  0), gS(-10,-10),
+    gS(-10,-10), gS(  5,  5), gS(  5,  5), gS( 10, 10), gS( 10, 10), gS(  5,  5), gS(  5,  5), gS(-10,-10),
+    gS(-10,-10), gS(  0,  0), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS(  0,  0), gS(-10,-10),
+    gS(-10,-10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS(-10,-10),
+    gS(-10,-10), gS( 10, 10), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS( 10, 10), gS(-10,-10),
+    gS(-15,-15), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-15,-15)
+  }), BISHOP);
+
 
   _setValues(std::vector<int>({
-    0,  0,  5,  7,  7,  5,  0,  0,
-   17, 17, 17, 17, 17, 17, 17, 17,
-    0,  0,  5,  7,  7,  5,  0,  0,
-    0,  0,  5,  7,  7,  5,  0,  0,
-    0,  0,  5,  7,  7,  5,  0,  0,
-    0,  0,  5,  7,  7,  5,  0,  0,
-    0,  0,  5,  7,  7,  5,  0,  0,
-    0,  0,  5,  7,  7,  5,  0,  0
-  }), ROOK, OPENING);
+    gS(  0,  0),  gS(  0,  0), gS(  5,  5), gS(  7,  7), gS(  7,  7), gS(  5,  5),  gS(  0,  0),  gS(  0,  0),
+    gS( 17, 17),  gS( 17, 17), gS( 17, 17), gS( 17, 17), gS( 17, 17), gS( 17, 17),  gS( 17, 17),  gS( 17, 17),
+    gS(  0,  0),  gS(  0,  0), gS(  5,  5), gS(  7,  7), gS(  7,  7), gS(  5,  5),  gS(  0,  0),  gS(  0,  0),
+    gS(  0,  0),  gS(  0,  0), gS(  5,  5), gS(  7,  7), gS(  7,  7), gS(  5,  5),  gS(  0,  0),  gS(  0,  0),
+    gS(  0,  0),  gS(  0,  0), gS(  5,  5), gS(  7,  7), gS(  7,  7), gS(  5,  5),  gS(  0,  0),  gS(  0,  0),
+    gS(  0,  0),  gS(  0,  0), gS(  5,  5), gS(  7,  7), gS(  7,  7), gS(  5,  5),  gS(  0,  0),  gS(  0,  0),
+    gS(  0,  0),  gS(  0,  0), gS(  5,  5), gS(  7,  7), gS(  7,  7), gS(  5,  5),  gS(  0,  0),  gS(  0,  0),
+    gS(  0,  0),  gS(  0,  0), gS(  5,  5), gS(  7,  7), gS(  7,  7), gS(  5,  5),  gS(  0,  0),  gS(  0,  0)
+  }), ROOK);
+
 
   _setValues(std::vector<int>({
-    -20,-10,-10, -5, -5,-10,-10,-20,
-    -10,  0,  0,  0,  0,  0,  0,-10,
-    -10,  0,  5,  5,  5,  5,  0,-10,
-     -5,  0,  5,  5,  5,  5,  0, -5,
-      0,  0,  5,  5,  5,  5,  0, -5,
-    -10,  5,  5,  5,  5,  5,  0,-10,
-    -10,  0,  5,  0,  0,  0,  0,-10,
-    -20,-10,-10, -5, -5,-10,-10,-20
-  }), QUEEN, OPENING);
+    gS(-20,-20), gS(-10,-10), gS(-10,-10), gS( -5, -5), gS( -5, -5), gS(-10,-10), gS(-10,-10), gS(-20,-20),
+    gS(-10,-10), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(-10,-10),
+    gS(-10,-10), gS(  0,  0), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  0,  0), gS(-10,-10),
+    gS( -5, -5), gS(  0,  0), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  0,  0), gS( -5, -5),
+    gS(  0,  0), gS(  0,  0), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  0,  0), gS( -5, -5),
+    gS(-10,-10), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  0,  0), gS(-10,-10),
+    gS(-10,-10), gS(  0,  0), gS(  5,  5), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(-10,-10),
+    gS(-20,-20), gS(-10,-10), gS(-10,-10), gS( -5, -5), gS( -5, -5), gS(-10,-10), gS(-10,-10), gS(-20,-20)
+  }), QUEEN);
 
   _setValues(std::vector<int>({
-    -10,-15,-15,-15,-15,-15,-15,-10,
-    -10,-15,-15,-15,-15,-15,-15,-10,
-    -10,-15,-15,-15,-15,-15,-15,-10,
-    -10,-15,-15,-15,-15,-15,-15,-10,
-    -10,-15,-15,-15,-15,-15,-15,-10,
-    -10,-15,-15,-15,-15,-15,-15,-10,
-      0,  0,  0,  0,  0,  0,  0,  0,
-      7, 10,  7,  0,  0,  7, 10,  7
-  }), KING, OPENING);
+    gS(-10,-15), gS(-15,-7), gS(-15,-7), gS(-15,-7), gS(-15,-7), gS(-15,-7), gS(-15,-7), gS(-10,-15),
+    gS(-10, -7), gS(-15, 0), gS(-15, 0), gS(-15, 0), gS(-15, 0), gS(-15, 0), gS(-15, 0), gS(-10, -7),
+    gS(-10, -7), gS(-15, 0), gS(-15, 7), gS(-15, 7), gS(-15, 7), gS(-15, 7), gS(-15, 0), gS(-10, -7),
+    gS(-10, -7), gS(-15, 0), gS(-15, 7), gS(-15,15), gS(-15,15), gS(-15, 7), gS(-15, 0), gS(-10, -7),
+    gS(-10, -7), gS(-15, 0), gS(-15, 7), gS(-15,15), gS(-15,15), gS(-15, 7), gS(-15, 0), gS(-10, -7),
+    gS(-10, -7), gS(-15, 0), gS(-15, 7), gS(-15, 7), gS(-15, 7), gS(-15, 7), gS(-15, 0), gS(-10, -7),
+    gS(  0, -7), gS(  0, 0), gS(  0, 0), gS(  0, 0), gS(  0, 0), gS(  0, 0), gS(  0, 0), gS(  0, -7),
+    gS(  7,-15), gS( 10,-7), gS(  7,-7), gS(  0,-7), gS(  0,-7), gS(  7,-7), gS( 10,-7), gS(  7,-15)
+  }), KING);
 
-  // ENDGAME
-  _setValues(std::vector<int>({
-     0,   0,  0,  0,  0,  0,  0,  0,
-     90, 90, 90, 90, 90, 90, 90, 90,
-     48, 48, 48, 48, 48, 48, 48, 48,
-     28, 28, 28, 28, 28, 28, 28, 28,
-     12, 12, 12, 12, 12, 12, 12, 12,
-      4,  4,  4,  4,  4,  4,  4,  4,
-      0,  0,- 0,  0,  0,  0,  0,  0,
-      0,  0,  0,  0,  0,  0,  0,  0
-  }), PAWN, ENDGAME);
 
-  _setValues(std::vector<int>({
-    -15,-10,-10,-10,-10,-10,-10,-15,
-    -10,  0,  0,  0,  0,  0,  0,-10,
-    -10,  0, 10, 10, 10, 10,  0,-10,
-    -10,  7, 10, 10, 10, 10,  7,-10,
-    -10,  0, 10, 10, 10, 10,  0,-10,
-    -10,  7, 10, 10, 10, 10,  7,-10,
-    -10,  0,  0,  5,  5,  0,  0,-10,
-    -15,-10,-10,-10,-10,-10,-10,-15
-  }), KNIGHT, ENDGAME);
-
-  _setValues(std::vector<int>({
-    -15,-10,-10,-10,-10,-10,-10,-15,
-    -10,  0,  0,  0,  0,  0,  0,-10,
-    -10,  0,  5, 10, 10,  5,  0,-10,
-    -10,  5,  5, 10, 10,  5,  5,-10,
-    -10,  0, 10, 10, 10, 10,  0,-10,
-    -10, 10, 10, 10, 10, 10, 10,-10,
-    -10, 10,  0,  0,  0,  0, 10,-10,
-    -15,-10,-10,-10,-10,-10,-10,-15
-  }), BISHOP, ENDGAME);
-
-  _setValues(std::vector<int>({
-    0,  0,  5,  7,  7,  5,  0,  0,
-   17, 17, 17, 17, 17, 17, 17, 17,
-    0,  0,  5,  7,  7,  5,  0,  0,
-    0,  0,  5,  7,  7,  5,  0,  0,
-    0,  0,  5,  7,  7,  5,  0,  0,
-    0,  0,  5,  7,  7,  5,  0,  0,
-    0,  0,  5,  7,  7,  5,  0,  0,
-    0,  0,  5,  7,  7,  5,  0,  0
-  }), ROOK, ENDGAME);
-
-  _setValues(std::vector<int>({
-    -20,-10,-10, -5, -5,-10,-10,-20,
-    -10,  0,  0,  0,  0,  0,  0,-10,
-    -10,  0,  5,  5,  5,  5,  0,-10,
-     -5,  0,  5,  5,  5,  5,  0, -5,
-      0,  0,  5,  5,  5,  5,  0, -5,
-    -10,  5,  5,  5,  5,  5,  0,-10,
-    -10,  0,  5,  0,  0,  0,  0,-10,
-    -20,-10,-10, -5, -5,-10,-10,-20
-  }), QUEEN, ENDGAME);
-
-  _setValues(std::vector<int>({
-    -15, -7, -7, -7, -7, -7, -7,-15,
-     -7,  0,  0,  0,  0,  0,  0, -7,
-     -7,  0,  7,  7,  7,  7,  0, -7,
-     -7,  0,  7, 15, 15,  7,  0, -7,
-     -7,  0,  7, 15, 15,  7,  0, -7,
-     -7,  0,  7,  7,  7,  7,  0, -7,
-     -7,  0,  0,  0,  0,  0,  0, -7,
-    -15, -7, -7, -7, -7, -7, -7,-15
-  }), KING, ENDGAME);
 }
 
 PSquareTable::PSquareTable() = default;
@@ -174,13 +113,11 @@ PSquareTable::PSquareTable(const Board &board) {
 }
 
 void PSquareTable::addPiece(Color color, PieceType pieceType, unsigned int square) {
-  _scores[OPENING][color] += PIECE_VALUES[OPENING][color][pieceType][square];
-  _scores[ENDGAME][color] += PIECE_VALUES[ENDGAME][color][pieceType][square];
+  _scores[color] += PIECE_VALUES[color][pieceType][square];
 }
 
 void PSquareTable::removePiece(Color color, PieceType pieceType, unsigned int square) {
-  _scores[OPENING][color] -= PIECE_VALUES[OPENING][color][pieceType][square];
-  _scores[ENDGAME][color] -= PIECE_VALUES[ENDGAME][color][pieceType][square];
+  _scores[color] -= PIECE_VALUES[color][pieceType][square];
 }
 
 void PSquareTable::movePiece(Color color, PieceType pieceType, unsigned int fromSquare, unsigned int toSquare) {
@@ -188,6 +125,6 @@ void PSquareTable::movePiece(Color color, PieceType pieceType, unsigned int from
   addPiece(color, pieceType, toSquare);
 }
 
-int PSquareTable::getScore(GamePhase phase, Color color) {
-  return _scores[phase][color];
+int PSquareTable::getScore(Color color) {
+  return _scores[color];
 }
