@@ -3,6 +3,7 @@
 #include "movepicker.h"
 #include "eval.h"
 #include "rays.h"
+#include "tuning.h"
 
 extern HASH myHASH;
 
@@ -12,9 +13,13 @@ int main() {
   ZKey::init();
   Attacks::init();
   Eval::init();
-  Uci::init();
 
+  #ifdef _TUNE_
+  TunerStart();
+  #else
+  Uci::init();
   Uci::start();
+  #endif
 
   return 0;
 }

@@ -5,8 +5,10 @@
 #include "outposts.h"
 #include "eval.h"
 #include "transptable.h"
+#include "tuning.h"
 
 extern HASH myHASH;
+extern posFeatured ft;
 
 int MATERIAL_VALUES_TUNABLE[2][6] = {
     [OPENING] = {
@@ -176,15 +178,11 @@ void Eval::SetupFeatureTuning(int phase, TuningFeature feature, int value){
 }
 
 int Eval::getMaterialValue(int phase, PieceType pieceType) {
-  #ifdef _TUNE_
-  return MATERIAL_VALUES_TUNABLE [phase][pieceType];
-  #else
   if (phase == OPENING){
     return opS(MATERIAL_VALUES[pieceType]);
   }else{
     return egS(MATERIAL_VALUES[pieceType]);
   }
-  #endif
 }
 
 bool Eval::IsItDeadDraw (int w_P, int w_N, int w_B, int w_R, int w_Q,
@@ -514,25 +512,12 @@ int Eval::evaluate(const Board &board, Color color) {
     return 0;
   }
 
-#ifdef _TUNE_
-  openingScore += getMaterialValue(OPENING, PAWN) * ( w_P - b_P);
-  openingScore += getMaterialValue(OPENING, KNIGHT) * (w_N - b_N);
-  openingScore += getMaterialValue(OPENING, BISHOP) * ( w_B - b_B);
-  openingScore += getMaterialValue(OPENING, ROOK) * ( w_R - b_R);
-  openingScore += getMaterialValue(OPENING, QUEEN) * ( w_Q - b_Q);
-
-  endgameScore += getMaterialValue(ENDGAME, PAWN) * ( w_P - b_P);
-  endgameScore += getMaterialValue(ENDGAME, KNIGHT) * (w_N - b_N);
-  endgameScore += getMaterialValue(ENDGAME, BISHOP) * ( w_B - b_B);
-  endgameScore += getMaterialValue(ENDGAME, ROOK) * ( w_R - b_R);
-  endgameScore += getMaterialValue(ENDGAME, QUEEN) * ( w_Q - b_Q);
-#else
   score += MATERIAL_VALUES[PAWN] * ( w_P - b_P);
   score += MATERIAL_VALUES[KNIGHT] * (w_N - b_N);
   score += MATERIAL_VALUES[BISHOP] * ( w_B - b_B);
   score += MATERIAL_VALUES[ROOK] * ( w_R - b_R);
   score += MATERIAL_VALUES[QUEEN] * ( w_Q - b_Q);
-#endif
+
 
   // Piece square tables
   score += board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(otherColor);
@@ -558,14 +543,14 @@ int Eval::evaluate(const Board &board, Color color) {
   else
   {
 
-  // PawnSupported  
-  pScore += PAWN_SUPPORTED * _popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
-  pScore -= PAWN_SUPPORTED * _popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
+    // PawnSupported  
+    pScore += PAWN_SUPPORTED * _popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
+    pScore -= PAWN_SUPPORTED * _popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
 
-  // Passed pawns
-  pScore += evaluatePAWNS(board, WHITE, &eB) - evaluatePAWNS(board, BLACK, &eB);
+    // Passed pawns
+    pScore += evaluatePAWNS(board, WHITE, &eB) - evaluatePAWNS(board, BLACK, &eB);
 
-  myHASH.pHASH_Store(board.getPawnStructureZKey().getValue(), eB.Passers[WHITE], eB.Passers[BLACK], pScore);
+    myHASH.pHASH_Store(board.getPawnStructureZKey().getValue(), eB.Passers[WHITE], eB.Passers[BLACK], pScore);
 
     if (color == BLACK) {
       score -= pScore;
@@ -591,15 +576,16 @@ int Eval::evaluate(const Board &board, Color color) {
   score -= gS(std::max(0, attackScore), 0);
 
   // Bishop pair
-  #ifdef _TUNE_
-  openingScore += w_B > 1 ? BISHOP_PAIR_TUNABLE[OPENING] : 0;
-  endgameScore += w_B > 1 ? BISHOP_PAIR_TUNABLE[ENDGAME] : 0;
-  openingScore -= b_B > 1 ? BISHOP_PAIR_TUNABLE[OPENING] : 0;
-  endgameScore -= b_B > 1 ? BISHOP_PAIR_TUNABLE[ENDGAME] : 0;
-  #else
-  score += w_B > 1 ? BISHOP_PAIR_BONUS : 0;
-  score -= b_B > 1 ? BISHOP_PAIR_BONUS : 0;
-  #endif
+  if (w_B > 1){
+    score += BISHOP_PAIR_BONUS;
+    if (TRACK) ft.BishopPair[board.getActivePlayer()]++;
+  }
+
+  if (b_B > 1){
+    score -= BISHOP_PAIR_BONUS; 
+    if (TRACK) ft.BishopPair[board.getInactivePlayer()]++; 
+  }
+
 
     // King pawn shield
   // Tapering is included in, so we count it in both phases
@@ -608,13 +594,15 @@ int Eval::evaluate(const Board &board, Color color) {
   score += kingSafety(board, color, b_Q) - kingSafety(board, otherColor, w_Q);
 
 
+
+  if (TRACK) ft.FinalEval = score;
   // Calculation of the phase value
   int phase = getPhase(board);
 
   // Interpolate between opening/endgame scores depending on the phase
 
   int final_eval = ((opS(score) * (MAX_PHASE - phase)) + (egS(score) * phase)) / MAX_PHASE;
-
+  
   if (w_Q == 0 && b_Q == 0 &&
       w_R == 0 && b_R == 0 &&
       w_N == 0 && b_N == 0 &&
