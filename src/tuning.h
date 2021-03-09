@@ -33,7 +33,10 @@ struct posFeatured{
     //Array features
     int PassedPawnRank[8][2];
     int PassedPawnFile[8][2];
-    
+    int KingFriendlyPasser[9][2];
+    int KingEnemyPasser[9][2];
+    int RookOpenFile[2][2];
+    int RookHalfFile[2][2];
 
 };
 
@@ -61,9 +64,9 @@ struct tEntry {
   * @{
   */
   const std::string TUNING_DATA        = "BOOK.txt";
-  const int         TUNING_POS_COUNT   = 42484641; //9996883 42484641
+  const int         TUNING_POS_COUNT   = 9996883; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 30;
+  const int         TUNING_TERMS_COUNT = 52;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 10000;
   const int         TUNIGN_PRINT       = 50; 

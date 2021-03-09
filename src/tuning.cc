@@ -161,6 +161,29 @@ void EvalTermInitiate(tValueHolder cTerms){
         c++;
     }
 
+    for (int j = 0; j < 9; j++){
+        cTerms[c][OPENING] = opS(Eval::KING_PASSER_DISTANCE_FRIENDLY[j]);
+        cTerms[c][ENDGAME] = egS(Eval::KING_PASSER_DISTANCE_FRIENDLY[j]);
+        c++;
+    }
+
+    for (int j = 0; j < 9; j++){
+        cTerms[c][OPENING] = opS(Eval::KING_PASSER_DISTANCE_ENEMY[j]);
+        cTerms[c][ENDGAME] = egS(Eval::KING_PASSER_DISTANCE_ENEMY[j]);
+        c++;
+    }
+
+    for (int j = 0; j < 2; j++){
+        cTerms[c][OPENING] = opS(Eval::ROOK_OPEN_FILE_BONUS[j]);
+        cTerms[c][ENDGAME] = egS(Eval::ROOK_OPEN_FILE_BONUS[j]);
+        c++;
+    }
+
+    for (int j = 0; j < 2; j++){
+        cTerms[c][OPENING] = opS(Eval::ROOK_SEMI_FILE_BONUS[j]);
+        cTerms[c][ENDGAME] = egS(Eval::ROOK_SEMI_FILE_BONUS[j]);
+        c++;
+    }
 
 }
 
@@ -271,6 +294,22 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 8; j++){
         coeff[i++] = ft.PassedPawnFile[j][WHITE] - ft.PassedPawnFile[j][BLACK];
+    }
+
+    for (int j = 0; j < 9; j++){
+        coeff[i++] = ft.KingFriendlyPasser[j][WHITE] - ft.KingFriendlyPasser[j][BLACK];
+    }
+
+    for (int j = 0; j < 9; j++){
+        coeff[i++] = ft.KingEnemyPasser[j][WHITE] - ft.KingEnemyPasser[j][BLACK];
+    }
+
+    for (int j = 0; j < 2; j++){
+        coeff[i++] = ft.RookOpenFile[j][WHITE] - ft.RookOpenFile[j][BLACK];
+    }
+
+    for (int j = 0; j < 2; j++){
+        coeff[i++] = ft.RookHalfFile[j][WHITE] - ft.RookHalfFile[j][BLACK];
     }
 
 
@@ -439,8 +478,15 @@ void PrintTunedParams(tValueHolder currTerms, tValueHolder diffTerms){
     EvalArrayPrint("\n PASSED_PAWN_RANKS", currTerms, diffTerms, i, 8);
     i = i + 8;
     EvalArrayPrint("\n PASSED_PAWN_FILES", currTerms, diffTerms, i, 8);
-	
-
+    i = i + 8;
+    EvalArrayPrint("\n KING_PASSER_DISTANCE_FRIENDLY", currTerms, diffTerms, i, 9);
+	i = i + 9;
+    EvalArrayPrint("\n KING_PASSER_DISTANCE_ENEMY", currTerms, diffTerms, i, 9);
+    i = i + 9;
+    EvalArrayPrint("\n ROOK_OPEN_FILE_BONUS", currTerms, diffTerms, i, 2);
+    i = i + 2;
+    EvalArrayPrint("\n ROOK_SEMI_FILE_BONUS", currTerms, diffTerms, i, 2);
+    i = i + 2;
 }
 
 double CalculateFactorK(tEntry * entries){

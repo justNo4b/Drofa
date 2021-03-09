@@ -374,10 +374,12 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
 
       if ( ((file & board.getPieces(color, PAWN)) == 0)
         && ((file & board.getPieces(otherColor, PAWN)) == 0)){
-            s += ROOK_OPEN_FILE_BONUS[((file & eB->OutPostedLines[otherColor]) != 0)];    
+            s += ROOK_OPEN_FILE_BONUS[((file & eB->OutPostedLines[otherColor]) != 0)];
+            if (TRACK) ft.RookOpenFile[((file & eB->OutPostedLines[otherColor]) != 0)][color]++;    
       }
       else if ((file & board.getPieces(color, PAWN)) == 0){
           s += ROOK_SEMI_FILE_BONUS[((file & eB->OutPostedLines[otherColor]) != 0)];
+          if (TRACK) ft.RookHalfFile[((file & eB->OutPostedLines[otherColor]) != 0)][color]++;  
       }
     }
 
@@ -461,6 +463,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
 
     int passerSquare = _popLsb(tmpPawns);
     s += KING_PASSER_DISTANCE_FRIENDLY[Eval::detail::DISTANCE[square][passerSquare]];
+    if (TRACK) ft.KingFriendlyPasser[Eval::detail::DISTANCE[square][passerSquare]][color]++;
   }
 
   tmpPawns = eB.Passers[getOppositeColor(color)];
@@ -468,6 +471,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
 
     int passerSquare = _popLsb(tmpPawns);
     s += KING_PASSER_DISTANCE_ENEMY[Eval::detail::DISTANCE[square][passerSquare]];
+    if (TRACK) ft.KingEnemyPasser[Eval::detail::DISTANCE[square][passerSquare]][color]++;
   }
 
   return s;
