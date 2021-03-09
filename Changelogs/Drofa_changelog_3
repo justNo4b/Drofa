@@ -253,6 +253,13 @@ Elo difference: 51.90 +/- 18.24
 SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
 ------------------------------------------------------------------
+31. King Passer Distance and RookOpen/Semiopen tuned 
+------------------------------------------------------------------
+Score of Drofa_dev vs Drofa_2.2.3: 452 - 322 - 489  [0.551] 1263
+Elo difference: 35.89 +/- 15.02
+SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+------------------------------------------------------------------
 
 
 
