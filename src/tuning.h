@@ -14,9 +14,26 @@ struct posFeatured{
     int FinalEval;
 
     // Simple features
+    // a. Piece Values
+    int PawnValue[2];
+    int RookValue[2];
+    int KnightValue[2];
+    int BishopValue[2];
+    int QueenValue[2];
+    // b. other simple
     int BishopPair[2];
-
+    int KingHighDanger[2];
+    int KingMedDanger[2];
+    int KingLowDanger[2];
+    int KingSafe[2];
+    int PawnSupported[2];
+    int PawnDoubled[2];
+    int PawnIsolated[2];
+    int BishopRammed[2];
     //Array features
+    int PassedPawnRank[8][2];
+    int PassedPawnFile[8][2];
+    
 
 };
 
@@ -44,16 +61,17 @@ struct tEntry {
   * @{
   */
   const std::string TUNING_DATA        = "BOOK.txt";
-  const int         TUNING_POS_COUNT   = 9996883; //9996883
+  const int         TUNING_POS_COUNT   = 42484641; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 1;
+  const int         TUNING_TERMS_COUNT = 30;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 10000;
   const int         TUNIGN_PRINT       = 50; 
-  const double      TUNING_K           = 2.0;
-  const int         TUNING_L_STEP      = 250;
+  const int         TUNING_K_PRECISION = 10;
+  const int         TUNING_L_STEP      = 1500;
+  const double      TUNING_K           = 2.685254189999998;
   const double      TUNING_L_DROP      = 1.0;
-  const double      TUNING_L_RATE      = 1.0;
+  const double      TUNING_L_RATE      = 10.0;
 
   const int         TUNING_STACK_SIZE = ((int)((double) TUNING_POS_COUNT * TUNING_TERMS_COUNT / 64));
   /**@}*/
@@ -80,7 +98,9 @@ struct tEntry {
   * 
   */ 
  void EvalTermPrint(std::string, double, double, double, double);
-
+ 
+ void EvalArrayPrint(std::string, tValueHolder, tValueHolder, int, int);
+ 
  void EvalTermInitiate(tValueHolder);
 
  bool InitTuningPositions(tEntry*);
@@ -97,6 +117,16 @@ struct tEntry {
 
  double Sigmoid(double);
 
+ double SigmoidForK(double);
+
  double TuningEval(tEntry*, tValueHolder);
 
  double TunedError(tEntry*, tValueHolder);
+
+ double StaticError(tEntry *, double);
+
+ void PrintTunedParams(tValueHolder, tValueHolder);
+
+ double CalculateFactorK(tEntry *);
+
+ int simplifyPhaseCalculation(const Board &board);

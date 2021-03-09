@@ -238,6 +238,7 @@ int Eval::kingSafety(const Board &board, Color color, int Q_count){
 
     // Упрощённо будем считать, что если нет ферзя у врага, то мы в безопасности.
     if (Q_count == 0){
+      if (TRACK) ft.KingLowDanger[color]++;
       return KING_LOW_DANGER;
     }
     U64 pawnMap = board.getPieces(color, PAWN);
@@ -250,28 +251,36 @@ int Eval::kingSafety(const Board &board, Color color, int Q_count){
       // если это верно, то мы находимся на королевском фланге
       // сравниваем с масками, возвращаем бонус если маска совпала
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][0]) == detail::KING_PAWN_MASKS[color][0][0]){
+          if (TRACK) ft.KingSafe[color]++;
           return KING_SAFE;    
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][1]) == detail::KING_PAWN_MASKS[color][0][1]){
+          if (TRACK) ft.KingSafe[color]++;
           return KING_SAFE;
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][2]) == detail::KING_PAWN_MASKS[color][0][2]){
+          if (TRACK) ft.KingSafe[color]++;
           return KING_SAFE;
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][3]) == detail::KING_PAWN_MASKS[color][0][3]){
+          if (TRACK) ft.KingLowDanger[color]++;
           return KING_LOW_DANGER;     
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][4]) == detail::KING_PAWN_MASKS[color][0][4]){
+        if (TRACK) ft.KingLowDanger[color]++;
           return KING_LOW_DANGER;
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][5]) == detail::KING_PAWN_MASKS[color][0][5]){
-          return KING_LOW_DANGER;
+        if (TRACK) ft.KingLowDanger[color]++;
+        return KING_LOW_DANGER;
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][6]) == detail::KING_PAWN_MASKS[color][0][6]){
-          return KING_LOW_DANGER;
+        if (TRACK) ft.KingLowDanger[color]++;
+        return KING_LOW_DANGER;
       }
       // если не одна из масок не прошла, то король в опасности.
       // вернуть штраф к нашей позиции
+      if (TRACK) ft.KingMedDanger[color]++;
       return KING_MED_DANGER;
     }      
 
@@ -279,27 +288,34 @@ int Eval::kingSafety(const Board &board, Color color, int Q_count){
       // если это верно, то мы находимся на ферзевом
       // сравниваем с масками, возвращаем бонус если маска совпала
       if ((pawnMap & detail::KING_PAWN_MASKS[color][1][0]) == detail::KING_PAWN_MASKS[color][1][0]){
+        if (TRACK) ft.KingSafe[color]++;
           return KING_SAFE;    
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][1][1]) == detail::KING_PAWN_MASKS[color][1][1]){
+        if (TRACK) ft.KingSafe[color]++;
           return KING_SAFE;
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][1][2]) == detail::KING_PAWN_MASKS[color][1][2]){
+        if (TRACK) ft.KingSafe[color]++;
           return KING_SAFE;
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][1][3]) == detail::KING_PAWN_MASKS[color][1][3]){
+        if (TRACK) ft.KingLowDanger[color]++;
           return KING_LOW_DANGER;     
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][1][4]) == detail::KING_PAWN_MASKS[color][1][4]){
+        if (TRACK) ft.KingLowDanger[color]++;
           return KING_LOW_DANGER;
       }
       // если не одна из масок не прошла, то король в опасности.
       // вернуть штраф к нашей позиции
+      if (TRACK) ft.KingMedDanger[color]++;
       return KING_MED_DANGER;
     } 
 
       // мы не рокированы по факту при живом ферзе.
       // это очень опасно, вернуть штраф
+    if (TRACK) ft.KingHighDanger[color]++;
     return KING_HIGH_DANGER;
 }
 
@@ -373,6 +389,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
 
   U64 pieces = board.getPieces(color, BISHOP);
   s += eB->RammedCount * _popCount(pieces) * BISHOP_RAMMED_PENALTY;
+  if (TRACK) ft.BishopRammed[color] += eB->RammedCount * _popCount(pieces);
     while (pieces) {
       
       // Mobility
@@ -472,17 +489,23 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     int pawnCol = _col(square);
     if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
       eB->Passers[color] = eB->Passers[color] | (ONE << square);
-      int r = color == WHITE ? _row(square) : 8 - _row(square);
-      s += PASSED_PAWN_RANKS[r] + PASSED_PAWN_FILES[pawnCol]; 
+      int r = color == WHITE ? _row(square) : 7 - _row(square);
+      s += PASSED_PAWN_RANKS[r] + PASSED_PAWN_FILES[pawnCol];
+      if (TRACK){
+        ft.PassedPawnRank[r][color]++;
+        ft.PassedPawnFile[pawnCol][color]++;
+      }
     }
 
     // add penalties for the doubled pawns
     if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0){
+      if (TRACK) ft.PawnDoubled[color]++;
       s += DOUBLED_PAWN_PENALTY;
 
     // for the last pawn on the column determine if it is isolated.
     }
     else if (!(detail::NEIGHBOR_FILES[pawnCol] & pawns)){
+      if (TRACK) ft.PawnIsolated[color]++;
       s += ISOLATED_PAWN_PENALTY;
     }
   }
@@ -518,6 +541,22 @@ int Eval::evaluate(const Board &board, Color color) {
   score += MATERIAL_VALUES[ROOK] * ( w_R - b_R);
   score += MATERIAL_VALUES[QUEEN] * ( w_Q - b_Q);
 
+  if (TRACK){
+    ft.PawnValue[color]+= w_P;
+    ft.PawnValue[otherColor]+= b_P;
+
+    ft.KnightValue[color]+= w_N;
+    ft.KnightValue[otherColor]+= b_N;
+
+    ft.BishopValue[color]+= w_B;
+    ft.BishopValue[otherColor]+= b_B;
+
+    ft.RookValue[color]+= w_R;
+    ft.RookValue[otherColor]+= b_R;
+
+    ft.QueenValue[color]+= w_Q;
+    ft.QueenValue[otherColor]+= b_Q;
+  }
 
   // Piece square tables
   score += board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(otherColor);
@@ -529,6 +568,7 @@ int Eval::evaluate(const Board &board, Color color) {
   int pScore = 0;
   pawn_HASH_Entry pENTRY  = myHASH.pHASH_Get(board.getPawnStructureZKey().getValue());
   
+  #ifndef _TUNE_
   if (pENTRY.posKey != 0){
     eB.Passers[WHITE] = pENTRY.wPassers;
     eB.Passers[BLACK] = pENTRY.bPassers;
@@ -541,11 +581,16 @@ int Eval::evaluate(const Board &board, Color color) {
  
   }
   else
+  #endif
   {
 
     // PawnSupported  
     pScore += PAWN_SUPPORTED * _popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
     pScore -= PAWN_SUPPORTED * _popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
+    if (TRACK){
+      ft.PawnSupported[WHITE] +=_popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
+      ft.PawnSupported[BLACK] +=_popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
+    }
 
     // Passed pawns
     pScore += evaluatePAWNS(board, WHITE, &eB) - evaluatePAWNS(board, BLACK, &eB);
@@ -578,12 +623,12 @@ int Eval::evaluate(const Board &board, Color color) {
   // Bishop pair
   if (w_B > 1){
     score += BISHOP_PAIR_BONUS;
-    if (TRACK) ft.BishopPair[board.getActivePlayer()]++;
+    if (TRACK) ft.BishopPair[color]++;
   }
 
   if (b_B > 1){
     score -= BISHOP_PAIR_BONUS; 
-    if (TRACK) ft.BishopPair[board.getInactivePlayer()]++; 
+    if (TRACK) ft.BishopPair[otherColor]++;
   }
 
 
