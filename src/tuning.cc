@@ -149,6 +149,7 @@ void EvalTermInitiate(tValueHolder cTerms){
     cTerms[c][ENDGAME] = egS(Eval::BISHOP_RAMMED_PENALTY);
     c++;
 
+    // c. Array terms
     for (int j = 0; j < 8; j++){
         cTerms[c][OPENING] = opS(Eval::PASSED_PAWN_RANKS[j]);
         cTerms[c][ENDGAME] = egS(Eval::PASSED_PAWN_RANKS[j]);
@@ -240,16 +241,23 @@ void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
     positionList[pCount].pFactors[ENDGAME] = 0 + phase / 24.0;
 
     // 3. Prepare for evaluatin and save evaluation - stuff
+    // Evaluation should be from White POW, but we stiif call
+    // evaluate() from stm perspective to get right tempo evaluation
     ft  = zero; 
     featureCoeff newCoeffs; 
     positionList[pCount].stm = b.getActivePlayer();
     positionList[pCount].statEval = b.getActivePlayer() == WHITE ? Eval::evaluate(b, b.getActivePlayer()) : -Eval::evaluate(b, b.getActivePlayer());
 
-    // after we did evaluate out ft containg fevaulated featutres
-    // so now we can save it
+    // 4. After we did evaluate out ft containg fevaulated featutres
+    // So now we can save it
+    // InitCoefficients ensures the we do not store features
+    // that are zeroed out (i.e bishop pair for both sides)
     InitCoefficients(newCoeffs);
     InitETraces(newCoeffs, &positionList[pCount]);
 
+    // 5. Save Final evaluation for easier gradient recalculation
+    // As we called evaluate() from stm perspective
+    // we need to adjust it here to be from WHITE POW
     positionList[pCount].FinalEval =  b.getActivePlayer() == WHITE ? ft.FinalEval : -ft.FinalEval;
 
 }
@@ -272,7 +280,7 @@ void InitCoefficients(featureCoeff coeff){
 
     // Insert features here
     // Basicall we calculate if feature difference, so we dont hold it if it is 0
-    //
+    // and to take less space to hold it in general
     coeff[i++] = ft.PawnValue[WHITE] - ft.PawnValue[BLACK];
     coeff[i++] = ft.RookValue[WHITE] - ft.RookValue[BLACK];
     coeff[i++] = ft.KnightValue[WHITE] - ft.KnightValue[BLACK];

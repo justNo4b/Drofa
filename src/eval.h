@@ -101,10 +101,10 @@ extern int PHASE_WEIGHT_SUM;
  * @brief Бонусы и штрафы за то, насколько король в опасности
  * 
  */ 
-const int KING_HIGH_DANGER =  gS(-13,-14);   // применять когда жив ферзь и мы не рокированы
-const int KING_MED_DANGER  =  gS( -4,-33);   // мы рокированы, но пешечный щит кривой
-const int KING_LOW_DANGER  =  gS(0,0);   // слабый пешечный щит
-const int KING_SAFE        =  gS(0,32);   // хороший пешечный щит
+const int KING_HIGH_DANGER =  gS(-13,-18);   // применять когда жив ферзь и мы не рокированы
+const int KING_MED_DANGER  =  gS(-6,-31);   // мы рокированы, но пешечный щит кривой
+const int KING_LOW_DANGER  =  gS(0,1);   // слабый пешечный щит
+const int KING_SAFE        =  gS(3,33);   // хороший пешечный щит
 
 /**
  * @brief Bonuses given to a player having a move available (opening/endgame)
@@ -150,66 +150,63 @@ const int COUNT_TO_POWER[8] = {0, 0, 50, 75, 80, 88, 95, 100};
 
  */
 const int MATERIAL_VALUES[6] = {
-        [PAWN] = gS(68,114),
-        [ROOK] = gS(376,706),
-        [KNIGHT] = gS(280,409),
-        [BISHOP] = gS(299,433),
-        [QUEEN] = gS(991,1274),
+        [PAWN] = gS(57,114),
+        [ROOK] = gS(351,730),
+        [KNIGHT] = gS(258,418),
+        [BISHOP] = gS(273,444),
+        [QUEEN] = gS(945,1280),
         [KING] = gS(0, 0)
 };
 
 const int TEMPO = 5;
-const int BISHOP_RAMMED_PENALTY = gS(-3,-11);
+const int BISHOP_RAMMED_PENALTY = gS(-1,-12);
 
-const int PAWN_SUPPORTED = gS(11,2);
+const int PAWN_SUPPORTED = gS(12,3);
 
-const int KING_PASSER_DISTANCE_FRIENDLY[9] = {
-        gS(0,  0), gS(0, 15), gS(0, 7), gS(0, 3), gS(0, 0),
-        gS(0, -1), gS(0, -5), gS(0, -10), gS(0, -10)
+const int  KING_PASSER_DISTANCE_FRIENDLY[9] = {
+ gS(0,0), gS(9,34), gS(-7,25), gS(-17,10), gS(-10,-4), gS(-6,-10), gS(18,-21), gS(-1,-41), gS(0,-10),
 };
 
-const int KING_PASSER_DISTANCE_ENEMY[9] = {
-        gS(0,  0), gS(0, 15), gS(0, 7), gS(0, 3), gS(0, 0),
-        gS(0, -1), gS(0, -5), gS(0, -10), gS(0, -10)
+const int  KING_PASSER_DISTANCE_ENEMY[9] = {
+ gS(0,0), gS(51,89), gS(-12,21), gS(-2,-3), gS(-7,-16), gS(-16,-25), gS(-1,-37), gS(0,-55), gS(0,-10),
 };
 
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
-const int ROOK_OPEN_FILE_BONUS [2] = { gS(50, 25), gS(40, 15)};
+const int ROOK_OPEN_FILE_BONUS [2] = { gS(28,16), gS(10,0),};
 
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
-const int ROOK_SEMI_FILE_BONUS [2] = { gS (12, 37), gS ( 2, 27) };
+const int ROOK_SEMI_FILE_BONUS [2] = { gS(4,18), gS(-5,7) };
 
 /**
  * @brief Bonuses given to a player for having a passed pawn (opening/endgame)
  */
 const int PASSED_PAWN_RANKS[8] = {
-                gS(0,0), gS(-20,3), gS(-16,4), gS(-10,24),
-                gS(19,40), gS(53,92), gS(85,99), gS(0,0),
+gS(0,0), gS(-24,-19), gS(-24,-11), gS(-9,17),
+gS(19,44), gS(51,105), gS(82,112), gS(0,0),
 };
 
-const int PASSED_PAWN_FILES[8] = {
-                gS(-3,30), gS(-2,26), gS(-6,11), gS(-10,0),
-                 gS(3,1), gS(20,4), gS(13,16), gS(9,8),
+const int  PASSED_PAWN_FILES[8] = {
+ gS(-14,30), gS(-9,25), gS(-7,9), gS(-8,-3), gS(3,1), gS(20,2), gS(11,14), gS(13,2),
 };
 
 /**
  * @brief Penalties given to a player for having a doubled pawn (opening/endgame)
  */
-const int DOUBLED_PAWN_PENALTY = gS(-8,-28);
+const int DOUBLED_PAWN_PENALTY = gS(-3,-25);
 
 /**
  * @brief Penalties given to a player for having an isolated pawn (opening/endgame)
  */
-const int ISOLATED_PAWN_PENALTY = gS(-7,-15);
+const int ISOLATED_PAWN_PENALTY = gS(-7,-16);
 
 /**
  * @brief Bonuses given to a player for having bishops on black and white squares (opening/endgame)
  */
-const int BISHOP_PAIR_BONUS = gS(18,68);
+const int BISHOP_PAIR_BONUS = gS(17,66);
 
 /**
  * @brief Initializes all inner constants used by functions in the Eval namespace
