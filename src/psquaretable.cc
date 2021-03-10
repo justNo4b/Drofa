@@ -5,93 +5,30 @@
 
 int PSquareTable::PIECE_VALUES[2][6][64];
 
-std::vector<int> PSquareTable::_mirrorList(std::vector<int> list) {
-  std::reverse(list.begin(), list.end());
-  return list;
-}
-
-void PSquareTable::_setValues(std::vector<int> list, PieceType pieceType) {
-  std::copy(list.begin(), list.end(), PIECE_VALUES[BLACK][pieceType]);
-
-  std::vector<int> mirrored = _mirrorList(list);
-  std::copy(mirrored.begin(), mirrored.end(), PIECE_VALUES[WHITE][pieceType]);
-}
-
-
 // это PSQT для чёрных.
 // для белых делается их mirror()
 
 void PSquareTable::init() {
-  _setValues(std::vector<int>({
-    gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),
-    gS( 50, 90),  gS( 50, 90),  gS( 50, 90),  gS( 50, 90),  gS( 50, 90),  gS( 50, 90),  gS( 50, 90),  gS( 50, 90),
-    gS( 10, 48),  gS( 10, 48),  gS( 20, 48),  gS( 30, 48),  gS( 30, 48),  gS( 20, 48),  gS( 10, 48),  gS( 10, 48),
-    gS(  5, 28),  gS(  5, 28),  gS( 10, 28),  gS( 25, 28),  gS( 25, 28),  gS( 10, 28),  gS(  5, 28),  gS(  5, 28),
-    gS(  0, 12),  gS(  0, 12),  gS(  0, 12),  gS( 20, 12),  gS( 20, 12),  gS(  0, 12),  gS(  0, 12),  gS(  0, 12),
-    gS(  5,  4),  gS(  -5, 4),  gS(-10,  4),  gS(  0,  4),  gS(  0,  4),  gS( -10, 4),  gS( -5,  4),  gS(  5,  4),
-    gS(  5,  0),  gS( 10,  0),  gS( 10,  0),  gS(-20,  0),  gS(-20,  0),  gS( 10,  0),  gS( 10,  0),  gS(  5,  0),
-    gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0),  gS(  0,  0)
-  }), PAWN);
 
-  _setValues(std::vector<int>({
-    gS( -15, -15), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS( -15, -15),
-    gS( -10, -10), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS( -10, -10),
-    gS( -10, -10), gS(  0,  0), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS(  0,  0), gS( -10, -10),
-    gS( -10, -10), gS(  7,  7), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS(  7,  7), gS( -10, -10),
-    gS( -10, -10), gS(  0,  0), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS(  0,  0), gS( -10, -10),
-    gS( -10, -10), gS(  7,  7), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS(  7,  7), gS( -10, -10),
-    gS( -10, -10), gS(  0,  0), gS(  0,  0), gS(  5,  5), gS(  5,  5), gS(  0,  0), gS(  0,  0), gS( -10, -10),
-    gS( -15, -15), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS( -15, -15)
-  }), KNIGHT);
+    for (int i = 0; i < 64; i++){
+      PIECE_VALUES[BLACK][KING][i] = Eval::KING_PSQT_BLACK[i];
+      PIECE_VALUES[WHITE][KING][i] = Eval::KING_PSQT_BLACK[_mir(i)];
 
+      PIECE_VALUES[BLACK][PAWN][i] = Eval::PAWN_PSQT_BLACK[i];
+      PIECE_VALUES[WHITE][PAWN][i] = Eval::PAWN_PSQT_BLACK[_mir(i)];
 
-  _setValues(std::vector<int>({
-    gS(-15,-15), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-15,-15),
-    gS(-10,-10), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(-10,-10),
-    gS(-10,-10), gS(  0,  0), gS(  5,  5), gS( 10, 10), gS( 10, 10), gS(  5,  5), gS(  0,  0), gS(-10,-10),
-    gS(-10,-10), gS(  5,  5), gS(  5,  5), gS( 10, 10), gS( 10, 10), gS(  5,  5), gS(  5,  5), gS(-10,-10),
-    gS(-10,-10), gS(  0,  0), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS(  0,  0), gS(-10,-10),
-    gS(-10,-10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS( 10, 10), gS(-10,-10),
-    gS(-10,-10), gS( 10, 10), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS( 10, 10), gS(-10,-10),
-    gS(-15,-15), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-10,-10), gS(-15,-15)
-  }), BISHOP);
+      PIECE_VALUES[BLACK][ROOK][i] = Eval::ROOK_PSQT_BLACK[i];
+      PIECE_VALUES[WHITE][ROOK][i] = Eval::ROOK_PSQT_BLACK[_mir(i)];
 
+      PIECE_VALUES[BLACK][KNIGHT][i] = Eval::KNIGHT_PSQT_BLACK[i];
+      PIECE_VALUES[WHITE][KNIGHT][i] = Eval::KNIGHT_PSQT_BLACK[_mir(i)];
 
-  _setValues(std::vector<int>({
-    gS(  0,  0),  gS(  0,  0), gS(  5,  5), gS(  7,  7), gS(  7,  7), gS(  5,  5),  gS(  0,  0),  gS(  0,  0),
-    gS( 17, 17),  gS( 17, 17), gS( 17, 17), gS( 17, 17), gS( 17, 17), gS( 17, 17),  gS( 17, 17),  gS( 17, 17),
-    gS(  0,  0),  gS(  0,  0), gS(  5,  5), gS(  7,  7), gS(  7,  7), gS(  5,  5),  gS(  0,  0),  gS(  0,  0),
-    gS(  0,  0),  gS(  0,  0), gS(  5,  5), gS(  7,  7), gS(  7,  7), gS(  5,  5),  gS(  0,  0),  gS(  0,  0),
-    gS(  0,  0),  gS(  0,  0), gS(  5,  5), gS(  7,  7), gS(  7,  7), gS(  5,  5),  gS(  0,  0),  gS(  0,  0),
-    gS(  0,  0),  gS(  0,  0), gS(  5,  5), gS(  7,  7), gS(  7,  7), gS(  5,  5),  gS(  0,  0),  gS(  0,  0),
-    gS(  0,  0),  gS(  0,  0), gS(  5,  5), gS(  7,  7), gS(  7,  7), gS(  5,  5),  gS(  0,  0),  gS(  0,  0),
-    gS(  0,  0),  gS(  0,  0), gS(  5,  5), gS(  7,  7), gS(  7,  7), gS(  5,  5),  gS(  0,  0),  gS(  0,  0)
-  }), ROOK);
+      PIECE_VALUES[BLACK][BISHOP][i] = Eval::BISHOP_PSQT_BLACK[i];
+      PIECE_VALUES[WHITE][BISHOP][i] = Eval::BISHOP_PSQT_BLACK[_mir(i)];
 
-
-  _setValues(std::vector<int>({
-    gS(-20,-20), gS(-10,-10), gS(-10,-10), gS( -5, -5), gS( -5, -5), gS(-10,-10), gS(-10,-10), gS(-20,-20),
-    gS(-10,-10), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(-10,-10),
-    gS(-10,-10), gS(  0,  0), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  0,  0), gS(-10,-10),
-    gS( -5, -5), gS(  0,  0), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  0,  0), gS( -5, -5),
-    gS(  0,  0), gS(  0,  0), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  0,  0), gS( -5, -5),
-    gS(-10,-10), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  5,  5), gS(  0,  0), gS(-10,-10),
-    gS(-10,-10), gS(  0,  0), gS(  5,  5), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(  0,  0), gS(-10,-10),
-    gS(-20,-20), gS(-10,-10), gS(-10,-10), gS( -5, -5), gS( -5, -5), gS(-10,-10), gS(-10,-10), gS(-20,-20)
-  }), QUEEN);
-
-  _setValues(std::vector<int>({
-    gS(-10,-15), gS(-15,-7), gS(-15,-7), gS(-15,-7), gS(-15,-7), gS(-15,-7), gS(-15,-7), gS(-10,-15),
-    gS(-10, -7), gS(-15, 0), gS(-15, 0), gS(-15, 0), gS(-15, 0), gS(-15, 0), gS(-15, 0), gS(-10, -7),
-    gS(-10, -7), gS(-15, 0), gS(-15, 7), gS(-15, 7), gS(-15, 7), gS(-15, 7), gS(-15, 0), gS(-10, -7),
-    gS(-10, -7), gS(-15, 0), gS(-15, 7), gS(-15,15), gS(-15,15), gS(-15, 7), gS(-15, 0), gS(-10, -7),
-    gS(-10, -7), gS(-15, 0), gS(-15, 7), gS(-15,15), gS(-15,15), gS(-15, 7), gS(-15, 0), gS(-10, -7),
-    gS(-10, -7), gS(-15, 0), gS(-15, 7), gS(-15, 7), gS(-15, 7), gS(-15, 7), gS(-15, 0), gS(-10, -7),
-    gS(  0, -7), gS(  0, 0), gS(  0, 0), gS(  0, 0), gS(  0, 0), gS(  0, 0), gS(  0, 0), gS(  0, -7),
-    gS(  7,-15), gS( 10,-7), gS(  7,-7), gS(  0,-7), gS(  0,-7), gS(  7,-7), gS( 10,-7), gS(  7,-15)
-  }), KING);
-
-
+      PIECE_VALUES[BLACK][QUEEN][i] = Eval::QUEEN_PSQT_BLACK[i];
+      PIECE_VALUES[WHITE][QUEEN][i] = Eval::QUEEN_PSQT_BLACK[_mir(i)];
+    }
 }
 
 PSquareTable::PSquareTable() = default;
@@ -127,4 +64,8 @@ void PSquareTable::movePiece(Color color, PieceType pieceType, unsigned int from
 
 int PSquareTable::getScore(Color color) {
   return _scores[color];
+}
+
+int PSquareTable::getPsqtValue(Color color, PieceType pieceType, int sqv){
+  return PIECE_VALUES[color][pieceType][sqv];
 }

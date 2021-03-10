@@ -65,32 +65,14 @@ class PSquareTable {
    */
   int getScore(Color);
 
+  int getPsqtValue(Color, PieceType, int);
+
  private:
   /**
    * @brief Array indexed by [Color][PieceType][SquareIndex] of square values for each  piece,
    * square and color.
    */
   static int PIECE_VALUES[2][6][64];
-
-  /**
-   * @brief Sets PIECE_VALUES for white and black for the given game phase
-   *
-   * Note that this function must be given the values for black and will set
-   * the entry in PIECE_VALUES for white and black.
-   *
-   * @param list Square values for black.
-   * @param pieceType Piece type to set values for.
-   * @param phase GamePhase to set values for
-   */
-  static void _setValues(std::vector<int>, PieceType);
-
-  /**
-   * @brief Mirrors the list of square values along the x axis.
-   *
-   * @param  list Square values to mirror
-   * @return Mirrored square values
-   */
-  static std::vector<int> _mirrorList(std::vector<int>);
 
   /**
    * @brief Array indexed by [Color] of each color's piece square table score.

@@ -101,40 +101,40 @@ extern int PHASE_WEIGHT_SUM;
  * @brief Бонусы и штрафы за то, насколько король в опасности
  * 
  */ 
-const int KING_HIGH_DANGER =  gS(-13,-18);   // применять когда жив ферзь и мы не рокированы
-const int KING_MED_DANGER  =  gS(-6,-31);   // мы рокированы, но пешечный щит кривой
-const int KING_LOW_DANGER  =  gS(0,1);   // слабый пешечный щит
-const int KING_SAFE        =  gS(3,33);   // хороший пешечный щит
+const int  KING_HIGH_DANGER  = gS(-13,-29);   // применять когда жив ферзь и мы не рокированы
+const int  KING_MED_DANGER   = gS(-6,-19);   // мы рокированы, но пешечный щит кривой
+const int  KING_LOW_DANGER   = gS(1,9);   // слабый пешечный щит
+const int  KING_SAFE         = gS(4,25);   // хороший пешечный щит
 
 /**
  * @brief Bonuses given to a player having a move available (opening/endgame)
  */
-const int BISHOP_MOBILITY[14] = {
-            gS(-25, -25), gS(-13,-17), gS(  0,-13), gS(  4, -5), gS(  8,  0), gS( 10,  6), gS( 12,  9),
-            gS( 14,  12), gS( 16, 15), gS( 18, 17), gS( 20, 19), gS( 22, 21), gS( 23, 23), gS( 23, 23),
+const int  BISHOP_MOBILITY[14] = {
+ gS(-10,-89), gS(-7,-49), gS(-3,-23), gS(0,-7), gS(4,8), gS(6,21), gS(7,28),
+ gS(6,33), gS(8,37), gS(10,35), gS(18,31), gS(33,22), gS(42,37), gS(55,7),
 };
 
-const int KNIGHT_MOBILITY[9] = {
-            gS(-25,-25), gS(-10,-17), gS( 0,-10), gS( 5,  0), gS( 9, 5),
-            gS( 13, 10), gS( 18, 18), gS(21, 24), gS(21, 24)
+const int  KNIGHT_MOBILITY[9] = {
+ gS(-9,-85), gS(0,-35), gS(3,-4), gS(5,12), gS(8,24),
+ gS(10,33), gS(14,33), gS(20,25), gS(29,11),
 };
 
-const int KING_MOBILITY[9] = {
-            gS( -3, -4), gS(  0, -1), gS( 5,  0), gS( 5,  2), gS( 3, 5),
-            gS( -1,  8), gS( -3, 11), gS(-5, 11), gS(-7,  8)
+const int  KING_MOBILITY[9] = {
+ gS(11,-12), gS(9,8), gS(2,12), gS(0,15), gS(-4,11),
+ gS(-7,8), gS(-3,6), gS(-10,-1), gS(-1,-13),
 };
 
-const int ROOK_MOBILITY[15] = {
-            gS(-21,-13), gS(-13, -7), gS( -7, -5), gS( -3, -1), gS( -1,  0), gS( 0,  2), gS(  2,  4),
-            gS(  5,  6), gS(  7,  8), gS( 10, 12), gS( 13, 14), gS( 14, 16), gS( 14, 16), gS( 13, 15),
-            gS( 12, 15),
+const int  ROOK_MOBILITY[15] = {
+ gS(-15,-98), gS(-10,-53), gS(-10,-22), gS(-8,-9), gS(-9,8), gS(-12,20), gS(-6,23),
+ gS(-2,25), gS(3,27), gS(8,32), gS(7,36), gS(12,39), gS(16,39), gS(29,27),
+ gS(83,0),
 };
 
-const int QUEEN_MOBILITY[28] = {
-            gS(-34,-50), gS(-17,-20), gS(-11,-13), gS( -7, -9), gS( -3, -5), gS( -1, -3), gS(  0, -1),
-            gS(  1,  0), gS(  3,  1), gS(  5,  3), gS(  7,  5), gS(  9,  7), gS( 11,  9), gS( 13, 11),
-            gS( 15, 13), gS( 16, 15), gS( 17, 17), gS( 18, 18), gS( 19, 19), gS( 21, 21), gS( 23, 23),
-            gS( 25, 25), gS( 25, 25), gS( 26, 26), gS( 26, 26), gS( 26, 26), gS( 26, 26), gS( 26, 26),
+const int  QUEEN_MOBILITY[28] = {
+ gS(-26,-65), gS(2,-77), gS(3,-90), gS(3,-84), gS(4,-66), gS(4,-45), gS(4,-25),
+ gS(5,-11), gS(6,0), gS(7,10), gS(7,18), gS(7,25), gS(5,34), gS(2,43),
+ gS(1,52), gS(-4,60), gS(-7,65), gS(-9,67), gS(-8,67), gS(-2,63), gS(8,52),
+ gS(18,44), gS(22,39), gS(28,35), gS(24,29), gS(26,29), gS(26,28), gS(26,28),
 };
 
 const int PIECE_ATTACK_POWER[6] = {0, 40, 35, 20, 80, 0};
@@ -150,63 +150,127 @@ const int COUNT_TO_POWER[8] = {0, 0, 50, 75, 80, 88, 95, 100};
 
  */
 const int MATERIAL_VALUES[6] = {
-        [PAWN] = gS(57,114),
-        [ROOK] = gS(351,730),
-        [KNIGHT] = gS(258,418),
-        [BISHOP] = gS(273,444),
-        [QUEEN] = gS(945,1280),
+        [PAWN] = gS(70,112),
+        [ROOK] = gS(382,744),
+        [KNIGHT] = gS(269,415),
+        [BISHOP] = gS(288,449),
+        [QUEEN] = gS(861,1369),
         [KING] = gS(0, 0)
 };
 
 const int TEMPO = 5;
-const int BISHOP_RAMMED_PENALTY = gS(-1,-12);
+const int  BISHOP_PAIR_BONUS = gS(13,74);
 
-const int PAWN_SUPPORTED = gS(12,3);
+const int  PAWN_SUPPORTED = gS(7,5);
+
+const int  DOUBLED_PAWN_PENALTY = gS(-12,-26);
+
+const int  ISOLATED_PAWN_PENALTY = gS(-9,-13);
+
+const int  BISHOP_RAMMED_PENALTY = gS(-1,-11);
 
 const int  KING_PASSER_DISTANCE_FRIENDLY[9] = {
- gS(0,0), gS(9,34), gS(-7,25), gS(-17,10), gS(-10,-4), gS(-6,-10), gS(18,-21), gS(-1,-41), gS(0,-10),
+ gS(0,0), gS(1,29), gS(-9,24), gS(-13,8),
+ gS(-7,-5), gS(-3,-11), gS(12,-17), gS(-1,-25),
+ gS(0,-10),
 };
 
 const int  KING_PASSER_DISTANCE_ENEMY[9] = {
- gS(0,0), gS(51,89), gS(-12,21), gS(-2,-3), gS(-7,-16), gS(-16,-25), gS(-1,-37), gS(0,-55), gS(0,-10),
+ gS(0,0), gS(45,81), gS(-10,13), gS(-4,-3),
+ gS(-6,-15), gS(-6,-26), gS(0,-37), gS(6,-44),
+ gS(0,-10),
 };
 
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
-const int ROOK_OPEN_FILE_BONUS [2] = { gS(28,16), gS(10,0),};
+const int ROOK_OPEN_FILE_BONUS [2] = {   gS(24,9), gS(12,6),};
 
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
-const int ROOK_SEMI_FILE_BONUS [2] = { gS(4,18), gS(-5,7) };
+const int ROOK_SEMI_FILE_BONUS [2] = {  gS(6,13), gS(6,4) };
 
 /**
  * @brief Bonuses given to a player for having a passed pawn (opening/endgame)
  */
-const int PASSED_PAWN_RANKS[8] = {
-gS(0,0), gS(-24,-19), gS(-24,-11), gS(-9,17),
-gS(19,44), gS(51,105), gS(82,112), gS(0,0),
+const int  PASSED_PAWN_RANKS[8] = {
+ gS(0,0), gS(-16,-24), gS(-19,-13), gS(-7,20),
+ gS(16,53), gS(40,109), gS(70,108), gS(0,0),
 };
 
 const int  PASSED_PAWN_FILES[8] = {
- gS(-14,30), gS(-9,25), gS(-7,9), gS(-8,-3), gS(3,1), gS(20,2), gS(11,14), gS(13,2),
+ gS(9,21), gS(5,21), gS(0,6), gS(0,3),
+ gS(-4,0), gS(-17,1), gS(-9,19), gS(15,11),
 };
 
-/**
- * @brief Penalties given to a player for having a doubled pawn (opening/endgame)
- */
-const int DOUBLED_PAWN_PENALTY = gS(-3,-25);
 
-/**
- * @brief Penalties given to a player for having an isolated pawn (opening/endgame)
- */
-const int ISOLATED_PAWN_PENALTY = gS(-7,-16);
+const int  KING_PSQT_BLACK[64] = {
+ gS(-10,-29), gS(-15,-17), gS(-14,-13), gS(-13,-9), gS(-14,-13), gS(-15,-11), gS(-15,-13), gS(-10,-28),
+ gS(-11,-20), gS(-8,22), gS(-8,16), gS(-12,2), gS(-12,1), gS(-9,17), gS(-9,34), gS(-11,-19),
+ gS(-8,-8), gS(-1,36), gS(-2,33), gS(-7,17), gS(-8,15), gS(-1,38), gS(-1,40), gS(-9,-10),
+ gS(-11,-16), gS(-3,21), gS(0,27), gS(-10,28), gS(-6,24), gS(0,25), gS(3,20), gS(-15,-16),
+ gS(-15,-36), gS(-1,5), gS(1,17), gS(-10,27), gS(-1,25), gS(6,16), gS(22,3), gS(-21,-31),
+ gS(-22,-27), gS(-6,0), gS(-4,7), gS(-17,21), gS(-3,17), gS(0,9), gS(9,-4), gS(-29,-21),
+ gS(9,-18), gS(7,2), gS(-13,10), gS(-57,19), gS(-26,12), gS(-34,16), gS(10,-1), gS(12,-28),
+ gS(-20,-53), gS(32,-31), gS(-7,-13), gS(-57,-22), gS(-9,-47), gS(-59,-8), gS(9,-31), gS(1,-81),
+};
 
-/**
- * @brief Bonuses given to a player for having bishops on black and white squares (opening/endgame)
- */
-const int BISHOP_PAIR_BONUS = gS(17,66);
+const int  PAWN_PSQT_BLACK[64] = {
+ gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0),
+ gS(60,89), gS(53,93), gS(60,95), gS(55,83), gS(58,87), gS(54,89), gS(31,83), gS(30,86),
+ gS(-6,57), gS(14,50), gS(27,46), gS(26,26), gS(42,28), gS(101,33), gS(47,39), gS(11,43),
+ gS(-8,29), gS(0,24), gS(1,22), gS(17,5), gS(29,11), gS(36,15), gS(16,20), gS(1,15),
+ gS(-13,14), gS(-10,15), gS(0,7), gS(2,5), gS(9,9), gS(15,9), gS(6,7), gS(-9,3),
+ gS(-14,6), gS(-18,6), gS(-9,11), gS(-6,14), gS(2,17), gS(9,15), gS(8,-1), gS(-6,-4),
+ gS(-13,12), gS(-15,11), gS(-17,20), gS(-9,21), gS(-14,33), gS(17,24), gS(14,4), gS(-9,-10),
+ gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0),
+};
+
+const int  ROOK_PSQT_BLACK[64] = {
+ gS(20,29), gS(16,34), gS(10,36), gS(13,33), gS(14,31), gS(17,37), gS(17,36), gS(23,39),
+ gS(-2,28), gS(-6,32), gS(16,28), gS(23,31), gS(25,30), gS(31,14), gS(14,19), gS(25,17),
+ gS(-7,20), gS(33,7), gS(19,18), gS(36,8), gS(44,5), gS(34,17), gS(40,7), gS(16,9),
+ gS(-3,10), gS(8,12), gS(16,14), gS(37,7), gS(32,5), gS(29,4), gS(23,5), gS(11,6),
+ gS(-17,2), gS(-15,13), gS(-14,14), gS(-3,6), gS(-3,3), gS(-6,4), gS(7,4), gS(-14,-2),
+ gS(-23,-12), gS(-12,-3), gS(-17,-4), gS(-3,-11), gS(-4,-13), gS(-11,-10), gS(5,-10), gS(-17,-14),
+ gS(-38,-16), gS(-12,-22), gS(-12,-14), gS(-2,-21), gS(-4,-21), gS(-1,-30), gS(-1,-23), gS(-33,-20),
+ gS(-12,-17), gS(-10,-14), gS(-8,-11), gS(0,-17), gS(-1,-19), gS(-1,-10), gS(-1,-17), gS(-10,-28),
+};
+
+const int  BISHOP_PSQT_BLACK[64] = {
+ gS(-21,-7), gS(-12,-2), gS(-17,-3), gS(-19,0), gS(-15,-1), gS(-22,-11), gS(-9,-4), gS(-19,-10),
+ gS(-34,-7), gS(-3,3), gS(-9,2), gS(-9,3), gS(-14,2), gS(-2,5), gS(-16,5), gS(-10,-7),
+ gS(-11,-5), gS(1,6), gS(14,7), gS(-1,2), gS(13,7), gS(25,18), gS(19,10), gS(-2,-3),
+ gS(-19,-4), gS(14,6), gS(-1,6), gS(23,12), gS(15,16), gS(14,8), gS(6,10), gS(-18,2),
+ gS(-14,-9), gS(0,-1), gS(4,12), gS(16,12), gS(18,9), gS(-3,6), gS(3,0), gS(-5,-14),
+ gS(-8,-12), gS(3,-1), gS(3,3), gS(7,6), gS(3,5), gS(6,1), gS(5,-6), gS(6,-5),
+ gS(0,-9), gS(5,-20), gS(8,-11), gS(-5,-4), gS(0,-3), gS(8,-15), gS(18,-12), gS(2,-24),
+ gS(4,-18), gS(1,-8), gS(-11,-8), gS(-14,-4), gS(-8,-9), gS(-6,-5), gS(-5,-11), gS(0,-12),
+};
+
+const int  KNIGHT_PSQT_BLACK[64] = {
+ gS(-46,-39), gS(-12,-15), gS(-16,-8), gS(-10,-9), gS(-9,-9), gS(-13,-7), gS(-10,-10), gS(-22,-22),
+ gS(-18,-21), gS(-11,-16), gS(22,-10), gS(21,15), gS(15,12), gS(18,-11), gS(-6,-11), gS(-6,-13),
+ gS(-27,-26), gS(-2,-4), gS(19,22), gS(13,24), gS(31,17), gS(39,32), gS(20,0), gS(-4,-16),
+ gS(-4,-9), gS(8,5), gS(24,25), gS(22,40), gS(10,44), gS(34,31), gS(10,19), gS(15,1),
+ gS(-9,-10), gS(3,5), gS(9,31), gS(13,36), gS(13,33), gS(13,31), gS(21,9), gS(1,1),
+ gS(-22,-37), gS(-4,-9), gS(-1,-1), gS(11,16), gS(15,13), gS(5,-4), gS(2,-8), gS(-12,-24),
+ gS(-31,-21), gS(-28,-6), gS(-12,-18), gS(0,-2), gS(-4,0), gS(-1,-20), gS(-16,-3), gS(-14,-9),
+ gS(-24,-23), gS(-18,-26), gS(-32,-23), gS(-10,-3), gS(-2,-8), gS(-6,-15), gS(-17,-19), gS(-31,-23),
+};
+
+const int  QUEEN_PSQT_BLACK[64] = {
+ gS(-10,-8), gS(3,6), gS(3,7), gS(10,17), gS(19,25), gS(14,19), gS(6,10), gS(9,9),
+ gS(-16,-8), gS(-49,9), gS(-5,3), gS(-5,13), gS(-1,36), gS(21,26), gS(-12,6), gS(11,11),
+ gS(-22,-17), gS(-13,-13), gS(-8,1), gS(-4,13), gS(18,29), gS(41,47), gS(46,34), gS(9,28),
+ gS(-17,-22), gS(-8,0), gS(-14,-4), gS(-12,26), gS(0,37), gS(1,43), gS(7,42), gS(2,27),
+ gS(-8,-22), gS(-6,-6), gS(-8,-5), gS(-12,27), gS(-8,24), gS(-16,30), gS(1,13), gS(-8,18),
+ gS(-15,-26), gS(0,-23), gS(-5,-5), gS(-5,-18), gS(-7,-12), gS(-9,1), gS(5,-11), gS(-6,-14),
+ gS(-13,-28), gS(-2,-34), gS(5,-57), gS(-1,-31), gS(3,-36), gS(4,-62), gS(6,-44), gS(-15,-17),
+ gS(-9,-35), gS(-14,-36), gS(-9,-51), gS(0,-47), gS(0,-45), gS(-25,-36), gS(-23,-24), gS(-19,-21),
+};
+
 
 /**
  * @brief Initializes all inner constants used by functions in the Eval namespace

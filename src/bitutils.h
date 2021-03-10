@@ -111,4 +111,8 @@ inline int _col(int square) {
   return square % 8;
 }
 
+inline int _mir(int square){
+  return square ^ 56;
+}
+
 #endif

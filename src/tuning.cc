@@ -2,6 +2,7 @@
 #include "eval.h"
 #include "tuning.h"
 #include "board.h"
+#include "psquaretable.h"
 #include <limits>
 #include <fstream>
 #include <cstring>
@@ -88,9 +89,14 @@ void EvalTermPrint(std::string name, double opV, double egV, double opDiff, doub
     std::cout << name + " = gS(" + op + "," + eg + ");"<< std::endl;
 }
 
-void EvalArrayPrint(std::string name, tValueHolder current, tValueHolder diff, int head, int length){
+void EvalArrayPrint(std::string name, tValueHolder current, tValueHolder diff, int head, int length, int per){
     std::cout << name + "[" + std::to_string(length) + "] = {"<< std::endl;
     for (int i = 0; i < length; i++){
+
+        if (i != 0 && i % per == 0){
+            std::cout << std::endl;
+        }
+
         std::string op = std::to_string( (int)(current[head + i][OPENING] + diff[head + i][OPENING]));
         std::string eg = std::to_string( (int)(current[head + i][ENDGAME] + diff[head + i][ENDGAME]));  
         std::cout << " gS(" + op + "," + eg + "),";
@@ -186,6 +192,72 @@ void EvalTermInitiate(tValueHolder cTerms){
         c++;
     }
 
+    for (int j = 0; j < 14; j++){
+        cTerms[c][OPENING] = opS(Eval::BISHOP_MOBILITY[j]);
+        cTerms[c][ENDGAME] = egS(Eval::BISHOP_MOBILITY[j]);
+        c++;
+    }
+    
+    for (int j = 0; j < 9; j++){
+        cTerms[c][OPENING] = opS(Eval::KNIGHT_MOBILITY[j]);
+        cTerms[c][ENDGAME] = egS(Eval::KNIGHT_MOBILITY[j]);
+        c++;
+    }
+
+    for (int j = 0; j < 9; j++){
+        cTerms[c][OPENING] = opS(Eval::KING_MOBILITY[j]);
+        cTerms[c][ENDGAME] = egS(Eval::KING_MOBILITY[j]);
+        c++;
+    }
+
+    for (int j = 0; j < 15; j++){
+        cTerms[c][OPENING] = opS(Eval::ROOK_MOBILITY[j]);
+        cTerms[c][ENDGAME] = egS(Eval::ROOK_MOBILITY[j]);
+        c++;
+    }
+
+    for (int j = 0; j < 28; j++){
+        cTerms[c][OPENING] = opS(Eval::QUEEN_MOBILITY[j]);
+        cTerms[c][ENDGAME] = egS(Eval::QUEEN_MOBILITY[j]);
+        c++;
+    }
+
+    for (int j = 0; j < 64; j++){
+        cTerms[c][OPENING] = opS(Eval::KING_PSQT_BLACK[j]);
+        cTerms[c][ENDGAME] = egS(Eval::KING_PSQT_BLACK[j]);
+        c++;
+    }
+
+    for (int j = 0; j < 64; j++){
+        cTerms[c][OPENING] = opS(Eval::PAWN_PSQT_BLACK[j]);
+        cTerms[c][ENDGAME] = egS(Eval::PAWN_PSQT_BLACK[j]);
+        c++;
+    }
+
+    for (int j = 0; j < 64; j++){
+        cTerms[c][OPENING] = opS(Eval::ROOK_PSQT_BLACK[j]);
+        cTerms[c][ENDGAME] = egS(Eval::ROOK_PSQT_BLACK[j]);
+        c++;
+    }
+    
+    for (int j = 0; j < 64; j++){
+        cTerms[c][OPENING] = opS(Eval::BISHOP_PSQT_BLACK[j]);
+        cTerms[c][ENDGAME] = egS(Eval::BISHOP_PSQT_BLACK[j]);
+        c++;
+    }
+
+    for (int j = 0; j < 64; j++){
+        cTerms[c][OPENING] = opS(Eval::KNIGHT_PSQT_BLACK[j]);
+        cTerms[c][ENDGAME] = egS(Eval::KNIGHT_PSQT_BLACK[j]);
+        c++;
+    }
+
+    for (int j = 0; j < 64; j++){
+        cTerms[c][OPENING] = opS(Eval::QUEEN_PSQT_BLACK[j]);
+        cTerms[c][ENDGAME] = egS(Eval::QUEEN_PSQT_BLACK[j]);
+        c++;
+    }
+
 }
 
 bool InitTuningPositions(tEntry * positionList){
@@ -199,7 +271,7 @@ bool InitTuningPositions(tEntry * positionList){
     }
     else
     {
-        std::cout << "File opened. Processing positions"<< std::endl;
+        std::cout << "File opened. Processing positions...\n"<< std::endl;
     }
 
     // Initialize our positions in cycle
@@ -320,6 +392,49 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.RookHalfFile[j][WHITE] - ft.RookHalfFile[j][BLACK];
     }
 
+    for (int j = 0; j < 14; j++){
+        coeff[i++] = ft.BishopMobility[j][WHITE] - ft.BishopMobility[j][BLACK];
+    }
+
+    for (int j = 0; j < 9; j++){
+        coeff[i++] = ft.KnigthMobility[j][WHITE] - ft.KnigthMobility[j][BLACK];
+    }
+
+    for (int j = 0; j < 9; j++){
+        coeff[i++] = ft.KingMobility[j][WHITE] - ft.KingMobility[j][BLACK];
+    }
+
+    for (int j = 0; j < 15; j++){
+        coeff[i++] = ft.RookMobility[j][WHITE] - ft.RookMobility[j][BLACK];
+    }
+
+    for (int j = 0; j < 28; j++){
+        coeff[i++] = ft.QueenMobility[j][WHITE] - ft.QueenMobility[j][BLACK];
+    }
+
+    for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.KingPsqtBlack[j][WHITE] - ft.KingPsqtBlack[j][BLACK];
+    }
+
+    for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.PawnPsqtBlack[j][WHITE] - ft.PawnPsqtBlack[j][BLACK];
+    }
+
+    for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.RookPsqtBlack[j][WHITE] - ft.RookPsqtBlack[j][BLACK];
+    }
+    
+    for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.BishopPsqtBlack[j][WHITE] - ft.BishopPsqtBlack[j][BLACK];
+    }
+    for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.KnightPsqtBlack[j][WHITE] - ft.KnightPsqtBlack[j][BLACK];
+    }
+
+    for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.QueenPsqtBlack[j][WHITE] - ft.QueenPsqtBlack[j][BLACK];
+    }
+
 
 
 
@@ -347,7 +462,7 @@ void InitETraces(featureCoeff coeffs, tEntry* entry){
     if (length > eTraceStackSize){
         eTraceStackSize = TUNING_STACK_SIZE;
         eTraceStack = (eTrace*) calloc(TUNING_STACK_SIZE,  sizeof(eTrace));
-        std::cout << "Allocating additional RAM for the tuner \n"<< std::endl;
+        std::cout << "Allocating additional RAM for the tuner..."<< std::endl;
     }
 
     // Claim part of the stack
@@ -465,36 +580,58 @@ void PrintTunedParams(tValueHolder currTerms, tValueHolder diffTerms){
     i++;
     EvalTermPrint("\n QueenValue", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
-    EvalTermPrint("\n BISHOP_PAIR_BONUS", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    EvalTermPrint("\nconst int  BISHOP_PAIR_BONUS", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
-    EvalTermPrint("\n KING_HIGH_DANGER ", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    EvalTermPrint("\nconst int  KING_HIGH_DANGER ", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
-    EvalTermPrint("\n KING_MED_DANGER  ", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    EvalTermPrint("\nconst int  KING_MED_DANGER  ", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
-    EvalTermPrint("\n KING_LOW_DANGER  ", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    EvalTermPrint("\nconst int  KING_LOW_DANGER  ", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
-    EvalTermPrint("\n KING_SAFE        ", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    EvalTermPrint("\nconst int  KING_SAFE        ", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
-    EvalTermPrint("\n PAWN_SUPPORTED", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    EvalTermPrint("\nconst int  PAWN_SUPPORTED", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
-    EvalTermPrint("\n DOUBLED_PAWN_PENALTY", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    EvalTermPrint("\nconst int  DOUBLED_PAWN_PENALTY", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
-    EvalTermPrint("\n ISOLATED_PAWN_PENALTY", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    EvalTermPrint("\nconst int  ISOLATED_PAWN_PENALTY", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
-    EvalTermPrint("\n BISHOP_RAMMED_PENALTY", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    EvalTermPrint("\nconst int  BISHOP_RAMMED_PENALTY", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
-    EvalArrayPrint("\n PASSED_PAWN_RANKS", currTerms, diffTerms, i, 8);
+    EvalArrayPrint("\nconst int  PASSED_PAWN_RANKS", currTerms, diffTerms, i, 8, 4);
     i = i + 8;
-    EvalArrayPrint("\n PASSED_PAWN_FILES", currTerms, diffTerms, i, 8);
+    EvalArrayPrint("\nconst int  PASSED_PAWN_FILES", currTerms, diffTerms, i, 8, 4);
     i = i + 8;
-    EvalArrayPrint("\n KING_PASSER_DISTANCE_FRIENDLY", currTerms, diffTerms, i, 9);
+    EvalArrayPrint("\nconst int  KING_PASSER_DISTANCE_FRIENDLY", currTerms, diffTerms, i, 9, 4);
 	i = i + 9;
-    EvalArrayPrint("\n KING_PASSER_DISTANCE_ENEMY", currTerms, diffTerms, i, 9);
+    EvalArrayPrint("\nconst int  KING_PASSER_DISTANCE_ENEMY", currTerms, diffTerms, i, 9, 4);
     i = i + 9;
-    EvalArrayPrint("\n ROOK_OPEN_FILE_BONUS", currTerms, diffTerms, i, 2);
+    EvalArrayPrint("\nconst int  ROOK_OPEN_FILE_BONUS", currTerms, diffTerms, i, 2, 10);
     i = i + 2;
-    EvalArrayPrint("\n ROOK_SEMI_FILE_BONUS", currTerms, diffTerms, i, 2);
+    EvalArrayPrint("\nconst int  ROOK_SEMI_FILE_BONUS", currTerms, diffTerms, i, 2, 10);
     i = i + 2;
+    EvalArrayPrint("\nconst int  BISHOP_MOBILITY", currTerms, diffTerms, i, 14, 7);
+    i = i + 14;
+    EvalArrayPrint("\nconst int  KNIGHT_MOBILITY", currTerms, diffTerms, i, 9, 5);
+    i = i + 9;
+    EvalArrayPrint("\nconst int  KING_MOBILITY", currTerms, diffTerms, i, 9, 5);
+    i = i + 9;
+    EvalArrayPrint("\nconst int  ROOK_MOBILITY", currTerms, diffTerms, i, 15, 7);
+    i = i + 15;
+    EvalArrayPrint("\nconst int  QUEEN_MOBILITY", currTerms, diffTerms, i, 28, 7);
+    i = i + 28;
+    EvalArrayPrint("\nconst int  KING_PSQT_BLACK", currTerms, diffTerms, i, 64, 8);
+    i = i + 64;
+    EvalArrayPrint("\nconst int  PAWN_PSQT_BLACK", currTerms, diffTerms, i, 64, 8);
+    i = i + 64;
+    EvalArrayPrint("\nconst int  ROOK_PSQT_BLACK", currTerms, diffTerms, i, 64, 8);
+    i = i + 64;
+    EvalArrayPrint("\nconst int  BISHOP_PSQT_BLACK", currTerms, diffTerms, i, 64, 8);
+    i = i + 64;
+    EvalArrayPrint("\nconst int  KNIGHT_PSQT_BLACK", currTerms, diffTerms, i, 64, 8);
+    i = i + 64;
+    EvalArrayPrint("\nconst int  QUEEN_PSQT_BLACK", currTerms, diffTerms, i, 64, 8);
+    i = i + 64;
 }
 
 double CalculateFactorK(tEntry * entries){

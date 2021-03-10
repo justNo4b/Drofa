@@ -340,8 +340,15 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
 
     while (pieces) {
       int square = _popLsb(pieces);
+
+      if (TRACK){
+        int relSqv = color == WHITE ? _mir(square) : square;
+        ft.QueenPsqtBlack[relSqv][color]++;
+      }
+
       U64 attackBitBoard = board.getMobilityForSquare(QUEEN, color, square, eB->EnemyPawnAttackMap[color]);
       s += QUEEN_MOBILITY[_popCount(attackBitBoard)];
+      if (TRACK) ft.QueenMobility[_popCount(attackBitBoard)][color]++;
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       if (kingAttack > 0){
         eB->KingAttackers[color]++;
@@ -362,8 +369,14 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
 
       // Mobility
       int square = _popLsb(pieces);
+      if (TRACK){
+        int relSqv = color == WHITE ? _mir(square) : square;
+        ft.RookPsqtBlack[relSqv][color]++;
+      }
+
       U64 attackBitBoard = board.getMobilityForSquare(ROOK, color, square, eB->EnemyPawnAttackMap[color]);
       s += ROOK_MOBILITY[_popCount(attackBitBoard)];
+      if (TRACK) ft.RookMobility[_popCount(attackBitBoard)][color]++;
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       if (kingAttack > 0){
         eB->KingAttackers[color]++;
@@ -396,8 +409,15 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       
       // Mobility
       int square = _popLsb(pieces);
+
+      if (TRACK){
+        int relSqv = color == WHITE ? _mir(square) : square;
+        ft.BishopPsqtBlack[relSqv][color]++;
+      }
+
       U64 attackBitBoard = board.getMobilityForSquare(BISHOP, color, square, eB->EnemyPawnAttackMap[color]);
       s += BISHOP_MOBILITY[_popCount(attackBitBoard)];
+      if (TRACK) ft.BishopMobility[_popCount(attackBitBoard)][color]++;
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       if (kingAttack > 0){
         eB->KingAttackers[color]++;
@@ -428,8 +448,14 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       
       // Mobility
       int square = _popLsb(pieces);
+      if (TRACK){
+        int relSqv = color == WHITE ? _mir(square) : square;
+        ft.KnightPsqtBlack[relSqv][color]++;
+      }
+
       U64 attackBitBoard = board.getMobilityForSquare(KNIGHT, color, square,eB->EnemyPawnAttackMap[color]);
       s += KNIGHT_MOBILITY[_popCount(attackBitBoard)];
+      if (TRACK) ft.KnigthMobility[_popCount(attackBitBoard)][color]++;
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       if (kingAttack > 0){
         eB->KingAttackers[color]++;
@@ -457,6 +483,11 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
   // Mobility
   U64 attackBitBoard = board.getMobilityForSquare(KING, color, square, eB.EnemyPawnAttackMap[color]);
   s += KING_MOBILITY[_popCount(attackBitBoard)];
+  if (TRACK) ft.KingMobility[_popCount(attackBitBoard)][color]++;
+  if (TRACK){
+      int relSqv = color == WHITE ? _mir(square) : square;
+      ft.KingPsqtBlack[relSqv][color]++;
+  }
   
   U64 tmpPawns = eB.Passers[color];
   while (tmpPawns != ZERO) {
@@ -491,6 +522,12 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
     int square = _popLsb(tmpPawns);
     int pawnCol = _col(square);
+    if (TRACK){
+      int relSqv = color == WHITE ? _mir(square) : square;
+      ft.PawnPsqtBlack[relSqv][color]++;
+    }
+
+
     if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
       eB->Passers[color] = eB->Passers[color] | (ONE << square);
       int r = color == WHITE ? _row(square) : 7 - _row(square);
