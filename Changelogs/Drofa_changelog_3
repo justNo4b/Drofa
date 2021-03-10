@@ -234,17 +234,39 @@ Finished match
 //////////////////////////////////////////////////////////////////
 
 
-29.  STUFF
+29.  3. Change the way hashMove is passed to movePicker (PASSED)
 ------------------------------------------------------------------
-PASTE TEST HERE
+Score of Drofa_dev vs Drofa_master: 1816 - 1670 - 2433  [0.512] 5919
+...      Drofa_dev playing White: 957 - 803 - 1200  [0.526] 2960
+...      Drofa_dev playing Black: 859 - 867 - 1233  [0.499] 2959
+...      White vs Black: 1824 - 1662 - 2433  [0.514] 5919
+Elo difference: 8.6 +/- 6.8, LOS: 99.3 %, DrawRatio: 41.1 %
+SPRT: llr 2.94 (100.0%), lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
 ------------------------------------------------------------------
 
-30. STUFF
+30. Huge simplification of the EVAL (1 score instead of two)
 ------------------------------------------------------------------
-PASTE TEST HERE
+Score of Drofa_dev vs Drofa_master: 5552 - 5563 - 7503  [0.500] 18618
+...      Drofa_dev playing White: 2878 - 2691 - 3741  [0.510] 9310
+...      Drofa_dev playing Black: 2674 - 2872 - 3762  [0.489] 9308
+...      White vs Black: 5750 - 5365 - 7503  [0.510] 18618
+Elo difference: -0.2 +/- 3.9, LOS: 45.8 %, DrawRatio: 40.3 %
+SPRT: llr 2.96 (100.7%), lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
 ------------------------------------------------------------------
+31. Simplification 2_1
+--------------------------------------------------
+Score of Drofa_dev vs Drofa_master: 1921 - 1846 - 2639  [0.506] 6406
+...      Drofa_dev playing White: 1010 - 874 - 1319  [0.521] 3203
+...      Drofa_dev playing Black: 911 - 972 - 1320  [0.490] 3203
+...      White vs Black: 1982 - 1785 - 2639  [0.515] 6406
+Elo difference: 4.1 +/- 6.5, LOS: 88.9 %, DrawRatio: 41.2 %
+SPRT: llr 2.96 (100.7%), lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
 
-31. AdaGrad Tuner implemented. Fixed bug in the PassedPawn calculations
+------------------------------------------------------------------
+32. AdaGrad Tuner implemented. Fixed bug in the PassedPawn calculations
 for black. Tuned values (500 iterations): Material, Bishop terms,
 Pawn terms. 
 ------------------------------------------------------------------
@@ -253,14 +275,14 @@ Elo difference: 51.90 +/- 18.24
 SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
 ------------------------------------------------------------------
-31. King Passer Distance and RookOpen/Semiopen tuned 
+33. King Passer Distance and RookOpen/Semiopen tuned 
 ------------------------------------------------------------------
 Score of Drofa_dev vs Drofa_2.2.3: 452 - 322 - 489  [0.551] 1263
 Elo difference: 35.89 +/- 15.02
 SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
 ------------------------------------------------------------------
-32. Mobility + PSQT tuned
+34. Mobility + PSQT tuned
 ------------------------------------------------------------------
 Score of Drofa_dev vs Drofa_2.2.4: 367 - 219 - 233  [0.590] 819
 Elo difference: 63.48 +/- 20.32
