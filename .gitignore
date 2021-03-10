@@ -16,3 +16,4 @@ obj/uci.o
 obj/zkey.o
 .vscode/settings.json
 obj/tuning.o
+Drofa_tune

@@ -260,6 +260,12 @@ Elo difference: 35.89 +/- 15.02
 SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
 ------------------------------------------------------------------
+32. Mobility + PSQT tuned
+------------------------------------------------------------------
+Score of Drofa_dev vs Drofa_2.2.4: 367 - 219 - 233  [0.590] 819
+Elo difference: 63.48 +/- 20.32
+SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
 
 
 
