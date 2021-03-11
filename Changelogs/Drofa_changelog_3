@@ -288,6 +288,17 @@ Score of Drofa_dev vs Drofa_2.2.4: 367 - 219 - 233  [0.590] 819
 Elo difference: 63.48 +/- 20.32
 SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
+------------------------------------------------------------------
+35. Outpost PSQT tuned
+------------------------------------------------------------------
+Score of Drofa_dev vs Drofa_master: 941 - 808 - 1241  [0.522] 2990
+...      Drofa_dev playing White: 504 - 388 - 603  [0.539] 1495
+...      Drofa_dev playing Black: 437 - 420 - 638  [0.506] 1495
+...      White vs Black: 924 - 825 - 1241  [0.517] 2990
+Elo difference: 15.5 +/- 9.5, LOS: 99.9 %, DrawRatio: 41.5 %
+SPRT: llr 2.96 (100.5%), lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+-------------------------------------------------------------------
 
 
 
