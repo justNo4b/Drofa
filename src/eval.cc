@@ -335,7 +335,8 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
   int s = 0;
 
   U64 pieces = board.getPieces(color, QUEEN);
-
+  s += HANGING_PIECE[QUEEN] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
+  if (TRACK) ft.HangingPiece[QUEEN][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
   // Mobility
 
     while (pieces) {
@@ -364,7 +365,8 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
   Color otherColor = getOppositeColor(color);
 
   U64 pieces = board.getPieces(color, ROOK);
-
+  s += HANGING_PIECE[ROOK] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
+  if (TRACK) ft.HangingPiece[ROOK][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
     while (pieces) {
 
       // Mobility
@@ -405,6 +407,8 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
   U64 pieces = board.getPieces(color, BISHOP);
   s += eB->RammedCount * _popCount(pieces) * BISHOP_RAMMED_PENALTY;
   if (TRACK) ft.BishopRammed[color] += eB->RammedCount * _popCount(pieces);
+  s += HANGING_PIECE[BISHOP] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
+  if (TRACK) ft.HangingPiece[BISHOP][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
     while (pieces) {
       
       // Mobility
@@ -445,6 +449,8 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
   int s = 0;
 
   U64 pieces = board.getPieces(color, KNIGHT);
+  s += HANGING_PIECE[KNIGHT] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
+  if (TRACK) ft.HangingPiece[KNIGHT][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
 
     while (pieces) {
       

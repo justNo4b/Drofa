@@ -23,7 +23,7 @@ void TunerStart(){
     std::cout << "This is special TUNING build \n\n" << std::endl;
     std::cout << "Implementation is heavily based on:" << std::endl;
     std::cout << "A. Grant (Ethereal author) tuning paper" << std::endl;
-    std::cout << "Terje Kirien (Weiss author) tuning implementation \n\n" << std::endl;
+    std::cout << "Terje Kirstihagen (Weiss author) tuning implementation \n\n" << std::endl;
     std::cout << "Starting TUNING \n\n" << std::endl;
 
     //Declare stuff
@@ -191,6 +191,12 @@ void EvalTermInitiate(tValueHolder cTerms){
     for (int j = 0; j < 2; j++){
         cTerms[c][OPENING] = opS(Eval::ROOK_SEMI_FILE_BONUS[j]);
         cTerms[c][ENDGAME] = egS(Eval::ROOK_SEMI_FILE_BONUS[j]);
+        c++;
+    }
+
+    for (int j = 0; j < 5; j++){
+        cTerms[c][OPENING] = opS(Eval::HANGING_PIECE[j]);
+        cTerms[c][ENDGAME] = egS(Eval::HANGING_PIECE[j]);
         c++;
     }
 
@@ -416,6 +422,10 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 2; j++){
         coeff[i++] = ft.RookHalfFile[j][WHITE] - ft.RookHalfFile[j][BLACK];
+    }
+
+    for (int j = 0; j < 5; j++){
+        coeff[i++] = ft.HangingPiece[j][WHITE] - ft.HangingPiece[j][BLACK];
     }
 
     for (int j = 0; j < 14; j++){
@@ -652,6 +662,8 @@ void PrintTunedParams(tValueHolder currTerms, tValueHolder diffTerms){
     i = i + 2;
     EvalArrayPrint("\nconst int  ROOK_SEMI_FILE_BONUS", currTerms, diffTerms, i, 2, 10);
     i = i + 2;
+    EvalArrayPrint("\nconst int  HANGING_PIECE", currTerms, diffTerms, i, 5, 10);
+    i = i + 5;
     EvalArrayPrint("\nconst int  BISHOP_MOBILITY", currTerms, diffTerms, i, 14, 7);
     i = i + 14;
     EvalArrayPrint("\nconst int  KNIGHT_MOBILITY", currTerms, diffTerms, i, 9, 5);
