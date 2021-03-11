@@ -310,9 +310,15 @@ Finished match
 
 //////////////////////////////////////////////////////////////////
 ------------------------------------------------------------------
-36.
+36. Added HanginPiece evaluation term
 ------------------------------------------------------------------
-
+Score of Drofa_dev vs Drofa_master: 787 - 660 - 1106  [0.525] 2553
+...      Drofa_dev playing White: 410 - 310 - 557  [0.539] 1277
+...      Drofa_dev playing Black: 377 - 350 - 549  [0.511] 1276
+...      White vs Black: 760 - 687 - 1106  [0.514] 2553
+Elo difference: 17.3 +/- 10.1, LOS: 100.0 %, DrawRatio: 43.3 %
+SPRT: llr 2.95 (100.3%), lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
 
 
 
