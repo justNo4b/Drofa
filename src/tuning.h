@@ -50,6 +50,11 @@ struct posFeatured{
     int BishopPsqtBlack[64][2];
     int KnightPsqtBlack[64][2];
     int QueenPsqtBlack[64][2];
+    //Array features - PSQT-like
+    int KnightOutProtBlack[64][2];
+    int BishopOutProtBlack[64][2];
+    int KnightOutBlack[64][2];
+    int BishopOutBlack[64][2];
 };
 
 struct eTrace {
@@ -76,15 +81,15 @@ struct tEntry {
   * @{
   */
   const std::string TUNING_DATA        = "BOOK.txt";
-  const int         TUNING_POS_COUNT   = 9996883; //9996883 42484641
+  const int         TUNING_POS_COUNT   = 42484641; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 511;
+  const int         TUNING_TERMS_COUNT = 767;
   const int         TUNING_BATCH_SIZE  = 0;
-  const int         TUNIGN_MAX_ITER    = 500;
-  const int         TUNIGN_PRINT       = 25; 
+  const int         TUNIGN_MAX_ITER    = 2500;
+  const int         TUNIGN_PRINT       = 50; 
   const int         TUNING_K_PRECISION = 10;
   const int         TUNING_L_STEP      = 1500;
-  const double      TUNING_K           = 2.685254189999998;
+  const double      TUNING_K           = 2.746758999;
   const double      TUNING_L_DROP      = 1.0;
   const double      TUNING_L_RATE      = 10.0;
 

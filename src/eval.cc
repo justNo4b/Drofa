@@ -426,13 +426,15 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
 
       // OUTPOSTED BISHOP
       if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
+        int relSqv = color == WHITE ? _mir(square) : square;
         if (detail::OUTPOST_PROTECTION[color][square] & board.getPieces(color, PAWN)){
-          s += BISHOP_PROT_OUTPOST[color][square];
+          s += BISHOP_PROT_OUTPOST_BLACK[relSqv];
           eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
-        }else{
-          s += BISHOP_OUTPOST[color][square];          
+          if (TRACK) ft.BishopOutProtBlack[relSqv][color]++;
+        }else if((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) != ZERO){
+          s += BISHOP_OUTPOST_BLACK[relSqv]; 
+          if (TRACK) ft.BishopOutBlack[relSqv][color]++;       
         }
-
       }
     }
 
@@ -464,11 +466,14 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
 
       // OUTPOSTED KNIGHT
       if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
+        int relSqv = color == WHITE ? _mir(square) : square;        
         if (detail::OUTPOST_PROTECTION[color][square] & board.getPieces(color, PAWN)){
-          s += KNIGHT_PROT_OUTPOST[color][square];
+          s += KNIGHT_PROT_OUTPOST_BLACK[relSqv];
           eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
-        }else{
-          s += KNIGHT_OUTPOST[color][square];         
+          if (TRACK) ft.KnightOutProtBlack[relSqv][color]++;
+        }else if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) != ZERO){
+          if (TRACK) ft.KnightOutBlack[relSqv][color]++;
+          s += KNIGHT_OUTPOST_BLACK[relSqv];         
         }
       }
     }

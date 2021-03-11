@@ -2,7 +2,7 @@
 #include "eval.h"
 #include "tuning.h"
 #include "board.h"
-#include "psquaretable.h"
+#include "outposts.h"
 #include <limits>
 #include <fstream>
 #include <cstring>
@@ -52,7 +52,6 @@ void TunerStart(){
     std::cout << "\n Calculating K... " << std::endl;
     double K = TUNING_K; //CalculateFactorK(entries);
     std::cout << "\n Optimal K = " << K << std::endl;
-
     for (int epoch = 0; epoch < TUNIGN_MAX_ITER; epoch++){
 
         // Calculate gradient
@@ -81,6 +80,9 @@ void TunerStart(){
         } 
     }
 
+    std::cout << "\n Finishing. Final Parameters: \n" << std::endl;
+    PrintTunedParams(currTerms, diffTerms);
+
 }
 
 void EvalTermPrint(std::string name, double opV, double egV, double opDiff, double egDiff){
@@ -90,11 +92,11 @@ void EvalTermPrint(std::string name, double opV, double egV, double opDiff, doub
 }
 
 void EvalArrayPrint(std::string name, tValueHolder current, tValueHolder diff, int head, int length, int per){
-    std::cout << name + "[" + std::to_string(length) + "] = {"<< std::endl;
+    std::cout << name + "[" + std::to_string(length) + "] = {\n          ";
     for (int i = 0; i < length; i++){
 
         if (i != 0 && i % per == 0){
-            std::cout << std::endl;
+            std::cout << "\n          ";
         }
 
         std::string op = std::to_string( (int)(current[head + i][OPENING] + diff[head + i][OPENING]));
@@ -255,6 +257,30 @@ void EvalTermInitiate(tValueHolder cTerms){
     for (int j = 0; j < 64; j++){
         cTerms[c][OPENING] = opS(Eval::QUEEN_PSQT_BLACK[j]);
         cTerms[c][ENDGAME] = egS(Eval::QUEEN_PSQT_BLACK[j]);
+        c++;
+    }
+
+    for (int j = 0; j < 64; j++){
+        cTerms[c][OPENING] = opS(KNIGHT_PROT_OUTPOST_BLACK[j]);
+        cTerms[c][ENDGAME] = egS(KNIGHT_PROT_OUTPOST_BLACK[j]);
+        c++;
+    }
+
+    for (int j = 0; j < 64; j++){
+        cTerms[c][OPENING] = opS(BISHOP_PROT_OUTPOST_BLACK[j]);
+        cTerms[c][ENDGAME] = egS(BISHOP_PROT_OUTPOST_BLACK[j]);
+        c++;
+    }
+
+    for (int j = 0; j < 64; j++){
+        cTerms[c][OPENING] = opS(KNIGHT_OUTPOST_BLACK[j]);
+        cTerms[c][ENDGAME] = egS(KNIGHT_OUTPOST_BLACK[j]);
+        c++;
+    }
+
+    for (int j = 0; j < 64; j++){
+        cTerms[c][OPENING] = opS(BISHOP_OUTPOST_BLACK[j]);
+        cTerms[c][ENDGAME] = egS(BISHOP_OUTPOST_BLACK[j]);
         c++;
     }
 
@@ -433,6 +459,22 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 64; j++){
         coeff[i++] = ft.QueenPsqtBlack[j][WHITE] - ft.QueenPsqtBlack[j][BLACK];
+    }
+
+    for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.KnightOutProtBlack[j][WHITE] - ft.KnightOutProtBlack[j][BLACK];
+    }
+
+    for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.BishopOutProtBlack[j][WHITE] - ft.BishopOutProtBlack[j][BLACK];
+    }
+
+    for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.KnightOutBlack[j][WHITE] - ft.KnightOutBlack[j][BLACK];
+    }
+
+    for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.BishopOutBlack[j][WHITE] - ft.BishopOutBlack[j][BLACK];
     }
 
 
@@ -631,6 +673,14 @@ void PrintTunedParams(tValueHolder currTerms, tValueHolder diffTerms){
     EvalArrayPrint("\nconst int  KNIGHT_PSQT_BLACK", currTerms, diffTerms, i, 64, 8);
     i = i + 64;
     EvalArrayPrint("\nconst int  QUEEN_PSQT_BLACK", currTerms, diffTerms, i, 64, 8);
+    i = i + 64;
+    EvalArrayPrint("\nconst int KNIGHT_PROT_OUTPOST_BLACK", currTerms, diffTerms, i, 64, 8);
+    i = i + 64;
+    EvalArrayPrint("\nconst int BISHOP_PROT_OUTPOST_BLACK", currTerms, diffTerms, i, 64, 8);
+    i = i + 64;
+    EvalArrayPrint("\nconst int KNIGHT_OUTPOST_BLACK", currTerms, diffTerms, i, 64, 8);
+    i = i + 64;
+    EvalArrayPrint("\nconst int BISHOP_OUTPOST_BLACK", currTerms, diffTerms, i, 64, 8);
     i = i + 64;
 }
 
