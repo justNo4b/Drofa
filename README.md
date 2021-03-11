@@ -14,11 +14,11 @@ During my Drofa experiments huge chunk of knowlenge were received from:
 
 Special thanks to the Terje Kirstihagen and his <a href="https://www.chessprogramming.org">Weiss</a> chess engine, from where
 I took LMP and LMR base reduction formulas, and idead of using IMPROVING factor in pruning.
-## Chages from Shallow Blue
+## Changes from Shallow Blue
 Strength:
 Drofa 2.0.0 will be probably a little less than 2500 CCRL elo.
 
-## Chages from Shallow Blue
+## Changes from Shallow Blue
 With Drofa 2.0 many features was added on top of the Shallow Blue, especially in the search section.
 
 Almost-full changelog with elo-gains measured for some of the features can be found:
