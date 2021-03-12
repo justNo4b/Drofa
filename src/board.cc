@@ -1,6 +1,7 @@
 #include "board.h"
 #include "bitutils.h"
 #include "attacks.h"
+#include "eval.h"
 #include <sstream>
 
 Board::Board() {
@@ -452,30 +453,31 @@ if (pieceCount < 3){
 
 int  Board:: MostFancyPieceCost() const{
 
+  int mvpCost = opS(Eval::MATERIAL_VALUES[PAWN]);
   if (getActivePlayer() == WHITE && _popCount(getPieces(WHITE, PAWN) & RANK_7) > 0 ){
-      return 950;
+      mvpCost = opS(Eval::MATERIAL_VALUES[QUEEN]);
   }
 
   if (getActivePlayer() == BLACK && _popCount(getPieces(BLACK, PAWN) & RANK_2) > 0){
-      return 950;
+      mvpCost = opS(Eval::MATERIAL_VALUES[QUEEN]);
   }
 
   if (_popCount(getPieces(getInactivePlayer(), QUEEN)) > 0){
-    return 950;
+    return mvpCost + opS(Eval::MATERIAL_VALUES[QUEEN]);
   }
 
   if (_popCount(getPieces(getInactivePlayer(), ROOK)) > 0){
-    return 500;
+    return mvpCost + opS(Eval::MATERIAL_VALUES[ROOK]);
   }
 
   if (_popCount(getPieces(getInactivePlayer(), BISHOP)) > 0){
-    return 315;
+    return mvpCost + opS(Eval::MATERIAL_VALUES[BISHOP]);
   }
   if (_popCount(getPieces(getInactivePlayer(), KNIGHT)) > 0){
-    return 300;
+    return mvpCost + opS(Eval::MATERIAL_VALUES[KNIGHT]);
   }
   
-  return 100;
+  return mvpCost;
 }
 
 int  Board:: Calculate_SEE(const Move move) const{
