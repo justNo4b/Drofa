@@ -319,7 +319,14 @@ Score of Drofa_dev vs Drofa_master: 787 - 660 - 1106  [0.525] 2553
 Elo difference: 17.3 +/- 10.1, LOS: 100.0 %, DrawRatio: 43.3 %
 SPRT: llr 2.95 (100.3%), lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
-
+------------------------------------------------------------------
+37. Change mvpCost for delta pruning
+------------------------------------------------------------------
+Score of Drofa_dev vs Drofa_master: 1736 - 1596 - 2675  [0.512] 6007
+Elo difference: 8.1 +/- 6.5, LOS: 99.2 %, DrawRatio: 44.5 %
+SPRT: llr 2.96 (100.6%), lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+------------------------------------------------------------------
 
 
 
