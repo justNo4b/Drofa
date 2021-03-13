@@ -5,7 +5,7 @@
 #include <memory>
 
 
-
+extern HASH myHASH;
 
 void myBench(){
     std::cout << "Bench started" << std::endl;
@@ -28,6 +28,7 @@ void myBench(){
         curNodes = search->getNodes();
         nodes_total += curNodes;
         std::cout << "["<< i + 1 << "] Nodes: " << curNodes <<std::endl;
+        myHASH.HASH_Clear();
     }
 
     std::cout << "Total nodes: " << nodes_total <<std::endl;
