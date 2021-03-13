@@ -47,6 +47,7 @@ extern U64 OUTPOST_PROTECTION[2][64];
 extern U64 KINGZONE[2][64];
 extern U64 PAWN_DUOS [64];
 extern U64 DISTANCE[64][64];
+extern U64 FORWARD_BITS[2][64];
 
 /**
  * @brief Array of masks indexed by [Color][square] containing all squares that
