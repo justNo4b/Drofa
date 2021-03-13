@@ -49,7 +49,6 @@ U64 Eval::detail::PASSED_PAWN_MASKS[2][64];
 U64 Eval::detail::OUTPOST_MASK[2][64];
 U64 Eval::detail::OUTPOST_PROTECTION[2][64];
 U64 Eval::detail::KINGZONE[2][64];
-U64 Eval::detail::FORWARD_BITS[2][64];
 int Eval::detail::PHASE_WEIGHT_SUM = 0;
 U64 Eval::detail::KING_OO_MASKS[2][2] = {
         [WHITE] = {
@@ -111,9 +110,6 @@ void Eval::init() {
 
     U64 currNorthRay = Rays::getRay(Rays::NORTH, square);
     U64 currSouthRay = Rays::getRay(Rays::SOUTH, square);
-
-    detail::FORWARD_BITS[WHITE][square] = currNorthRay;
-    detail::FORWARD_BITS[BLACK][square] = currSouthRay;
 
     detail::PASSED_PAWN_MASKS[WHITE][square] =
         currNorthRay | _eastN(currNorthRay, 1) | _westN(currNorthRay, 1);
@@ -668,6 +664,37 @@ int Eval::evaluate(const Board &board, Color color) {
             + evaluateKING (board, color, eB) - evaluateKING (board, otherColor, eB);
 
   score += pieceS;
+
+  // evaluate pawn - piece interactions
+
+  U64 pieces, nonPassers;
+  pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP) | 
+           board.getPieces(color, ROOK) | board.getPieces(color, QUEEN);
+  nonPassers = board.getPieces(otherColor, PAWN) ^ eB.Passers[otherColor];
+  nonPassers = otherColor == WHITE ? nonPassers << 8 : nonPassers >> 8;
+  score += PAWN_BLOCKED * (_popCount(pieces & nonPassers));
+  if (TRACK) ft.PawnBlocked[color] += (_popCount(pieces & nonPassers));
+
+  nonPassers = otherColor == WHITE ? eB.Passers[otherColor] << 8 : eB.Passers[otherColor] >> 8;
+  score += PASSER_BLOCKED * (_popCount(pieces & nonPassers));
+  if (TRACK) ft.PassersBlocked[color] += (_popCount(pieces & nonPassers));
+  
+
+
+  pieces = board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP) | 
+           board.getPieces(otherColor, ROOK) | board.getPieces(otherColor, QUEEN);
+  nonPassers = board.getPieces(color, PAWN) ^ eB.Passers[color];
+  nonPassers = color == WHITE ? nonPassers << 8 : nonPassers >> 8;
+  score -= PAWN_BLOCKED * (_popCount(pieces & nonPassers));
+  if (TRACK) ft.PawnBlocked[otherColor] += (_popCount(pieces & nonPassers));
+
+  nonPassers = color == WHITE ? eB.Passers[color] << 8 : eB.Passers[color] >> 8;
+  score -= PASSER_BLOCKED * (_popCount(pieces & nonPassers));
+  if (TRACK) ft.PassersBlocked[otherColor] += (_popCount(pieces & nonPassers));
+
+
+
+
 
   // evluate king danger
 
