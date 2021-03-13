@@ -60,7 +60,7 @@ Eval::SetupFeatureTuning(ENDGAME, BISHOP_PAIR, atoi(optionsMap["vBPairEG"].getVa
 void initOptions() {
   optionsMap["OwnBook"] = Option(false);
   optionsMap["BookPath"] = Option("book.bin", &loadBook);
-  optionsMap["Hash"] = Option(250, 25, 1024, &changeTTsize);
+  optionsMap["Hash"] = Option(16, 16, 1024, &changeTTsize);
 
 
   // Options for tuning is defined here.

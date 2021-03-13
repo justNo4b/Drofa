@@ -5,8 +5,8 @@
 HASH myHASH;
 
 HASH::HASH(){
-  // For now we give 250 MB to the main table and table and 6 MB to the pawn one.
-  double hashSize = 250; // когда-нить я сделаю аллокацию через UCI
+  
+  double hashSize = 16; // когда-нить я сделаю аллокацию через UCI
   double p_Size = 6;
 
   TableSize = hashSize / (double) sizeof(HASH_Entry) *  0x100000;   // по идее это должно быть 1 МБ
