@@ -18,3 +18,4 @@ obj/zkey.o
 obj/tuning.o
 Drofa_tune
 BOOK.txt
+obj/bench.o

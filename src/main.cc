@@ -4,10 +4,12 @@
 #include "eval.h"
 #include "rays.h"
 #include "tuning.h"
+#include "bench.h"
+#include <cstring>
 
 extern HASH myHASH;
 
-int main() {
+int main(int argCount, char* argValue[]) {
   Rays::init();
   PSquareTable::init();
   ZKey::init();
@@ -17,8 +19,14 @@ int main() {
   #ifdef _TUNE_
   TunerStart();
   #else
-  Uci::init();
-  Uci::start();
+  if (argCount > 1 && strcmp("bench", argValue[1]) == 0){
+    myBench();
+    return 0;
+  }else{
+    Uci::init();
+    Uci::start();
+  }
+
   #endif
 
   return 0;

@@ -98,6 +98,11 @@ class Search {
    */
   void stop();
 
+  /**
+   * 
+   */ 
+  int getNodes();
+
  private:
 
   /**
