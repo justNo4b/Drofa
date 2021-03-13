@@ -89,6 +89,10 @@ class Board {
     */
   void doNool();
 
+
+  int _getGameClock() const;
+
+
   /**
    * @brief Returns true if white can castle kingside, false otherwise.
    *
@@ -382,6 +386,11 @@ class Board {
    * @brief Halfmove clock, used to determine draws by the 50 move rule
    */
   int _halfmoveClock;
+
+  /**
+   * @brief Game clock in plys, in total
+   */
+  int _gameClock;
 
   /**
    * @brief Castling rights

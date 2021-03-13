@@ -62,7 +62,6 @@ Search::Search(const Board &board, Limits limits, Hist positionHistory, bool log
   init_LMR_array();
   _wasThoughtProlonged = false;
   _posHist = positionHistory;
-  int ourTime = 0;
   if (_limits.infinite) { // Infinite search
     _searchDepth = INF;
     _timeAllocated = INF;
@@ -72,33 +71,8 @@ Search::Search(const Board &board, Limits limits, Hist positionHistory, bool log
   } else if (_limits.moveTime != 0) {
     _searchDepth = MAX_SEARCH_DEPTH;
     _timeAllocated = _limits.moveTime;
-  } else if (_limits.time[_initialBoard.getActivePlayer()] != 0) { // Time search
-    ourTime = _limits.time[_initialBoard.getActivePlayer()];
-    int opponentTime = _limits.time[_initialBoard.getInactivePlayer()];
-
-    // Divide up the remaining time (If movestogo not specified we are in 
-    // sudden death)
-    if (_limits.movesToGo == 0) {
-      // Allocate less time for this search if our opponent's time is greater
-      // than our time by scaling movestogo by the ratio between our time
-      // and our opponent's time (ratio max forced to 2.0, min forced to 1.0)
-      double timeRatio = std::max((double) (ourTime / opponentTime), 1.0);
-
-      int movesToGo = (int) (SUDDEN_DEATH_MOVESTOGO * std::min(2.0, timeRatio));
-      _timeAllocated = ourTime / movesToGo;
-    } else {
-      // We substract 100 ms from time_allocated to make sure
-      // We dont get out of time
-      _timeAllocated = ourTime / (_limits.movesToGo);
-      _timeAllocated-= 100;
-    }
-
-    // Use all of the increment to think
-    _timeAllocated += _limits.increment[_initialBoard.getActivePlayer()];
-
-    // Depth is infinity in a timed search (ends when time runs out)
-    _searchDepth = MAX_SEARCH_DEPTH;
-    _ourTimeLeft = ourTime - _timeAllocated;
+  } else if (_limits.time[_initialBoard.getActivePlayer()] != 0) { 
+    _setupTimer(board, 0);
   } else { // No limits specified, use default depth
     _searchDepth = DEFAULT_SEARCH_DEPTH;
     _timeAllocated = INF;
@@ -226,6 +200,40 @@ bool Search::_checkLimits() {
   } 
 
   return false;
+}
+
+void Search::_setupTimer(const Board &board, int curPlyNum){
+
+    int ourTime = _limits.time[_initialBoard.getActivePlayer()];
+    int opponentTime = _limits.time[_initialBoard.getInactivePlayer()];
+    int moveNum = board._getGameClock() / 2;
+    int ourIncrement = _limits.increment[_initialBoard.getActivePlayer()];
+
+    int tWidth_a = 75;
+    int tWidth = 200;
+    int tMove = 35;
+    int criticalMove = 20;
+
+
+    double tCoefficient = 10 * (tWidth_a / pow((tWidth + pow((moveNum - tMove), 2)), 1.5));
+
+    // Divide up the remaining time (If movestogo not specified we are in 
+    // sudden death)
+    if (_limits.movesToGo == 0) { 
+      _timeAllocated = ourTime * tCoefficient;
+      if (moveNum > criticalMove) _timeAllocated = ourTime / 10 + ourIncrement;
+      _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - 10);
+    } else {
+      // We substract 100 ms from time_allocated to make sure
+      // We dont get out of time
+      _timeAllocated = ourTime * tCoefficient;
+      if (moveNum > criticalMove) _timeAllocated = ourTime / 10 + ourIncrement;
+      _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - 10);
+    }
+
+    // Depth is infinity in a timed search (ends when time runs out)
+    _searchDepth = MAX_SEARCH_DEPTH;
+    _ourTimeLeft = ourTime - _timeAllocated;
 }
 
 inline void Search::_updateAlpha(const Move move, Color color, int depth){

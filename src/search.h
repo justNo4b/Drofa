@@ -337,6 +337,8 @@ class Search {
    * it in the _lmr_R_array
    */ 
   void init_LMR_array();
+
+  void _setupTimer(const Board &, int);
 };
 
 #endif

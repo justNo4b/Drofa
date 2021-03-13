@@ -284,6 +284,7 @@ void Board::_clearBitBoards() {
 void Board::setToFen(std::string fenString) {
   std::istringstream fenStream(fenString);
   std::string token;
+  _gameClock = 0;
 
   _clearBitBoards();
 
@@ -560,6 +561,7 @@ void Board::doMove(Move move) {
     _zKey.clearEnPassant();
     _enPassant = ZERO;
   }
+  _gameClock++;
   int from = move.getFrom();
   int to = move.getTo();
   // Handle move depending on what type of move it is
@@ -793,4 +795,8 @@ U64 Board::_getQueenMobilityForSquare(int square, U64 own, U64 scanthrough) cons
 
 U64 Board::_getKnightMobilityForSquare(int square, U64 own) const {
   return Attacks::getNonSlidingAttacks(KNIGHT, square) & ~own;
+}
+
+int Board::_getGameClock() const{
+  return _gameClock;
 }
