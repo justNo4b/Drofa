@@ -332,7 +332,15 @@ Finished match
 Elo difference: 7.7 +/- 6.3, LOS: 99.1 %, DrawRatio: 43.9 %
 SPRT: llr 2.96 (100.4%), lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
-
+------------------------------------------------------------------
+39. Bell-shaped eval 
+------------------------------------------------------------------
+STC:
+Score of Drofa_dev vs Drofa_2.2.9: 610 - 489 - 899  [0.530] 1998
+Elo difference: 21.07 +/- 11.29
+SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+Other Later:
 
 
 
