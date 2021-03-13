@@ -327,6 +327,11 @@ Elo difference: 8.1 +/- 6.5, LOS: 99.2 %, DrawRatio: 44.5 %
 SPRT: llr 2.96 (100.6%), lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
 ------------------------------------------------------------------
+38. Added BlockedPawn evaluation
+------------------------------------------------------------------
+Elo difference: 7.7 +/- 6.3, LOS: 99.1 %, DrawRatio: 43.9 %
+SPRT: llr 2.96 (100.4%), lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
 
 
 
