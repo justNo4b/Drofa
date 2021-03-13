@@ -49,6 +49,7 @@ U64 Eval::detail::PASSED_PAWN_MASKS[2][64];
 U64 Eval::detail::OUTPOST_MASK[2][64];
 U64 Eval::detail::OUTPOST_PROTECTION[2][64];
 U64 Eval::detail::KINGZONE[2][64];
+U64 Eval::detail::FORWARD_BITS[2][64];
 int Eval::detail::PHASE_WEIGHT_SUM = 0;
 U64 Eval::detail::KING_OO_MASKS[2][2] = {
         [WHITE] = {
@@ -110,6 +111,9 @@ void Eval::init() {
 
     U64 currNorthRay = Rays::getRay(Rays::NORTH, square);
     U64 currSouthRay = Rays::getRay(Rays::SOUTH, square);
+
+    detail::FORWARD_BITS[WHITE][square] = currNorthRay;
+    detail::FORWARD_BITS[BLACK][square] = currSouthRay;
 
     detail::PASSED_PAWN_MASKS[WHITE][square] =
         currNorthRay | _eastN(currNorthRay, 1) | _westN(currNorthRay, 1);

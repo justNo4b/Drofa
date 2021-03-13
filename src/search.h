@@ -110,7 +110,7 @@ class Search {
    * @brief Array of the pre-calculated move-nums
    * used for LATE MOVE PRUNING during AB-search
    */
-  int _lmp_Array [100]; 
+  int _lmp_Array[100][2]; 
 
   /**
    * @brief Default depth to search to if no limits are specified.

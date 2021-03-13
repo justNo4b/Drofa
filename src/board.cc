@@ -442,38 +442,35 @@ if (_popCount(_allPieces[active] ^ _pieces[active][PAWN] ^ _pieces[active][KING]
 
 bool Board:: isEndGamePosition() const {
 
-int pieceCount = _popCount(_allPieces[WHITE] ^ _pieces[WHITE][PAWN] ^ _pieces[WHITE][KING]) + 
-_popCount(_allPieces[BLACK] ^ _pieces[BLACK][PAWN] ^ _pieces[BLACK][KING]);
+int pieceCount = _popCount(_allPieces[WHITE] ^ _pieces[WHITE][PAWN]) + 
+_popCount(_allPieces[BLACK] ^ _pieces[BLACK][PAWN]);
 
-if (pieceCount < 3){
-  return true;
-}
-  return false;
+  return pieceCount < 5 ? true : false;
 }
 
 int  Board:: MostFancyPieceCost() const{
 
   int mvpCost = opS(Eval::MATERIAL_VALUES[PAWN]);
-  if (getActivePlayer() == WHITE && _popCount(getPieces(WHITE, PAWN) & RANK_7) > 0 ){
+  if (getActivePlayer() == WHITE && (getPieces(WHITE, PAWN) & RANK_7)){
       mvpCost = opS(Eval::MATERIAL_VALUES[QUEEN]);
   }
 
-  if (getActivePlayer() == BLACK && _popCount(getPieces(BLACK, PAWN) & RANK_2) > 0){
+  if (getActivePlayer() == BLACK && (getPieces(BLACK, PAWN) & RANK_2)){
       mvpCost = opS(Eval::MATERIAL_VALUES[QUEEN]);
   }
 
-  if (_popCount(getPieces(getInactivePlayer(), QUEEN)) > 0){
+  if (getPieces(getInactivePlayer(), QUEEN)){
     return mvpCost + opS(Eval::MATERIAL_VALUES[QUEEN]);
   }
 
-  if (_popCount(getPieces(getInactivePlayer(), ROOK)) > 0){
+  if (getPieces(getInactivePlayer(), ROOK)){
     return mvpCost + opS(Eval::MATERIAL_VALUES[ROOK]);
   }
 
-  if (_popCount(getPieces(getInactivePlayer(), BISHOP)) > 0){
+  if (getPieces(getInactivePlayer(), BISHOP)){
     return mvpCost + opS(Eval::MATERIAL_VALUES[BISHOP]);
   }
-  if (_popCount(getPieces(getInactivePlayer(), KNIGHT)) > 0){
+  if (getPieces(getInactivePlayer(), KNIGHT)){
     return mvpCost + opS(Eval::MATERIAL_VALUES[KNIGHT]);
   }
   

@@ -43,7 +43,8 @@ void Search::init_LMR_array(){
   // Current formula is completely based on the 
   // Weiss chess engine.
   for (int i = 0; i < 99; i++){
-    _lmp_Array[i] = 3 + pow( i, 2) * 2;
+    _lmp_Array[i][0] = (3 + pow( i, 2) * 2) / 2;
+    _lmp_Array[i][1] = (3 + pow( i, 2) * 2);
   }
 
 }
@@ -504,7 +505,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     // Weirdly working, searchdepth is way up, elo gain is not so great
 
     if (!pvNode && !AreWeInCheck 
-      && qCount > _lmp_Array[depth]/(2-improving) && alpha < WON_IN_X ){
+      && qCount > _lmp_Array[depth][improving]
+      && alpha < WON_IN_X ){
       break;
     }
 
@@ -518,8 +520,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
         bool isQuiet = !(move.getFlags() & 0x63);
-        bool badHistory = (isQuiet 
-                            && _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) < -3*depth*depth);                
+        int  moveHistory  = isQuiet ? _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) : 0;
+        bool badHistory = (isQuiet && moveHistory < -3*depth*depth);                
         if (isQuiet)
           qCount++;
         int tDepth = depth;
@@ -573,30 +575,20 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // and guess right to do no re-searches
 
           // if move is quiet, reduce a bit more (from Weiss)
-          if (isQuiet){
-            reduction++;
-          }
-          //if we are improving, reduce a bit less (from Weiss)
-          if (improving){
-            reduction--;
-          }
-          
-          // reduce less when move is a Queen promotion
-          if ((move.getFlags() & Move::PROMOTION) && (move.getPromotionPieceType() == QUEEN)){
-            reduction--;
-          }
-
-          // Reduce less for CounterMove and both Killers
-          if (move.getMoveINT() == _orderingInfo.getCounterMoveINT(board.getActivePlayer(), pMove) ||
-          move == _orderingInfo.getKiller1(ply) ||  move == _orderingInfo.getKiller2(ply)){
-            reduction--;
-          }
+          reduction += isQuiet;
 
           // reduce more if move has a bad history
-          if (isQuiet && 
-              _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) < -3*_curMaxDepth*_curMaxDepth){
-                reduction++;
-          }  
+          reduction += isQuiet && moveHistory < -3*_curMaxDepth*_curMaxDepth;
+
+          //if we are improving, reduce a bit less (from Weiss)
+          reduction -= improving;
+          
+          // reduce less when move is a Queen promotion
+          reduction -= (move.getFlags() & Move::PROMOTION) && (move.getPromotionPieceType() == QUEEN);
+
+          // Reduce less for CounterMove and both Killers
+          reduction -= (move.getMoveINT() == _orderingInfo.getCounterMoveINT(board.getActivePlayer(), pMove) ||
+                        move == _orderingInfo.getKiller1(ply) ||  move == _orderingInfo.getKiller2(ply));  
 
           // We finished reduction tweaking, calculate final depth and search
           // Avoid reduction being less than 0
