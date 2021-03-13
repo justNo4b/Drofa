@@ -8,10 +8,10 @@
 extern HASH myHASH;
 
 void myBench(){
-    std::cout << "Bench started" << std::endl;
+    std::cout << "Bench started..." << std::endl;
+    std::chrono::time_point<std::chrono::steady_clock> timer_start = std::chrono::steady_clock::now();
     Board board = Board();
     int nodes_total = 0;
-    int time_total = 0;
 
     Search::Limits limits;
     limits.depth = BENCH_SEARCH_DEPTH;
@@ -20,15 +20,19 @@ void myBench(){
 
     for (int i = 0; i < BENCH_POS_NUMBER; i++){
         int curNodes = 0;
-        int curTime  = 0;
         board = Board(BENCH_POSITION[i]);
         search = std::make_shared<Search>(board, limits, history, false);
         search->iterDeep();
         curNodes = search->getNodes();
         nodes_total += curNodes;
-        std::cout << "["<< i + 1 << "] Nodes: " << curNodes <<std::endl;
         myHASH.HASH_Clear();
+        printf("Position [# %2d] Best: %6s %5i cp  Nodes: %12i", i + 1,search->getBestMove().getNotation().c_str(),
+                 search->getBestScore(), curNodes);
+        std::cout << std::endl;       
     }
 
-    std::cout << "Total nodes: " << nodes_total <<std::endl;
+    int elapsed =std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timer_start).count();
+    std::cout << "==============================================================="<<std::endl;
+    printf("OVERALL: %12d nodes %8d nps\n", nodes_total, (int) (1000.0f * nodes_total / (elapsed + 1)));
+    std::cout << std::flush;
 };

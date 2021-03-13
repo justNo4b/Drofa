@@ -163,6 +163,10 @@ Move Search::getBestMove() {
 int Search::getNodes(){
   return _nodes;
 }
+
+int Search::getBestScore(){
+  return _bestScore;
+}
 // эта штука - запрос к времени раз в сколько-то позиций
 bool Search::_checkLimits() {
 

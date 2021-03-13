@@ -93,6 +93,8 @@ class Search {
    */
   Move getBestMove();
 
+  int getBestScore();
+
   /**
    * @brief Instructs this Search to stop as soon as possible.
    */

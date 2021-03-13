@@ -6,7 +6,7 @@
 
 
 #define BENCH_POS_NUMBER        (50)
-#define BENCH_SEARCH_DEPTH      (15)
+#define BENCH_SEARCH_DEPTH      (12)
 
 /**
  * @brief returns bench of an engine
