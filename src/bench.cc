@@ -18,7 +18,6 @@ void myBench(){
     Hist history = Hist();
     std::shared_ptr<Search> search;
 
-
     for (int i = 0; i < BENCH_POS_NUMBER; i++){
         int curNodes = 0;
         int curTime  = 0;

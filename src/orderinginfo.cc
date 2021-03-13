@@ -5,6 +5,8 @@ OrderingInfo::OrderingInfo() {
   _ply = 0;
   std::memset(_history, 0, sizeof(_history));
   std::memset(_counterMove, 0, sizeof(_counterMove));
+  std::memset(_killer1, 0, sizeof(_killer1));
+  std::memset(_killer2, 0, sizeof(_killer2));
 }
 
 void OrderingInfo::updateCounterMove(Color color, int counteredMove, int counterMove){
