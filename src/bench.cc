@@ -1,6 +1,7 @@
 #include "bench.h"
 #include "board.h"
 #include "search.h"
+#include "move.h"
 #include <iostream>
 #include <memory>
 
@@ -36,3 +37,14 @@ void myBench(){
     printf("OVERALL: %12d nodes %8d nps\n", nodes_total, (int) (1000.0f * nodes_total / (elapsed + 1)));
     std::cout << std::flush;
 };
+
+
+void testSEE(){
+    for (int j = 0; j < 9; j++){
+        Board board = Board(SEE_POSITION[j]);
+        Move move = SEE_MOVE[j];
+        int i = board.Calculate_SEE(move);
+        std::cout << i << std::endl;
+    }
+
+}

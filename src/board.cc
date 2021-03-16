@@ -478,44 +478,44 @@ int  Board:: MostFancyPieceCost() const{
   return mvpCost;
 }
 
-int Board::_getLeastValuableAttacker(Color color, U64 attackers, U64 occupied, PieceType &piece) const{
+U64 Board::_getLeastValuableAttacker(Color color, U64 attackers, PieceType &piece) const{
   
   U64 tmp = ZERO;
   //check pawns
-  tmp = attackers & getPieces(color, PAWN) & occupied;
+  tmp = attackers & getPieces(color, PAWN);
   if (tmp){
     piece = PAWN;
-    return _popLsb(tmp) << ONE;
+    return ONE << _popLsb(tmp);
   } 
   //check knight
-  tmp = attackers & getPieces(color, KNIGHT) & occupied;
+  tmp = attackers & getPieces(color, KNIGHT);
   if (tmp){
     piece = KNIGHT;
-    return _popLsb(tmp) << ONE;
+    return ONE << _popLsb(tmp);
   } 
   //check bishop
-  tmp = attackers & getPieces(color, BISHOP) & occupied;
+  tmp = attackers & getPieces(color, BISHOP);
   if (tmp){
     piece = BISHOP;
-    return _popLsb(tmp) << ONE;
+    return ONE << _popLsb(tmp);
   } 
   // check ROOK
-   tmp = attackers & getPieces(color, ROOK) & occupied;
+   tmp = attackers & getPieces(color, ROOK);
   if (tmp){
     piece = ROOK;
-    return _popLsb(tmp) << ONE;
+    return ONE << _popLsb(tmp);
   } 
   // Check QUEEN
-  tmp = attackers & getPieces(color, QUEEN) & occupied;
-    if (tmp){
+  tmp = attackers & getPieces(color, QUEEN);
+    if (tmp){ 
     piece = QUEEN;
-    return _popLsb(tmp) << ONE;
+    return ONE << _popLsb(tmp);
   } 
   // King
-  tmp = attackers & getPieces(color, KING) & occupied;
+  tmp = attackers & getPieces(color, KING);
     if (tmp){
     piece = KING;
-    return _popLsb(tmp) << ONE;
+    return ONE << _popLsb(tmp);
   } 
   piece = KING;
   return 0;
@@ -541,11 +541,12 @@ int  Board:: Calculate_SEE(const Move move) const{
 
 
   // 1. Set variables
-  int gain[32], d = 0;
+  int gain[32] = {0};
+  int d = 0;
   int from = move.getFrom();
   int to = move.getTo();
   Color side = getActivePlayer();
-  PieceType aPiece = getPieceAtSquare(side, from);
+  PieceType aPiece = move.getPieceType();
 
   // Get pieces that attack target sqv
   U64 aBoard[2];
@@ -558,40 +559,40 @@ int  Board:: Calculate_SEE(const Move move) const{
   U64 horiXray = getPieces(WHITE, ROOK) | getPieces(WHITE, QUEEN) |  getPieces(BLACK, ROOK) | getPieces(BLACK, QUEEN);
   U64 diagXray = getPieces(WHITE, PAWN) | getPieces(WHITE, BISHOP) | getPieces(WHITE, QUEEN) |
                  getPieces(BLACK, PAWN) | getPieces(BLACK, BISHOP) | getPieces(BLACK, QUEEN);              
-  U64 fromBit = (ONE << from);
+  U64 attBit = (ONE << from);
 
 
-  if (flags & Move::CAPTURE){
-    gain[0] = _SEE_cost[move.getCapturedPieceType()];
-  }
-
+    gain[0] = (flags & Move::CAPTURE) ? _SEE_cost[getPieceAtSquare(getOppositeColor(side), to)] : 0;
+    //std::cout <<"d"<< d << " gain[d] " << gain [d] <<std::endl;
   // 3.SEE Negamax Cycle
   do
   {
     d++;
     gain[d]  = _SEE_cost[aPiece] - gain[d-1];
-    if ( std::max(-gain[d-1], gain[d]) < 0) break;
-    aBoard[side] = aBoard[side] ^ fromBit;
-    occupied = occupied ^ fromBit;
-    if (horiXray & fromBit){
-      aBoard[side] |= _squareAttackedByRook(side, to, occupied);
+    //std::cout <<"d"<< d << " gain[d] " << gain [d] <<std::endl;
+    if ( std::max(-gain[d-1], gain[d]) < 0){
+      break;
+    } 
+    aBoard[side] = aBoard[side] ^ attBit;
+    occupied = occupied ^ attBit;
+    if (horiXray & attBit){
+      aBoard[side] |= (_squareAttackedByRook(side, to, occupied) & occupied);
     }
-    if (diagXray & fromBit){
-      aBoard[side] |= _squareAttackedByBishop(side, to, occupied);
+    if (diagXray & attBit){
+      aBoard[side] |= (_squareAttackedByBishop(side, to, occupied)  & occupied);
     }
     // switch side and get next attacker
     side = getOppositeColor(side);
-    fromBit = _getLeastValuableAttacker(side, aBoard[side], occupied, aPiece);
+    attBit = _getLeastValuableAttacker(side, aBoard[side], aPiece);
+    //std::cout << d << " atta " << _popCount(attBit)<<std::endl;
 
-    // getNextAttacker
+  } while (attBit);
 
-  } while (fromBit);
-  
   // 4.Calculate value
   while (d--){
     gain[d-1] = - std::max(-gain[d-1], gain[d]);
   }
-  
+
   return gain[0];
 }
 

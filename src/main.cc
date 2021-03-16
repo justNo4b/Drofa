@@ -22,6 +22,9 @@ int main(int argCount, char* argValue[]) {
   if (argCount > 1 && strcmp("bench", argValue[1]) == 0){
     myBench();
     return 0;
+  }else if(argCount > 1 && strcmp("see", argValue[1]) == 0){
+    testSEE();
+    return 0;
   }else{
     Uci::init();
     Uci::start();

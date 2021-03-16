@@ -2,6 +2,7 @@
 #define BENCH_H
 
 #include <sstream>
+#include "move.h"
 
 
 
@@ -12,6 +13,9 @@
  * @brief returns bench of an engine
  */ 
 void myBench();
+
+
+void testSEE();
 
 
 const std::string BENCH_POSITION[BENCH_POS_NUMBER] = {
@@ -69,6 +73,30 @@ const std::string BENCH_POSITION[BENCH_POS_NUMBER] = {
 };
 
 
+const std::string SEE_POSITION[9] = {
+        "4R3/2r3p1/5bk1/1p1r3p/p2PR1P1/P1BK1P2/1P6/8 b - -",
+        "4R3/2r3p1/5bk1/1p1r1p1p/p2PR1P1/P1BK1P2/1P6/8 b - -",
+        "4r1k1/5pp1/nbp4p/1p2p2q/1P2P1b1/1BP2N1P/1B2QPPK/3R4 b - -",
+        "2r1r1k1/pp1bppbp/3p1np1/q3P3/2P2P2/1P2B3/P1N1B1PP/2RQ1RK1 b - -",
+        "8/4kp2/2npp3/1Nn5/1p2PQP1/7q/1PP1B3/4KR1r b - -",
+        "8/4kp2/2npp3/1Nn5/1p2P1P1/7q/1PP1B3/4KR1r b - -",
+        "2r2r1k/6bp/p7/2q2p1Q/3PpP2/1B6/P5PP/2RR3K b - -",
+        "8/pp6/2pkp3/4bp2/2R3b1/2P5/PP4B1/1K6 b - -",
+        "2r5/1P4pk/p2p1b1p/5b1n/BB3p2/2R2p2/P1P2P2/4RK2 w - -",
+
+};
+
+const Move SEE_MOVE[9] = {
+        Move(h5, g4, PAWN, Move::CAPTURE),  // 0
+        Move(h5, g4, PAWN, Move::CAPTURE),  // 0
+        Move(g4, f3, BISHOP,Move::CAPTURE), // 0
+        Move(d6, e5, PAWN, Move::CAPTURE),  // 100
+        Move(h1, f1, ROOK, Move::CAPTURE),  // 0
+        Move(h1, f1, ROOK, Move::CAPTURE),  // 0
+        Move(c5, c1, QUEEN, Move::CAPTURE), // 0
+        Move(e5, c3, BISHOP, Move::CAPTURE),// -200
+        Move(c3, c8, ROOK, Move::CAPTURE)   //325
+};
 
 
 
