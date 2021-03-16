@@ -338,7 +338,7 @@ class Board {
   /**
    * @brief Array of Piece costs used for SEE
    */
-  int _SEE_cost[6] = {100, 500, 300, 300, 900};
+  int _SEE_cost[6] = {100, 500, 325, 325, 1000, 10000};
 
   /**
    * @brief Array indexed by [color][piecetype] of piece bitboards
@@ -476,6 +476,8 @@ class Board {
    * @brief Clears all bitboards.
    */
   void _clearBitBoards();
+
+  U64 _getLeastValuableAttacker(Color, U64, PieceType&) const;
 };
 
 #endif

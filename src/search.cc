@@ -756,6 +756,10 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
 
     // DELTA MOVE PRUNING. Prune here if were are very far ahead.
     
+    if (board.Calculate_SEE(move) < 0){
+      continue;
+    }
+
     int moveGain = opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]);
     if (!(move.getFlags() & Move::PROMOTION) && standPat + moveGain + DELTA_MOVE_CONST < alpha)
       continue;
