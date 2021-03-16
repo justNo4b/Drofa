@@ -476,6 +476,8 @@ class Board {
    * @brief Clears all bitboards.
    */
   void _clearBitBoards();
+
+  int _getLeastValuableAttacker(Color, U64, U64, PieceType&) const;
 };
 
 #endif

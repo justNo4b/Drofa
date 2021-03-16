@@ -478,6 +478,49 @@ int  Board:: MostFancyPieceCost() const{
   return mvpCost;
 }
 
+int Board::_getLeastValuableAttacker(Color color, U64 attackers, U64 occupied, PieceType &piece) const{
+  
+  U64 tmp = ZERO;
+  //check pawns
+  tmp = attackers & getPieces(color, PAWN) & occupied;
+  if (tmp){
+    piece = PAWN;
+    return _popLsb(tmp) << ONE;
+  } 
+  //check knight
+  tmp = attackers & getPieces(color, KNIGHT) & occupied;
+  if (tmp){
+    piece = KNIGHT;
+    return _popLsb(tmp) << ONE;
+  } 
+  //check bishop
+  tmp = attackers & getPieces(color, BISHOP) & occupied;
+  if (tmp){
+    piece = BISHOP;
+    return _popLsb(tmp) << ONE;
+  } 
+  // check ROOK
+   tmp = attackers & getPieces(color, ROOK) & occupied;
+  if (tmp){
+    piece = ROOK;
+    return _popLsb(tmp) << ONE;
+  } 
+  // Check QUEEN
+  tmp = attackers & getPieces(color, QUEEN) & occupied;
+    if (tmp){
+    piece = QUEEN;
+    return _popLsb(tmp) << ONE;
+  } 
+  // King
+  tmp = attackers & getPieces(color, KING) & occupied;
+    if (tmp){
+    piece = KING;
+    return _popLsb(tmp) << ONE;
+  } 
+  piece = KING;
+  return 0;
+}
+
 int  Board:: Calculate_SEE(const Move move) const{
   
   // in search we do not need full SEE
@@ -502,6 +545,7 @@ int  Board:: Calculate_SEE(const Move move) const{
   int from = move.getFrom();
   int to = move.getTo();
   Color side = getActivePlayer();
+  PieceType aPiece = getPieceAtSquare(side, from);
 
   // Get pieces that attack target sqv
   U64 aBoard[2];
@@ -510,16 +554,12 @@ int  Board:: Calculate_SEE(const Move move) const{
 
   // get occupied
   U64 occupied = _occupied;
-  occupied = occupied ^ (ONE << from);
-  occupied = occupied | (ONE <<  to);
 
   U64 horiXray = getPieces(WHITE, ROOK) | getPieces(WHITE, QUEEN) |  getPieces(BLACK, ROOK) | getPieces(BLACK, QUEEN);
   U64 diagXray = getPieces(WHITE, PAWN) | getPieces(WHITE, BISHOP) | getPieces(WHITE, QUEEN) |
                  getPieces(BLACK, PAWN) | getPieces(BLACK, BISHOP) | getPieces(BLACK, QUEEN);              
   U64 fromBit = (ONE << from);
 
-
-  
 
   if (flags & Move::CAPTURE){
     gain[0] = _SEE_cost[move.getCapturedPieceType()];
@@ -529,7 +569,7 @@ int  Board:: Calculate_SEE(const Move move) const{
   do
   {
     d++;
-    gain[d]  = _SEE_cost[getPieceAtSquare(side, from)] - gain[d-1];
+    gain[d]  = _SEE_cost[aPiece] - gain[d-1];
     if ( std::max(-gain[d-1], gain[d]) < 0) break;
     aBoard[side] = aBoard[side] ^ fromBit;
     occupied = occupied ^ fromBit;
@@ -541,7 +581,7 @@ int  Board:: Calculate_SEE(const Move move) const{
     }
     // switch side and get next attacker
     side = getOppositeColor(side);
-    fromBit = 0;
+    fromBit = _getLeastValuableAttacker(side, aBoard[side], occupied, aPiece);
 
     // getNextAttacker
 
