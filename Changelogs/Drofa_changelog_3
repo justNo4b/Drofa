@@ -341,6 +341,16 @@ Elo difference: 21.07 +/- 11.29
 SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
 Other Later:
+------------------------------------------------------------------
+40. Rook behiund passed pawn
+--------------------------------------------------
+Score of Drofa_dev vs Drofa_master: 2913 - 2756 - 4648  [0.508] 10317
+...      Drofa_dev playing White: 1554 - 1286 - 2318  [0.526] 5158
+...      Drofa_dev playing Black: 1359 - 1470 - 2330  [0.489] 5159
+...      White vs Black: 3024 - 2645 - 4648  [0.518] 10317
+Elo difference: 5.3 +/- 5.0, LOS: 98.1 %, DrawRatio: 45.1 %
+SPRT: llr 2.95 (100.1%), lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
 
 
 
