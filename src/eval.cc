@@ -381,6 +381,15 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
         ft.RookPsqtBlack[relSqv][color]++;
       }
 
+      // Passer behind support
+      if (detail::FORWARD_BITS[color][square] & eB->Passers[color]){
+        s += ROOK_BEHIND_PASSER;
+        if (TRACK) ft.RookBehindPawn[color]++;
+      }
+
+
+
+
       U64 attackBitBoard = board.getMobilityForSquare(ROOK, color, square, eB->EnemyPawnAttackMap[color]);
       s += ROOK_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.RookMobility[_popCount(attackBitBoard)][color]++;
