@@ -352,10 +352,21 @@ Elo difference: 5.3 +/- 5.0, LOS: 98.1 %, DrawRatio: 45.1 %
 SPRT: llr 2.95 (100.1%), lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
 ------------------------------------------------------------------
+41. SEE added. SEE pruning in qSearch
+------------------------------------------------------------------
 Score of Drofa_dev vs Drofa_2.2.10: 505 - 382 - 665  [0.540] 1552
 Elo difference: 27.59 +/- 13.07
 SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
+------------------------------------------------------------------
+42. Using SEE for sorting capture moves
+------------------------------------------------------------------
+Score of Drofa_dev vs Drofa_2.2.11: 258 - 146 - 340  [0.575] 744
+Elo difference: 52.70 +/- 18.42
+SPRT: llr 2.96, lbound -2.94, ubound 2.94 - H1 was accepted
+Finished match
+------------------------------------------------------------------
+
 
 
 
