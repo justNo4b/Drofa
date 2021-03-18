@@ -287,7 +287,7 @@ class Search {
    * @param board Board to search through
    * @param depth Depth to search to
    */
-  void _rootMax(const Board &, int, int);
+  int _rootMax(const Board &, int, int, int, int);
 
   /**
    * @brief Non root negamax function, should only be called by _rootMax()
