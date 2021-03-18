@@ -121,7 +121,7 @@ void Search::iterDeep() {
 
 
     
-
+    if (_stop) break;
     int elapsed =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
     _lastPlyTime =  elapsed - _lastPlyTime;
