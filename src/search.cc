@@ -90,15 +90,43 @@ void Search::iterDeep() {
   _nodes = 0;
   selDepth = 0;
   _lastPlyTime = 0;
+  int aspWindow = 25;
+  int aspDelta  = 50;
+
   for (int currDepth = 1; currDepth <= _searchDepth; currDepth++) {
     _curMaxDepth = currDepth;
-    _rootMax(_initialBoard, currDepth, 0);
 
+    int aspAlpha = LOST_SCORE;
+    int aspBeta  =-LOST_SCORE;
+    if (currDepth > 6){
+      aspAlpha = _bestScore - aspWindow;
+      aspBeta  = _bestScore + aspWindow;
+    }
+
+    while (true){
+
+    int score = _rootMax(_initialBoard, aspAlpha, aspBeta, currDepth, 0);
+
+    if (_stop) break;
+    if (score <= aspAlpha){
+      aspAlpha = std::max(aspAlpha - aspDelta, LOST_SCORE);
+    }else if( score >= aspBeta){
+      aspBeta  = std::min(aspBeta + aspDelta, -LOST_SCORE);
+    }else{
+      break;
+    }
+
+    aspDelta += aspDelta * 2 / 3;
+    }
+
+
+    
+    if (_stop) break;
     int elapsed =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
     _lastPlyTime =  elapsed - _lastPlyTime;
     // If limits were exceeded in the search, break without logging UCI info (search was incomplete)
-    if (_stop) break;
+
 
     if (_logUci) {
       _logUciInfo(_getPv(), currDepth, _bestScore, _nodes, elapsed);
@@ -266,7 +294,7 @@ inline bool Search::_isRepetitionDraw(U64 currKey){
   return false;
 }
 
-void Search::_rootMax(const Board &board, int depth, int ply) {
+int Search::_rootMax(const Board &board, int alpha, int beta, int depth, int ply) {
   _nodes++;
   
   MoveGen movegen(board, false);
@@ -279,16 +307,13 @@ void Search::_rootMax(const Board &board, int depth, int ply) {
   if (legalMoves.empty()) {
     _bestMove = Move();
     _bestScore = LOST_SCORE;
-    return;
+    return 0;
   }
 
 const HASH_Entry probedHASHentry = myHASH.HASH_Get(board.getZKey().getValue());
 int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
   MovePicker movePicker
       (&_orderingInfo, &board, &legalMoves, hashMove, board.getActivePlayer(), 0, 0);
-
-  int alpha = LOST_SCORE;
-  int beta = -LOST_SCORE;
 
   int currScore;
 
@@ -328,20 +353,13 @@ int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
 
   }
 
-  // If the best move was not set in the main search loop
-  // alpha was not raised at any point, just pick the first move
-  // avaliable (arbitrary) to avoid putting a null move in the
-  // transposition table
-  if (bestMove.getFlags() & Move::NULL_MOVE) {
-    bestMove = legalMoves.at(0);
-  }
-
-
-  if (!_stop) {
+  if (!_stop && !(bestMove.getFlags() & Move::NULL_MOVE)) {
     myHASH.HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), EXACT, alpha, depth, ply);
     _bestMove = bestMove;
     _bestScore = alpha;
   }
+
+  return alpha;
 }
 
 // this is basically my main search
