@@ -359,7 +359,7 @@ Elo difference: 27.59 +/- 13.07
 SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
 ------------------------------------------------------------------
-42. Using SEE for sorting capture moves
+42. Search SEE-negative captures last
 ------------------------------------------------------------------
 Score of Drofa_dev vs Drofa_2.2.11: 258 - 146 - 340  [0.575] 744
 Elo difference: 52.70 +/- 18.42
@@ -379,6 +379,13 @@ ELO   | 0.74 +- 4.08 (95%)
 SPRT  | 10.0+0.10s Threads=1 Hash=16MB
 LLR   | -0.41 (-2.94, 2.94) [-1.00, 4.00]
 Games | N: 15098 W: 4115 L: 4083 D: 6900
+------------------------------------------------------------------
+44. SEE pruning of quiet moves implemented
+------------------------------------------------------------------
+ELO   | 17.08 +- 9.01 (95%)
+SPRT  | 10.0+0.10s Threads=1 Hash=16MB
+LLR   | 2.95 (-2.94, 2.94) [0.00, 5.00]
+Games | N: 3360 W: 1070 L: 905 D: 1385
 
 
 
