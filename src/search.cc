@@ -272,7 +272,7 @@ void Search::_setupTimer(const Board &board, int curPlyNum){
 }
 
 inline void Search::_updateAlpha(const Move move, Color color, int depth){
-  if (!(move.getFlags() & 0x63)){
+  if (!(move.getFlags() & 0x63) && depth > 1){
     _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
   }
 }
@@ -280,8 +280,8 @@ inline void Search::_updateAlpha(const Move move, Color color, int depth){
 inline void Search::_updateBeta(const Move move, Color color, int pMove, int ply, int depth){
 	if (!(move.getFlags() & 0x63)) {
     _orderingInfo.updateKillers(ply, move);
-    _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
     _orderingInfo.updateCounterMove(color, pMove, move.getMoveINT());
+    if (depth > 1) _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
   }
 }
 
