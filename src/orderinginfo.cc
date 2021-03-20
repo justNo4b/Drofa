@@ -22,7 +22,7 @@ int OrderingInfo::getCounterMoveINT(Color color, int pMove) const{
 }
 
 void OrderingInfo::incrementHistory(Color color, int from, int to, int depth) {
-  _history[color][from][to] += depth * depth;
+  _history[color][from][to] += depth * (depth - 1);
 }
 
 void OrderingInfo::decrementHistory(Color color, int from, int to, int depth) {
