@@ -21,6 +21,8 @@ int selDepth = 0; // int that is showing maxDepth with extentions we reached in 
 //
 
 extern int g_TT_MO_hit;
+extern int myTHREADSCOUNT;
+extern Search * cSearch[4];
 extern HASH * myHASH;
 
 
@@ -168,6 +170,13 @@ void Search::_logUciInfo(const MoveList &pv, int depth, int bestScore, U64 nodes
   elapsed++;
   // Avoid selDepth being smaller than depth when entire path to score is in TT
   selDepth = std::max(depth, selDepth);
+
+  //collect info about nodes from all Threads
+  for (int i = 1; i < MAX_THREADS; i++){
+    if (cSearch[i] != nullptr){
+      nodes += cSearch[i]->getNodes(); 
+    }
+  }
   
   std::cout << "info depth " + std::to_string(depth) + " ";
   std::cout << "seldepth " + std::to_string(selDepth) + " ";

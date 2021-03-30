@@ -7,10 +7,13 @@
 
 extern HASH * myHASH;
 
+int myTHREADSCOUNT = 1;
+Search * cSearch[MAX_THREADS];
+std::thread cThread[MAX_THREADS];
+
 namespace {
 Book book;
 std::shared_ptr<Search> search;
-std::shared_ptr<Search> search_1;
 Board board;
 Hist positionHistory;
 
@@ -29,10 +32,20 @@ void loadBook() {
 void changeTTsize(){
   int size = atoi(optionsMap["Hash"].getValue().c_str());
   // make sure we do not overstep bounds
-  size = std::min(size, 1024);
-  size = std::max(size, 25);
+  size = std::min(size, MAX_HASH);
+  size = std::max(size, MIN_HASH);
   // call TT
   myHASH->HASH_Initalize_MB(size);
+}
+
+void changeThreadsNumber(){
+  int tNum = atoi(optionsMap["Threads"].getValue().c_str());
+  // Make sure threads are within min/max bounds
+  tNum = std::min(tNum, MAX_THREADS);
+  tNum = std::max(tNum, MIN_THREADS);
+
+  // Change number
+  myTHREADSCOUNT = tNum;
 }
 
 #ifdef _TUNE_
@@ -61,7 +74,8 @@ Eval::SetupFeatureTuning(ENDGAME, BISHOP_PAIR, atoi(optionsMap["vBPairEG"].getVa
 void initOptions() {
   optionsMap["OwnBook"] = Option(false);
   optionsMap["BookPath"] = Option("book.bin", &loadBook);
-  optionsMap["Hash"] = Option(16, 16, 1024, &changeTTsize);
+  optionsMap["Hash"] = Option(MIN_HASH, MIN_HASH, MAX_HASH, &changeTTsize);
+  optionsMap["Threads"] = Option(MIN_THREADS, MIN_THREADS, MAX_THREADS, &changeThreadsNumber);
 
 
   // Options for tuning is defined here.
@@ -137,10 +151,6 @@ void pickBestMove() {
   }
 }
 
-void pickBestMove_() {
-    search_1->iterDeep();
-}
-
 void go(std::istringstream &is) {
   std::string token;
   Search::Limits limits;
@@ -162,24 +172,32 @@ void go(std::istringstream &is) {
   std::thread searchThread(&pickBestMove);
   searchThread.detach();
 
-  Board b = board;
-  Search::Limits l = limits;
-  Hist h = positionHistory;
 
-  Search * s = new Search(b, l, h, false);
-  std::thread st(&Search::iterDeep, s);
-  st.join();
+// if we have > 1 threads, run some additional threads
+  if (myTHREADSCOUNT > 1){
+    for (int i = 1; i < myTHREADSCOUNT; i++){
+      // copy board stuff
+      Board b = board;
+      Search::Limits l = limits;
+      Hist h = positionHistory;
 
-  Board b_ = board;
-  Search::Limits l_ = limits;
-  Hist h_ = positionHistory;
-  Search * s_ = new Search(b_, l_, h_, false);
-  std::thread st_(&Search::iterDeep, s_);
-  st_.join();
-
-  delete s;
-  delete s_;
+      // create new search and start
+      cSearch[i] = new Search(b, l, h, false);
+      cThread[i] = std::thread(&Search::iterDeep, cSearch[i]);
+    }
   }
+
+// wait for extra threads
+  for (int i = 1; i < myTHREADSCOUNT; i++){
+    cThread[i].join();
+  }
+
+// threads finished, delete extensive Searches
+  for (int i = 1; i < myTHREADSCOUNT; i++){
+    delete cSearch[i];
+  }  
+
+}
 
 unsigned long long perft(const Board &board, int depth) {
   if (depth <= 0) {
