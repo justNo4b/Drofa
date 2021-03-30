@@ -5,11 +5,12 @@
 #include <iostream>
 #include <thread>
 
-extern HASH myHASH;
+extern HASH * myHASH;
 
 namespace {
 Book book;
 std::shared_ptr<Search> search;
+std::shared_ptr<Search> search_1;
 Board board;
 Hist positionHistory;
 
@@ -31,7 +32,7 @@ void changeTTsize(){
   size = std::min(size, 1024);
   size = std::max(size, 25);
   // call TT
-  myHASH.HASH_Initalize_MB(size);
+  myHASH->HASH_Initalize_MB(size);
 }
 
 #ifdef _TUNE_
@@ -136,6 +137,10 @@ void pickBestMove() {
   }
 }
 
+void pickBestMove_() {
+    search_1->iterDeep();
+}
+
 void go(std::istringstream &is) {
   std::string token;
   Search::Limits limits;
@@ -156,6 +161,24 @@ void go(std::istringstream &is) {
 
   std::thread searchThread(&pickBestMove);
   searchThread.detach();
+
+  Board b = board;
+  Search::Limits l = limits;
+  Hist h = positionHistory;
+
+  Search * s = new Search(b, l, h, false);
+  std::thread st(&Search::iterDeep, s);
+  st.join();
+
+  Board b_ = board;
+  Search::Limits l_ = limits;
+  Hist h_ = positionHistory;
+  Search * s_ = new Search(b_, l_, h_, false);
+  std::thread st_(&Search::iterDeep, s_);
+  st_.join();
+
+  delete s;
+  delete s_;
   }
 
 unsigned long long perft(const Board &board, int depth) {

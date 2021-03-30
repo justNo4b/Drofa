@@ -6,7 +6,7 @@
 #include <memory>
 
 
-extern HASH myHASH;
+extern HASH * myHASH;
 
 void myBench(){
     std::cout << "Bench started..." << std::endl;
@@ -26,7 +26,7 @@ void myBench(){
         search->iterDeep();
         curNodes = search->getNodes();
         nodes_total += curNodes;
-        myHASH.HASH_Clear();
+        myHASH->HASH_Clear();
         printf("Position [# %2d] Best: %6s %5i cp  Nodes: %12i", i + 1,search->getBestMove().getNotation().c_str(),
                  search->getBestScore(), curNodes);
         std::cout << std::endl;       
