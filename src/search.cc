@@ -7,22 +7,11 @@
 #include <iostream>
 #include <math.h>
 
-//search_constants
-//
-const int NULL_MOVE_REDUCTION = 3;
-const int DELTA_MOVE_CONST = 200;
-const int FUTIL_MOVE_CONST = 150;
-const int REVF_MOVE_CONST = 200;
-const int RAZORING_MARGIN = 650;
-//
 
-//
-int selDepth = 0; // int that is showing maxDepth with extentions we reached in the search
-//
 
 extern int g_TT_MO_hit;
 extern int myTHREADSCOUNT;
-extern Search * cSearch[4];
+extern Search * cSearch[MAX_THREADS];
 extern HASH * myHASH;
 
 
@@ -90,7 +79,7 @@ Search::Search(const Board &board, Limits limits, Hist positionHistory, bool log
 void Search::iterDeep() {
   _start = std::chrono::steady_clock::now();
   _nodes = 0;
-  selDepth = 0;
+  _selDepth = 0;
   _lastPlyTime = 0;
   int aspWindow = 25;
   int aspDelta  = 50;
@@ -168,18 +157,18 @@ void Search::_logUciInfo(const MoveList &pv, int depth, int bestScore, U64 nodes
 
   // Avoid divide by zero errors with nps
   elapsed++;
-  // Avoid selDepth being smaller than depth when entire path to score is in TT
-  selDepth = std::max(depth, selDepth);
+  // Avoid _selDepth being smaller than depth when entire path to score is in TT
+  _selDepth = std::max(depth, _selDepth);
 
   //collect info about nodes from all Threads
-  for (int i = 1; i < MAX_THREADS; i++){
+  for (int i = 1; i < myTHREADSCOUNT; i++){
     if (cSearch[i] != nullptr){
       nodes += cSearch[i]->getNodes(); 
     }
   }
   
   std::cout << "info depth " + std::to_string(depth) + " ";
-  std::cout << "seldepth " + std::to_string(selDepth) + " ";
+  std::cout << "seldepth " + std::to_string(_selDepth) + " ";
   std::cout << "nodes " + std::to_string(nodes) + " ";
   std::cout << "score " + scoreString + " ";
   std::cout << "nps " + std::to_string((nodes / elapsed)* 1000)  + " ";
@@ -444,7 +433,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   // Go into the QSearch if depth is 0
   if (depth <= 0 && !AreWeInCheck) {
-    selDepth = std::max(ply, selDepth);
+    _selDepth = std::max(ply, _selDepth);
     // cut our pv if we are dropping in the qSearch
     up_pV->length = 0;
     return _qSearch(board, alpha, beta, ply + 1 );
