@@ -7,7 +7,7 @@
 #include "bench.h"
 #include <cstring>
 
-extern HASH myHASH;
+extern HASH * myHASH;
 
 int main(int argCount, char* argValue[]) {
   Rays::init();
@@ -15,6 +15,9 @@ int main(int argCount, char* argValue[]) {
   ZKey::init();
   Attacks::init();
   Eval::init();
+
+  myHASH = new HASH();
+  myHASH->HASH_Initalize_MB(16);
 
   #ifdef _TUNE_
   TunerStart();

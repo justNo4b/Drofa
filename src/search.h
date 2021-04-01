@@ -137,6 +137,20 @@ class Search {
    */
   static const int MAX_SEARCH_DEPTH = 50;
 
+
+  //
+  int _selDepth = 0; // int that is showing maxDepth with extentions we reached in the search
+  //
+
+  //search_constants
+  //
+  const int NULL_MOVE_REDUCTION = 3;
+  const int DELTA_MOVE_CONST = 200;
+  const int FUTIL_MOVE_CONST = 150;
+  const int REVF_MOVE_CONST = 200;
+  const int RAZORING_MARGIN = 650;
+  //
+
   /**
    * @brief Vector of ZKeys for each position that has occurred in the game
    * 

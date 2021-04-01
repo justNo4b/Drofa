@@ -2,7 +2,7 @@
 #include "transptableentry.h"
 #include <iostream>
 
-HASH myHASH;
+HASH * myHASH;
 
 HASH::HASH(){
   

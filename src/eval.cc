@@ -7,7 +7,7 @@
 #include "transptable.h"
 #include "tuning.h"
 
-extern HASH myHASH;
+extern HASH * myHASH;
 extern posFeatured ft;
 
 int MATERIAL_VALUES_TUNABLE[2][6] = {
@@ -623,7 +623,7 @@ int Eval::evaluate(const Board &board, Color color) {
 
   // Pawn structure
   int pScore = 0;
-  pawn_HASH_Entry pENTRY  = myHASH.pHASH_Get(board.getPawnStructureZKey().getValue());
+  pawn_HASH_Entry pENTRY  = myHASH->pHASH_Get(board.getPawnStructureZKey().getValue());
   
   #ifndef _TUNE_
   if (pENTRY.posKey != 0){
@@ -652,7 +652,7 @@ int Eval::evaluate(const Board &board, Color color) {
     // Passed pawns
     pScore += evaluatePAWNS(board, WHITE, &eB) - evaluatePAWNS(board, BLACK, &eB);
 
-    myHASH.pHASH_Store(board.getPawnStructureZKey().getValue(), eB.Passers[WHITE], eB.Passers[BLACK], pScore);
+    myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB.Passers[WHITE], eB.Passers[BLACK], pScore);
 
     if (color == BLACK) {
       score -= pScore;
