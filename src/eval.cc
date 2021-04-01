@@ -649,6 +649,14 @@ int Eval::evaluate(const Board &board, Color color) {
       ft.PawnSupported[BLACK] +=_popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
     }
 
+    // Calculate space the pawns give
+    pScore += SPACE * _popCount(eB.EnemyPawnAttackMap[BLACK] & BLACK_SIDE);
+    pScore -= SPACE * _popCount(eB.EnemyPawnAttackMap[WHITE] & WHITE_SIDE);
+    if (TRACK){
+      ft.Space[WHITE] += _popCount(eB.EnemyPawnAttackMap[BLACK] & BLACK_SIDE);
+      ft.Space[BLACK] += _popCount(eB.EnemyPawnAttackMap[WHITE] & WHITE_SIDE);
+    }
+
     // Passed pawns
     pScore += evaluatePAWNS(board, WHITE, &eB) - evaluatePAWNS(board, BLACK, &eB);
 
