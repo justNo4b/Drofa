@@ -153,6 +153,9 @@ void EvalTermInitiate(tValueHolder cTerms){
     cTerms[c][OPENING] = opS(Eval::ISOLATED_PAWN_PENALTY);
     cTerms[c][ENDGAME] = egS(Eval::ISOLATED_PAWN_PENALTY);
     c++;
+    cTerms[c][OPENING] = opS(Eval::BACKWARD_PAWN_PENALTY);
+    cTerms[c][ENDGAME] = egS(Eval::BACKWARD_PAWN_PENALTY);
+    c++;
     cTerms[c][OPENING] = opS(Eval::PAWN_BLOCKED);
     cTerms[c][ENDGAME] = egS(Eval::PAWN_BLOCKED);
     c++;
@@ -404,6 +407,7 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.PawnSupported[WHITE] - ft.PawnSupported[BLACK];
     coeff[i++] = ft.PawnDoubled[WHITE] - ft.PawnDoubled[BLACK];
     coeff[i++] = ft.PawnIsolated[WHITE] - ft.PawnIsolated[BLACK];
+    coeff[i++] = ft.PawnBackward[WHITE] - ft.PawnBackward[BLACK];
     coeff[i++] = ft.PawnBlocked[WHITE] - ft.PawnBlocked[BLACK];
     coeff[i++] = ft.PassersBlocked[WHITE] - ft.PassersBlocked[BLACK];
     coeff[i++] = ft.BishopRammed[WHITE] - ft.BishopRammed[BLACK];
@@ -655,6 +659,8 @@ void PrintTunedParams(tValueHolder currTerms, tValueHolder diffTerms){
     EvalTermPrint("\nconst int  DOUBLED_PAWN_PENALTY", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
     EvalTermPrint("\nconst int  ISOLATED_PAWN_PENALTY", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    i++;
+    EvalTermPrint("\nconst int  BACKWARD_PAWN_PENALTY", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
     EvalTermPrint("\nconst int  PAWN_BLOCKED", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;    

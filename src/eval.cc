@@ -531,6 +531,8 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
   U64 pawns = board.getPieces(color, PAWN);
   U64 tmpPawns = pawns;
+  U64 opponentPawns = board.getPieces(getOppositeColor(color), PAWN);
+  int up = color == WHITE ? -8 : 8;
 
   while (tmpPawns != ZERO) {
 
@@ -544,7 +546,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     }
 
 
-    if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
+    if ((opponentPawns & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
       eB->Passers[color] = eB->Passers[color] | (ONE << square);
       int r = color == WHITE ? _row(square) : 7 - _row(square);
       s += PASSED_PAWN_RANKS[r] + PASSED_PAWN_FILES[pawnCol];
@@ -564,6 +566,16 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     else if (!(detail::NEIGHBOR_FILES[pawnCol] & pawns)){
       if (TRACK) ft.PawnIsolated[color]++;
       s += ISOLATED_PAWN_PENALTY;
+    // if pawn isnt isolated, see if this is backward pawn
+    // count pawn backward if we have our own pawn farther 
+    // and this pawn is not rammed
+    }
+    else if ( (pawns & detail::PASSED_PAWN_MASKS[color][square]) && 
+              opponentPawns & detail::PASSED_PAWN_MASKS[color][square] &&
+              ((pawns & detail::PASSED_PAWN_MASKS[getOppositeColor(color)][square]) == ZERO) &&
+              (((ONE << (square + up)) & opponentPawns) == ZERO)){
+      if (TRACK) ft.PawnBackward[color]++;
+      s += BACKWARD_PAWN_PENALTY;          
     }
   }
 
