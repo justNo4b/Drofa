@@ -33,8 +33,9 @@ int OrderingInfo::getHistory(Color color, int from, int to) const {
   return _history[color][from][to];
 }
 
-void OrderingInfo::updateKillers(int ply, Move move) {
+void OrderingInfo::updateKillers(int ply, Move move, bool isPV) {
   int t = move.getMoveINT();
+  if (isPV) _pvkiller[ply] = t;
   if (!(_killer1[ply] == t)){
       _killer2[ply] = _killer1[ply];
       _killer1[ply] = t;
@@ -48,4 +49,8 @@ int OrderingInfo::getKiller1(int ply) const {
 
 int OrderingInfo::getKiller2(int ply) const {
   return _killer2[ply];
+}
+
+int OrderingInfo::getPvKiller(int ply) const {
+  return _pvkiller[ply];
 }

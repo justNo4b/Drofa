@@ -287,8 +287,9 @@ class Search {
    * @param pMove previous move
    * @param ply   search ply
    * @param depth search depth
+   * @param isPV  search pv Status
    */
-  inline void _updateBeta(const Move move, Color color, int pMove, int ply, int depth);
+  inline void _updateBeta(const Move move, Color color, int pMove, int ply, int depth, bool isPV);
 
   inline bool _isRepetitionDraw(U64);
 

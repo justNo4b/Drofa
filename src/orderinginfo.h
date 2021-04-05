@@ -74,8 +74,9 @@ class OrderingInfo {
    * 
    * @param ply Ply to update killer moves for
    * @param move Move to update killer moves with
+   * @param isPV bool to decide if we should also update pvKiller
    */
-  void updateKillers(int, Move);
+  void updateKillers(int, Move, bool);
 
   /**
    * @brief Get the first killer move for the given ply.
@@ -93,6 +94,9 @@ class OrderingInfo {
    */
   int getKiller2(int) const;
 
+
+  int getPvKiller(int) const;
+
  private:
 
   /**
@@ -104,6 +108,11 @@ class OrderingInfo {
    * @brief Array of second killer moves by ply
    */
   int _killer2[100];
+
+  /**
+   * @brief Array of the PV killers
+   */ 
+  int _pvkiller[100];
 
   /**
    * @brief Current ply of search

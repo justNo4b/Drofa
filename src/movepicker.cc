@@ -21,6 +21,7 @@ void MovePicker::_scoreMoves(const Board *board) {
   int Killer1 = _orderingInfo->getKiller1(_ply);
   int Killer2 = _orderingInfo->getKiller2(_ply);
   int Counter = _orderingInfo->getCounterMoveINT(_color, _pMove);
+  int pvKiller= _orderingInfo->getPvKiller(_ply);
 
   for (auto &move : *_moves) {
     int moveINT = move.getMoveINT();
@@ -39,10 +40,14 @@ void MovePicker::_scoreMoves(const Board *board) {
     } else if (moveINT == Killer2) {
       move.setValue(KILLER2_BONUS);
     } else { // Quiet
-      move.setValue(QUIET_BONUS + _orderingInfo->getHistory(_color, move.getFrom(), move.getTo()));
+      int value =  QUIET_BONUS + _orderingInfo->getHistory(_color, move.getFrom(), move.getTo());
       if (moveINT == Counter){
-        move.setValue( move.getValue() + COUNTERMOVE_BONUS );
+        value += COUNTERMOVE_BONUS;
       }
+      if (moveINT == pvKiller){
+        value += std::max(10 - _ply, 0);
+      }
+      move.setValue(value);
     }
   }
 }
