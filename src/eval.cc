@@ -190,12 +190,8 @@ int Eval::getMaterialValue(int phase, PieceType pieceType) {
   }
 }
 
-bool Eval::IsItDeadDraw (int w_P, int w_N, int w_B, int w_R, int w_Q,
-int b_P, int b_N, int b_B, int b_R, int b_Q){
-
-if (w_P > 0 || b_P > 0){
-  return false;           // если есть хоть 1 пешка, то ещё играем
-}
+bool Eval::IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
+                        int b_N, int b_B, int b_R, int b_Q){
 
 if (w_Q > 0 || b_Q > 0 ){
   return false;           // есть есть хоть 1 королева, то ещё играем
@@ -588,7 +584,8 @@ int Eval::evaluate(const Board &board, Color color) {
   int w_Q = _popCount(board.getPieces(color, QUEEN));
   int b_Q = _popCount(board.getPieces(otherColor, QUEEN));
 
-  if (IsItDeadDraw(w_P, w_N, w_B, w_R, w_Q, b_P, b_N, b_B, b_R, b_Q)){
+  bool DrawishMaterial = IsItDeadDraw(w_N, w_B, w_R, w_Q, b_N, b_B, b_R, b_Q);
+  if (DrawishMaterial && w_P == 0 && b_P == 0){
     return 0;
   }
 
@@ -745,6 +742,11 @@ int Eval::evaluate(const Board &board, Color color) {
           final_eval = final_eval / 2;
         }
       }
+
+  if (DrawishMaterial){
+    if ((final_eval > 0 && w_P == 0) ||(final_eval < 0 && b_P == 0) )
+    final_eval = final_eval / 4;
+  }    
 
   return final_eval + TEMPO;
 }

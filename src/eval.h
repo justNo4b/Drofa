@@ -396,8 +396,8 @@ int kingSafety(const Board &, Color, int);
  * Based on Vice function.
  *
  */ 
-bool IsItDeadDraw (int w_P, int w_N, int w_B, int w_R, int w_Q,
-int b_P, int b_N, int b_B, int b_R, int b_Q);
+bool IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
+                   int b_N, int b_B, int b_R, int b_Q);
 
 /**
  * @brief Set value for a MATERIAL_VALUES_TUNABLE array
