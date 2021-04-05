@@ -162,6 +162,15 @@ void EvalTermInitiate(tValueHolder cTerms){
     cTerms[c][OPENING] = opS(Eval::BISHOP_RAMMED_PENALTY);
     cTerms[c][ENDGAME] = egS(Eval::BISHOP_RAMMED_PENALTY);
     c++;
+    cTerms[c][OPENING] = opS(Eval::KING_AHEAD_PASSER);
+    cTerms[c][ENDGAME] = egS(Eval::KING_AHEAD_PASSER);
+    c++;
+    cTerms[c][OPENING] = opS(Eval::KING_EQUAL_PASSER);
+    cTerms[c][ENDGAME] = egS(Eval::KING_EQUAL_PASSER);
+    c++;
+    cTerms[c][OPENING] = opS(Eval::KING_BEHIND_PASSER);
+    cTerms[c][ENDGAME] = egS(Eval::KING_BEHIND_PASSER);
+    c++;
 
     // c. Array terms
     for (int j = 0; j < 8; j++){
@@ -407,6 +416,9 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.PawnBlocked[WHITE] - ft.PawnBlocked[BLACK];
     coeff[i++] = ft.PassersBlocked[WHITE] - ft.PassersBlocked[BLACK];
     coeff[i++] = ft.BishopRammed[WHITE] - ft.BishopRammed[BLACK];
+    coeff[i++] = ft.KingAheadPasser[WHITE] - ft.KingAheadPasser[BLACK];
+    coeff[i++] = ft.KingEqualPasser[WHITE] - ft.KingEqualPasser[BLACK];
+    coeff[i++] = ft.KingBehindPasser[WHITE] - ft.KingBehindPasser[BLACK];
 
     for (int j = 0; j < 8; j++){
         coeff[i++] = ft.PassedPawnRank[j][WHITE] - ft.PassedPawnRank[j][BLACK];
@@ -661,6 +673,12 @@ void PrintTunedParams(tValueHolder currTerms, tValueHolder diffTerms){
     EvalTermPrint("\nconst int  PASSER_BLOCKED", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
     EvalTermPrint("\nconst int  BISHOP_RAMMED_PENALTY", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    i++;
+    EvalTermPrint("\nconst int  KING_AHEAD_PASSER", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    i++;
+    EvalTermPrint("\nconst int  KING_EQUAL_PASSER", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    i++;
+    EvalTermPrint("\nconst int  KING_BEHIND_PASSER", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
     EvalArrayPrint("\nconst int  PASSED_PAWN_RANKS", currTerms, diffTerms, i, 8, 4);
     i = i + 8;

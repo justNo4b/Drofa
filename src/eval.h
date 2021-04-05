@@ -174,6 +174,12 @@ const int  PASSER_BLOCKED = gS(3,44);
 
 const int  BISHOP_RAMMED_PENALTY = gS(-2,-9);
 
+const int  KING_AHEAD_PASSER = gS(0,0);
+
+const int  KING_EQUAL_PASSER = gS(0,0);
+
+const int  KING_BEHIND_PASSER = gS(0,0);
+
 const int  KING_PASSER_DISTANCE_FRIENDLY[9] = {
            gS(0,0), gS(8,26), gS(-5,23), gS(-10,9),
            gS(-7,-2), gS(-7,-6), gS(7,-10), gS(-2,-20),
