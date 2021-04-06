@@ -511,6 +511,24 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
     int passerSquare = _popLsb(tmpPawns);
     s += KING_PASSER_DISTANCE_FRIENDLY[Eval::detail::DISTANCE[square][passerSquare]];
     if (TRACK) ft.KingFriendlyPasser[Eval::detail::DISTANCE[square][passerSquare]][color]++;
+
+
+    // if we are within 1 square to passer
+    // determine if King is ahead of pawn, behind or on equal rank
+    if (Eval::detail::DISTANCE[square][passerSquare] == 1){
+      int kingRank = color == WHITE ? _row(square) : 7 - _row(square);
+      int pawnRank = color == WHITE ? _row(passerSquare) : 7 - _row(passerSquare);
+      if (kingRank > pawnRank){
+        s += KING_AHEAD_PASSER;
+        if (TRACK) ft.KingAheadPasser[color]++;
+      }else if (kingRank == pawnRank){
+        s += KING_EQUAL_PASSER;
+        if (TRACK) ft.KingEqualPasser[color]++;
+      }else if (kingRank < pawnRank){
+        s += KING_BEHIND_PASSER;
+        if (TRACK) ft.KingBehindPasser[color]++;
+      }
+    }
   }
 
   tmpPawns = eB.Passers[getOppositeColor(color)];
