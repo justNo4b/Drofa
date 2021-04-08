@@ -172,6 +172,8 @@ const int  PAWN_BLOCKED = gS(2,25);
 
 const int  PASSER_BLOCKED = gS(2,44);
 
+const int  PAWN_DISTORTION = gS(0,0);
+
 const int  BISHOP_RAMMED_PENALTY = gS(-2,-9);
 
 const int  KING_AHEAD_PASSER = gS(-3,6);

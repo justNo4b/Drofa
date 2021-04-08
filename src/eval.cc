@@ -664,6 +664,27 @@ int Eval::evaluate(const Board &board, Color color) {
       ft.PawnSupported[BLACK] +=_popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
     }
 
+    // Evaluate pawn distortion
+
+    U64 pawn;
+    pawn = board.getPieces(WHITE, PAWN);
+    // rearfill for white
+    pawn = pawn | (pawn >> 8);
+    pawn = pawn | (pawn >> 16);
+    pawn = pawn | (pawn >> 32);
+    pScore += PAWN_DISTORTION * _popCount((pawn ^ (pawn << 1)) & ~FILE_A);
+    ft.PawnDistortion[WHITE] += _popCount((pawn ^ (pawn << 1)) & ~FILE_A);
+
+    pawn = board.getPieces(BLACK, PAWN);
+    // rearfill for white
+    pawn = pawn | (pawn << 8);
+    pawn = pawn | (pawn << 16);
+    pawn = pawn | (pawn << 32);
+    pScore -= PAWN_DISTORTION * _popCount((pawn ^ (pawn << 1)) & ~FILE_A);
+    ft.PawnDistortion[BLACK] += _popCount((pawn ^ (pawn << 1)) & ~FILE_A);
+    
+
+
     // Passed pawns
     pScore += evaluatePAWNS(board, WHITE, &eB) - evaluatePAWNS(board, BLACK, &eB);
 
