@@ -190,12 +190,8 @@ int Eval::getMaterialValue(int phase, PieceType pieceType) {
   }
 }
 
-bool Eval::IsItDeadDraw (int w_P, int w_N, int w_B, int w_R, int w_Q,
-int b_P, int b_N, int b_B, int b_R, int b_Q){
-
-if (w_P > 0 || b_P > 0){
-  return false;           // если есть хоть 1 пешка, то ещё играем
-}
+bool Eval::IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
+                        int b_N, int b_B, int b_R, int b_Q){
 
 if (w_Q > 0 || b_Q > 0 ){
   return false;           // есть есть хоть 1 королева, то ещё играем
@@ -511,6 +507,24 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
     int passerSquare = _popLsb(tmpPawns);
     s += KING_PASSER_DISTANCE_FRIENDLY[Eval::detail::DISTANCE[square][passerSquare]];
     if (TRACK) ft.KingFriendlyPasser[Eval::detail::DISTANCE[square][passerSquare]][color]++;
+
+
+    // if we are within 1 square to passer
+    // determine if King is ahead of pawn, behind or on equal rank
+    if (Eval::detail::DISTANCE[square][passerSquare] == 1){
+      int kingRank = color == WHITE ? _row(square) : 7 - _row(square);
+      int pawnRank = color == WHITE ? _row(passerSquare) : 7 - _row(passerSquare);
+      if (kingRank > pawnRank){
+        s += KING_AHEAD_PASSER;
+        if (TRACK) ft.KingAheadPasser[color]++;
+      }else if (kingRank == pawnRank){
+        s += KING_EQUAL_PASSER;
+        if (TRACK) ft.KingEqualPasser[color]++;
+      }else if (kingRank < pawnRank){
+        s += KING_BEHIND_PASSER;
+        if (TRACK) ft.KingBehindPasser[color]++;
+      }
+    }
   }
 
   tmpPawns = eB.Passers[getOppositeColor(color)];
@@ -588,7 +602,8 @@ int Eval::evaluate(const Board &board, Color color) {
   int w_Q = _popCount(board.getPieces(color, QUEEN));
   int b_Q = _popCount(board.getPieces(otherColor, QUEEN));
 
-  if (IsItDeadDraw(w_P, w_N, w_B, w_R, w_Q, b_P, b_N, b_B, b_R, b_Q)){
+  bool DrawishMaterial = IsItDeadDraw(w_N, w_B, w_R, w_Q, b_N, b_B, b_R, b_Q);
+  if (DrawishMaterial && w_P == 0 && b_P == 0){
     return 0;
   }
 
@@ -745,6 +760,11 @@ int Eval::evaluate(const Board &board, Color color) {
           final_eval = final_eval / 2;
         }
       }
+
+  if (DrawishMaterial){
+    if ((final_eval > 0 && w_P == 0) ||(final_eval < 0 && b_P == 0) )
+    final_eval = final_eval / 4;
+  }    
 
   return final_eval + TEMPO;
 }
