@@ -174,6 +174,8 @@ const int  PASSER_BLOCKED = gS(2,44);
 
 const int  BISHOP_RAMMED_PENALTY = gS(-2,-9);
 
+const int  BISHOP_CENTER_CONTROL = gS(0,0);
+
 const int  KING_AHEAD_PASSER = gS(-3,6);
 
 const int  KING_EQUAL_PASSER = gS(2,1);
