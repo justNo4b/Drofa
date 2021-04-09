@@ -423,6 +423,11 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       U64 attackBitBoard = board.getMobilityForSquare(BISHOP, color, square, eB->EnemyPawnAttackMap[color]);
       s += BISHOP_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.BishopMobility[_popCount(attackBitBoard)][color]++;
+
+      // bonus if bishop control center
+      s += BISHOP_CENTER_CONTROL * _popCount(attackBitBoard & CENTER);
+      if (TRACK) ft.BishopCenterControl[color] +=  _popCount(attackBitBoard & CENTER);
+
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       if (kingAttack > 0){
         eB->KingAttackers[color]++;
