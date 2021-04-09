@@ -589,7 +589,7 @@ int  Board:: Calculate_SEE(const Move move) const{
   } while (attBit);
 
   // 4.Calculate value
-  while (d--){
+  while (--d){
     gain[d-1] = - std::max(-gain[d-1], gain[d]);
   }
 
