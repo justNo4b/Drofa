@@ -178,6 +178,10 @@ const int  BISHOP_RAMMED_PENALTY = gS(-1,-9);
 
 const int  BISHOP_CENTER_CONTROL = gS(10,6);
 
+const int  MINOR_BEHIND_PAWN = gS(0,0);
+
+const int  MINOR_BEHIND_PASSER = gS(0,0);
+
 const int  KING_AHEAD_PASSER = gS(-8,8);
 
 const int  KING_EQUAL_PASSER = gS(5,1);

@@ -168,6 +168,12 @@ void EvalTermInitiate(tValueHolder cTerms){
     cTerms[c][OPENING] = opS(Eval::BISHOP_CENTER_CONTROL);
     cTerms[c][ENDGAME] = egS(Eval::BISHOP_CENTER_CONTROL);
     c++;
+    cTerms[c][OPENING] = opS(Eval::MINOR_BEHIND_PAWN);
+    cTerms[c][ENDGAME] = egS(Eval::MINOR_BEHIND_PAWN);
+    c++;
+    cTerms[c][OPENING] = opS(Eval::MINOR_BEHIND_PASSER);
+    cTerms[c][ENDGAME] = egS(Eval::MINOR_BEHIND_PASSER);
+    c++;
     cTerms[c][OPENING] = opS(Eval::KING_AHEAD_PASSER);
     cTerms[c][ENDGAME] = egS(Eval::KING_AHEAD_PASSER);
     c++;
@@ -424,6 +430,8 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.PawnDistortion[WHITE] - ft.PawnDistortion[BLACK];
     coeff[i++] = ft.BishopRammed[WHITE] - ft.BishopRammed[BLACK];
     coeff[i++] = ft.BishopCenterControl[WHITE] - ft.BishopCenterControl[BLACK];
+    coeff[i++] = ft.MinorBehindPawn[WHITE] - ft.MinorBehindPawn[BLACK];
+    coeff[i++] = ft.MinorBehindPasser[WHITE] - ft.MinorBehindPasser[BLACK];
     coeff[i++] = ft.KingAheadPasser[WHITE] - ft.KingAheadPasser[BLACK];
     coeff[i++] = ft.KingEqualPasser[WHITE] - ft.KingEqualPasser[BLACK];
     coeff[i++] = ft.KingBehindPasser[WHITE] - ft.KingBehindPasser[BLACK];
@@ -685,6 +693,10 @@ void PrintTunedParams(tValueHolder currTerms, tValueHolder diffTerms){
     EvalTermPrint("\nconst int  BISHOP_RAMMED_PENALTY", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
     EvalTermPrint("\nconst int  BISHOP_CENTER_CONTROL", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    i++;
+    EvalTermPrint("\nconst int  MINOR_BEHIND_PAWN", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    i++;
+    EvalTermPrint("\nconst int  MINOR_BEHIND_PASSER", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
     EvalTermPrint("\nconst int  KING_AHEAD_PASSER", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;

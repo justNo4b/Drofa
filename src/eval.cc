@@ -710,6 +710,7 @@ int Eval::evaluate(const Board &board, Color color) {
   score += pieceS;
 
   // evaluate pawn - piece interactions
+  // 1. Blocked pawns - separate for passers and non-passers
 
   U64 pieces, nonPassers;
   pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP) | 
@@ -736,8 +737,26 @@ int Eval::evaluate(const Board &board, Color color) {
   score -= PASSER_BLOCKED * (_popCount(pieces & nonPassers));
   if (TRACK) ft.PassersBlocked[otherColor] += (_popCount(pieces & nonPassers));
 
+  // 2. Minors immediately behind our pawns - separate for passers and non-passers
+
+  pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
+  pieces = color == WHITE ? pieces << 8 : pieces >> 8;
+  nonPassers = board.getPieces(color, PAWN) ^ eB.Passers[color];
+  score += MINOR_BEHIND_PAWN * _popCount(nonPassers & pieces);
+  if (TRACK) ft.MinorBehindPawn[color] += _popCount(nonPassers & pieces);
+
+  score += MINOR_BEHIND_PASSER * _popCount(eB.Passers[color] & pieces);
+  if (TRACK) ft.MinorBehindPasser[color] += _popCount(eB.Passers[color] & pieces);
 
 
+  pieces = board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP);
+  pieces = otherColor == WHITE ? pieces << 8 : pieces >> 8;
+  nonPassers = board.getPieces(otherColor, PAWN) ^ eB.Passers[otherColor];
+  score -= MINOR_BEHIND_PAWN * _popCount(nonPassers & pieces);
+  if (TRACK) ft.MinorBehindPawn[otherColor] += _popCount(nonPassers & pieces);
+
+  score -= MINOR_BEHIND_PASSER * _popCount(eB.Passers[otherColor] & pieces);
+  if (TRACK) ft.MinorBehindPasser[otherColor] += _popCount(eB.Passers[otherColor] & pieces);
 
 
   // evluate king danger
