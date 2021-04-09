@@ -242,10 +242,10 @@ void Search::_setupTimer(const Board &board, int curPlyNum){
     int moveNum = board._getGameClock() / 2;
     int ourIncrement = _limits.increment[_initialBoard.getActivePlayer()];
 
-    int tWidth_a = 75;
-    int tWidth = 200;
-    int tMove = 35;
-    int criticalMove = 20;
+    int tWidth_a = 30;
+    int tWidth = 175;
+    int tMove = 20;
+    int criticalMove = 28;
 
 
     double tCoefficient = 10 * (tWidth_a / pow((tWidth + pow((moveNum - tMove), 2)), 1.5));
