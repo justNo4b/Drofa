@@ -30,7 +30,7 @@ HASH::HASH(){
 void  HASH::HASH_Initalize_MB(const int MB){
 
   //delete previous TT
-  delete hashTable;
+  delete[] hashTable;
 
   // set new size
   double hashSize = MB;

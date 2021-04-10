@@ -209,6 +209,11 @@ class Search {
   bool _wasThoughtProlonged;
 
   /**
+   * @brief Keep track of how stable our BM
+   */ 
+  int _bestMoveStabilityScore;
+
+  /**
    *  @brief We track how much time we spended while 
    *  searching last ply. It is used to estimate how much time 
    *  we grant engine when search be prolonged.
