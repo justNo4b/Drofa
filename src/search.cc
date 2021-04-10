@@ -78,6 +78,7 @@ Search::Search(const Board &board, Limits limits, Hist positionHistory, bool log
 
 void Search::iterDeep() {
   _start = std::chrono::steady_clock::now();
+  _bestMoveStabilityScore = 0;
   _nodes = 0;
   _selDepth = 0;
   _lastPlyTime = 0;
@@ -125,7 +126,8 @@ void Search::iterDeep() {
 
     if (_wasThoughtProlonged)  break;
     // If the last search has exceeded or hit 50% of the allocated time, stop searching
-    if (elapsed >= (_timeAllocated / 2)) break;
+    // or if we hit > 33% of time and our stability is high
+    if ((elapsed >= (_timeAllocated / 2)) || ((elapsed >= (_timeAllocated / 3)) && _bestMoveStabilityScore >= 7)) break;
   }
 
   if (_logUci) std::cout << "bestmove " << getBestMove().getNotation() << std::endl;
@@ -217,7 +219,7 @@ bool Search::_checkLimits() {
 
   if (_wasThoughtProlonged && elapsed >= (_timeAllocated)){
     return true;
-  } else  if (elapsed >= (_timeAllocated)){
+  } else  if (elapsed >= (_timeAllocated) && _bestMoveStabilityScore < 5){
 
     // if we have so much time left that we supposedly
     // can search last ply ~25 times at least
@@ -358,6 +360,10 @@ int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
 
   if (!_stop && !(bestMove.getFlags() & Move::NULL_MOVE)) {
     myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), EXACT, alpha, depth, ply);
+    //bestmove stability
+    if (depth > 2){
+      _bestMoveStabilityScore = _bestMove == bestMove ? _bestMoveStabilityScore + 1 : 0;
+    }
     _bestMove = bestMove;
     _bestScore = alpha;
   }
