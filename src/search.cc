@@ -81,15 +81,15 @@ void Search::iterDeep() {
   _nodes = 0;
   _selDepth = 0;
   _lastPlyTime = 0;
-  int aspWindow = 25;
-  int aspDelta  = 50;
+  int aspWindow = 20;
+  int aspDelta  = 40;
 
   for (int currDepth = 1; currDepth <= _searchDepth; currDepth++) {
     _curMaxDepth = currDepth;
 
     int aspAlpha = LOST_SCORE;
     int aspBeta  =-LOST_SCORE;
-    if (currDepth > 6){
+    if (currDepth > 7){
       aspAlpha = _bestScore - aspWindow;
       aspBeta  = _bestScore + aspWindow;
     }
