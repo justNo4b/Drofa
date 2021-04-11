@@ -75,15 +75,15 @@ U64 Board::getMobilityForSquare(PieceType pieceType, Color color, int square, U6
   U64 attacks;
   switch (pieceType) {
     case PAWN:
-      break;
+      // pawn mobility isnt used
+      return 0;
     case ROOK: 
       own = own ^  getPieces(color, ROOK) ^ getPieces (color, QUEEN);
       scan =  getPieces(color, ROOK) | getPieces (color, QUEEN);
       attacks = _getRookMobilityForSquare(square, own, scan);
       break;
     case KNIGHT: 
-      scan = getAllPieces(color);
-      attacks = _getKnightMobilityForSquare(square, scan);
+      attacks = _getKnightMobilityForSquare(square, own);
       break;
     case BISHOP: 
       own = own ^ getPieces (color, QUEEN) ^ getPieces (color, BISHOP);
@@ -92,13 +92,14 @@ U64 Board::getMobilityForSquare(PieceType pieceType, Color color, int square, U6
       break;
     case QUEEN: 
       // Queen is a special case
-      // We want its mobility to scan through R when its horizontal-vertical
-      // and scan through B if its diagonal
+      // We sont want it to scan (i guess it plays out
+      // with Safety (ie when Q behind B it isnt good in attack)
+      // Maybe later test scan thorough R only test?
+      scan = ZERO;
       attacks = _getRookMobilityForSquare(square, own, scan) | _getBishopMobilityForSquare(square, own, scan);
       break;
     case KING: 
-      scan = getAllPieces(color);
-      attacks = _getKingAttacksForSquare(square, scan);
+      attacks = _getKingAttacksForSquare(square, own);
       break;
   }
   attacks = attacks & (~pBB);

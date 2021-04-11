@@ -187,16 +187,6 @@ void go(std::istringstream &is) {
     }
   }
 
-// wait for extra threads
-  for (int i = 1; i < myTHREADSCOUNT; i++){
-    cThread[i].join();
-  }
-
-// threads finished, delete extensive Searches
-  for (int i = 1; i < myTHREADSCOUNT; i++){
-    delete cSearch[i];
-  }  
-
 }
 
 unsigned long long perft(const Board &board, int depth) {

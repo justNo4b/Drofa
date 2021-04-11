@@ -3,6 +3,7 @@
 #include "eval.h"
 #include "movepicker.h"
 #include <cstring>
+#include <thread>
 #include <algorithm>
 #include <iostream>
 #include <math.h>
@@ -12,6 +13,7 @@
 extern int g_TT_MO_hit;
 extern int myTHREADSCOUNT;
 extern Search * cSearch[MAX_THREADS];
+extern std::thread cThread[MAX_THREADS];
 extern HASH * myHASH;
 
 
@@ -129,6 +131,25 @@ void Search::iterDeep() {
   }
 
   if (_logUci) std::cout << "bestmove " << getBestMove().getNotation() << std::endl;
+
+if (_logUci){
+
+    //send all other thread stop signal
+    for (int i = 1; i < myTHREADSCOUNT; i++){
+      cSearch[i]->stop();
+    }
+
+    // wait for extra threads
+    for (int i = 1; i < myTHREADSCOUNT; i++){
+      cThread[i].join();
+    }
+
+    // threads finished, delete extensive Searches
+    for (int i = 1; i < myTHREADSCOUNT; i++){
+      delete cSearch[i];
+    }
+}
+  
 }
 
 MoveList Search::_getPv() {
