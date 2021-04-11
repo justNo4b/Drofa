@@ -29,15 +29,15 @@ void Search::init_LMR_array(){
 
   for (int i = 0; i < 34; i++){
     for (int j = 0; j < 34; j++){
-      _lmr_R_array[i][j] = 0.1 + (pow(i, 0.15) * pow(j, 0.15))/1.75;
+      _lmr_R_array[i][j] = (int) (0.1 + (pow(i, 0.15) * pow(j, 0.15))/1.75);
     }
   }
   // 2. Initialization of the LMP array.
   // Current formula is completely based on the 
   // Weiss chess engine.
   for (int i = 0; i < 99; i++){
-    _lmp_Array[i][0] = (3 + pow( i, 2) * 2) / 2;
-    _lmp_Array[i][1] = (3 + pow( i, 2) * 2);
+    _lmp_Array[i][0] = (int) ((3 + pow( i, 2) * 2) / 2);
+    _lmp_Array[i][1] = (int) (3 + pow( i, 2) * 2);
   }
 
 }
@@ -263,23 +263,28 @@ void Search::_setupTimer(const Board &board, int curPlyNum){
     int moveNum = board._getGameClock() / 2;
     int ourIncrement = _limits.increment[_initialBoard.getActivePlayer()];
 
-    int tWidth_a = 75;
-    int tWidth = 200;
-    int tMove = 35;
-    int criticalMove = 20;
+    int tWidth_a = 30;
+    int tWidth = 175;
+    int tMove = 20;
+    int criticalMove = 28;
 
-
-    double tCoefficient = 10 * (tWidth_a / pow((tWidth + pow((moveNum - tMove), 2)), 1.5));
+    double tCoefficient = 0;
 
     // Divide up the remaining time (If movestogo not specified we are in 
     // sudden death)
     if (_limits.movesToGo == 0) { 
+      tCoefficient = 10 * (tWidth_a / pow((tWidth + pow((moveNum - tMove), 2)), 1.5));
       _timeAllocated = ourTime * tCoefficient;
       if (moveNum > criticalMove) _timeAllocated = ourTime / 10 + ourIncrement;
       _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - 10);
     } else {
-      // We substract 100 ms from time_allocated to make sure
-      // We dont get out of time
+      // when movetogo is specified, use different coefficients
+      tWidth_a = 75;
+      tWidth = 200;
+      tMove = 35;
+      criticalMove = 20;
+      
+      tCoefficient = 10 * (tWidth_a / pow((tWidth + pow((moveNum - tMove), 2)), 1.5));
       _timeAllocated = ourTime * tCoefficient;
       if (moveNum > criticalMove) _timeAllocated = ourTime / 10 + ourIncrement;
       _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - 10);

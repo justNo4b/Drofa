@@ -423,6 +423,11 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       U64 attackBitBoard = board.getMobilityForSquare(BISHOP, color, square, eB->EnemyPawnAttackMap[color]);
       s += BISHOP_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.BishopMobility[_popCount(attackBitBoard)][color]++;
+
+      // bonus if bishop control center
+      s += BISHOP_CENTER_CONTROL * _popCount(attackBitBoard & CENTER);
+      if (TRACK) ft.BishopCenterControl[color] +=  _popCount(attackBitBoard & CENTER);
+
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       if (kingAttack > 0){
         eB->KingAttackers[color]++;
@@ -664,6 +669,25 @@ int Eval::evaluate(const Board &board, Color color) {
       ft.PawnSupported[BLACK] +=_popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
     }
 
+    // Distortion evaluation
+    U64 pawn;
+    pawn = board.getPieces(WHITE, PAWN);
+    // rearfill for white
+    pawn = pawn | (pawn >> 8);
+    pawn = pawn | (pawn >> 16);
+    pawn = pawn | (pawn >> 32);
+    pScore += PAWN_DISTORTION * _popCount((pawn ^ (pawn << 1)) & ~FILE_A);
+    ft.PawnDistortion[WHITE] += _popCount((pawn ^ (pawn << 1)) & ~FILE_A);
+
+    pawn = board.getPieces(BLACK, PAWN);
+    // rearfill for black
+    pawn = pawn | (pawn << 8);
+    pawn = pawn | (pawn << 16);
+    pawn = pawn | (pawn << 32);
+    pScore -= PAWN_DISTORTION * _popCount((pawn ^ (pawn << 1)) & ~FILE_A);
+    ft.PawnDistortion[BLACK] += _popCount((pawn ^ (pawn << 1)) & ~FILE_A);
+
+
     // Passed pawns
     pScore += evaluatePAWNS(board, WHITE, &eB) - evaluatePAWNS(board, BLACK, &eB);
 
@@ -686,6 +710,7 @@ int Eval::evaluate(const Board &board, Color color) {
   score += pieceS;
 
   // evaluate pawn - piece interactions
+  // 1. Blocked pawns - separate for passers and non-passers
 
   U64 pieces, nonPassers;
   pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP) | 
@@ -712,8 +737,26 @@ int Eval::evaluate(const Board &board, Color color) {
   score -= PASSER_BLOCKED * (_popCount(pieces & nonPassers));
   if (TRACK) ft.PassersBlocked[otherColor] += (_popCount(pieces & nonPassers));
 
+  // 2. Minors immediately behind our pawns - separate for passers and non-passers
+
+  pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
+  pieces = color == WHITE ? pieces << 8 : pieces >> 8;
+  nonPassers = board.getPieces(color, PAWN) ^ eB.Passers[color];
+  score += MINOR_BEHIND_PAWN * _popCount(nonPassers & pieces);
+  if (TRACK) ft.MinorBehindPawn[color] += _popCount(nonPassers & pieces);
+
+  score += MINOR_BEHIND_PASSER * _popCount(eB.Passers[color] & pieces);
+  if (TRACK) ft.MinorBehindPasser[color] += _popCount(eB.Passers[color] & pieces);
 
 
+  pieces = board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP);
+  pieces = otherColor == WHITE ? pieces << 8 : pieces >> 8;
+  nonPassers = board.getPieces(otherColor, PAWN) ^ eB.Passers[otherColor];
+  score -= MINOR_BEHIND_PAWN * _popCount(nonPassers & pieces);
+  if (TRACK) ft.MinorBehindPawn[otherColor] += _popCount(nonPassers & pieces);
+
+  score -= MINOR_BEHIND_PASSER * _popCount(eB.Passers[otherColor] & pieces);
+  if (TRACK) ft.MinorBehindPasser[otherColor] += _popCount(eB.Passers[otherColor] & pieces);
 
 
   // evluate king danger
