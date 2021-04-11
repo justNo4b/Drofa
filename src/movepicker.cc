@@ -45,7 +45,7 @@ void MovePicker::_scoreMoves(const Board *board) {
         value += COUNTERMOVE_BONUS;
       }
       if (moveINT == pvKiller){
-        value += std::max(10 - _ply, 0);
+        value += std::max(7 - _ply, 0);
       }
       move.setValue(value);
     }
