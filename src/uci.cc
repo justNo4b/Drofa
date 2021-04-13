@@ -15,7 +15,7 @@ namespace {
 Book book;
 std::shared_ptr<Search> search;
 Board board;
-Hist positionHistory;
+Hist positionHistory = Hist();
 
 void loadBook() {
   std::ifstream bookFile(optionsMap["BookPath"].getValue());
@@ -167,12 +167,6 @@ void go(std::istringstream &is) {
     else if (token == "movestogo") is >> limits.movesToGo;
   }
 
-  search = std::make_shared<Search>(board, limits, positionHistory);
-
-  std::thread searchThread(&pickBestMove);
-  searchThread.detach();
-
-
 // if we have > 1 threads, run some additional threads
   if (myTHREADSCOUNT > 1){
     for (int i = 1; i < myTHREADSCOUNT; i++){
@@ -186,6 +180,12 @@ void go(std::istringstream &is) {
       cThread[i] = std::thread(&Search::iterDeep, cSearch[i]);
     }
   }
+
+  search = std::make_shared<Search>(board, limits, positionHistory);
+
+  std::thread searchThread(&pickBestMove);
+  searchThread.detach();
+
 
 }
 

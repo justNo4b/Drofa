@@ -134,16 +134,20 @@ void Search::iterDeep() {
 
   if (_logUci) std::cout << "bestmove " << getBestMove().getNotation() << std::endl;
 
-if (_logUci){
+  if (_logUci){
 
     //send all other thread stop signal
     for (int i = 1; i < myTHREADSCOUNT; i++){
-      cSearch[i]->stop();
+      if ( cSearch[i] != nullptr){
+        cSearch[i]->stop();
+      }
     }
 
     // wait for extra threads
     for (int i = 1; i < myTHREADSCOUNT; i++){
-      cThread[i].join();
+      if (cThread[i].joinable()){
+        cThread[i].join();
+      }
     }
 
     // threads finished, delete extensive Searches
