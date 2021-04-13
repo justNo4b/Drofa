@@ -482,8 +482,10 @@ No functional change for 1 thread.
 /////////////      Drofa_3.0.0 vs Drofa_2.2.0   	//////////
 //////////////////////////////////////////////////////////////////
 
+Bench (Drofa_3.0.0) - 10559976
+
 STC	(10``+0.1``):
-Score of Drofa_2.2.20 vs Drofa_2.2.0: 386 - 35 - 79  [0.851] 500
+Score of Drofa_3.0.0 vs Drofa_2.2.0: 386 - 35 - 79  [0.851] 500
 Elo difference: 302.70 +/- 35.74
 Finished match
 
