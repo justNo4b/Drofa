@@ -484,12 +484,19 @@ No functional change for 1 thread.
 
 Bench (Drofa_3.0.0) - 10559976
 
-STC	(10``+0.1``):
+STC	(10``+ 0.1``):
+
 Score of Drofa_3.0.0 vs Drofa_2.2.0: 386 - 35 - 79  [0.851] 500
 Elo difference: 302.70 +/- 35.74
 Finished match
 
-LTC	(60`+1`):
+LTC	(60`+ 0.6`):
+
+Score of Drofa_3.0.0 vs Drofa_2.2.0: 205 - 19 - 76  [0.810] 300
+Elo difference: 251.89 +/- 38.73
+Finished match
+
+4CPU test (10``+ 0.1``):
 
 
 //////////////////////////////////////////////////////////////////

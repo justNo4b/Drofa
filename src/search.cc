@@ -49,7 +49,9 @@ Search::Search(const Board &board, Limits limits, Hist positionHistory, bool log
     _logUci(logUci),
     _stop(false),
     _limitCheckCount(0),
-    _bestScore(0) {
+    _nodes(0),
+    _bestScore(0)
+     {
 
   std::memset(_sEvalArray, 0, sizeof(_sEvalArray));
   init_LMR_array();
@@ -147,6 +149,7 @@ if (_logUci){
     // threads finished, delete extensive Searches
     for (int i = 1; i < myTHREADSCOUNT; i++){
       delete cSearch[i];
+      cSearch[i] = nullptr;
     }
 }
   
