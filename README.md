@@ -17,7 +17,7 @@ LMP and LMR base reduction formulas. Althouth Adagrad tuning implementation is n
 
 Special thanks to:
  - Terje Kirstihagen (Weiss author)
- - Andrew Grant (AdaGrad paper and Ethereal chess engine are great sources of knowledge)
+ - Andrew Grant (AdaGrad paper and Ethereal chess engine are great sources of knowledge; Ethereal tuning dataset was a great help in tuning)
  - Kim Kahre, Finn Eggers and Eugenio Bruno (Koivisto team) for allowing Drofa on Koi OpenBench instance and motivating me to work on the engine
  - OpenBench community for helping me in finding bugs, teaching me (even if unknowingly) good programming practices and interesting discussions
 
