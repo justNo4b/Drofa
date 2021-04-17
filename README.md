@@ -9,11 +9,18 @@ learning c++ along the way.
 
 During my Drofa experiments huge chunk of knowlenge were received from:
 
-<a href="https://github.com/peterwankman/vice">VICE</a> chess engine and tutorials.
-<a href="https://www.chessprogramming.org">Chessprogramming WIKI</a> great place for all chessprogramming-related knowledge.
+ - <a href="https://github.com/peterwankman/vice">VICE</a> chess engine and tutorials.
+ - <a href="https://www.chessprogramming.org">Chessprogramming WIKI</a> great place for all chessprogramming-related knowledge.
+ - <a href="https://github.com/TerjeKir/weiss">Weiss</a> chess engine, with clean and understandable implementations of complex features. Drofa use Weiss 1.0
+LMP and LMR base reduction formulas. Althouth Adagrad tuning implementation is not copy-pasted from Weiss, Drofa implementation closesy follows Weiss logic and can be considered a c++ rewrite of it.
+ - Several open source engines, mostly <a href="https://github.com/AndyGrant/Ethereal">Ethereal</a> and <a href="https://github.com/official-stockfish/Stockfish">Stockfish</a>
 
-Special thanks to the Terje Kirstihagen and his <a href="https://www.chessprogramming.org">Weiss</a> chess engine, from where
-I took LMP and LMR base reduction formulas, and idead of using IMPROVING factor in pruning.
+Special thanks to:
+ - Terje Kirstihagen (Weiss author)
+ - Andrew Grant (AdaGrad paper and Ethereal chess engine are great sources of knowledge)
+ - Koivisto team (Kim Kahre, Finn Eggers and Eugenio Bruno (retired)) for allowing Drofa on Koi OpenBench instance and motivating me to work on the engine
+ - OpenBench community for helping me in finding bugs, teaching me (even if unknowingly) good programming practices and interesting discussions
+
 ## Strength (ccrl blitz elo):
 ```
 Drofa 1.0.0 64-bit	2061	
