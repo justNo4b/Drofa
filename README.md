@@ -60,10 +60,10 @@ doxygen
 
 Drofa 3.0.0 supports following UCI commands:
 
-BookPath
-OwnBook
-Threads (1 to 172),   but tested only up to 10 threads
-Hash    (16 to 65536) tested only up to 4098.
+- BookPath
+- OwnBook
+- Threads (1 to 172),   but tested only up to 10 threads
+- Hash    (16 to 65536) tested only up to 4098.
 
 These options can be set from your chess GUI or the UCI interface as follows:
 
@@ -89,5 +89,6 @@ I dont know shit about licensing and Drofa is too weak to be plagiarised.
 So it is under the same MIT license as Shallow Blue.
 
 2017 - 2019 © Rhys Rustad-Elliott (original Shallow Blue creator)
+
 2020 - 2021 © Litov Alexander 
 
