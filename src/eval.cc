@@ -336,9 +336,10 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
   int s = 0;
 
   U64 pieces = board.getPieces(color, QUEEN);
+
+  // Apply penalty for each Queen attacked by enemy pawn
   s += HANGING_PIECE[QUEEN] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
   if (TRACK) ft.HangingPiece[QUEEN][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
-  // Mobility
 
     while (pieces) {
       int square = _popLsb(pieces);
@@ -347,10 +348,13 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
         int relSqv = color == WHITE ? _mir(square) : square;
         ft.QueenPsqtBlack[relSqv][color]++;
       }
-
+      // Mobility calculations
+      // Note: Queen NOT using scanning mobility
       U64 attackBitBoard = board.getMobilityForSquare(QUEEN, color, square, eB->EnemyPawnAttackMap[color]);
       s += QUEEN_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.QueenMobility[_popCount(attackBitBoard)][color]++;
+      // If Queen attacking squares near enemy king
+      // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       if (kingAttack > 0){
         eB->KingAttackers[color]++;
@@ -366,30 +370,35 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
   Color otherColor = getOppositeColor(color);
 
   U64 pieces = board.getPieces(color, ROOK);
+  // Apply penalty for each Rook attacked by enemy pawn
   s += HANGING_PIECE[ROOK] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
   if (TRACK) ft.HangingPiece[ROOK][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
     while (pieces) {
-
-      // Mobility
       int square = _popLsb(pieces);
       if (TRACK){
         int relSqv = color == WHITE ? _mir(square) : square;
         ft.RookPsqtBlack[relSqv][color]++;
       }
-
+      // Mobility
+      // Rooks are scanning through rooks and queens
       U64 attackBitBoard = board.getMobilityForSquare(ROOK, color, square, eB->EnemyPawnAttackMap[color]);
       s += ROOK_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.RookMobility[_popCount(attackBitBoard)][color]++;
+      // If Rook attacking squares near enemy king
+      // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       if (kingAttack > 0){
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[ROOK];
       }
 
+      // Open/semiopen file detection
+      // we differentiate between open/semiopen based on
+      // if there are enemys protected outpost here 
       U64 file = detail::FILES[_col(square)];
-
       if ( ((file & board.getPieces(color, PAWN)) == 0)
         && ((file & board.getPieces(otherColor, PAWN)) == 0)){
+
             s += ROOK_OPEN_FILE_BONUS[((file & eB->OutPostedLines[otherColor]) != 0)];
             if (TRACK) ft.RookOpenFile[((file & eB->OutPostedLines[otherColor]) != 0)][color]++;    
       }
@@ -406,28 +415,36 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
   int s = 0;
 
   U64 pieces = board.getPieces(color, BISHOP);
+  // Bishop has penalty based on count of rammed pawns
   s += eB->RammedCount * _popCount(pieces) * BISHOP_RAMMED_PENALTY;
   if (TRACK) ft.BishopRammed[color] += eB->RammedCount * _popCount(pieces);
+
+  // Apply a penalty for each Bishop attacked by enemy pawn
   s += HANGING_PIECE[BISHOP] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
   if (TRACK) ft.HangingPiece[BISHOP][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
+
     while (pieces) {
       
-      // Mobility
       int square = _popLsb(pieces);
-
       if (TRACK){
         int relSqv = color == WHITE ? _mir(square) : square;
         ft.BishopPsqtBlack[relSqv][color]++;
       }
 
+      // Mobility
+      // Bishops mobility are scanning through bishops and queens
       U64 attackBitBoard = board.getMobilityForSquare(BISHOP, color, square, eB->EnemyPawnAttackMap[color]);
       s += BISHOP_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.BishopMobility[_popCount(attackBitBoard)][color]++;
 
-      // bonus if bishop control center
+      // Bonus for bishop having central squares in mobility
+      // it would mean they are not attacked by enemy pawn
+      // or contain our own piece
       s += BISHOP_CENTER_CONTROL * _popCount(attackBitBoard & CENTER);
       if (TRACK) ft.BishopCenterControl[color] +=  _popCount(attackBitBoard & CENTER);
 
+      // If Bishop attacking squares near enemy king
+      // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       if (kingAttack > 0){
         eB->KingAttackers[color]++;
@@ -435,6 +452,9 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       }
 
       // OUTPOSTED BISHOP
+      // We use separed PSQT for protected and unprotected outposts
+      // Unprotected outposts are only considered outposts
+      // if there is pawn in front spawn of outposted piece
       if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
         int relSqv = color == WHITE ? _mir(square) : square;
         if (detail::OUTPOST_PROTECTION[color][square] & board.getPieces(color, PAWN)){
@@ -453,23 +473,27 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
 
 inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB){
   int s = 0;
-
   U64 pieces = board.getPieces(color, KNIGHT);
+
+  // Apply penalty for each Knight attacked by opponents pawn
   s += HANGING_PIECE[KNIGHT] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
   if (TRACK) ft.HangingPiece[KNIGHT][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
 
     while (pieces) {
       
-      // Mobility
       int square = _popLsb(pieces);
       if (TRACK){
         int relSqv = color == WHITE ? _mir(square) : square;
         ft.KnightPsqtBlack[relSqv][color]++;
       }
 
+      // Mobility
       U64 attackBitBoard = board.getMobilityForSquare(KNIGHT, color, square,eB->EnemyPawnAttackMap[color]);
       s += KNIGHT_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.KnigthMobility[_popCount(attackBitBoard)][color]++;
+
+      // If Knight attacking squares near enemy king
+      // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       if (kingAttack > 0){
         eB->KingAttackers[color]++;
@@ -477,6 +501,9 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       }
 
       // OUTPOSTED KNIGHT
+      // We use separed PSQT for protected and unprotected outposts
+      // Unprotected outposts are only considered outposts
+      // if there is pawn in front spawn of outposted piece
       if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
         int relSqv = color == WHITE ? _mir(square) : square;        
         if (detail::OUTPOST_PROTECTION[color][square] & board.getPieces(color, PAWN)){
@@ -509,6 +536,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
   U64 tmpPawns = eB.Passers[color];
   while (tmpPawns != ZERO) {
 
+    // Evaluate distance of our king to each of our own passers
     int passerSquare = _popLsb(tmpPawns);
     s += KING_PASSER_DISTANCE_FRIENDLY[Eval::detail::DISTANCE[square][passerSquare]];
     if (TRACK) ft.KingFriendlyPasser[Eval::detail::DISTANCE[square][passerSquare]][color]++;
@@ -535,6 +563,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
   tmpPawns = eB.Passers[getOppositeColor(color)];
   while (tmpPawns != ZERO) {
 
+    // Evaluate distance of our king to each of enemys passers
     int passerSquare = _popLsb(tmpPawns);
     s += KING_PASSER_DISTANCE_ENEMY[Eval::detail::DISTANCE[square][passerSquare]];
     if (TRACK) ft.KingEnemyPasser[Eval::detail::DISTANCE[square][passerSquare]][color]++;
@@ -662,6 +691,7 @@ int Eval::evaluate(const Board &board, Color color) {
   {
 
     // PawnSupported  
+    // Apply bonus for each pawn protected by allied pawn
     pScore += PAWN_SUPPORTED * _popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
     pScore -= PAWN_SUPPORTED * _popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
     if (TRACK){
@@ -670,6 +700,9 @@ int Eval::evaluate(const Board &board, Color color) {
     }
 
     // Distortion evaluation
+    // https://www.chessprogramming.org/Dispersion_and_Distortion
+    // Basically it penalizes pawns that are too far away from general pawn mass
+    // Like pawns on (a2, b3) would be penalize less than (a2, b5)
     U64 pawn;
     pawn = board.getPieces(WHITE, PAWN);
     // rearfill for white
@@ -688,7 +721,8 @@ int Eval::evaluate(const Board &board, Color color) {
     ft.PawnDistortion[BLACK] += _popCount((pawn ^ (pawn << 1)) & ~FILE_A);
 
 
-    // Passed pawns
+    // Evaluate pawn-by-pawn terms 
+    // Passed, isolated, doubled
     pScore += evaluatePAWNS(board, WHITE, &eB) - evaluatePAWNS(board, BLACK, &eB);
 
     myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB.Passers[WHITE], eB.Passers[BLACK], pScore);
@@ -778,18 +812,16 @@ int Eval::evaluate(const Board &board, Color color) {
   }
 
 
-    // King pawn shield
+  // King pawn shield
   // Tapering is included in, so we count it in both phases
-  // As of 5.08.20 400 game testing did not showed advantage for any king safety implementation.
-  // Changes commitet for further use though
   score += kingSafety(board, color, b_Q) - kingSafety(board, otherColor, w_Q);
-
 
 
   if (TRACK) ft.FinalEval = score;
   // Calculation of the phase value
-  int phase = getPhase(board);
 
+
+  int phase = getPhase(board);
   // Interpolate between opening/endgame scores depending on the phase
 
   int final_eval = ((opS(score) * (MAX_PHASE - phase)) + (egS(score) * phase)) / MAX_PHASE;

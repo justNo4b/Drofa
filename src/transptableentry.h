@@ -35,7 +35,7 @@ struct HASH_Entry
  * @brief Represents an entry in pawn hash table
  *
  * Stores key and scores for an ENDGAME and OPENING elavuation.
- * For now. Maybe will store more later.
+ * Also store bitboards for white and black passed pawns
  */
 
 struct pawn_HASH_Entry
