@@ -600,13 +600,16 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
 
     double opBase = X * entry->pFactors[OPENING];
     double egBase = X * entry->pFactors[ENDGAME];
+    int scale = 1;    
+    if (entry->OCBEndgame) scale = 2;
+    if (entry->noPawns)    scale = 4;
 
     for (int i = 0; i < entry->tracesCount; i++){
         int index = entry->traces[i].index;
         int count = entry->traces[i].count;
 
-        local[index][OPENING] +=  opBase * count;
-        local[index][ENDGAME] +=  egBase * count;
+        local[index][OPENING] +=  opBase * count / scale;
+        local[index][ENDGAME] +=  egBase * count / scale;
 
     }
 }
