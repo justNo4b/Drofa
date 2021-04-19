@@ -12,6 +12,9 @@ struct posFeatured{
 
     //whole finalEval
     int FinalEval;
+    //scaling consts
+    bool OCBscale;
+    bool noPscale;
 
     // Simple features
     // a. Piece Values
@@ -82,6 +85,8 @@ struct tEntry {
     double result;
     double pFactors[2];
     bool stm;
+    bool OCBEndgame;
+    bool noPawns;
     eTrace *traces;
 };
 

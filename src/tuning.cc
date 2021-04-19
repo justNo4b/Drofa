@@ -391,6 +391,13 @@ void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
     // we need to adjust it here to be from WHITE POW
     positionList[pCount].FinalEval =  b.getActivePlayer() == WHITE ? ft.FinalEval : -ft.FinalEval;
 
+    // 6. Also save modifiers to know is it is 
+    // OCBEndgame or noPawnEndgame
+    // 
+    // Here we assume that Winning side will not be changed during tuning
+    positionList[pCount].OCBEndgame = ft.OCBscale;
+    positionList[pCount].noPawns    = ft.noPscale;
+
 }
 
 int simplifyPhaseCalculation(const Board &board){
@@ -622,7 +629,11 @@ double TuningEval(tEntry* entry, tValueHolder diff){
         egScore += (double) entry->traces[i].count * diff[entry->traces[i].index][ENDGAME];
     }
 
-    double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase)) / 256.0;              
+    double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase)) / 256.0;    
+
+    // Adjust eval for OCBendgame and noPawnsEndgames
+    if (entry->OCBEndgame) final_eval = final_eval / 2;
+    if (entry->noPawns)    final_eval = final_eval / 4;          
 
     return final_eval + (entry->stm == WHITE ? 5 : -5);
 }
