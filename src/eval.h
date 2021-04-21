@@ -174,6 +174,8 @@ const int  PAWN_DISTORTION = gS(-1,-1);
 
 const int  BISHOP_RAMMED_PENALTY = gS(-1,-9);
 
+const int  KNIGHT_RAMMED_ADJUSTMENT = gS(0,0);
+
 const int  BISHOP_CENTER_CONTROL = gS(10,7);
 
 const int  MINOR_BEHIND_PAWN = gS(6,21);

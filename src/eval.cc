@@ -158,7 +158,10 @@ evalBits Eval::Setupbits(const Board &board){
       king = board.getPieces(BLACK, KING);
   eB.EnemyKingZone[WHITE] = detail::KINGZONE[BLACK][_bitscanForward(king)];
   
-  eB.RammedCount = _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN));
+  // count rammed 1.5x for a 4 central lines
+  U64 rammed = (board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN);
+  eB.RammedCount = _popCount(rammed) + (_popCount(rammed & CENTARL_FILES) / 2);
+  
   eB.OutPostedLines[0] = 0, eB.OutPostedLines[1] = 0;
   eB.KingAttackers[0] = 0, eB.KingAttackers[1] = 0;
   eB.KingAttackPower[0] = 0, eB.KingAttackPower[1] = 0;
