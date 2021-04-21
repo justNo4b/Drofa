@@ -819,7 +819,6 @@ int Eval::evaluate(const Board &board, Color color) {
 
   if (TRACK){
     ft.FinalEval = score;
-    ft.noPscale  = false;
     ft.OCBscale  = false;
   } 
   // Calculation of the phase value
@@ -844,7 +843,6 @@ int Eval::evaluate(const Board &board, Color color) {
   if (DrawishMaterial){
     if ((final_eval > 0 && w_P == 0) ||(final_eval < 0 && b_P == 0) )
     final_eval = final_eval / 4;
-    if (TRACK) ft.noPscale = true;
   }    
 
   return final_eval + TEMPO;

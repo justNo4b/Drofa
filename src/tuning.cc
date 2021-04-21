@@ -392,11 +392,8 @@ void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
     positionList[pCount].FinalEval =  b.getActivePlayer() == WHITE ? ft.FinalEval : -ft.FinalEval;
 
     // 6. Also save modifiers to know is it is 
-    // OCBEndgame or noPawnEndgame
-    // 
-    // Here we assume that Winning side will not be changed during tuning
+    // OCBEndgame
     positionList[pCount].OCBEndgame = ft.OCBscale;
-    positionList[pCount].noPawns    = ft.noPscale;
 
 }
 
@@ -600,16 +597,15 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
 
     double opBase = X * entry->pFactors[OPENING];
     double egBase = X * entry->pFactors[ENDGAME];
-    int scale = 1;    
-    if (entry->OCBEndgame) scale = 2;
-    if (entry->noPawns)    scale = 4;
+    double scale = 1.0;    
+    if (entry->OCBEndgame) scale = 0.5;
 
     for (int i = 0; i < entry->tracesCount; i++){
         int index = entry->traces[i].index;
         int count = entry->traces[i].count;
 
-        local[index][OPENING] +=  opBase * count / scale;
-        local[index][ENDGAME] +=  egBase * count / scale;
+        local[index][OPENING] +=  opBase * count * scale;
+        local[index][ENDGAME] +=  egBase * count * scale;
 
     }
 }
@@ -635,8 +631,7 @@ double TuningEval(tEntry* entry, tValueHolder diff){
     double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase)) / 256.0;    
 
     // Adjust eval for OCBendgame and noPawnsEndgames
-    if (entry->OCBEndgame) final_eval = final_eval / 2;
-    if (entry->noPawns)    final_eval = final_eval / 4;          
+    if (entry->OCBEndgame) final_eval = final_eval / 2;        
 
     return final_eval + (entry->stm == WHITE ? 5 : -5);
 }
