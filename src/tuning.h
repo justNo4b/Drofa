@@ -12,6 +12,8 @@ struct posFeatured{
 
     //whole finalEval
     int FinalEval;
+    //scaling consts
+    bool OCBscale;
 
     // Simple features
     // a. Piece Values
@@ -82,6 +84,8 @@ struct tEntry {
     double result;
     double pFactors[2];
     bool stm;
+    bool OCBEndgame;
+    bool noPawns;
     eTrace *traces;
 };
 
@@ -96,7 +100,7 @@ struct tEntry {
   const int         TUNING_TERMS_COUNT = 781;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
-  const int         TUNIGN_PRINT       = 50; 
+  const int         TUNIGN_PRINT       = 25; 
   const int         TUNING_K_PRECISION = 10;
   const int         TUNING_L_STEP      = 1500;
   const double      TUNING_K           = 2.746758999;

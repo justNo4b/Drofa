@@ -817,7 +817,10 @@ int Eval::evaluate(const Board &board, Color color) {
   score += kingSafety(board, color, b_Q) - kingSafety(board, otherColor, w_Q);
 
 
-  if (TRACK) ft.FinalEval = score;
+  if (TRACK){
+    ft.FinalEval = score;
+    ft.OCBscale  = false;
+  } 
   // Calculation of the phase value
 
 
@@ -833,6 +836,7 @@ int Eval::evaluate(const Board &board, Color color) {
         U64 bothBishops = board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP);
         if (_popCount(bothBishops & WHITE_SQUARES) == 1){
           final_eval = final_eval / 2;
+          if (TRACK) ft.OCBscale = true;
         }
       }
 

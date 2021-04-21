@@ -391,6 +391,10 @@ void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
     // we need to adjust it here to be from WHITE POW
     positionList[pCount].FinalEval =  b.getActivePlayer() == WHITE ? ft.FinalEval : -ft.FinalEval;
 
+    // 6. Also save modifiers to know is it is 
+    // OCBEndgame
+    positionList[pCount].OCBEndgame = ft.OCBscale;
+
 }
 
 int simplifyPhaseCalculation(const Board &board){
@@ -593,13 +597,15 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
 
     double opBase = X * entry->pFactors[OPENING];
     double egBase = X * entry->pFactors[ENDGAME];
+    double scale = 1.0;    
+    if (entry->OCBEndgame) scale = 0.5;
 
     for (int i = 0; i < entry->tracesCount; i++){
         int index = entry->traces[i].index;
         int count = entry->traces[i].count;
 
-        local[index][OPENING] +=  opBase * count;
-        local[index][ENDGAME] +=  egBase * count;
+        local[index][OPENING] +=  opBase * count * scale;
+        local[index][ENDGAME] +=  egBase * count * scale;
 
     }
 }
@@ -622,7 +628,10 @@ double TuningEval(tEntry* entry, tValueHolder diff){
         egScore += (double) entry->traces[i].count * diff[entry->traces[i].index][ENDGAME];
     }
 
-    double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase)) / 256.0;              
+    double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase)) / 256.0;    
+
+    // Adjust eval for OCBendgame and noPawnsEndgames
+    if (entry->OCBEndgame) final_eval = final_eval / 2;        
 
     return final_eval + (entry->stm == WHITE ? 5 : -5);
 }
