@@ -49,7 +49,9 @@ Search::Search(const Board &board, Limits limits, Hist positionHistory, bool log
     _logUci(logUci),
     _stop(false),
     _limitCheckCount(0),
-    _bestScore(0) {
+    _nodes(0),
+    _bestScore(0)
+     {
 
   std::memset(_sEvalArray, 0, sizeof(_sEvalArray));
   init_LMR_array();
@@ -132,21 +134,26 @@ void Search::iterDeep() {
 
   if (_logUci) std::cout << "bestmove " << getBestMove().getNotation() << std::endl;
 
-if (_logUci){
+  if (_logUci){
 
     //send all other thread stop signal
     for (int i = 1; i < myTHREADSCOUNT; i++){
-      cSearch[i]->stop();
+      if ( cSearch[i] != nullptr){
+        cSearch[i]->stop();
+      }
     }
 
     // wait for extra threads
     for (int i = 1; i < myTHREADSCOUNT; i++){
-      cThread[i].join();
+      if (cThread[i].joinable()){
+        cThread[i].join();
+      }
     }
 
     // threads finished, delete extensive Searches
     for (int i = 1; i < myTHREADSCOUNT; i++){
       delete cSearch[i];
+      cSearch[i] = nullptr;
     }
 }
   

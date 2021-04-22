@@ -146,9 +146,7 @@ const int COUNT_TO_POWER[8] = {0, 0, 50, 75, 80, 88, 95, 100};
  * 'vBishopEG': 288, 'vBishopOP': 336, 'vKnightEG': 310, 'vKnightOP': 316, 'vPawnEG': 112, 'vQueenEG': 1005, 'vQueenOP': 1100, 'vRookEG': 500, 'vRookOP': 470}
     Finished game 201 (Drofa_dev vs Drofa_1.2.9): 1-0 {White wins by adjudication}
     Score of Drofa_dev vs Drofa_1.2.9: 67 - 63 - 70  [0.510] 200
-
     {'vBishopEG': 357, 'vBishopOP': 336, 'vKnightEG': 328, 'vKnightOP': 304, 'vPawnEG': 86, 'vQueenEG': 995, 'vQueenOP': 1190, 'vRookEG': 565, 'vRookOP': 465}
-
  */
 const int MATERIAL_VALUES[6] = {
         [PAWN] = gS(79,120),
