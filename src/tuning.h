@@ -24,6 +24,7 @@ struct posFeatured{
     int QueenValue[2];
     // b. other simple
     int BishopPair[2];
+    int LoneQueen[2];
     int KingHighDanger[2];
     int KingMedDanger[2];
     int KingLowDanger[2];
@@ -97,7 +98,7 @@ struct tEntry {
   const std::string TUNING_DATA        = "BOOK.txt";
   const int         TUNING_POS_COUNT   = 42484641; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 781;
+  const int         TUNING_TERMS_COUNT = 782;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
   const int         TUNIGN_PRINT       = 25; 

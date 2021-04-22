@@ -160,6 +160,8 @@ const int MATERIAL_VALUES[6] = {
 const int TEMPO = 5;
 const int  BISHOP_PAIR_BONUS = gS(16,75);
 
+const int  LONE_QUEEN = gS(0,0);
+
 const int  PAWN_SUPPORTED = gS(8,5);
 
 const int  DOUBLED_PAWN_PENALTY = gS(-9,-29);
@@ -386,6 +388,8 @@ int evaluatePawnStructure(const Board &, Color, GamePhase);
    inline int evaluateKING(const Board &, Color, const evalBits &);
 
   /**@}*/
+
+inline int evaluateImbalance(Color color, int Qcount, int Rcount, int Bcount, int Ncount);
 
 evalBits Setupbits(const Board &);
 

@@ -132,6 +132,9 @@ void EvalTermInitiate(tValueHolder cTerms){
     cTerms[c][OPENING] = opS(Eval::BISHOP_PAIR_BONUS);
     cTerms[c][ENDGAME] = egS(Eval::BISHOP_PAIR_BONUS);
     c++;
+    cTerms[c][OPENING] = opS(Eval::LONE_QUEEN);
+    cTerms[c][ENDGAME] = egS(Eval::LONE_QUEEN);
+    c++;
     cTerms[c][OPENING] = opS(Eval::KING_HIGH_DANGER);
     cTerms[c][ENDGAME] = egS(Eval::KING_HIGH_DANGER);
     c++;
@@ -422,6 +425,7 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.BishopValue[WHITE] - ft.BishopValue[BLACK];
     coeff[i++] = ft.QueenValue[WHITE] - ft.QueenValue[BLACK];
 	coeff[i++] = ft.BishopPair[WHITE] - ft.BishopPair[BLACK];
+    coeff[i++] = ft.LoneQueen[WHITE] - ft.LoneQueen[BLACK];
     coeff[i++] = ft.KingHighDanger[WHITE] - ft.KingHighDanger[BLACK];
     coeff[i++] = ft.KingMedDanger[WHITE] - ft.KingMedDanger[BLACK];
     coeff[i++] = ft.KingLowDanger[WHITE] - ft.KingLowDanger[BLACK];
@@ -678,6 +682,8 @@ void PrintTunedParams(tValueHolder currTerms, tValueHolder diffTerms){
     EvalTermPrint("\n QueenValue", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
     EvalTermPrint("\nconst int  BISHOP_PAIR_BONUS", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    i++;
+    EvalTermPrint("\nconst int  LONE_QUEEN", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
     EvalTermPrint("\nconst int  KING_HIGH_DANGER ", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;

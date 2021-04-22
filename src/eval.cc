@@ -618,6 +618,26 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   return s;
 }
 
+inline int Eval::evaluateImbalance(Color color, int Qcount, int Rcount, int Bcount, int Ncount){
+  int s = 0;
+
+  // Bishop pair
+  if (Bcount > 1){
+    s += BISHOP_PAIR_BONUS;
+    if (TRACK) ft.BishopPair[color]++;
+  }
+
+  // Lone Queen
+  if (Qcount == 1 && Rcount == 0
+   && Bcount == 0 && Ncount == 0){
+     s += LONE_QUEEN;
+     if (TRACK) ft.LoneQueen[color]++;
+   }
+
+
+  return s;
+}
+
 int Eval::evaluate(const Board &board, Color color) {
 
   int score = 0;
@@ -800,16 +820,8 @@ int Eval::evaluate(const Board &board, Color color) {
   attackScore = eB.KingAttackPower[otherColor] * COUNT_TO_POWER[std::min(7, eB.KingAttackers[otherColor])] / 100;
   score -= gS(std::max(0, attackScore), 0);
 
-  // Bishop pair
-  if (w_B > 1){
-    score += BISHOP_PAIR_BONUS;
-    if (TRACK) ft.BishopPair[color]++;
-  }
 
-  if (b_B > 1){
-    score -= BISHOP_PAIR_BONUS; 
-    if (TRACK) ft.BishopPair[otherColor]++;
-  }
+  score += evaluateImbalance(color, w_Q, w_R, w_B, w_N) - evaluateImbalance(otherColor, b_Q, b_R, b_B, b_N);
 
 
   // King pawn shield
