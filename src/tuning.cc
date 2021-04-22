@@ -168,6 +168,9 @@ void EvalTermInitiate(tValueHolder cTerms){
     cTerms[c][OPENING] = opS(Eval::BISHOP_CENTER_CONTROL);
     cTerms[c][ENDGAME] = egS(Eval::BISHOP_CENTER_CONTROL);
     c++;
+    cTerms[c][OPENING] = opS(Eval::KNIGHT_ATTACKING_OUTPOST);
+    cTerms[c][ENDGAME] = egS(Eval::KNIGHT_ATTACKING_OUTPOST);
+    c++;
     cTerms[c][OPENING] = opS(Eval::MINOR_BEHIND_PAWN);
     cTerms[c][ENDGAME] = egS(Eval::MINOR_BEHIND_PAWN);
     c++;
@@ -434,6 +437,7 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.PawnDistortion[WHITE] - ft.PawnDistortion[BLACK];
     coeff[i++] = ft.BishopRammed[WHITE] - ft.BishopRammed[BLACK];
     coeff[i++] = ft.BishopCenterControl[WHITE] - ft.BishopCenterControl[BLACK];
+    coeff[i++] = ft.KnightAttackingOutpost[WHITE] - ft.KnightAttackingOutpost[BLACK];
     coeff[i++] = ft.MinorBehindPawn[WHITE] - ft.MinorBehindPawn[BLACK];
     coeff[i++] = ft.MinorBehindPasser[WHITE] - ft.MinorBehindPasser[BLACK];
     coeff[i++] = ft.KingAheadPasser[WHITE] - ft.KingAheadPasser[BLACK];
@@ -702,6 +706,8 @@ void PrintTunedParams(tValueHolder currTerms, tValueHolder diffTerms){
     EvalTermPrint("\nconst int  BISHOP_RAMMED_PENALTY", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
     EvalTermPrint("\nconst int  BISHOP_CENTER_CONTROL", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    i++;
+    EvalTermPrint("\nconst int  KNIGHT_ATTACKING_OUTPOST", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
     EvalTermPrint("\nconst int  MINOR_BEHIND_PAWN", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
