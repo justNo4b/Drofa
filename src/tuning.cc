@@ -183,7 +183,9 @@ void EvalTermInitiate(tValueHolder cTerms){
     cTerms[c][OPENING] = opS(Eval::KING_BEHIND_PASSER);
     cTerms[c][ENDGAME] = egS(Eval::KING_BEHIND_PASSER);
     c++;
-
+    cTerms[c][OPENING] = opS(Eval::ROOK_TRAPPED_PENALTY);
+    cTerms[c][ENDGAME] = egS(Eval::ROOK_TRAPPED_PENALTY);
+    c++;
     // c. Array terms
     for (int j = 0; j < 8; j++){
         cTerms[c][OPENING] = opS(Eval::PASSED_PAWN_RANKS[j]);
@@ -439,6 +441,7 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.KingAheadPasser[WHITE] - ft.KingAheadPasser[BLACK];
     coeff[i++] = ft.KingEqualPasser[WHITE] - ft.KingEqualPasser[BLACK];
     coeff[i++] = ft.KingBehindPasser[WHITE] - ft.KingBehindPasser[BLACK];
+    coeff[i++] = ft.RookTrappedPenalty[WHITE] - ft.RookTrappedPenalty[BLACK];
 
     for (int j = 0; j < 8; j++){
         coeff[i++] = ft.PassedPawnRank[j][WHITE] - ft.PassedPawnRank[j][BLACK];
@@ -712,6 +715,8 @@ void PrintTunedParams(tValueHolder currTerms, tValueHolder diffTerms){
     EvalTermPrint("\nconst int  KING_EQUAL_PASSER", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
     EvalTermPrint("\nconst int  KING_BEHIND_PASSER", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+    i++;
+    EvalTermPrint("\nconst int  ROOK_TRAPPED_PENALTY", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
     i++;
     EvalArrayPrint("\nconst int  PASSED_PAWN_RANKS", currTerms, diffTerms, i, 8, 4);
     i = i + 8;

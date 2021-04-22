@@ -78,6 +78,14 @@ const U64 CENTER        = 0x1818000000;
 const U64 FIGHTING_AREA = RANK_3 | RANK_4 | RANK_5 | RANK_6;
 const U64 PASSER_ZONE_W = RANK_5 | RANK_6;
 const U64 PASSER_ZONE_B = RANK_3 | RANK_4;
+const U64 ROOK_TRAPPED  = ONE << a1 | ONE << a2 | ONE << b1 | ONE  << b2
+                        | ONE << h1 | ONE << h2 | ONE << g1 | ONE  << g2
+                        | ONE << h8 | ONE << h7 | ONE << g8 | ONE  << g7
+                        | ONE << a8 | ONE << a7 | ONE << b8 | ONE  << b7;
+
+const U64 KING_TRAPPER  = ONE << b1 | ONE << c1 | ONE << f1 | ONE << g1
+                        | ONE << b8 | ONE << c8 | ONE << f8 | ONE << g8;
+
 /**@}*/
 
 

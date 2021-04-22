@@ -382,8 +382,23 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
       // Mobility
       // Rooks are scanning through rooks and queens
       U64 attackBitBoard = board.getMobilityForSquare(ROOK, color, square, eB->EnemyPawnAttackMap[color]);
-      s += ROOK_MOBILITY[_popCount(attackBitBoard)];
+      int mobilityScore = _popCount(attackBitBoard);
+      s += ROOK_MOBILITY[mobilityScore];
       if (TRACK) ft.RookMobility[_popCount(attackBitBoard)][color]++;
+
+      // Trapped Rook
+      U64 king = board.getPieces(color, KING);
+      int kingSQV = _popLsb(king);
+      if ((king & KING_TRAPPER) 
+          && ((ONE << square) & ROOK_TRAPPED) 
+          && (detail::DISTANCE[kingSQV][square] <= 2)
+          && (mobilityScore <= 4)){
+            s+= ROOK_TRAPPED_PENALTY;
+            
+          }
+
+
+
       // If Rook attacking squares near enemy king
       // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
