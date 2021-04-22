@@ -419,6 +419,10 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
   s += eB->RammedCount * _popCount(pieces) * BISHOP_RAMMED_PENALTY;
   if (TRACK) ft.BishopRammed[color] += eB->RammedCount * _popCount(pieces);
 
+  //Get our king position
+  U64 ourKing = board.getPieces(color, KING);
+  int ourKingSquare = _popLsb(ourKing);
+
   // Apply a penalty for each Bishop attacked by enemy pawn
   s += HANGING_PIECE[BISHOP] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
   if (TRACK) ft.HangingPiece[BISHOP][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
@@ -442,6 +446,13 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       // or contain our own piece
       s += BISHOP_CENTER_CONTROL * _popCount(attackBitBoard & CENTER);
       if (TRACK) ft.BishopCenterControl[color] +=  _popCount(attackBitBoard & CENTER);
+
+      // BishopProtector
+      // Apply a bonus for for bishop being on d1 to own king
+      if (detail::DISTANCE[square][ourKingSquare] == 1){
+        s += BISHOP_PROTECTOR;
+        if (TRACK) ft.BishopProtector[color]++;
+      }
 
       // If Bishop attacking squares near enemy king
       // Adjust our kind Danger code
