@@ -140,7 +140,7 @@ const int  QUEEN_MOBILITY[28] = {
 };
 
 const int PIECE_ATTACK_POWER[6] = {0, 40, 35, 20, 80, 0};
-const int PIECE_CHECK_POWER[6] = {0, 30, 23, 15, 60, 0};
+const int PIECE_CHECK_POWER[6] = {0, 50, 43, 25, 100, 0};
 const int COUNT_TO_POWER[8] = {0, 0, 50, 75, 80, 88, 95, 100};
 
 /**
