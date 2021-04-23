@@ -32,6 +32,7 @@ int BISHOP_PAIR_TUNABLE [2] = {
     [OPENING] = 20,
     [ENDGAME] = 20
 };
+int PIECE_ATTACK_POWER[6] = {0, 40, 35, 20, 80, 0};
 
 U64 Eval::detail::FILES[8] = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
 U64 Eval::detail::DISTANCE[64][64];
@@ -166,8 +167,8 @@ evalBits Eval::Setupbits(const Board &board){
   return eB;
 }
 
-void Eval::SetupTuning(int phase, PieceType piece, int value){
-  MATERIAL_VALUES_TUNABLE [phase][piece] = value;
+void Eval::SetupTuning(PieceType piece, int value){
+  PIECE_ATTACK_POWER [piece] = value;
 }
 
 void Eval::SetupFeatureTuning(int phase, TuningFeature feature, int value){
