@@ -781,14 +781,9 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
   }
 
   int standPat = Eval::evaluate(board, board.getActivePlayer());
-  int mvpCost = board.MostFancyPieceCost();
 
   if (standPat >= beta) {
     return beta;
-  }
-    // DELTA MOVE PRUNING. Prune here if were are very far ahead.
-  if (alpha > standPat + mvpCost){
-    return alpha;
   }
   
   if (alpha < standPat) {
