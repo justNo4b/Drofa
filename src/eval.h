@@ -138,7 +138,7 @@ const int  QUEEN_MOBILITY[28] = {
            gS(11,43), gS(10,40), gS(21,28), gS(12,24), gS(20,23), gS(26,29), gS(24,26),
 };
 
-const int PIECE_ATTACK_POWER[6] = {0, 40, 35, 20, 80, 0};
+const int PIECE_ATTACK_POWER[6] = {0, 24, 50, 26, 62, 0};
 const int COUNT_TO_POWER[8] = {0, 0, 50, 75, 80, 88, 95, 100};
 
 /**
