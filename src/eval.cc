@@ -34,7 +34,7 @@ int BISHOP_PAIR_TUNABLE [2] = {
 };
 
 U64 Eval::detail::FILES[8] = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
-U64 Eval::detail::DISTANCE[64][64];
+int Eval::detail::DISTANCE[64][64];
 U64 Eval::detail::NEIGHBOR_FILES[8]{
     FILE_B,
     FILE_A | FILE_C,
@@ -568,6 +568,20 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
     s += KING_PASSER_DISTANCE_ENEMY[Eval::detail::DISTANCE[square][passerSquare]];
     if (TRACK) ft.KingEnemyPasser[Eval::detail::DISTANCE[square][passerSquare]][color]++;
   }
+
+
+    // evaluate incoming pawn storm
+  U64 enemyPawns  = board.getPieces(getOppositeColor(color), PAWN);
+  // take our pawns, shift them to see enemy rammed pawns
+  U64 enemyRammed = board.getPieces(color, PAWN);
+  enemyRammed = color == WHITE ? enemyRammed << 8 :enemyRammed >> 8; 
+  enemyPawns = enemyPawns & ~enemyRammed & (detail::FILES[_col(square)] | detail::NEIGHBOR_FILES[_col(square)]);
+  while (enemyPawns){
+    int pawnSquare = _popLsb(enemyPawns);
+    s += KING_PAWN_STORM[std::min(5, detail::DISTANCE[square][pawnSquare])];
+    if (TRACK) ft.KingPawnStorm[std::min(5, detail::DISTANCE[square][pawnSquare])][color]++;
+
+  };
 
   return s;
 }

@@ -46,7 +46,7 @@ extern U64 OUTPOST_MASK[2][64];
 extern U64 OUTPOST_PROTECTION[2][64];
 extern U64 KINGZONE[2][64];
 extern U64 PAWN_DUOS [64];
-extern U64 DISTANCE[64][64];
+extern int DISTANCE[64][64];
 extern U64 FORWARD_BITS[2][64];
 
 /**
@@ -102,39 +102,39 @@ extern int PHASE_WEIGHT_SUM;
  * @brief Бонусы и штрафы за то, насколько король в опасности
  * 
  */ 
-const int  KING_HIGH_DANGER  = gS(-14,-27);   // применять когда жив ферзь и мы не рокированы
+const int  KING_HIGH_DANGER  = gS(-14,-28);   // применять когда жив ферзь и мы не рокированы
 const int  KING_MED_DANGER   = gS(-7,-16);   // мы рокированы, но пешечный щит кривой
-const int  KING_LOW_DANGER   = gS(0,8);   // слабый пешечный щит
+const int  KING_LOW_DANGER   = gS(0,9);   // слабый пешечный щит
 const int  KING_SAFE         = gS(4,24);   // хороший пешечный щит
 
 /**
  * @brief Bonuses given to a player having a move available (opening/endgame)
  */
-const int  BISHOP_MOBILITY[14] = {
-           gS(-17,-105), gS(-5,-47), gS(0,-19), gS(2,-3), gS(5,10), gS(6,21), gS(6,27),
-           gS(5,30), gS(6,32), gS(9,30), gS(14,26), gS(30,17), gS(46,29), gS(78,-5),
+const int BISHOP_MOBILITY[14] = {
+           gS(-18,-105), gS(-6,-46), gS(-1,-19), gS(1,-2), gS(4,11), gS(5,22), gS(5,29),
+           gS(3,31), gS(4,33), gS(7,31), gS(13,27), gS(29,17), gS(45,28), gS(77,-6),
 };
 
-const int  KNIGHT_MOBILITY[9] = {
-           gS(-7,-76), gS(1,-30), gS(5,-5), gS(8,9), gS(10,18),
-           gS(13,24), gS(18,23), gS(25,15), gS(34,0),
+const int KNIGHT_MOBILITY[9] = {
+           gS(-7,-75), gS(1,-29), gS(5,-4), gS(7,10), gS(10,19),
+           gS(13,26), gS(17,24), gS(24,16), gS(34,1),
 };
 
-const int  KING_MOBILITY[9] = {
-           gS(11,-1), gS(14,-2), gS(8,5), gS(3,10), gS(-3,9),
-           gS(-8,5), gS(-5,3), gS(-14,-3), gS(-9,-16),
+const int KING_MOBILITY[9] = {
+           gS(13,-1), gS(16,-2), gS(9,5), gS(5,10), gS(-2,8),
+           gS(-9,5), gS(-7,3), gS(-19,-2), gS(-12,-16),
 };
 
-const int  ROOK_MOBILITY[15] = {
-           gS(-19,-101), gS(-11,-66), gS(-7,-34), gS(-5,-13), gS(-6,5), gS(-8,19), gS(-2,22),
-           gS(1,25), gS(5,30), gS(10,35), gS(11,39), gS(17,41), gS(20,41), gS(35,27),
-           gS(87,0),
+const int ROOK_MOBILITY[15] = {
+           gS(-20,-102), gS(-12,-66), gS(-8,-34), gS(-6,-13), gS(-8,5), gS(-9,19), gS(-3,23),
+           gS(0,26), gS(4,31), gS(9,36), gS(11,40), gS(17,42), gS(21,43), gS(37,29),
+           gS(88,0),
 };
 
-const int  QUEEN_MOBILITY[28] = {
-           gS(-38,-101), gS(-17,-162), gS(-5,-132), gS(-2,-78), gS(0,-45), gS(1,-23), gS(2,-5),
-           gS(4,7), gS(6,17), gS(8,23), gS(9,30), gS(10,35), gS(10,39), gS(9,45),
-           gS(8,51), gS(5,55), gS(4,57), gS(3,57), gS(3,57), gS(8,53), gS(11,48),
+const int QUEEN_MOBILITY[28] = {
+           gS(-39,-102), gS(-18,-164), gS(-6,-132), gS(-3,-78), gS(-1,-45), gS(0,-23), gS(2,-5),
+           gS(3,7), gS(6,17), gS(8,23), gS(9,30), gS(10,35), gS(10,39), gS(9,45),
+           gS(8,51), gS(5,55), gS(4,57), gS(4,57), gS(4,57), gS(9,53), gS(12,48),
            gS(11,43), gS(10,40), gS(21,28), gS(12,24), gS(20,23), gS(26,29), gS(24,26),
 };
 
@@ -149,82 +149,86 @@ const int COUNT_TO_POWER[8] = {0, 0, 50, 75, 80, 88, 95, 100};
     {'vBishopEG': 357, 'vBishopOP': 336, 'vKnightEG': 328, 'vKnightOP': 304, 'vPawnEG': 86, 'vQueenEG': 995, 'vQueenOP': 1190, 'vRookEG': 565, 'vRookOP': 465}
  */
 const int MATERIAL_VALUES[6] = {
-        [PAWN] = gS(79,120),
-        [ROOK] = gS(425,730),
-        [KNIGHT] = gS(287,404),
-        [BISHOP] = gS(306,433),
-        [QUEEN] = gS(936,1350),
+        [PAWN] = gS(77,124),
+        [ROOK] = gS(421,738),
+        [KNIGHT] = gS(284,407),
+        [BISHOP] = gS(305,437),
+        [QUEEN] = gS(940,1354),
         [KING] = gS(0, 0)
 };
 
 const int TEMPO = 5;
-const int  BISHOP_PAIR_BONUS = gS(16,75);
+const int BISHOP_PAIR_BONUS = gS(15,76);
 
-const int  PAWN_SUPPORTED = gS(8,5);
+const int PAWN_SUPPORTED = gS(7,5);
 
-const int  DOUBLED_PAWN_PENALTY = gS(-9,-29);
+const int DOUBLED_PAWN_PENALTY = gS(-8,-30);
 
-const int  ISOLATED_PAWN_PENALTY = gS(-3,-6);
+const int ISOLATED_PAWN_PENALTY = gS(-3,-5);
 
-const int  PAWN_BLOCKED = gS(2,26);
+const int PAWN_BLOCKED = gS(2,27);
 
-const int  PASSER_BLOCKED = gS(3,46);
+const int PASSER_BLOCKED = gS(2,45);
 
-const int  PAWN_DISTORTION = gS(-1,-1);
+const int PAWN_DISTORTION = gS(-1,-1);
 
-const int  BISHOP_RAMMED_PENALTY = gS(-1,-9);
+const int BISHOP_RAMMED_PENALTY = gS(-1,-9);
 
-const int  BISHOP_CENTER_CONTROL = gS(10,7);
+const int BISHOP_CENTER_CONTROL = gS(10,8);
 
-const int  MINOR_BEHIND_PAWN = gS(6,21);
+const int MINOR_BEHIND_PAWN = gS(8,13);
 
-const int  MINOR_BEHIND_PASSER = gS(8,13);
+const int MINOR_BEHIND_PASSER = gS(8,13);
 
-const int  KING_AHEAD_PASSER = gS(-10,8);
+const int KING_AHEAD_PASSER = gS(-12,9);
 
-const int  KING_EQUAL_PASSER = gS(6,1);
+const int KING_EQUAL_PASSER = gS(4,2);
 
-const int  KING_BEHIND_PASSER = gS(4,-5);
+const int KING_BEHIND_PASSER = gS(6,-5);
 
-const int  KING_PASSER_DISTANCE_FRIENDLY[9] = {
-           gS(0,0), gS(7,28), gS(-3,24), gS(-8,10),
-           gS(-5,-1), gS(-5,-4), gS(10,-9), gS(-1,-18),
+const int KING_PASSER_DISTANCE_FRIENDLY[9] = {
+           gS(0,0), gS(5,30), gS(-4,26), gS(-8,10),
+           gS(-5,0), gS(-4,-4), gS(10,-9), gS(-1,-18),
            gS(0,-10),
 };
 
-const int  KING_PASSER_DISTANCE_ENEMY[9] = {
-           gS(0,0), gS(42,80), gS(-18,13), gS(-5,-3),
-           gS(-4,-16), gS(-2,-27), gS(5,-39), gS(13,-46),
+const int KING_PASSER_DISTANCE_ENEMY[9] = {
+           gS(0,0), gS(37,70), gS(-11,13), gS(-3,-3),
+           gS(-5,-15), gS(-3,-26), gS(4,-37), gS(14,-45),
            gS(0,-10),
+};
+
+const int KING_PAWN_STORM[6] = {
+           gS(0,0), gS(32,0), gS(-16,0),
+           gS(-10,0), gS(2,0), gS(3,0),
 };
 
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
-const int ROOK_OPEN_FILE_BONUS [2] = { gS(24,7), gS(25,9) };
+const int ROOK_OPEN_FILE_BONUS [2] = { gS(24,8), gS(24,10) };
 
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
-const int ROOK_SEMI_FILE_BONUS [2] = {  gS(6,7), gS(17,9) };
+const int ROOK_SEMI_FILE_BONUS [2] = {  gS(5,9), gS(16,9) };
 
 
-const int  HANGING_PIECE[5] = {
-           gS(0,0), gS(-27,-18), gS(-25,-52), gS(-32,-72), gS(-18,-12),
+const int HANGING_PIECE[5] = {
+           gS(0,0), gS(-26,-17), gS(-25,-52), gS(-32,-72), gS(-18,-12),
 };
 /**
  * @brief Bonuses given to a player for having a passed pawn (opening/endgame)
  */
-const int  PASSED_PAWN_RANKS[8] = {
-           gS(0,0), gS(-14,-27), gS(-17,-13), gS(-8,21),
-           gS(15,54), gS(28,114), gS(81,122), gS(0,0),
+const int PASSED_PAWN_RANKS[8] = {
+           gS(0,0), gS(-12,-29), gS(-16,-15), gS(-9,20),
+           gS(15,54), gS(25,118), gS(79,128), gS(0,0),
 };
 
-const int  PASSED_PAWN_FILES[8] = {
-           gS(12,13), gS(8,15), gS(1,4), gS(0,1),
-           gS(-3,0), gS(-16,3), gS(-7,17), gS(11,11),
+const int PASSED_PAWN_FILES[8] = {
+           gS(10,15), gS(6,16), gS(0,4), gS(0,0),
+           gS(-3,-1), gS(-15,3), gS(-7,17), gS(11,11),
 };
-
 
 const int  KING_PSQT_BLACK[64] = {
            gS(-13,-93), gS(-4,-47), gS(-3,-33), gS(-2,-18), gS(-4,-32), gS(-5,-27), gS(-6,-25), gS(-12,-85),
