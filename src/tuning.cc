@@ -419,8 +419,11 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
         int index = entry->traces[i].index;
         int count = entry->traces[i].count;
 
-        local[index][OPENING] +=  opBase * count * scale;
-        local[index][ENDGAME] +=  egBase * count * scale;
+        // Check if the gradient needs to be updated for the selected stage
+        // and the actually update gradient
+
+        if (FeatureTypeMap[index] == ALL || FeatureTypeMap[index] == OP_ONLY) local[index][OPENING] +=  opBase * count * scale;
+        if (FeatureTypeMap[index] == ALL || FeatureTypeMap[index] == EG_ONLY) local[index][ENDGAME] +=  egBase * count * scale;
 
     }
 }
