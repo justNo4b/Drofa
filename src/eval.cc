@@ -792,6 +792,12 @@ int Eval::evaluate(const Board &board, Color color) {
   score -= MINOR_BEHIND_PASSER * _popCount(eB.Passers[otherColor] & pieces);
   if (TRACK) ft.MinorBehindPasser[otherColor] += _popCount(eB.Passers[otherColor] & pieces);
 
+  // King Pawn tension
+  score += KING_PAWN_TENSION * _popCount(eB.EnemyPawnAttackMap[color] & eB.EnemyKingZone[otherColor] & board.getPieces(color, PAWN));
+  if (TRACK) ft.KingPawnTension[color] += _popCount(eB.EnemyPawnAttackMap[color] & eB.EnemyKingZone[otherColor] & board.getPieces(color, PAWN));               
+
+  score -= KING_PAWN_TENSION * _popCount(eB.EnemyPawnAttackMap[otherColor] & eB.EnemyKingZone[color] & board.getPieces(otherColor, PAWN));
+  if (TRACK) ft.KingPawnTension[otherColor] += _popCount(eB.EnemyPawnAttackMap[otherColor] & eB.EnemyKingZone[color] & board.getPieces(otherColor, PAWN));
 
   // evluate king danger
 

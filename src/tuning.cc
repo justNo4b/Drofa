@@ -254,6 +254,7 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.KingAheadPasser[WHITE] - ft.KingAheadPasser[BLACK];
     coeff[i++] = ft.KingEqualPasser[WHITE] - ft.KingEqualPasser[BLACK];
     coeff[i++] = ft.KingBehindPasser[WHITE] - ft.KingBehindPasser[BLACK];
+    coeff[i++] = ft.KingPawnTension[WHITE] - ft.KingPawnTension[BLACK];
 
     for (int j = 0; j < 8; j++){
         coeff[i++] = ft.PassedPawnRank[j][WHITE] - ft.PassedPawnRank[j][BLACK];
