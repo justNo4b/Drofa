@@ -27,7 +27,7 @@ class OrderingInfo {
    * @param to To square to increment history for
    * @param depth Depth of move that caused this increment
    */
-  void incrementHistory(Color, int, int, int);
+  void incrementHistory(Color, PieceType, int, int, int, int);
 
   /**
    * @brief Lower history heuristic value of the board for 
@@ -38,7 +38,7 @@ class OrderingInfo {
    * @param to To square to increment history for
    * @param depth Depth of move that caused this increment
    */
-  void decrementHistory(Color, int, int, int);
+  void decrementHistory(Color, PieceType,  int, int, int, int);
 
   /**
    * @brief Update countermove.
@@ -68,6 +68,8 @@ class OrderingInfo {
    * @return int History heuristic value for the given from square, to square and color
    */
   int getHistory(Color, int, int) const;
+
+  int getCounterHistory(int, PieceType, int) const; 
 
   /**
    * @brief Update the killer moves for the given ply with the given move.
@@ -121,6 +123,12 @@ class OrderingInfo {
    * Indexed by [OppositeColor][PieceType][to_square] of the move they countered
    */
   int _counterMove[2][6][64]; 
+
+  /**
+   * @brief Array of the history indexed by the previous move
+   * Indexed by [cmPiece][cmTo][piece][pieceTo]
+   */
+  int _counterMoveHistory[6][64][6][64];
 };
 
 #endif

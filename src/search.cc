@@ -302,16 +302,16 @@ void Search::_setupTimer(const Board &board, int curPlyNum){
     _ourTimeLeft = ourTime - _timeAllocated;
 }
 
-inline void Search::_updateAlpha(const Move move, Color color, int depth){
+inline void Search::_updateAlpha(const Move move, Color color, int depth, int pMove){
   if (!(move.getFlags() & 0x63)){
-    _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
+    _orderingInfo.incrementHistory(color, move.getPieceType(), move.getFrom(), move.getTo(), depth, pMove);
   }
 }
 
 inline void Search::_updateBeta(const Move move, Color color, int pMove, int ply, int depth){
 	if (!(move.getFlags() & 0x63)) {
     _orderingInfo.updateKillers(ply, move);
-    _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
+    _orderingInfo.incrementHistory(color, move.getPieceType(), move.getFrom(), move.getTo(), depth, pMove);
     _orderingInfo.updateCounterMove(color, pMove, move.getMoveINT());
   }
 }
@@ -442,11 +442,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         hashScore = (hashScore > 0) ? (hashScore - ply) :  (hashScore + ply);   
       }
       if (probedHASHentry.Flag == EXACT){
-        _updateAlpha(Move(probedHASHentry.move), board.getActivePlayer(), depth);
+        _updateAlpha(Move(probedHASHentry.move), board.getActivePlayer(), depth, pMove);
         return hashScore;
       }
       if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){ 
-        _updateAlpha(Move(probedHASHentry.move), board.getActivePlayer(), depth);
+        _updateAlpha(Move(probedHASHentry.move), board.getActivePlayer(), depth, pMove);
         return alpha;
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
@@ -720,7 +720,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         // Check if alpha raised (new best move)
         if (score > alpha) {
-          _updateAlpha(move, board.getActivePlayer(), depth);
+          _updateAlpha(move, board.getActivePlayer(), depth, pMove);
           alpha = score;
           bestMove = move;
           // we updated alpha and in the pVNode
@@ -736,7 +736,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // Beta was not beaten and we dont improve alpha
           // In this case we lower our search history values
           // In order to improve ordering if some move was beaten at very high depth
-          _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
+          _orderingInfo.decrementHistory(board.getActivePlayer(), move.getPieceType(), move.getFrom(), move.getTo(), depth, pMove);
         }
       } 
 

@@ -4,6 +4,7 @@
 OrderingInfo::OrderingInfo() {
   _ply = 0;
   std::memset(_history, 0, sizeof(_history));
+  std::memset(_killer2, 0, sizeof(_counterMoveHistory));
   std::memset(_counterMove, 0, sizeof(_counterMove));
   std::memset(_killer1, 0, sizeof(_killer1));
   std::memset(_killer2, 0, sizeof(_killer2));
@@ -21,17 +22,29 @@ int OrderingInfo::getCounterMoveINT(Color color, int pMove) const{
   return _counterMove[color][type][to];
 }
 
-void OrderingInfo::incrementHistory(Color color, int from, int to, int depth) {
-  _history[color][from][to] += depth * depth;
+void OrderingInfo::incrementHistory(Color color, PieceType mover, int from, int to, int depth, int pMove) {
+  int value = depth * depth;
+  int cmType = pMove & 0x7;
+  int cmTo = (pMove >> 15) & 0x3f;
+  _history[color][from][to] += value;
+  _counterMoveHistory[cmType][cmTo][mover][to] += value;
 }
 
-void OrderingInfo::decrementHistory(Color color, int from, int to, int depth) {
-  _history[color][from][to] -= depth * (depth - 1);
+void OrderingInfo::decrementHistory(Color color, PieceType mover, int from, int to, int depth, int pMove) {
+  int value = depth * (depth - 1);
+  int cmType = pMove & 0x7;
+  int cmTo = (pMove >> 15) & 0x3f;
+  _history[color][from][to] -= value;
+  _counterMoveHistory[cmType][cmTo][mover][to] -= value;
 }
 
 int OrderingInfo::getHistory(Color color, int from, int to) const {
   return _history[color][from][to];
 }
+
+  int OrderingInfo::getCounterHistory(int pMove, PieceType mover, int to) const{
+    return _counterMoveHistory[pMove & 0x7][((pMove >> 15) & 0x3f)][mover][to];
+  } 
 
 void OrderingInfo::updateKillers(int ply, Move move) {
   int t = move.getMoveINT();

@@ -277,7 +277,7 @@ class Search {
    * @param color moving player
    * @param depth search depth
    */
-  inline void _updateAlpha(const Move move, Color Color, int depth);
+  inline void _updateAlpha(const Move move, Color Color, int depth, int pMove);
 
   /**
    * @brief updating heuristics when beta cut occured 
