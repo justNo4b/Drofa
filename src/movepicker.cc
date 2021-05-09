@@ -39,10 +39,10 @@ void MovePicker::_scoreMoves(const Board *board) {
     } else if (moveINT == Killer2) {
       move.setValue(KILLER2_BONUS);
     } else { // Quiet
-      move.setValue(_orderingInfo->getCounterHistory(_pMove, move.getPieceType(), move.getTo()) + _orderingInfo->getHistory(_color, move.getFrom(), move.getTo()));
-      if (moveINT == Counter){
-        move.setValue( move.getValue() + COUNTERMOVE_BONUS );
-      }
+      int value =  _orderingInfo->getHistory(_color, move.getFrom(), move.getTo());
+      if (_pMove != 0 ) value += _orderingInfo->getCounterHistory(_pMove, move.getPieceType(), move.getTo());
+      if (moveINT == Counter) value += COUNTERMOVE_BONUS;
+      move.setValue(value);
     }
   }
 }
