@@ -22,20 +22,25 @@ int OrderingInfo::getCounterMoveINT(Color color, int pMove) const{
   return _counterMove[color][type][to];
 }
 
-void OrderingInfo::incrementHistory(Color color, PieceType mover, int from, int to, int depth, int pMove) {
-  int value = depth * depth;
-  int cmType = pMove & 0x7;
-  int cmTo = (pMove >> 15) & 0x3f;
-  _history[color][from][to] += value;
-  _counterMoveHistory[cmType][cmTo][mover][to] += value;
+void OrderingInfo::incrementHistory(Color color, int from, int to, int depth) {
+  _history[color][from][to] += depth * depth;
+
 }
 
-void OrderingInfo::decrementHistory(Color color, PieceType mover, int from, int to, int depth, int pMove) {
-  int value = depth * (depth - 1);
+void OrderingInfo::decrementHistory(Color color, int from, int to, int depth) {
+  _history[color][from][to] -= depth * (depth - 1);
+}
+
+void OrderingInfo::incrementCMhistory(int pMove, PieceType movedPiece, int to, int depth){
   int cmType = pMove & 0x7;
-  int cmTo = (pMove >> 15) & 0x3f;
-  _history[color][from][to] -= value;
-  _counterMoveHistory[cmType][cmTo][mover][to] -= value;
+  int cmTo   = (pMove >> 15) & 0x3f;
+  _counterMoveHistory[cmType][cmTo][movedPiece][to] += depth * depth;
+}
+
+void OrderingInfo::decrementCMhistory(int pMove, PieceType movedPiece, int to, int depth){
+  int cmType = pMove & 0x7;
+  int cmTo   = (pMove >> 15) & 0x3f;
+  _counterMoveHistory[cmType][cmTo][movedPiece][to] += depth * (depth - 1);
 }
 
 int OrderingInfo::getHistory(Color color, int from, int to) const {
