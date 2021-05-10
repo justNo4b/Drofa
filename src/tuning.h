@@ -164,3 +164,5 @@ struct tEntry {
  double CalculateFactorK(tEntry *);
 
  int simplifyPhaseCalculation(const Board &board);
+
+ void CheckFeaturesNumber();
