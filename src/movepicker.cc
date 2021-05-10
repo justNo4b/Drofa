@@ -40,7 +40,7 @@ void MovePicker::_scoreMoves(const Board *board) {
       move.setValue(KILLER2_BONUS);
     } else { // Quiet
       int value =  _orderingInfo->getHistory(_color, move.getFrom(), move.getTo());
-      if (_pMove != 0 ) value += _orderingInfo->getCounterHistory(_pMove, move.getPieceType(), move.getTo());
+      if (_pMove != 0 ) value += _orderingInfo->getCounterHistory(_color, _pMove, move.getPieceType(), move.getTo());
       if (moveINT == Counter) value += COUNTERMOVE_BONUS;
       move.setValue(value);
     }

@@ -69,7 +69,7 @@ class OrderingInfo {
    */
   int getHistory(Color, int, int) const;
 
-  int getCounterHistory(int, PieceType, int) const; 
+  int getCounterHistory(Color, int, PieceType, int) const; 
 
   /**
    * @brief Update the killer moves for the given ply with the given move.
@@ -126,9 +126,9 @@ class OrderingInfo {
 
   /**
    * @brief Array of the history indexed by the previous move
-   * Indexed by [cmPiece][cmTo][piece][pieceTo]
+   * Indexed by [color][cmPiece][cmTo][piece][pieceTo]
    */
-  int _counterMoveHistory[6][64][6][64];
+  int _counterMoveHistory[2][6][64][6][64];
 };
 
 #endif

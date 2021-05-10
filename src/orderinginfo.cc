@@ -24,26 +24,22 @@ int OrderingInfo::getCounterMoveINT(Color color, int pMove) const{
 
 void OrderingInfo::incrementHistory(Color color, PieceType mover, int from, int to, int depth, int pMove) {
   int value = depth * depth;
-  int cmType = pMove & 0x7;
-  int cmTo = (pMove >> 15) & 0x3f;
   _history[color][from][to] += value;
-  _counterMoveHistory[cmType][cmTo][mover][to] += value;
+  if (pMove != 0) _counterMoveHistory[color][(pMove & 0x7)][((pMove >> 15) & 0x3f)][mover][to] += value;
 }
 
 void OrderingInfo::decrementHistory(Color color, PieceType mover, int from, int to, int depth, int pMove) {
   int value = depth * (depth - 1);
-  int cmType = pMove & 0x7;
-  int cmTo = (pMove >> 15) & 0x3f;
   _history[color][from][to] -= value;
-  _counterMoveHistory[cmType][cmTo][mover][to] -= value;
+  if (pMove != 0) _counterMoveHistory[color][(pMove & 0x7)][((pMove >> 15) & 0x3f)][mover][to] -= value;
 }
 
 int OrderingInfo::getHistory(Color color, int from, int to) const {
   return _history[color][from][to];
 }
 
-  int OrderingInfo::getCounterHistory(int pMove, PieceType mover, int to) const{
-    return _counterMoveHistory[pMove & 0x7][((pMove >> 15) & 0x3f)][mover][to];
+  int OrderingInfo::getCounterHistory(Color color, int pMove, PieceType mover, int to) const{
+    return _counterMoveHistory[color][pMove & 0x7][((pMove >> 15) & 0x3f)][mover][to];
   } 
 
 void OrderingInfo::updateKillers(int ply, Move move) {
