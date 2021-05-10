@@ -536,6 +536,48 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           }
   }
 
+  // 4. ProbCut
+  //
+  //
+  //
+    int pcBeta = beta + PROBCUT_MARGIN;
+    if (!pvNode && depth >= 5 && !AreWeInCheck && (abs(beta) < WON_IN_X) 
+          && (statEVAL >= pcBeta || (TTmove && probedHASHentry.score >= pcBeta))){
+
+          // Init qSearch move generation (captures + qPromotions)
+          MoveGen movegen(board, true);
+          MoveList legalMoves = movegen.getMoves();
+          MovePicker movePicker
+              (&_orderingInfo, &board, &legalMoves, 0, board.getActivePlayer(), 99, 0);
+              
+          while (movePicker.hasNext()) {
+            Move move = movePicker.getNext();
+            
+            if (move.getValue() < 0){
+              break;
+            }
+            Board movedBoard = board;
+            movedBoard.doMove(move);
+            if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
+
+              // first check, capture must pass d0 search
+              // skip this part if depth - 4 > 3, because its 
+              // stupid to do d1 search to verify it with d2
+              int qProbcut = (depth - 4 < 3) ? pcBeta :  - _qSearch(board, -pcBeta, -pcBeta + 1, ply + 1); ;
+
+              //if move passed first check, search this move at a reduced depth
+              if (qProbcut >= pcBeta){
+                int sProbcut = - _negaMax(movedBoard, &thisPV, depth - 4, -pcBeta, -pcBeta + 1, ply + 1, false, move.getMoveINT());
+                if (sProbcut >= pcBeta){
+                  return sProbcut;
+                }
+              }
+            }
+          }
+      }
+
+
+
   // 4. UN_HASHED REDUCTION
   // We reduce depth by 1 if the position we currently 
   // analysing isnt hashed.

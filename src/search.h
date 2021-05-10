@@ -149,6 +149,7 @@ class Search {
   const int FUTIL_MOVE_CONST = 150;
   const int REVF_MOVE_CONST = 200;
   const int RAZORING_MARGIN = 650;
+  const int PROBCUT_MARGIN  = 160;
   //
 
   /**
