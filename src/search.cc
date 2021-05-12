@@ -649,6 +649,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // reduce more if move has a bad history
           reduction += isQuiet && moveHistory < -3*_curMaxDepth*_curMaxDepth;
+          // reduce even more if history is terrible
+          reduction += isQuiet && moveHistory < -6*_curMaxDepth*_curMaxDepth;
 
           //if we are improving, reduce a bit less (from Weiss)
           reduction -= improving;
