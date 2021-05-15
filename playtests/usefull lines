@@ -31,6 +31,8 @@ python3 tuner.py --engine ./engines/Drofa_tune --concurrency 5 --opening-file ./
 
 python3 tuner.py --engine ./engines/Drofa_tune --concurrency 5 --opening-file ./start_opening/ogpt_chess_startpos.epd --input-param "{'vBPairOP': {'default':20, 'min':-10, 'max':200, 'step':2}, 'vBPairEG': {'default':20, 'min':-10, 'max':200, 'step':2}}" --initial-best-value 0.54 --games-per-trial 100 --plot --base-time-sec 10 --inc-time-sec 0.1 --study-name PairTune --pgn-output PairTune.pgn --trials 100 --threshold-pruner result=0.35 acquisition_function=LCB
 
+python3 tuner.py --engine ./engines/Drofa_tune --concurrency 12 --opening-file ./start_opening/ogpt_chess_startpos.epd --input-param "{'f_n_1': {'default':150, 'min':0, 'max':600, 'step':2},'f_n_2': {'default':300, 'min':0, 'max':600, 'step':2}, 'f_i_1': {'default':50, 'min':0, 'max':600, 'step':1}, 'f_i_2': {'default':200, 'min':0, 'max':600, 'step':1}}" --initial-best-value 0.54 --games-per-trial 200 --plot --base-time-sec 8 --inc-time-sec 0.08 --study-name FTune --pgn-output aTune.pgn --trials 250 --threshold-pruner result=0.35 acquisition_function=LCB
+
 --------------------------------------------------------------------------------------
 Finished game 2500 (Drofa_1.3.0 vs Drofa_dev): 1/2-1/2 {Draw by 3-fold repetition}
 Score of Drofa_dev vs Drofa_1.3.0: 882 - 889 - 729  [0.499] 2500
