@@ -24,12 +24,12 @@ void Search::init_LMR_array(){
   // Weiss formula and trying to came up with 
   // something similar, but based on the pow (x,y)
   // function for easier tuning later.
-  // i here is DETPTH
-  // j here is moveNUM
+  // indexed by [isQuiet][depth][movenum]
 
   for (int i = 0; i < 34; i++){
     for (int j = 0; j < 34; j++){
-      _lmr_R_array[i][j] = (int) (0.1 + (pow(i, 0.15) * pow(j, 0.15))/1.75);
+      _lmr_R_array[0][i][j] = (int) (0.1 + (pow(i, 0.15) * pow(j, 0.15))/1.75);
+      _lmr_R_array[1][i][j] = (int) (  1 + (pow(i, 0.15) * pow(j, 0.15))/1.75);
     }
   }
   // 2. Initialization of the LMP array.
@@ -638,14 +638,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           //Basic reduction is done according to the array
           //Initiated at the ini() of the Search Class
           //Now mostly 0 -> 1
-          int reduction = _lmr_R_array[std::min(33, tDepth)][std::min(33, LegalMoveCount)];
+          int reduction = _lmr_R_array[isQuiet][std::min(33, tDepth)][std::min(33, LegalMoveCount)];
 
           // Reduction tweaks
           // We generally want to guess if the move will not improve alpha
           // and guess right to do no re-searches
-
-          // if move is quiet, reduce a bit more (from Weiss)
-          reduction += isQuiet;
 
           // reduce more if move has a bad history
           reduction += isQuiet && moveHistory < -3*_curMaxDepth*_curMaxDepth;
