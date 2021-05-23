@@ -512,7 +512,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // For now dont Prune in PV, in check, and at high depth
   // btw d < 5 is totally arbitrary, tune it later maybe
 
-  if (!pvNode && !AreWeInCheck && depth < 5){
+  if (!pvNode && !AreWeInCheck && depth < 6){
       if ((statEVAL - REVF_MOVE_CONST * depth + 100 * improving) >= beta)
       return statEVAL - REVF_MOVE_CONST * depth + 100 * improving;
   }
