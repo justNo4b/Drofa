@@ -43,7 +43,7 @@ Games | N: 5962 W: 1696 L: 1522 D: 2744
 
 +bugfix (one forgotten mask) tested for non-regression
 ------------------------------------------------------------------
-7. Use RFP starting depth 6 (version to 3.0.7)
+7. Use RFP starting depth 5 (version to 3.0.7)
 ------------------------------------------------------------------
 ELO   | 5.78 +- 4.37 (95%)
 SPRT  | 10.0+0.10s Threads=1 Hash=16MB
