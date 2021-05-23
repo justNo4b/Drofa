@@ -481,6 +481,10 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
   int s = 0;
   U64 pieces = board.getPieces(color, KNIGHT);
 
+  // Knight evaluation adjustment based on count of rammed pawns
+  s += eB->RammedCount * _popCount(pieces) * KNIGHT_RAMMED_ADJ;
+  if (TRACK) ft.KnightRammed[color] += eB->RammedCount * _popCount(pieces);
+
   // Apply penalty for each Knight attacked by opponents pawn
   s += HANGING_PIECE[KNIGHT] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
   if (TRACK) ft.HangingPiece[KNIGHT][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
