@@ -557,6 +557,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   Move bestMove;
   int  LegalMoveCount = 0;
   int  qCount = 0;
+  bool skipQuiet = false;
   // вероятно не самая эффективная конструкция, но оптимизация потом
   while (movePicker.hasNext()) {
 
@@ -573,7 +574,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         && !AreWeInCheck 
         && alpha < WON_IN_X){
 
-      if (qCount > _lmp_Array[depth][improving]) break;
+      if (qCount > _lmp_Array[depth][improving]) skipQuiet = true;
 
       if (depth <= 6 
           && LegalMoveCount > 1
@@ -592,8 +593,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
         int  moveHistory  = isQuiet ? _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) : 0;
         bool badHistory = (isQuiet && moveHistory < -3*depth*depth);                
-        if (isQuiet)
-          qCount++;
+        if (isQuiet){
+          if (skipQuiet) continue;
+          qCount++;    
+        }
+
         int tDepth = depth;
         // 6. EXTENTIONS
         // 
