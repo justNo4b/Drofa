@@ -231,7 +231,7 @@ return false;
 
 }
 
-int Eval::kingSafety(const Board &board, Color color, int Q_count){
+int Eval::kingSafety(const Board &board, Color color, int Q_count, evalBits * eB){
       //King safety - замена pawnsShieldingKing
     // идея в том, чтобы
     // а. Найти позицию короля
@@ -252,14 +252,17 @@ int Eval::kingSafety(const Board &board, Color color, int Q_count){
       // если это верно, то мы находимся на королевском фланге
       // сравниваем с масками, возвращаем бонус если маска совпала
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][0]) == detail::KING_PAWN_MASKS[color][0][0]){
+          eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
           if (TRACK) ft.KingSafe[color]++;
           return KING_SAFE;    
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][1]) == detail::KING_PAWN_MASKS[color][0][1]){
+          eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
           if (TRACK) ft.KingSafe[color]++;
           return KING_SAFE;
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][2]) == detail::KING_PAWN_MASKS[color][0][2]){
+          eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
           if (TRACK) ft.KingSafe[color]++;
           return KING_SAFE;
       }
@@ -289,14 +292,17 @@ int Eval::kingSafety(const Board &board, Color color, int Q_count){
       // если это верно, то мы находимся на ферзевом
       // сравниваем с масками, возвращаем бонус если маска совпала
       if ((pawnMap & detail::KING_PAWN_MASKS[color][1][0]) == detail::KING_PAWN_MASKS[color][1][0]){
+        eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
         if (TRACK) ft.KingSafe[color]++;
           return KING_SAFE;    
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][1][1]) == detail::KING_PAWN_MASKS[color][1][1]){
+        eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
         if (TRACK) ft.KingSafe[color]++;
           return KING_SAFE;
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][1][2]) == detail::KING_PAWN_MASKS[color][1][2]){
+        eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
         if (TRACK) ft.KingSafe[color]++;
           return KING_SAFE;
       }
@@ -792,6 +798,9 @@ int Eval::evaluate(const Board &board, Color color) {
   score -= MINOR_BEHIND_PASSER * _popCount(eB.Passers[otherColor] & pieces);
   if (TRACK) ft.MinorBehindPasser[otherColor] += _popCount(eB.Passers[otherColor] & pieces);
 
+  // King pawn shield
+  // Tapering is included in, so we count it in both phases
+  score += kingSafety(board, color, b_Q, &eB) - kingSafety(board, otherColor, w_Q, &eB);
 
   // evluate king danger
 
@@ -812,9 +821,7 @@ int Eval::evaluate(const Board &board, Color color) {
   }
 
 
-  // King pawn shield
-  // Tapering is included in, so we count it in both phases
-  score += kingSafety(board, color, b_Q) - kingSafety(board, otherColor, w_Q);
+
 
 
   if (TRACK){
