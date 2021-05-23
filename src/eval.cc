@@ -252,6 +252,7 @@ int Eval::kingSafety(const Board &board, Color color, int Q_count, evalBits * eB
       // если это верно, то мы находимся на королевском фланге
       // сравниваем с масками, возвращаем бонус если маска совпала
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][0]) == detail::KING_PAWN_MASKS[color][0][0]){
+          eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
           if (TRACK) ft.KingSafe[color]++;
           return KING_SAFE;    
       }
