@@ -187,6 +187,8 @@ const int  KING_EQUAL_PASSER = gS(6,1);
 
 const int  KING_BEHIND_PASSER = gS(4,-5);
 
+const int KING_PAWN_TENSION = gS(-15,0);
+
 const int  KING_PASSER_DISTANCE_FRIENDLY[9] = {
            gS(0,0), gS(7,28), gS(-3,24), gS(-8,10),
            gS(-5,-1), gS(-5,-4), gS(10,-9), gS(-1,-18),
