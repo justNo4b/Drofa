@@ -279,6 +279,10 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.RookHalfFile[j][WHITE] - ft.RookHalfFile[j][BLACK];
     }
 
+    for (int j = 0; j < 4; j++){
+        coeff[i++] = ft.BishopOwnPawns[j][WHITE] - ft.BishopOwnPawns[j][BLACK];
+    }
+
     for (int j = 0; j < 5; j++){
         coeff[i++] = ft.HangingPiece[j][WHITE] - ft.HangingPiece[j][BLACK];
     }
