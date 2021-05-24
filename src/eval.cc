@@ -421,6 +421,9 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
   int s = 0;
 
   U64 pieces = board.getPieces(color, BISHOP);
+
+  U64 ownPawns = board.getPieces(color, PAWN);
+  ownPawns = (ownPawns ^ eB->Passers[color]) & FIGHTING_AREA;
   // Bishop has penalty based on count of rammed pawns
   s += eB->RammedCount * _popCount(pieces) * BISHOP_RAMMED_PENALTY;
   if (TRACK) ft.BishopRammed[color] += eB->RammedCount * _popCount(pieces);
@@ -440,8 +443,15 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       // Mobility
       // Bishops mobility are scanning through bishops and queens
       U64 attackBitBoard = board.getMobilityForSquare(BISHOP, color, square, eB->EnemyPawnAttackMap[color]);
-      s += BISHOP_MOBILITY[_popCount(attackBitBoard)];
+      int mobility = _popCount(attackBitBoard);
+      s += BISHOP_MOBILITY[mobility];
       if (TRACK) ft.BishopMobility[_popCount(attackBitBoard)][color]++;
+
+      // Scale down from own pawns on the same colored squares
+
+
+      s += BISHOP_OWN_PAWNS[_popCount(ownPawns & (((ONE << square) & WHITE_SQUARES) ? WHITE_SQUARES : BLACK_SQUARES))];
+      if (TRACK) ft.BishopOwnPawns[_popCount(ownPawns & (((ONE << square) & WHITE_SQUARES) ? WHITE_SQUARES : BLACK_SQUARES))][color]++;
 
       // Bonus for bishop having central squares in mobility
       // it would mean they are not attacked by enemy pawn
