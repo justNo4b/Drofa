@@ -38,11 +38,10 @@ void MovePicker::_scoreMoves(const Board *board) {
       move.setValue(KILLER1_BONUS);
     } else if (moveINT == Killer2) {
       move.setValue(KILLER2_BONUS);
+    } else if (moveINT == Counter){
+      move.setValue(COUNTERMOVE_BONUS);
     } else { // Quiet
-      move.setValue(QUIET_BONUS + _orderingInfo->getHistory(_color, move.getFrom(), move.getTo()));
-      if (moveINT == Counter){
-        move.setValue( move.getValue() + COUNTERMOVE_BONUS );
-      }
+      move.setValue(_orderingInfo->getHistory(_color, move.getFrom(), move.getTo()));
     }
   }
 }
