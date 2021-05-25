@@ -89,7 +89,7 @@ void Search::iterDeep() {
   int aspDelta  = 50;
 
   for (int currDepth = 1; currDepth <= _searchDepth; currDepth++) {
-    _curMaxDepth = currDepth;
+    _badHistMargin = -3 * pow(currDepth, 2);
 
     int aspAlpha = LOST_SCORE;
     int aspBeta  =-LOST_SCORE;
@@ -411,15 +411,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
   // Check for threefold repetition draws
-  if (_isRepetitionDraw(board.getZKey().getValue())) {
-    // cut pV out if we found rep
-    up_pV->length = 0;
-    return 0;
-  }
-
-  // Check for 50 move rule draws
-  if (board.getHalfmoveClock() >= 100) {
-    // cut pV out if we found 50-move draw
+  // and 50 - move rule draw
+  if (board.getHalfmoveClock() >= 100 || _isRepetitionDraw(board.getZKey().getValue())) {
+    // cut pV out if we found draw
     up_pV->length = 0;
     return 0;
   }
@@ -594,7 +588,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
         int  moveHistory  = isQuiet ? _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) : 0;
-        bool badHistory = (isQuiet && moveHistory < -3*_curMaxDepth*_curMaxDepth);                
+        bool badHistory = (isQuiet && moveHistory < _badHistMargin);                
         if (isQuiet)
           qCount++;
         int tDepth = depth;
@@ -655,7 +649,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           reduction += isQuiet && qCount > 3 && failedNull;
 
           // reduce more if move has a bad history
-          reduction += isQuiet && moveHistory < -3*_curMaxDepth*_curMaxDepth;
+          reduction += isQuiet && moveHistory < _badHistMargin;
 
           //if we are improving, reduce a bit less (from Weiss)
           reduction -= improving;

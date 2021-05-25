@@ -220,7 +220,11 @@ class Search {
    */
   int _searchDepth;
 
-  int _curMaxDepth;
+  /**
+   * @brief Margin used for history LMR adjustments
+   * and pruning decisions
+   */ 
+  int _badHistMargin;
 
   /**
    * @brief If this flag is set, calls to _negaMax() and _rootMax() will end as soon
