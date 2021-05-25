@@ -651,6 +651,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           reduction += isQuiet;
 
           // if we failed NULL, likely most of our Quiet moves are crap, so reduce them even more
+          // qCount > 3 is actually seems to be optimal
           reduction += isQuiet && qCount > 3 && failedNull;
 
           // reduce more if move has a bad history
