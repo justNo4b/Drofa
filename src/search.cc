@@ -524,6 +524,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   //
   // For obvious reasons its turned off with no major pieces,
   // when we are in check, and at pvNodes
+  bool failedNull = false;
   if (!pvNode && ply > 0 && depth >= 3 &&
       !doNool && !AreWeInCheck && board.isThereMajorPiece() &&
        statEVAL >= beta){
@@ -534,6 +535,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           if (score >= beta){
             return beta;
           }
+          // if we arrived here NULL was tried and failed
+          failedNull = true;
   }
 
   // 4. UN_HASHED REDUCTION
@@ -646,6 +649,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // if move is quiet, reduce a bit more (from Weiss)
           reduction += isQuiet;
+
+          // if we failed NULL, likely most of our Quiet moves are crap, so reduce them even more
+          reduction += isQuiet && qCount > 3 && failedNull;
 
           // reduce more if move has a bad history
           reduction += isQuiet && moveHistory < -3*_curMaxDepth*_curMaxDepth;
