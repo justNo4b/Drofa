@@ -570,7 +570,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         && !AreWeInCheck 
         && alpha < WON_IN_X){
 
-      if (qCount > _lmp_Array[depth][improving]) break;
+      if (qCount > _lmp_Array[depth][(improving && !failedNull)]) break;
 
       if (depth <= 6 
           && LegalMoveCount > 1
