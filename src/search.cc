@@ -527,10 +527,19 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           int fDepth = depth - NULL_MOVE_REDUCTION - depth/4 - std::min((statEVAL - beta)/128, 4); 
           int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, ply + 1, true, 0);
           if (score >= beta){
-            return beta;
+            if (depth > 10 && board.isEndGamePosition()){
+              int reScore = _negaMax(board, &thisPV, fDepth , -beta, -beta +1, ply + 1, true, 0);
+              if (reScore >= beta){
+                return beta;
+              }
+            }else{
+              return beta;
+            }
+
+          }else{
+            failedNull = true;
           }
-          // if we arrived here NULL was tried and failed
-          failedNull = true;
+          
   }
 
   // 4. UN_HASHED REDUCTION
