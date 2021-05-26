@@ -530,6 +530,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
 
   U64 pieces = board.getPieces(color, KING);
   int square = _popLsb(pieces);
+  Color otherColor = getOppositeColor(color);
   // Mobility
   U64 attackBitBoard = board.getMobilityForSquare(KING, color, square, eB.EnemyPawnAttackMap[color]);
   s += KING_MOBILITY[_popCount(attackBitBoard)];
@@ -539,6 +540,27 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
       ft.KingPsqtBlack[relSqv][color]++;
   }
   
+  // See if our king is on the Openish-files
+  // Test for Open - SemiOpenToUs - SemiOpenToEnemy
+  // General idea is from SF HCE
+  U64 file       = detail::FILES[_col(square)];
+  U64 ourPawns   = board.getPieces(color, PAWN);
+  U64 enemyPawns = board.getPieces(otherColor, PAWN);
+
+  if (((file & ourPawns) == 0)
+    && ((file & enemyPawns) == 0)){
+      s += KING_OPEN_FILE;
+      if (TRACK) ft.KingOpenFile[color]++;
+    }else if ((file & ourPawns) == 0){
+      s += KING_OWN_SEMI_FILE; 
+      if (TRACK) ft.KingSemiOwnFile[color]++;
+    }else if ((file & enemyPawns) == 0){
+      s += KING_ENEMY_SEMI_LINE;
+      if (TRACK) ft.KingSemiEnemyFile[color]++;
+    }
+
+
+
   U64 tmpPawns = eB.Passers[color];
   while (tmpPawns != ZERO) {
 
