@@ -312,7 +312,7 @@ inline void Search::_updateBeta(const Move move, Color color, int pMove, int ply
 	if (!(move.getFlags() & 0x63)) {
     _orderingInfo.updateKillers(ply, move);
     _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
-    _orderingInfo.updateCounterMove(color, pMove, move.getMoveINT());
+    if (pMove != 0) _orderingInfo.updateCounterMove(color, pMove, move.getMoveINT());
   }
 }
 
