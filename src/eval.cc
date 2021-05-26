@@ -634,10 +634,10 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0){
       if (TRACK) ft.PawnDoubled[color]++;
       s += DOUBLED_PAWN_PENALTY;
-
-    // for the last pawn on the column determine if it is isolated.
     }
-    else if (!(detail::NEIGHBOR_FILES[pawnCol] & pawns)){
+
+    // score a pawn if it is isolated
+    if (!(detail::NEIGHBOR_FILES[pawnCol] & pawns)){
       if (TRACK) ft.PawnIsolated[color]++;
       s += ISOLATED_PAWN_PENALTY;
     }

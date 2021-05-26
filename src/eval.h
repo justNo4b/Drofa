@@ -163,9 +163,9 @@ const int BISHOP_PAIR_BONUS = gS(15,76);
 
 const int PAWN_SUPPORTED = gS(7,5);
 
-const int DOUBLED_PAWN_PENALTY = gS(-7,-32);
+const int DOUBLED_PAWN_PENALTY = gS(-5,-27);
 
-const int ISOLATED_PAWN_PENALTY = gS(-2,-5);
+const int ISOLATED_PAWN_PENALTY = gS(-4,-7);
 
 const int PAWN_BLOCKED = gS(1,27);
 
