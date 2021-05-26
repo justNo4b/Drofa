@@ -421,6 +421,10 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
   int s = 0;
 
   U64 pieces = board.getPieces(color, BISHOP);
+  int fiankSQV  = color == WHITE ? g2 : g7;
+  U64 fiankBB   = ONE << fiankSQV;
+
+
   // Bishop has penalty based on count of rammed pawns
   s += eB->RammedCount * _popCount(pieces) * BISHOP_RAMMED_PENALTY;
   if (TRACK) ft.BishopRammed[color] += eB->RammedCount * _popCount(pieces);
@@ -442,6 +446,15 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       U64 attackBitBoard = board.getMobilityForSquare(BISHOP, color, square, eB->EnemyPawnAttackMap[color]);
       s += BISHOP_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.BishopMobility[_popCount(attackBitBoard)][color]++;
+
+      // Fiancettoed bishop.
+      // Apply bonus when g2/g7 is on our KingZone and Bishop is 
+      // either on it or controlling it
+      if ((fiankBB & eB->EnemyKingZone[getOppositeColor(color)])
+      &&  ((fiankBB & attackBitBoard) || (square == fiankSQV))){
+        s += BISHOP_KS_FIANKETTO;
+        if (TRACK) ft.BishopKsFiancetto[color]++;
+      }
 
       // Bonus for bishop having central squares in mobility
       // it would mean they are not attacked by enemy pawn
