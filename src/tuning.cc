@@ -262,6 +262,10 @@ void InitCoefficients(featureCoeff coeff){
     for (int j = 0; j < 8; j++){
         coeff[i++] = ft.PassedPawnFile[j][WHITE] - ft.PassedPawnFile[j][BLACK];
     }
+        
+    for (int j = 0; j < 5; j++){
+        coeff[i++] = ft.PassedSpanAttack[j][WHITE] - ft.PassedSpanAttack[j][BLACK];
+    }
 
     for (int j = 0; j < 9; j++){
         coeff[i++] = ft.KingFriendlyPasser[j][WHITE] - ft.KingFriendlyPasser[j][BLACK];

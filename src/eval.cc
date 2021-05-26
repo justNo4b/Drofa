@@ -359,6 +359,11 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
       U64 attackBitBoard = board.getMobilityForSquare(QUEEN, color, square, eB->EnemyPawnAttackMap[color]);
       s += QUEEN_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.QueenMobility[_popCount(attackBitBoard)][color]++;
+
+      // if Queen controls our passed span, assign a bonus
+      s += PASSER_SPAWN_ATTACK[QUEEN] * _popCount(attackBitBoard & eB->EnemyPasserSpan[color]);
+      if (TRACK) ft.PassedSpanAttack[QUEEN][color] += _popCount(attackBitBoard & eB->EnemyPasserSpan[color]);
+
       // If Queen attacking squares near enemy king
       // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
@@ -390,6 +395,11 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
       U64 attackBitBoard = board.getMobilityForSquare(ROOK, color, square, eB->EnemyPawnAttackMap[color]);
       s += ROOK_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.RookMobility[_popCount(attackBitBoard)][color]++;
+
+      // if Rook controls our passed span, assign a bonus
+      s += PASSER_SPAWN_ATTACK[ROOK] * _popCount(attackBitBoard & eB->EnemyPasserSpan[color]);
+      if (TRACK) ft.PassedSpanAttack[ROOK][color] += _popCount(attackBitBoard & eB->EnemyPasserSpan[color]);
+
       // If Rook attacking squares near enemy king
       // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
@@ -449,6 +459,10 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       s += BISHOP_CENTER_CONTROL * _popCount(attackBitBoard & CENTER);
       if (TRACK) ft.BishopCenterControl[color] +=  _popCount(attackBitBoard & CENTER);
 
+      // if Bishop controls our passed span, assign a bonus
+      s += PASSER_SPAWN_ATTACK[BISHOP] * _popCount(attackBitBoard & eB->EnemyPasserSpan[color]);
+      if (TRACK) ft.PassedSpanAttack[BISHOP][color] += _popCount(attackBitBoard & eB->EnemyPasserSpan[color]);
+
       // If Bishop attacking squares near enemy king
       // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
@@ -497,6 +511,11 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       U64 attackBitBoard = board.getMobilityForSquare(KNIGHT, color, square,eB->EnemyPawnAttackMap[color]);
       s += KNIGHT_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.KnigthMobility[_popCount(attackBitBoard)][color]++;
+
+
+      // if Knight controls our passed span, assign a bonus
+      s += PASSER_SPAWN_ATTACK[KNIGHT] * _popCount(attackBitBoard & eB->EnemyPasserSpan[color]);
+      if (TRACK) ft.PassedSpanAttack[KNIGHT][color] += _popCount(attackBitBoard & eB->EnemyPasserSpan[color]);
 
       // If Knight attacking squares near enemy king
       // Adjust our kind Danger code
@@ -739,6 +758,20 @@ int Eval::evaluate(const Board &board, Color color) {
       score += pScore;
     }
   }
+
+  // Calculate passer front spawn for later use
+  // Basically we are just doing forward fill here
+  eB.EnemyPawnAttackMap[WHITE] = eB.Passers[BLACK];
+  eB.EnemyPawnAttackMap[WHITE] = eB.EnemyPawnAttackMap[WHITE] | (eB.EnemyPawnAttackMap[WHITE] >> 8);
+  eB.EnemyPawnAttackMap[WHITE] = eB.EnemyPawnAttackMap[WHITE] | (eB.EnemyPawnAttackMap[WHITE] >> 16);
+  eB.EnemyPawnAttackMap[WHITE] = eB.EnemyPawnAttackMap[WHITE] | (eB.EnemyPawnAttackMap[WHITE] >> 32);
+
+  eB.EnemyPawnAttackMap[BLACK] = eB.Passers[WHITE];
+  eB.EnemyPawnAttackMap[BLACK] = eB.EnemyPawnAttackMap[BLACK] | (eB.EnemyPawnAttackMap[BLACK] << 8);
+  eB.EnemyPawnAttackMap[BLACK] = eB.EnemyPawnAttackMap[BLACK] | (eB.EnemyPawnAttackMap[BLACK] << 16);
+  eB.EnemyPawnAttackMap[BLACK] = eB.EnemyPawnAttackMap[BLACK] | (eB.EnemyPawnAttackMap[BLACK] << 32);
+
+
 
   // Evaluate pieces
   int pieceS = evaluateBISHOP(board, color, &eB) - evaluateBISHOP(board, otherColor, &eB)

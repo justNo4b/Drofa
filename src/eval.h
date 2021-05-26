@@ -23,6 +23,7 @@ struct evalBits{
     U64 OutPostedLines[2];
     U64 EnemyKingZone[2];
     U64 Passers[2];
+    U64 EnemyPasserSpan[2];
     int RammedCount;
     int KingAttackers[2];
     int KingAttackPower[2];
@@ -224,6 +225,10 @@ const int  PASSED_PAWN_RANKS[8] = {
 const int  PASSED_PAWN_FILES[8] = {
            gS(12,13), gS(8,15), gS(1,4), gS(0,1),
            gS(-3,0), gS(-16,3), gS(-7,17), gS(11,11),
+};
+
+const int PASSER_SPAWN_ATTACK[5] = {
+          gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0),
 };
 
 
