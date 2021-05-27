@@ -216,6 +216,11 @@ const int ROOK_OPEN_FILE_BONUS [2] = {  gS(22,10), gS(22,11), };
 const int ROOK_SEMI_FILE_BONUS [2] = {  gS(6,2), gS(16,9), };
 
 
+/**
+ * @brief indexed by [pieceType]
+ * Evaluate OUR pieces attacked by an enemy pawn 
+ * and OUR pieces attacking enemy pawns - [PAWN] 
+ */
 const int HANGING_PIECE[5] = {
            gS(-3,13), gS(-26,-16), gS(-26,-51), gS(-31,-74), gS(-18,-12),
 };

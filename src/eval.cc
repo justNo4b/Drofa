@@ -360,6 +360,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
       s += QUEEN_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.QueenMobility[_popCount(attackBitBoard)][color]++;
 
+      // See if a Queen is attacking an enemy unprotected pawn
       s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
       if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
 
@@ -403,6 +404,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[ROOK];
       }
 
+      // See if a Rook is attacking an enemy unprotected pawn
       s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
       if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
 
@@ -466,7 +468,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[BISHOP];
       }
 
-      //
+      // See if a Bishop is attacking an enemy unprotected pawn
       s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
       if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
 
@@ -520,7 +522,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[KNIGHT];
       }
 
-      //
+      // See if a Knight is attacking an enemy unprotected pawn
       s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
       if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
 
@@ -567,6 +569,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
   U64 ourPawns   = board.getPieces(color, PAWN);
   U64 enemyPawns = board.getPieces(otherColor, PAWN);
 
+  // See if a King is attacking an enemy unprotected pawn
   s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & enemyPawns);
   if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & enemyPawns);
 
