@@ -359,6 +359,11 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
       U64 attackBitBoard = board.getMobilityForSquare(QUEEN, color, square, eB->EnemyPawnAttackMap[color]);
       s += QUEEN_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.QueenMobility[_popCount(attackBitBoard)][color]++;
+
+      s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
+      if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
+
+
       // If Queen attacking squares near enemy king
       // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
@@ -397,6 +402,10 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[ROOK];
       }
+
+      s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
+      if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
+
 
       // Open/semiopen file detection
       // we differentiate between open/semiopen based on
@@ -457,6 +466,11 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[BISHOP];
       }
 
+      //
+      s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
+      if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
+
+
       // OUTPOSTED BISHOP
       // We use separed PSQT for protected and unprotected outposts
       // Unprotected outposts are only considered outposts
@@ -506,6 +520,10 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[KNIGHT];
       }
 
+      //
+      s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
+      if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
+
       // OUTPOSTED KNIGHT
       // We use separed PSQT for protected and unprotected outposts
       // Unprotected outposts are only considered outposts
@@ -540,12 +558,18 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
       ft.KingPsqtBlack[relSqv][color]++;
   }
   
+
+
   // See if our king is on the Openish-files
   // Test for Open - SemiOpenToUs - SemiOpenToEnemy
   // General idea is from SF HCE
   U64 file       = detail::FILES[_col(square)];
   U64 ourPawns   = board.getPieces(color, PAWN);
   U64 enemyPawns = board.getPieces(otherColor, PAWN);
+
+  s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & enemyPawns);
+  if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & enemyPawns);
+
 
   if (((file & ourPawns) == 0)
     && ((file & enemyPawns) == 0)){
