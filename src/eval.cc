@@ -47,6 +47,7 @@ U64 Eval::detail::NEIGHBOR_FILES[8]{
 };
 U64 Eval::detail::PASSED_PAWN_MASKS[2][64];
 U64 Eval::detail::OUTPOST_MASK[2][64];
+U64 Eval::detail::CONNECTED_MASK[64];
 U64 Eval::detail::OUTPOST_PROTECTION[2][64];
 U64 Eval::detail::KINGZONE[2][64];
 U64 Eval::detail::FORWARD_BITS[2][64];
@@ -115,6 +116,7 @@ void Eval::init() {
     detail::FORWARD_BITS[WHITE][square] = currNorthRay;
     detail::FORWARD_BITS[BLACK][square] = currSouthRay;
 
+    detail::CONNECTED_MASK[square] = ((ONE << (square + 1)) & ~FILE_A) | ((ONE << (square - 1)) & ~FILE_H);
 
     detail::PASSED_PAWN_MASKS[WHITE][square] =
         currNorthRay | _eastN(currNorthRay, 1) | _westN(currNorthRay, 1);
@@ -135,6 +137,8 @@ void Eval::init() {
     for (int i =0; i < 64; i++){
       detail::DISTANCE[square][i] = std::max(abs(_col(square) - _col(i)), abs(_row(square) - _row(i)));
     }
+
+
 
   }
 
@@ -637,7 +641,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
   while (tmpPawns != ZERO) {
 
-    // add bonuses if the pawn is passed
+
 
     int square = _popLsb(tmpPawns);
     int pawnCol = _col(square);
@@ -646,7 +650,8 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       ft.PawnPsqtBlack[relSqv][color]++;
     }
 
-
+    
+    // add bonuses if the pawn is passed
     if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
       eB->Passers[color] = eB->Passers[color] | (ONE << square);
       int r = color == WHITE ? _row(square) : 7 - _row(square);
@@ -667,6 +672,12 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     if (!(detail::NEIGHBOR_FILES[pawnCol] & pawns)){
       if (TRACK) ft.PawnIsolated[color]++;
       s += ISOLATED_PAWN_PENALTY;
+    }
+
+    // test on if a pawn is connected
+    if ((detail::CONNECTED_MASK[square] & pawns) != 0){
+      if (TRACK) ft.PawnConnected[color]++;
+      s += PAWN_CONNECTED;
     }
   }
 
