@@ -570,8 +570,8 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
   U64 enemyPawns = board.getPieces(otherColor, PAWN);
 
   // See if a King is attacking an enemy unprotected pawn
-  s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & enemyPawns);
-  if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & enemyPawns);
+  s += KING_ATTACK_PAWN * _popCount(attackBitBoard & enemyPawns);
+  if (TRACK) ft.KingAttackPawn[color] += _popCount(attackBitBoard & enemyPawns);
 
 
   if (((file & ourPawns) == 0)
