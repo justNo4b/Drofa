@@ -650,6 +650,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // reduce more if move has a bad history
           reduction += isQuiet && moveHistory < _badHistMargin;
+          reduction += isQuiet && moveHistory < 2 * _badHistMargin;
 
           //if we are improving, reduce a bit less (from Weiss)
           reduction -= improving;
