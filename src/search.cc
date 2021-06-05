@@ -542,7 +542,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // The justification is if our hashing is decent, if the 
   // position at high depth isnt here, its probably position 
   // not worth searching
-  if (depth >= 5 && !TTmove)
+  if (depth >= 5 && !TTmove && !doNool)
     depth--;
 
   // No pruning occured, generate moves and recurse
