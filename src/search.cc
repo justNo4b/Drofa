@@ -99,6 +99,11 @@ void Search::iterDeep() {
     }
 
     while (true){
+      
+      // Use particially full window if the bound
+      // is way too high
+      if (aspAlpha < -500) aspAlpha = LOST_SCORE;
+      if (aspBeta  >  500) aspBeta = -LOST_SCORE;
 
     int score = _rootMax(_initialBoard, aspAlpha, aspBeta, currDepth, 0);
 
