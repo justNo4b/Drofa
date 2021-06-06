@@ -26,6 +26,7 @@ struct evalBits{
     int RammedCount;
     int KingAttackers[2];
     int KingAttackPower[2];
+    int EnemyKingSquare[2];
 };
 
 /**
@@ -140,6 +141,7 @@ const int QUEEN_MOBILITY[28] = {
 };
 
 const int PIECE_ATTACK_POWER[6] = {0, 24, 50, 26, 62, 0};
+const int PIECE_CHECK_POWER[6] = {0, 16, 33, 17, 41, 0};
 const int COUNT_TO_POWER[8] = {0, 0, 50, 75, 80, 88, 95, 100};
 const int SAFE_SHIELD_SAFETY = -50;
 
