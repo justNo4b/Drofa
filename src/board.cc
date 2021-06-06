@@ -686,8 +686,8 @@ void Board::doMove(Move move) {
   }
 
   // Update pawn structure ZKey if this is a pawn move
-  if (move.getPieceType() == PAWN) {
-    _pawnStructureZkey.movePiece(_activePlayer, PAWN, from, to);
+  if (move.getPieceType() == PAWN || move.getPieceType() == KING) {
+    _pawnStructureZkey.movePiece(_activePlayer, move.getPieceType(), from, to);
   }
 
   _zKey.flipActivePlayer();

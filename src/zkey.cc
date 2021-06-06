@@ -111,6 +111,19 @@ void ZKey::setFromPawnStructure(const Board &board) {
       flipPiece(BLACK, PAWN, squareIndex);
     }
   }
+
+  // Add values from the kings
+  U64 king;
+  int index;
+  
+  king = board.getPieces(WHITE, KING);
+  index = _popLsb(king);
+  flipPiece(WHITE, KING, index);
+
+  king = board.getPieces(BLACK, KING);
+  index = _popLsb(king);
+  flipPiece(BLACK, KING, index);
+
 }
 
 U64 ZKey::getValue() const {
