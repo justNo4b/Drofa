@@ -370,6 +370,7 @@ int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
 
         // If the current score is better than alpha, or this is the first move in the loop
         if (currScore > alpha) {
+          _updateAlpha(move, board.getActivePlayer(), depth);
           fullWindow = false;
           bestMove = move;
           alpha = currScore;
