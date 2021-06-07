@@ -281,7 +281,7 @@ class Search {
    * @param color moving player
    * @param depth search depth
    */
-  inline void _updateAlpha(const Move move, Color Color, int depth);
+  inline void _updateAlpha(bool isQuiet, const Move move, Color Color, int depth);
 
   /**
    * @brief updating heuristics when beta cut occured 
@@ -292,7 +292,7 @@ class Search {
    * @param ply   search ply
    * @param depth search depth
    */
-  inline void _updateBeta(const Move move, Color color, int pMove, int ply, int depth);
+  inline void _updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ply, int depth);
 
   inline bool _isRepetitionDraw(U64);
 

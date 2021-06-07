@@ -302,14 +302,14 @@ void Search::_setupTimer(const Board &board, int curPlyNum){
     _ourTimeLeft = ourTime - _timeAllocated;
 }
 
-inline void Search::_updateAlpha(const Move move, Color color, int depth){
-  if (!(move.getFlags() & 0x63)){
+inline void Search::_updateAlpha(bool isQuiet, const Move move, Color color, int depth){
+  if (isQuiet){
     _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
   }
 }
 
-inline void Search::_updateBeta(const Move move, Color color, int pMove, int ply, int depth){
-	if (!(move.getFlags() & 0x63)) {
+inline void Search::_updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ply, int depth){
+	if (isQuiet) {
     _orderingInfo.updateKillers(ply, move);
     _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
     _orderingInfo.updateCounterMove(color, pMove, move.getMoveINT());
@@ -419,7 +419,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
   int alphaOrig = alpha;
-  int hashedMove = 0;
+  Move hashedMove = 0;
   // Check transposition table cache
   // If TT is causing a cuttoff, we update 
   // move ordering stuff
@@ -428,7 +428,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   if (probedHASHentry.Flag != NONE){
     TTmove = true;
-    hashedMove = probedHASHentry.move;
+    hashedMove = Move(probedHASHentry.move);
     if (probedHASHentry.depth >= depth && !pvNode){
       int hashScore = probedHASHentry.score;
 
@@ -436,15 +436,15 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         hashScore = (hashScore > 0) ? (hashScore - ply) :  (hashScore + ply);   
       }
       if (probedHASHentry.Flag == EXACT){
-        _updateAlpha(Move(probedHASHentry.move), board.getActivePlayer(), depth);
+        _updateAlpha(hashedMove.isQuiet(), hashedMove, board.getActivePlayer(), depth);
         return hashScore;
       }
       if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){ 
-        _updateAlpha(Move(probedHASHentry.move), board.getActivePlayer(), depth);
+        _updateAlpha(hashedMove.isQuiet(), hashedMove, board.getActivePlayer(), depth);
         return alpha;
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
-        _updateBeta(Move(probedHASHentry.move), board.getActivePlayer(), pMove, ply, depth);
+        _updateBeta(hashedMove.isQuiet(), hashedMove, board.getActivePlayer(), pMove, ply, depth);
         return beta;
       }
     }
@@ -553,7 +553,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   MoveGen movegen(board, false);
   MoveList legalMoves = movegen.getMoves();
   MovePicker movePicker
-      (&_orderingInfo, &board, &legalMoves, hashedMove, board.getActivePlayer(), ply, pMove);
+      (&_orderingInfo, &board, &legalMoves, hashedMove.getMoveINT(), board.getActivePlayer(), ply, pMove);
 
   Move bestMove;
   int  LegalMoveCount = 0;
@@ -562,7 +562,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   while (movePicker.hasNext()) {
 
     Move move = movePicker.getNext();
-    bool isQuiet = !(move.getFlags() & 0x63);
+    bool isQuiet = move.isQuiet();
 
     // 5. LATE MOVE PRUNING
     // If we made many quiet moves in the position already
@@ -706,7 +706,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // Beta cutoff
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
-          _updateBeta(move, board.getActivePlayer(), pMove, ply, depth);
+          _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, depth);
           // Add a new tt entry for this node
           if (!_stop){
             myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
@@ -725,7 +725,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         // Check if alpha raised (new best move)
         if (score > alpha) {
-          _updateAlpha(move, board.getActivePlayer(), depth);
+          _updateAlpha(isQuiet, move, board.getActivePlayer(), depth);
           alpha = score;
           bestMove = move;
           // we updated alpha and in the pVNode
