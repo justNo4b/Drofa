@@ -419,7 +419,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
   int alphaOrig = alpha;
-  Move hashedMove = 0;
+  Move hashedMove = Move(0);
   // Check transposition table cache
   // If TT is causing a cuttoff, we update 
   // move ordering stuff
