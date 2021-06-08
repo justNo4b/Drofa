@@ -55,6 +55,11 @@ class Move {
   unsigned int getFlags() const;
 
   /**
+   * @brief return is move quiet or not
+   */
+  bool isQuiet() const; 
+
+  /**
    * @brief Sets the specified flag on this move.
    * @param flag Flag to set
    */
