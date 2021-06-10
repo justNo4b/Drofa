@@ -29,12 +29,9 @@ struct posFeatured{
     int KingLowDanger[2];
     int KingSafe[2];
     int PawnSupported[2];
-    int PawnDoubled[2];
-    int PawnIsolated[2];
     int PawnBlocked[2];
     int PassersBlocked[2];
     int PawnDistortion[2];
-    int PawnConnected[2];
     int BishopRammed[2];
     int BishopCenterControl[2];
     int MinorBehindPawn[2];
@@ -53,6 +50,9 @@ struct posFeatured{
     int KingEnemyPasser[9][2];
     int RookOpenFile[2][2];
     int RookHalfFile[2][2];
+    int PawnConnected[2][2];
+    int PawnDoubled[2][2];
+    int PawnIsolated[2][2];
     int HangingPiece[5][2];
     //Array Features  - Mobility
     int BishopMobility[14][2];
@@ -102,7 +102,7 @@ struct tEntry {
   const std::string TUNING_DATA        = "BOOK.txt";
   const int         TUNING_POS_COUNT   = 42484641; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 786;
+  const int         TUNING_TERMS_COUNT = 789;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
   const int         TUNIGN_PRINT       = 25; 

@@ -242,12 +242,9 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.KingSafe[WHITE] - ft.KingSafe[BLACK];
     coeff[i++] = ft.BishopPair[WHITE] - ft.BishopPair[BLACK];
     coeff[i++] = ft.PawnSupported[WHITE] - ft.PawnSupported[BLACK];
-    coeff[i++] = ft.PawnDoubled[WHITE] - ft.PawnDoubled[BLACK];
-    coeff[i++] = ft.PawnIsolated[WHITE] - ft.PawnIsolated[BLACK];
     coeff[i++] = ft.PawnBlocked[WHITE] - ft.PawnBlocked[BLACK];
     coeff[i++] = ft.PassersBlocked[WHITE] - ft.PassersBlocked[BLACK];
     coeff[i++] = ft.PawnDistortion[WHITE] - ft.PawnDistortion[BLACK];
-    coeff[i++] = ft.PawnConnected[WHITE] - ft.PawnConnected[BLACK];
     coeff[i++] = ft.BishopRammed[WHITE] - ft.BishopRammed[BLACK];
     coeff[i++] = ft.BishopCenterControl[WHITE] - ft.BishopCenterControl[BLACK];
     coeff[i++] = ft.MinorBehindPawn[WHITE] - ft.MinorBehindPawn[BLACK];
@@ -282,6 +279,18 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 2; j++){
         coeff[i++] = ft.RookHalfFile[j][WHITE] - ft.RookHalfFile[j][BLACK];
+    }
+
+    for (int j = 0; j < 2; j++){
+        coeff[i++] = ft.PawnConnected[j][WHITE] - ft.PawnConnected[j][BLACK];
+    }
+
+    for (int j = 0; j < 2; j++){
+        coeff[i++] = ft.PawnDoubled[j][WHITE] - ft.PawnDoubled[j][BLACK];
+    }
+    
+    for (int j = 0; j < 2; j++){
+        coeff[i++] = ft.PawnIsolated[j][WHITE] - ft.PawnIsolated[j][BLACK];
     }
 
     for (int j = 0; j < 5; j++){

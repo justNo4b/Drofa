@@ -641,10 +641,10 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
   while (tmpPawns != ZERO) {
 
-
-
     int square = _popLsb(tmpPawns);
     int pawnCol = _col(square);
+    bool isPasser = false;
+
     if (TRACK){
       int relSqv = color == WHITE ? _mir(square) : square;
       ft.PawnPsqtBlack[relSqv][color]++;
@@ -653,6 +653,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     
     // add bonuses if the pawn is passed
     if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
+      isPasser = true;
       eB->Passers[color] = eB->Passers[color] | (ONE << square);
       int r = color == WHITE ? _row(square) : 7 - _row(square);
       s += PASSED_PAWN_RANKS[r] + PASSED_PAWN_FILES[pawnCol];
@@ -664,20 +665,20 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
     // add penalties for the doubled pawns
     if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0){
-      if (TRACK) ft.PawnDoubled[color]++;
-      s += DOUBLED_PAWN_PENALTY;
+      if (TRACK) ft.PawnDoubled[isPasser][color]++;
+      s += DOUBLED_PAWN_PENALTY[isPasser];
     }
 
     // score a pawn if it is isolated
     if (!(detail::NEIGHBOR_FILES[pawnCol] & pawns)){
-      if (TRACK) ft.PawnIsolated[color]++;
-      s += ISOLATED_PAWN_PENALTY;
+      if (TRACK) ft.PawnIsolated[isPasser][color]++;
+      s += ISOLATED_PAWN_PENALTY[isPasser];
     }
 
     // test on if a pawn is connected
     if ((detail::CONNECTED_MASK[square] & pawns) != 0){
-      if (TRACK) ft.PawnConnected[color]++;
-      s += PAWN_CONNECTED;
+      if (TRACK) ft.PawnConnected[isPasser][color]++;
+      s += PAWN_CONNECTED[isPasser];
     }
   }
 
