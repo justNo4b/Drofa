@@ -70,6 +70,11 @@ unsigned int Move::getFlags() const {
   return ((_move >> 21) & 0x7f);
 }
 
+bool Move::isQuiet() const {
+  // geflags + stuff
+  return !(((_move >> 21) & 0x7f) & 0x63);
+}
+
 bool Move::isItPasserPush(const Board &board) const{
   Color movingColor = board.getActivePlayer();
   Color defColor = board.getInactivePlayer();
