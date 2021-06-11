@@ -628,6 +628,16 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
     if (TRACK) ft.KingEnemyPasser[Eval::detail::DISTANCE[square][passerSquare]][color]++;
   }
 
+  tmpPawns = board.getPieces(getOppositeColor(color), PAWN) ^ eB.Passers[getOppositeColor(color)];
+  while (tmpPawns != ZERO) {
+
+    // Evaluate distance of our king to each of our own passers
+    int pawnSquare = _popLsb(tmpPawns);
+    s += KING_PAWN_DISTANCE_ENEMY[Eval::detail::DISTANCE[square][pawnSquare]];
+    if (TRACK) ft.KingPawnDistance[Eval::detail::DISTANCE[square][pawnSquare]][color]++;
+  }
+
+
   return s;
 }
 
