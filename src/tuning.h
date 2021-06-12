@@ -29,6 +29,7 @@ struct posFeatured{
     int KingLowDanger[2];
     int KingSafe[2];
     int PawnSupported[2];
+    int PasserSupported[2];
     int PawnDoubled[2];
     int PawnIsolated[2];
     int PawnBlocked[2];
@@ -102,7 +103,7 @@ struct tEntry {
   const std::string TUNING_DATA        = "BOOK.txt";
   const int         TUNING_POS_COUNT   = 42484641; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 786;
+  const int         TUNING_TERMS_COUNT = 787;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
   const int         TUNIGN_PRINT       = 25; 

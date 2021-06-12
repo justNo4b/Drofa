@@ -756,15 +756,6 @@ int Eval::evaluate(const Board &board, Color color) {
   #endif
   {
 
-    // PawnSupported  
-    // Apply bonus for each pawn protected by allied pawn
-    pScore += PAWN_SUPPORTED * _popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
-    pScore -= PAWN_SUPPORTED * _popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
-    if (TRACK){
-      ft.PawnSupported[WHITE] +=_popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
-      ft.PawnSupported[BLACK] +=_popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
-    }
-
     // Distortion evaluation
     // https://www.chessprogramming.org/Dispersion_and_Distortion
     // Basically it penalizes pawns that are too far away from general pawn mass
@@ -791,8 +782,26 @@ int Eval::evaluate(const Board &board, Color color) {
     // Passed, isolated, doubled
     pScore += evaluatePAWNS(board, WHITE, &eB) - evaluatePAWNS(board, BLACK, &eB);
 
-    myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB.Passers[WHITE], eB.Passers[BLACK], pScore);
 
+    // PawnSupported  
+    // Apply bonus for each pawn protected by allied pawn
+    pScore += PAWN_SUPPORTED * _popCount((board.getPieces(WHITE, PAWN) ^ eB.Passers[WHITE]) & eB.EnemyPawnAttackMap[BLACK]);
+    pScore -= PAWN_SUPPORTED * _popCount((board.getPieces(BLACK, PAWN) ^ eB.Passers[BLACK]) & eB.EnemyPawnAttackMap[WHITE]);
+    if (TRACK){
+      ft.PawnSupported[WHITE] += _popCount((board.getPieces(WHITE, PAWN) ^ eB.Passers[WHITE]) & eB.EnemyPawnAttackMap[BLACK]);
+      ft.PawnSupported[BLACK] += _popCount((board.getPieces(BLACK, PAWN) ^ eB.Passers[BLACK]) & eB.EnemyPawnAttackMap[WHITE]);
+    }
+    //Same stuff, but for passed pawns exclusively
+    pScore += PASSER_SUPPORTED * _popCount(eB.Passers[WHITE] & eB.EnemyPawnAttackMap[BLACK]);
+    pScore -= PASSER_SUPPORTED * _popCount(eB.Passers[BLACK] & eB.EnemyPawnAttackMap[WHITE]);
+    if (TRACK){
+      ft.PasserSupported[WHITE] += _popCount(eB.Passers[WHITE] & eB.EnemyPawnAttackMap[BLACK]);
+      ft.PasserSupported[BLACK] += _popCount(eB.Passers[BLACK] & eB.EnemyPawnAttackMap[WHITE]);
+    }
+
+
+
+    myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB.Passers[WHITE], eB.Passers[BLACK], pScore);
     if (color == BLACK) {
       score -= pScore;
     } else {

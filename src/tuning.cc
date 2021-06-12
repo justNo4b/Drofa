@@ -242,6 +242,7 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.KingSafe[WHITE] - ft.KingSafe[BLACK];
     coeff[i++] = ft.BishopPair[WHITE] - ft.BishopPair[BLACK];
     coeff[i++] = ft.PawnSupported[WHITE] - ft.PawnSupported[BLACK];
+    coeff[i++] = ft.PasserSupported[WHITE] - ft.PasserSupported[BLACK];
     coeff[i++] = ft.PawnDoubled[WHITE] - ft.PawnDoubled[BLACK];
     coeff[i++] = ft.PawnIsolated[WHITE] - ft.PawnIsolated[BLACK];
     coeff[i++] = ft.PawnBlocked[WHITE] - ft.PawnBlocked[BLACK];
