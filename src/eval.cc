@@ -159,6 +159,7 @@ evalBits Eval::Setupbits(const Board &board){
 
   U64 king = board.getPieces(WHITE, KING);
   eB.EnemyKingZone[BLACK] = detail::KINGZONE[WHITE][_bitscanForward(king)];
+
       king = board.getPieces(BLACK, KING);
   eB.EnemyKingZone[WHITE] = detail::KINGZONE[BLACK][_bitscanForward(king)];
   
@@ -400,6 +401,24 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
       U64 attackBitBoard = board.getMobilityForSquare(ROOK, color, square, eB->EnemyPawnAttackMap[color]);
       s += ROOK_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.RookMobility[_popCount(attackBitBoard)][color]++;
+
+      // Trapped rook evaluation
+      // kingside
+      if (((ONE << square) & (color == WHITE ? TRAP_ROOK_WHITE_00 : TRAP_ROOK_BLACK_00)) &&
+          (board.getPieces(color, KING) & (color == WHITE ? TRAP_ROOK_KINGW_00 : TRAP_ROOK_KINGB_00))){
+            s += TRAPPED_ROOK;
+            if (TRACK) ft.TrappedRook[color]++;
+          }
+
+      // queenside
+      if (((ONE << square) & (color == WHITE ? TRAP_ROOK_WHITE_000 : TRAP_ROOK_BLACK_000)) &&
+          (board.getPieces(color, KING) & (color == WHITE ? TRAP_ROOK_KINGW_000 : TRAP_ROOK_KINGB_000))){
+            s += TRAPPED_ROOK;
+            if (TRACK) ft.TrappedRook[color]++;
+          }
+
+
+
       // If Rook attacking squares near enemy king
       // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
