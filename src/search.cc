@@ -493,8 +493,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   if (!pvNode && !AreWeInCheck && depth == 1 &&
       statEVAL + RAZORING_MARGIN < beta){
-        int qVal = _qSearch(board, alpha, beta, ply + 1);
-        return std::max (qVal, statEVAL + RAZORING_MARGIN);
+        return _qSearch(board, alpha, beta, ply + 1);
       }
 
 
