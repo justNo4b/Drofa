@@ -320,7 +320,7 @@ class Search {
    * @param  int    int of the last move that was made
    * @return The score of the given board
    */
-  int _negaMax(const Board &, pV *myPV, int, int, int, int, bool, int);
+  int _negaMax(const Board &, pV *myPV, int, int, int, int, bool, int, bool);
 
   /**
    * @brief Performs a quiescence search
