@@ -707,19 +707,6 @@ int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits & eB){
   s += MINOR_BEHIND_PASSER * _popCount(eB.Passers[color] & pieces);
   if (TRACK) ft.MinorBehindPasser[color] += _popCount(eB.Passers[color] & pieces);
 
-  // 3.Evaluate threats by pawn push
-  // This time get enemy pieces and see if they can be attacked
-  // by our pawn advancing
-  pieces = board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP) | 
-           board.getPieces(otherColor, ROOK) | board.getPieces(otherColor, QUEEN);
-  // do not count if pawns if blocked
-  // toDo - better definition here is needed         
-  tmpPawns = board.getPieces(color, PAWN) ^ blocked;
-  tmpPawns = color == WHITE ? (((tmpPawns << 9) & ~FILE_A) << 8) | (((tmpPawns << 7) & ~FILE_H) << 8) :
-                              (((tmpPawns >> 9) & ~FILE_H) >> 8) | (((tmpPawns >> 7) & ~FILE_A) >> 8) ;
-  s += PAWN_PUSH_THREAT * _popCount(tmpPawns & pieces);
-  if (TRACK) ft.PawnPushThreat[color] +=  _popCount(tmpPawns & pieces);
-
   return s;
 }
 
@@ -849,60 +836,8 @@ int Eval::evaluate(const Board &board, Color color) {
 
   score += pieceS;
 
-  // evaluate pawn - piece interactions
-  // 1. Blocked pawns - separate for passers and non-passers
 
-  U64 pieces, nonPassers, blockedMy, blockedOther = ZERO;
-
-  pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP) | 
-           board.getPieces(color, ROOK) | board.getPieces(color, QUEEN);
-  nonPassers = board.getPieces(otherColor, PAWN) ^ eB.Passers[otherColor];
-  nonPassers = otherColor == WHITE ? nonPassers << 8 : nonPassers >> 8;
-  score += PAWN_BLOCKED * (_popCount(pieces & nonPassers));
-  blockedMy |= (pieces & nonPassers);
-  if (TRACK) ft.PawnBlocked[color] += (_popCount(pieces & nonPassers));
-
-  nonPassers = otherColor == WHITE ? eB.Passers[otherColor] << 8 : eB.Passers[otherColor] >> 8;
-  score += PASSER_BLOCKED * (_popCount(pieces & nonPassers));
-  blockedMy |= (pieces & nonPassers);
-  if (TRACK) ft.PassersBlocked[color] += (_popCount(pieces & nonPassers));
-  
-
-
-  pieces = board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP) | 
-           board.getPieces(otherColor, ROOK) | board.getPieces(otherColor, QUEEN);
-  nonPassers = board.getPieces(color, PAWN) ^ eB.Passers[color];
-  nonPassers = color == WHITE ? nonPassers << 8 : nonPassers >> 8;
-  score -= PAWN_BLOCKED * (_popCount(pieces & nonPassers));
-  blockedOther |= (pieces & nonPassers);
-  if (TRACK) ft.PawnBlocked[otherColor] += (_popCount(pieces & nonPassers));
-
-  nonPassers = color == WHITE ? eB.Passers[color] << 8 : eB.Passers[color] >> 8;
-  score -= PASSER_BLOCKED * (_popCount(pieces & nonPassers));
-  blockedOther |= (pieces & nonPassers);
-  if (TRACK) ft.PassersBlocked[otherColor] += (_popCount(pieces & nonPassers));
-
-  // 2. Minors immediately behind our pawns - separate for passers and non-passers
-
-  pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
-  pieces = color == WHITE ? pieces << 8 : pieces >> 8;
-  nonPassers = board.getPieces(color, PAWN) ^ eB.Passers[color];
-  score += MINOR_BEHIND_PAWN * _popCount(nonPassers & pieces);
-  if (TRACK) ft.MinorBehindPawn[color] += _popCount(nonPassers & pieces);
-
-  score += MINOR_BEHIND_PASSER * _popCount(eB.Passers[color] & pieces);
-  if (TRACK) ft.MinorBehindPasser[color] += _popCount(eB.Passers[color] & pieces);
-
-
-  pieces = board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP);
-  pieces = otherColor == WHITE ? pieces << 8 : pieces >> 8;
-  nonPassers = board.getPieces(otherColor, PAWN) ^ eB.Passers[otherColor];
-  score -= MINOR_BEHIND_PAWN * _popCount(nonPassers & pieces);
-  if (TRACK) ft.MinorBehindPawn[otherColor] += _popCount(nonPassers & pieces);
-
-  score -= MINOR_BEHIND_PASSER * _popCount(eB.Passers[otherColor] & pieces);
-  if (TRACK) ft.MinorBehindPasser[otherColor] += _popCount(eB.Passers[otherColor] & pieces);
-
+  score += PiecePawnInteraction(board, color, eB) - PiecePawnInteraction(board, otherColor, eB);
 
   // King pawn shield
   // Tapering is included in, so we count it in both phases
