@@ -28,10 +28,6 @@ int MATERIAL_VALUES_TUNABLE[2][6] = {
         [KING] = 0
     }
 };
-int BISHOP_PAIR_TUNABLE [2] = {
-    [OPENING] = 20,
-    [ENDGAME] = 20
-};
 
 U64 Eval::detail::FILES[8] = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
 U64 Eval::detail::DISTANCE[64][64];
@@ -174,18 +170,6 @@ void Eval::SetupTuning(int phase, PieceType piece, int value){
   MATERIAL_VALUES_TUNABLE [phase][piece] = value;
 }
 
-void Eval::SetupFeatureTuning(int phase, TuningFeature feature, int value){
-  switch (feature)
-  {
-  case BISHOP_PAIR:
-    BISHOP_PAIR_TUNABLE[phase] = value;
-    break;
-  
-  default:
-    break;
-  }
-}
-
 int Eval::getMaterialValue(int phase, PieceType pieceType) {
   if (phase == OPENING){
     return opS(MATERIAL_VALUES[pieceType]);
@@ -194,7 +178,7 @@ int Eval::getMaterialValue(int phase, PieceType pieceType) {
   }
 }
 
-bool Eval::IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
+inline bool Eval::IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
                         int b_N, int b_B, int b_R, int b_Q){
 
 if (w_Q > 0 || b_Q > 0 ){
@@ -235,7 +219,7 @@ return false;
 
 }
 
-int Eval::kingSafety(const Board &board, Color color, int Q_count, evalBits * eB){
+inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, evalBits * eB){
       //King safety - замена pawnsShieldingKing
     // идея в том, чтобы
     // а. Найти позицию короля
@@ -684,6 +668,49 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   return s;
 }
 
+inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits & eB){
+  int s = 0;
+  Color otherColor = getOppositeColor(color);
+  U64 blocked = ZERO;
+  U64 pieces, tmpPawns = ZERO;
+
+  // 1. Blocked pawns - separate for passers and non-passers
+
+  // Get major blockers and pawns
+  //  a. Non-passer pawns
+  pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP) | 
+           board.getPieces(color, ROOK) | board.getPieces(color, QUEEN);
+  tmpPawns = board.getPieces(otherColor, PAWN) ^ eB.Passers[otherColor];
+
+  // Shift stuff, give evaluation
+  // Do not forget to add pawns to BlockedBB for later use
+  tmpPawns = otherColor == WHITE ? tmpPawns << 8 : tmpPawns >> 8;
+  s += PAWN_BLOCKED * (_popCount(pieces & tmpPawns));
+  blocked |= (pieces & tmpPawns);
+  if (TRACK) ft.PawnBlocked[color] += (_popCount(pieces & tmpPawns));
+
+  // same stuff, but with passed pawns
+  tmpPawns = otherColor == WHITE ? eB.Passers[otherColor] << 8 : eB.Passers[otherColor] >> 8;
+  s += PASSER_BLOCKED * (_popCount(pieces & tmpPawns));
+  blocked |= (pieces & tmpPawns);
+  if (TRACK) ft.PassersBlocked[color] += (_popCount(pieces & tmpPawns));
+
+  // 2. Minors immediately behind our pawns - separate for passers and non-passers
+  // Get minor pieces, shift them, and see if our pawn is & with them
+  // Same as above, separate for passers and non-passers
+  pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
+  pieces = color == WHITE ? pieces << 8 : pieces >> 8;
+  tmpPawns = board.getPieces(color, PAWN) ^ eB.Passers[color];
+  s += MINOR_BEHIND_PAWN * _popCount(tmpPawns & pieces);
+  if (TRACK) ft.MinorBehindPawn[color] += _popCount(tmpPawns & pieces);
+
+  s += MINOR_BEHIND_PASSER * _popCount(eB.Passers[color] & pieces);
+  if (TRACK) ft.MinorBehindPasser[color] += _popCount(eB.Passers[color] & pieces);
+
+  return s;
+}
+
+
 int Eval::evaluate(const Board &board, Color color) {
 
   int score = 0;
@@ -809,64 +836,12 @@ int Eval::evaluate(const Board &board, Color color) {
 
   score += pieceS;
 
-  // evaluate pawn - piece interactions
-  // 1. Blocked pawns - separate for passers and non-passers
 
-  U64 pieces, nonPassers, blockedMy, blockedOther = ZERO;
-
-  pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP) | 
-           board.getPieces(color, ROOK) | board.getPieces(color, QUEEN);
-  nonPassers = board.getPieces(otherColor, PAWN) ^ eB.Passers[otherColor];
-  nonPassers = otherColor == WHITE ? nonPassers << 8 : nonPassers >> 8;
-  score += PAWN_BLOCKED * (_popCount(pieces & nonPassers));
-  blockedMy |= (pieces & nonPassers);
-  if (TRACK) ft.PawnBlocked[color] += (_popCount(pieces & nonPassers));
-
-  nonPassers = otherColor == WHITE ? eB.Passers[otherColor] << 8 : eB.Passers[otherColor] >> 8;
-  score += PASSER_BLOCKED * (_popCount(pieces & nonPassers));
-  blockedMy |= (pieces & nonPassers);
-  if (TRACK) ft.PassersBlocked[color] += (_popCount(pieces & nonPassers));
-  
-
-
-  pieces = board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP) | 
-           board.getPieces(otherColor, ROOK) | board.getPieces(otherColor, QUEEN);
-  nonPassers = board.getPieces(color, PAWN) ^ eB.Passers[color];
-  nonPassers = color == WHITE ? nonPassers << 8 : nonPassers >> 8;
-  score -= PAWN_BLOCKED * (_popCount(pieces & nonPassers));
-  blockedOther |= (pieces & nonPassers);
-  if (TRACK) ft.PawnBlocked[otherColor] += (_popCount(pieces & nonPassers));
-
-  nonPassers = color == WHITE ? eB.Passers[color] << 8 : eB.Passers[color] >> 8;
-  score -= PASSER_BLOCKED * (_popCount(pieces & nonPassers));
-  blockedOther |= (pieces & nonPassers);
-  if (TRACK) ft.PassersBlocked[otherColor] += (_popCount(pieces & nonPassers));
-
-  // 2. Minors immediately behind our pawns - separate for passers and non-passers
-
-  pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
-  pieces = color == WHITE ? pieces << 8 : pieces >> 8;
-  nonPassers = board.getPieces(color, PAWN) ^ eB.Passers[color];
-  score += MINOR_BEHIND_PAWN * _popCount(nonPassers & pieces);
-  if (TRACK) ft.MinorBehindPawn[color] += _popCount(nonPassers & pieces);
-
-  score += MINOR_BEHIND_PASSER * _popCount(eB.Passers[color] & pieces);
-  if (TRACK) ft.MinorBehindPasser[color] += _popCount(eB.Passers[color] & pieces);
-
-
-  pieces = board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP);
-  pieces = otherColor == WHITE ? pieces << 8 : pieces >> 8;
-  nonPassers = board.getPieces(otherColor, PAWN) ^ eB.Passers[otherColor];
-  score -= MINOR_BEHIND_PAWN * _popCount(nonPassers & pieces);
-  if (TRACK) ft.MinorBehindPawn[otherColor] += _popCount(nonPassers & pieces);
-
-  score -= MINOR_BEHIND_PASSER * _popCount(eB.Passers[otherColor] & pieces);
-  if (TRACK) ft.MinorBehindPasser[otherColor] += _popCount(eB.Passers[otherColor] & pieces);
-
+  score += PiecePawnInteraction(board, color, eB) - PiecePawnInteraction(board, otherColor, eB);
 
   // King pawn shield
   // Tapering is included in, so we count it in both phases
-  score += kingSafety(board, color, b_Q, &eB) - kingSafety(board, otherColor, w_Q, &eB);
+  score += kingShieldSafety(board, color, b_Q, &eB) - kingShieldSafety(board, otherColor, w_Q, &eB);
 
   // evluate king danger
 
@@ -885,10 +860,6 @@ int Eval::evaluate(const Board &board, Color color) {
     score -= BISHOP_PAIR_BONUS; 
     if (TRACK) ft.BishopPair[otherColor]++;
   }
-
-
-
-
 
   if (TRACK){
     ft.FinalEval = score;
