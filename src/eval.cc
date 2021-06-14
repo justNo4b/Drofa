@@ -821,28 +821,27 @@ int Eval::evaluate(const Board &board, Color color) {
     ft.FinalEval = score;
     ft.OCBscale  = false;
   }
+
   // Calculation of the phase value
-
-
   int phase = getPhase(board);
-  // Interpolate between opening/endgame scores depending on the phase
 
+  // Interpolate between opening/endgame scores depending on the phase
   int final_eval = ((opS(score) * (MAX_PHASE - phase)) + (egS(score) * phase)) / MAX_PHASE;
 
   if (w_Q == 0 && b_Q == 0 &&
       w_R == 0 && b_R == 0 &&
       w_N == 0 && b_N == 0 &&
       w_B == 1 && b_B == 1){
-        U64 bothBishops = board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP);
-        if (_popCount(bothBishops & WHITE_SQUARES) == 1){
-          final_eval = final_eval / 2;
-          if (TRACK) ft.OCBscale = true;
-        }
-      }
+    U64 bothBishops = board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP);
+    if (_popCount(bothBishops & WHITE_SQUARES) == 1){
+        final_eval = final_eval / 2;
+        if (TRACK) ft.OCBscale = true;
+    }
+  }
 
   if (DrawishMaterial){
-    if ((final_eval > 0 && w_P == 0) ||(final_eval < 0 && b_P == 0) )
-    final_eval = final_eval / 4;
+    if ((final_eval > 0 && w_P == 0) || (final_eval < 0 && b_P == 0))
+      final_eval = final_eval / 4;
   }
 
   return final_eval + TEMPO;
