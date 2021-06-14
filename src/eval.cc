@@ -214,7 +214,7 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, 
 
          //0 - kingSide; 1 - QueenSide
 
-    if ((detail::KING_OO_MASKS[color][0] & board.getPieces(color, KING)) != 0){
+    if ((color == WHITE ? WHITE_K_CASTLE : BLACK_K_CASTLE) & board.getPieces(color, KING)){
       // если это верно, то мы находимся на королевском фланге
       // сравниваем с масками, возвращаем бонус если маска совпала
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][0]) == detail::KING_PAWN_MASKS[color][0][0]){
