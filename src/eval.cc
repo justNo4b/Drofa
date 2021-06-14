@@ -254,7 +254,7 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, 
       return KING_MED_DANGER;
     }
 
-    if ((detail::KING_OO_MASKS[color][1] & board.getPieces(color, KING)) != 0){
+    if ((color == WHITE ? WHITE_Q_CASTLE : BLACK_Q_CASTLE) & board.getPieces(color, KING)){
       // если это верно, то мы находимся на ферзевом
       // сравниваем с масками, возвращаем бонус если маска совпала
       if ((pawnMap & detail::KING_PAWN_MASKS[color][1][0]) == detail::KING_PAWN_MASKS[color][1][0]){
