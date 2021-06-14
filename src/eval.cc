@@ -106,58 +106,52 @@ void Eval::init() {
   // Initialize passed pawn masks
   for (int square = 0; square < 64; square++) {
 
-    U64 currNorthRay = Rays::getRay(Rays::NORTH, square);
-    U64 currSouthRay = Rays::getRay(Rays::SOUTH, square);
-  
-    detail::FORWARD_BITS[WHITE][square] = currNorthRay;
-    detail::FORWARD_BITS[BLACK][square] = currSouthRay;
-
     detail::CONNECTED_MASK[square] = ((ONE << (square + 1)) & ~FILE_A) | ((ONE << (square - 1)) & ~FILE_H);
-
-    detail::PASSED_PAWN_MASKS[WHITE][square] =
-        currNorthRay | _eastN(currNorthRay, 1) | _westN(currNorthRay, 1);
-    detail::PASSED_PAWN_MASKS[BLACK][square] =
-        currSouthRay | _westN(currSouthRay, 1) | _eastN(currSouthRay, 1);
-
-    detail::OUTPOST_MASK[WHITE][square] = detail::PASSED_PAWN_MASKS[WHITE][square] & detail::NEIGHBOR_FILES[_col(square)];  
-    detail::OUTPOST_MASK[BLACK][square] = detail::PASSED_PAWN_MASKS[BLACK][square] & detail::NEIGHBOR_FILES[_col(square)];  
-
-    U64 sqv = ONE << square;
-    detail::OUTPOST_PROTECTION[WHITE][square] = ((sqv >> 9) & ~FILE_H) | ((sqv >> 7) & ~FILE_A);
-    detail::OUTPOST_PROTECTION[BLACK][square] = ((sqv << 9) & ~FILE_A) | ((sqv << 7) & ~FILE_H);
-
-    U64 kingAttack = Attacks::getNonSlidingAttacks(KING, square, WHITE); 
-    detail::KINGZONE[WHITE][square] = sqv | kingAttack | (kingAttack << 8);
-    detail::KINGZONE[BLACK][square] = sqv | kingAttack | (kingAttack >> 8);
 
     for (int i =0; i < 64; i++){
       detail::DISTANCE[square][i] = std::max(abs(_col(square) - _col(i)), abs(_row(square) - _row(i)));
     }
 
+    for (auto color : { WHITE, BLACK }) {
 
+      U64 forwardRay = Rays::getRay(color == WHITE ? Rays::NORTH : Rays::SOUTH, square);
 
+      detail::FORWARD_BITS[color][square] = forwardRay;
+
+      detail::PASSED_PAWN_MASKS[color][square] = forwardRay | _eastN(forwardRay, 1) | _westN(forwardRay, 1);
+
+      detail::OUTPOST_MASK[color][square] = detail::PASSED_PAWN_MASKS[color][square] & detail::NEIGHBOR_FILES[_col(square)];
+
+      U64 sqv = ONE << square;
+      detail::OUTPOST_PROTECTION[color][square] = color == WHITE ? ((sqv >> 9) & ~FILE_H) | ((sqv >> 7) & ~FILE_A)
+                                                                 : ((sqv << 9) & ~FILE_A) | ((sqv << 7) & ~FILE_H);
+
+      U64 kingAttack = Attacks::getNonSlidingAttacks(KING, square, WHITE);
+      detail::KINGZONE[color][square] = color == WHITE ? sqv | kingAttack | (kingAttack << 8)
+                                                       : sqv | kingAttack | (kingAttack >> 8);
+    }
   }
 
   // Initialize PHASE_WEIGHT_SUM
-  detail::PHASE_WEIGHT_SUM += detail::PHASE_WEIGHTS[PAWN] * 16;
-  detail::PHASE_WEIGHT_SUM += detail::PHASE_WEIGHTS[KNIGHT] * 4;
-  detail::PHASE_WEIGHT_SUM += detail::PHASE_WEIGHTS[BISHOP] * 4;
-  detail::PHASE_WEIGHT_SUM += detail::PHASE_WEIGHTS[ROOK] * 4;
-  detail::PHASE_WEIGHT_SUM += detail::PHASE_WEIGHTS[QUEEN] * 2;
+  detail::PHASE_WEIGHT_SUM += 16 * detail::PHASE_WEIGHTS[PAWN];
+  detail::PHASE_WEIGHT_SUM +=  4 * detail::PHASE_WEIGHTS[KNIGHT];
+  detail::PHASE_WEIGHT_SUM +=  4 * detail::PHASE_WEIGHTS[BISHOP];
+  detail::PHASE_WEIGHT_SUM +=  4 * detail::PHASE_WEIGHTS[ROOK];
+  detail::PHASE_WEIGHT_SUM +=  2 * detail::PHASE_WEIGHTS[QUEEN];
 }
 
 evalBits Eval::Setupbits(const Board &board){
   evalBits eB;
-  U64 pBB = board.getPieces(WHITE, PAWN);
-  eB.EnemyPawnAttackMap[BLACK] = ((pBB << 9) & ~FILE_A) | ((pBB << 7) & ~FILE_H);
-  pBB = board.getPieces(BLACK, PAWN);
-  eB.EnemyPawnAttackMap[WHITE] = ((pBB >> 9) & ~FILE_H) | ((pBB >> 7) & ~FILE_A);
 
-  U64 king = board.getPieces(WHITE, KING);
-  eB.EnemyKingZone[BLACK] = detail::KINGZONE[WHITE][_bitscanForward(king)];
-      king = board.getPieces(BLACK, KING);
-  eB.EnemyKingZone[WHITE] = detail::KINGZONE[BLACK][_bitscanForward(king)];
-  
+  for (auto color : { WHITE, BLACK }) {
+    U64 pBB = board.getPieces(color, PAWN);
+    eB.EnemyPawnAttackMap[!color] = color == WHITE ? ((pBB << 9) & ~FILE_A) | ((pBB << 7) & ~FILE_H)
+                                                   : ((pBB >> 9) & ~FILE_H) | ((pBB >> 7) & ~FILE_A);
+
+    U64 king = board.getPieces(color, KING);
+    eB.EnemyKingZone[!color] = detail::KINGZONE[color][_bitscanForward(king)];
+  }
+
   eB.RammedCount = _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN));
   eB.OutPostedLines[0] = 0, eB.OutPostedLines[1] = 0;
   eB.KingAttackers[0] = 0, eB.KingAttackers[1] = 0;
@@ -171,52 +165,48 @@ void Eval::SetupTuning(int phase, PieceType piece, int value){
 }
 
 int Eval::getMaterialValue(int phase, PieceType pieceType) {
-  if (phase == OPENING){
-    return opS(MATERIAL_VALUES[pieceType]);
-  }else{
-    return egS(MATERIAL_VALUES[pieceType]);
-  }
+  return phase == OPENING ? opS(MATERIAL_VALUES[pieceType])
+                          : egS(MATERIAL_VALUES[pieceType]);
 }
 
 inline bool Eval::IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
                         int b_N, int b_B, int b_R, int b_Q){
 
-if (w_Q > 0 || b_Q > 0 ){
-  return false;           // есть есть хоть 1 королева, то ещё играем
-} 
+  if (w_Q > 0 || b_Q > 0 ){
+    return false;           // есть есть хоть 1 королева, то ещё играем
+  }
 
-if (w_R == 0 && b_R == 0){ // нет пешек, нет королев, нет ладей
-  if (w_B == 0 && b_B == 0){  // нет пешек, ладей, слонов.
-      if (w_N < 3 && b_N < 3){ // меньше 2х коней = ничья
+  if (w_R == 0 && b_R == 0){ // нет пешек, нет королев, нет ладей
+    if (w_B == 0 && b_B == 0){  // нет пешек, ладей, слонов.
+        if (w_N < 3 && b_N < 3){ // меньше 2х коней = ничья
+          return true;
+        }
+    } else if (w_N == 0 && b_N == 0){ // нет пешек, королев, ладей, коней
+        if (abs( w_B - b_B) < 2){
+          return true;
+        }
+    } else if (( w_N < 3 && w_B ==0) || (w_B == 1 &&  w_N == 0)){
+      if ((b_N < 3 && b_B == 0)||(b_B == 1 && b_N == 0)){
         return true;
       }
-  } else if (w_N == 0 && b_N == 0){ // нет пешек, королев, ладей, коней
-      if (abs( w_B - b_B) < 2){
+    }
+  } else {                             // ладьи есть
+    if (w_R == 1 && b_R == 1){
+      if (w_N + w_B < 2 && b_N + b_B < 2){    // тут немного криво, так как BR vs R выигрывают
         return true;
       }
-  }else if (( w_N < 3 && w_B ==0) || (w_B == 1 &&  w_N == 0)){
-    if ((b_N < 3 && b_B == 0)||(b_B == 1 && b_N == 0)){
-      return true;
+    }else if (w_R == 1 && b_R == 0){
+      if (w_N + w_B == 0 && b_N + b_B > 1){
+        return true;
+      }
+    }else if (b_R == 1 && w_R == 0){
+      if (b_N + b_B == 0 && w_N + w_B > 1){
+        return true;
+      }
     }
   }
-}else {                             // ладьи есть
-  if (w_R == 1 && b_R == 1){
-    if (w_N + w_B < 2 && b_N + b_B < 2){    // тут немного криво, так как BR vs R выигрывают
-      return true;
-    } 
-  }else if (w_R == 1 && b_R == 0){
-    if (w_N + w_B == 0 && b_N + b_B > 1){
-      return true;
-    }
-  }else if (b_R == 1 && w_R == 0){
-    if (b_N + b_B == 0 && w_N + w_B > 1){
-      return true;
-    }
-  }
-}
 
-return false;
-
+  return false;
 }
 
 inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, evalBits * eB){
@@ -242,7 +232,7 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, 
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][0]) == detail::KING_PAWN_MASKS[color][0][0]){
           eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
           if (TRACK) ft.KingSafe[color]++;
-          return KING_SAFE;    
+          return KING_SAFE;
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][1]) == detail::KING_PAWN_MASKS[color][0][1]){
           eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
@@ -256,7 +246,7 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, 
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][3]) == detail::KING_PAWN_MASKS[color][0][3]){
           if (TRACK) ft.KingLowDanger[color]++;
-          return KING_LOW_DANGER;     
+          return KING_LOW_DANGER;
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][4]) == detail::KING_PAWN_MASKS[color][0][4]){
         if (TRACK) ft.KingLowDanger[color]++;
@@ -274,7 +264,7 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, 
       // вернуть штраф к нашей позиции
       if (TRACK) ft.KingMedDanger[color]++;
       return KING_MED_DANGER;
-    }      
+    }
 
     if ((detail::KING_OO_MASKS[color][1] & board.getPieces(color, KING)) != 0){
       // если это верно, то мы находимся на ферзевом
@@ -282,7 +272,7 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, 
       if ((pawnMap & detail::KING_PAWN_MASKS[color][1][0]) == detail::KING_PAWN_MASKS[color][1][0]){
         eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
         if (TRACK) ft.KingSafe[color]++;
-          return KING_SAFE;    
+          return KING_SAFE;
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][1][1]) == detail::KING_PAWN_MASKS[color][1][1]){
         eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
@@ -296,7 +286,7 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, 
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][1][3]) == detail::KING_PAWN_MASKS[color][1][3]){
         if (TRACK) ft.KingLowDanger[color]++;
-          return KING_LOW_DANGER;     
+          return KING_LOW_DANGER;
       }
       if ((pawnMap & detail::KING_PAWN_MASKS[color][1][4]) == detail::KING_PAWN_MASKS[color][1][4]){
         if (TRACK) ft.KingLowDanger[color]++;
@@ -306,10 +296,10 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, 
       // вернуть штраф к нашей позиции
       if (TRACK) ft.KingMedDanger[color]++;
       return KING_MED_DANGER;
-    } 
+    }
 
-      // мы не рокированы по факту при живом ферзе.
-      // это очень опасно, вернуть штраф
+    // мы не рокированы по факту при живом ферзе.
+    // это очень опасно, вернуть штраф
     if (TRACK) ft.KingHighDanger[color]++;
     return KING_HIGH_DANGER;
 }
@@ -335,32 +325,31 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
   s += HANGING_PIECE[QUEEN] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
   if (TRACK) ft.HangingPiece[QUEEN][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
 
-    while (pieces) {
-      int square = _popLsb(pieces);
+  while (pieces) {
+    int square = _popLsb(pieces);
 
-      if (TRACK){
-        int relSqv = color == WHITE ? _mir(square) : square;
-        ft.QueenPsqtBlack[relSqv][color]++;
-      }
-      // Mobility calculations
-      // Note: Queen NOT using scanning mobility
-      U64 attackBitBoard = board.getMobilityForSquare(QUEEN, color, square, eB->EnemyPawnAttackMap[color]);
-      s += QUEEN_MOBILITY[_popCount(attackBitBoard)];
-      if (TRACK) ft.QueenMobility[_popCount(attackBitBoard)][color]++;
-
-      // See if a Queen is attacking an enemy unprotected pawn
-      s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
-      if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
-
-
-      // If Queen attacking squares near enemy king
-      // Adjust our kind Danger code
-      int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
-      if (kingAttack > 0){
-        eB->KingAttackers[color]++;
-        eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[QUEEN];
-      }
+    if (TRACK){
+      int relSqv = color == WHITE ? _mir(square) : square;
+      ft.QueenPsqtBlack[relSqv][color]++;
     }
+    // Mobility calculations
+    // Note: Queen NOT using scanning mobility
+    U64 attackBitBoard = board.getMobilityForSquare(QUEEN, color, square, eB->EnemyPawnAttackMap[color]);
+    s += QUEEN_MOBILITY[_popCount(attackBitBoard)];
+    if (TRACK) ft.QueenMobility[_popCount(attackBitBoard)][color]++;
+
+    // See if a Queen is attacking an enemy unprotected pawn
+    s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
+    if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
+
+    // If Queen attacking squares near enemy king
+    // Adjust our kind Danger code
+    int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
+    if (kingAttack > 0){
+      eB->KingAttackers[color]++;
+      eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[QUEEN];
+    }
+  }
 
   return s;
 }
@@ -399,17 +388,16 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
 
       // Open/semiopen file detection
       // we differentiate between open/semiopen based on
-      // if there are enemys protected outpost here 
+      // if there are enemys protected outpost here
       U64 file = detail::FILES[_col(square)];
       if ( ((file & board.getPieces(color, PAWN)) == 0)
         && ((file & board.getPieces(otherColor, PAWN)) == 0)){
-
-            s += ROOK_OPEN_FILE_BONUS[((file & eB->OutPostedLines[otherColor]) != 0)];
-            if (TRACK) ft.RookOpenFile[((file & eB->OutPostedLines[otherColor]) != 0)][color]++;    
+          s += ROOK_OPEN_FILE_BONUS[((file & eB->OutPostedLines[otherColor]) != 0)];
+          if (TRACK) ft.RookOpenFile[((file & eB->OutPostedLines[otherColor]) != 0)][color]++;
       }
       else if ((file & board.getPieces(color, PAWN)) == 0){
           s += ROOK_SEMI_FILE_BONUS[((file & eB->OutPostedLines[otherColor]) != 0)];
-          if (TRACK) ft.RookHalfFile[((file & eB->OutPostedLines[otherColor]) != 0)][color]++;  
+          if (TRACK) ft.RookHalfFile[((file & eB->OutPostedLines[otherColor]) != 0)][color]++;
       }
     }
 
@@ -429,7 +417,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
   if (TRACK) ft.HangingPiece[BISHOP][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
 
     while (pieces) {
-      
+
       int square = _popLsb(pieces);
       if (TRACK){
         int relSqv = color == WHITE ? _mir(square) : square;
@@ -460,7 +448,6 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
       if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
 
-
       // OUTPOSTED BISHOP
       // We use separed PSQT for protected and unprotected outposts
       // Unprotected outposts are only considered outposts
@@ -472,8 +459,8 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
           eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
           if (TRACK) ft.BishopOutProtBlack[relSqv][color]++;
         }else if((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) != ZERO){
-          s += BISHOP_OUTPOST_BLACK[relSqv]; 
-          if (TRACK) ft.BishopOutBlack[relSqv][color]++;       
+          s += BISHOP_OUTPOST_BLACK[relSqv];
+          if (TRACK) ft.BishopOutBlack[relSqv][color]++;
         }
       }
     }
@@ -490,7 +477,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
   if (TRACK) ft.HangingPiece[KNIGHT][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
 
     while (pieces) {
-      
+
       int square = _popLsb(pieces);
       if (TRACK){
         int relSqv = color == WHITE ? _mir(square) : square;
@@ -519,14 +506,14 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       // Unprotected outposts are only considered outposts
       // if there is pawn in front spawn of outposted piece
       if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
-        int relSqv = color == WHITE ? _mir(square) : square;        
+        int relSqv = color == WHITE ? _mir(square) : square;
         if (detail::OUTPOST_PROTECTION[color][square] & board.getPieces(color, PAWN)){
           s += KNIGHT_PROT_OUTPOST_BLACK[relSqv];
           eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
           if (TRACK) ft.KnightOutProtBlack[relSqv][color]++;
         }else if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) != ZERO){
+          s += KNIGHT_OUTPOST_BLACK[relSqv];
           if (TRACK) ft.KnightOutBlack[relSqv][color]++;
-          s += KNIGHT_OUTPOST_BLACK[relSqv];         
         }
       }
     }
@@ -539,6 +526,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
   U64 pieces = board.getPieces(color, KING);
   int square = _popLsb(pieces);
   Color otherColor = getOppositeColor(color);
+
   // Mobility
   U64 attackBitBoard = board.getMobilityForSquare(KING, color, square, eB.EnemyPawnAttackMap[color]);
   s += KING_MOBILITY[_popCount(attackBitBoard)];
@@ -547,8 +535,6 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
       int relSqv = color == WHITE ? _mir(square) : square;
       ft.KingPsqtBlack[relSqv][color]++;
   }
-  
-
 
   // See if our king is on the Openish-files
   // Test for Open - SemiOpenToUs - SemiOpenToEnemy
@@ -561,20 +547,17 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
   s += KING_ATTACK_PAWN * _popCount(attackBitBoard & enemyPawns);
   if (TRACK) ft.KingAttackPawn[color] += _popCount(attackBitBoard & enemyPawns);
 
-
   if (((file & ourPawns) == 0)
     && ((file & enemyPawns) == 0)){
-      s += KING_OPEN_FILE;
-      if (TRACK) ft.KingOpenFile[color]++;
-    }else if ((file & ourPawns) == 0){
-      s += KING_OWN_SEMI_FILE; 
-      if (TRACK) ft.KingSemiOwnFile[color]++;
-    }else if ((file & enemyPawns) == 0){
-      s += KING_ENEMY_SEMI_LINE;
-      if (TRACK) ft.KingSemiEnemyFile[color]++;
-    }
-
-
+    s += KING_OPEN_FILE;
+    if (TRACK) ft.KingOpenFile[color]++;
+  }else if ((file & ourPawns) == 0){
+    s += KING_OWN_SEMI_FILE;
+    if (TRACK) ft.KingSemiOwnFile[color]++;
+  }else if ((file & enemyPawns) == 0){
+    s += KING_ENEMY_SEMI_LINE;
+    if (TRACK) ft.KingSemiEnemyFile[color]++;
+  }
 
   U64 tmpPawns = eB.Passers[color];
   while (tmpPawns != ZERO) {
@@ -593,10 +576,10 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
       if (kingRank > pawnRank){
         s += KING_AHEAD_PASSER;
         if (TRACK) ft.KingAheadPasser[color]++;
-      }else if (kingRank == pawnRank){
+      } else if (kingRank == pawnRank){
         s += KING_EQUAL_PASSER;
         if (TRACK) ft.KingEqualPasser[color]++;
-      }else if (kingRank < pawnRank){
+      } else if (kingRank < pawnRank){
         s += KING_BEHIND_PASSER;
         if (TRACK) ft.KingBehindPasser[color]++;
       }
@@ -625,8 +608,6 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
   while (tmpPawns != ZERO) {
 
-
-
     int square = _popLsb(tmpPawns);
     int pawnCol = _col(square);
     if (TRACK){
@@ -634,7 +615,6 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       ft.PawnPsqtBlack[relSqv][color]++;
     }
 
-    
     // add bonuses if the pawn is passed
     if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
       eB->Passers[color] = eB->Passers[color] | (ONE << square);
@@ -678,7 +658,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   // Get major blockers and pawns
   //  a. Non-passer pawns
-  pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP) | 
+  pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP) |
            board.getPieces(color, ROOK) | board.getPieces(color, QUEEN);
   tmpPawns = board.getPieces(otherColor, PAWN) ^ eB.Passers[otherColor];
 
@@ -766,7 +746,7 @@ int Eval::evaluate(const Board &board, Color color) {
   // Pawn structure
   int pScore = 0;
   pawn_HASH_Entry pENTRY  = myHASH->pHASH_Get(board.getPawnStructureZKey().getValue());
-  
+
   #ifndef _TUNE_
   if (pENTRY.posKey != 0){
     eB.Passers[WHITE] = pENTRY.wPassers;
@@ -777,13 +757,12 @@ int Eval::evaluate(const Board &board, Color color) {
     } else {
       score += pENTRY.score;
     }
- 
+
   }
   else
   #endif
   {
-
-    // PawnSupported  
+    // PawnSupported
     // Apply bonus for each pawn protected by allied pawn
     pScore += PAWN_SUPPORTED * _popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
     pScore -= PAWN_SUPPORTED * _popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
@@ -792,7 +771,7 @@ int Eval::evaluate(const Board &board, Color color) {
       ft.PawnSupported[BLACK] +=_popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
     }
 
-    // Evaluate pawn-by-pawn terms 
+    // Evaluate pawn-by-pawn terms
     // Passed, isolated, doubled
     pScore += evaluatePAWNS(board, WHITE, &eB) - evaluatePAWNS(board, BLACK, &eB);
 
@@ -814,7 +793,6 @@ int Eval::evaluate(const Board &board, Color color) {
 
   score += pieceS;
 
-
   score += PiecePawnInteraction(board, color, eB) - PiecePawnInteraction(board, otherColor, eB);
 
   // King pawn shield
@@ -835,14 +813,14 @@ int Eval::evaluate(const Board &board, Color color) {
   }
 
   if (b_B > 1){
-    score -= BISHOP_PAIR_BONUS; 
+    score -= BISHOP_PAIR_BONUS;
     if (TRACK) ft.BishopPair[otherColor]++;
   }
 
   if (TRACK){
     ft.FinalEval = score;
     ft.OCBscale  = false;
-  } 
+  }
   // Calculation of the phase value
 
 
@@ -850,7 +828,7 @@ int Eval::evaluate(const Board &board, Color color) {
   // Interpolate between opening/endgame scores depending on the phase
 
   int final_eval = ((opS(score) * (MAX_PHASE - phase)) + (egS(score) * phase)) / MAX_PHASE;
-  
+
   if (w_Q == 0 && b_Q == 0 &&
       w_R == 0 && b_R == 0 &&
       w_N == 0 && b_N == 0 &&
@@ -865,7 +843,7 @@ int Eval::evaluate(const Board &board, Color color) {
   if (DrawishMaterial){
     if ((final_eval > 0 && w_P == 0) ||(final_eval < 0 && b_P == 0) )
     final_eval = final_eval / 4;
-  }    
+  }
 
   return final_eval + TEMPO;
 }
