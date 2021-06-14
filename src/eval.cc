@@ -48,16 +48,6 @@ U64 Eval::detail::OUTPOST_PROTECTION[2][64];
 U64 Eval::detail::KINGZONE[2][64];
 U64 Eval::detail::FORWARD_BITS[2][64];
 int Eval::detail::PHASE_WEIGHT_SUM = 0;
-U64 Eval::detail::KING_OO_MASKS[2][2] = {
-        [WHITE] = {
-            [0] = 0xC0ull,
-            [1] = 0x7ull
-        },
-        [BLACK] = {
-            [0] = 0xC000000000000000ull,
-            [1] = 0x700000000000000ull
-        }
-    };
 U64 Eval::detail::KING_PAWN_MASKS[2][2][7] = {
         [WHITE] = {
           [0] = {
