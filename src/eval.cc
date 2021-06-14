@@ -903,24 +903,6 @@ int Eval::evaluate(const Board &board, Color color) {
   score -= MINOR_BEHIND_PASSER * _popCount(eB.Passers[otherColor] & pieces);
   if (TRACK) ft.MinorBehindPasser[otherColor] += _popCount(eB.Passers[otherColor] & pieces);
 
-  // 3.Evaluate threats by pawn push
-
-  pieces = board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP) | 
-           board.getPieces(otherColor, ROOK) | board.getPieces(otherColor, QUEEN);
-  nonPassers = board.getPieces(color, PAWN) ^ blockedMy;
-  nonPassers = color == WHITE ? (((nonPassers << 9) & ~FILE_A) << 8) | (((nonPassers << 7) & ~FILE_H) << 8) :
-                                (((nonPassers >> 9) & ~FILE_H) >> 8) | (((nonPassers >> 7) & ~FILE_A) >> 8) ;
-  score += PAWN_PUSH_THREAT * _popCount(nonPassers & pieces);
-  if (TRACK) ft.PawnPushThreat[color] +=  _popCount(nonPassers & pieces);
-
-  pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP) | 
-           board.getPieces(color, ROOK) | board.getPieces(color, QUEEN);
-  nonPassers = board.getPieces(otherColor, PAWN) ^ blockedOther;
-  nonPassers = color == WHITE ? (((nonPassers << 9) & ~FILE_A) << 8) | (((nonPassers << 7) & ~FILE_H) << 8) :
-                                (((nonPassers >> 9) & ~FILE_H) >> 8) | (((nonPassers >> 7) & ~FILE_A) >> 8) ;
-  score -= PAWN_PUSH_THREAT * _popCount(nonPassers & pieces);
-  if (TRACK) ft.PawnPushThreat[otherColor] +=  _popCount(nonPassers & pieces);
-
 
   // King pawn shield
   // Tapering is included in, so we count it in both phases
