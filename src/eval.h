@@ -380,7 +380,7 @@ evalBits Setupbits(const Board &);
  * it returns simple overall score gS() and
  * adjust base safety value for some types of shields
  */ 
-int kingShieldSafety(const Board &, Color, int, evalBits *);
+inline int kingShieldSafety(const Board &, Color, int, evalBits *);
 
 /**
  * @brief This function takes number of each pieceType count for each
@@ -390,8 +390,8 @@ int kingShieldSafety(const Board &, Color, int, evalBits *);
  * Based on Vice function.
  *
  */ 
-bool IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
-                   int b_N, int b_B, int b_R, int b_Q);
+inline bool IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
+                          int b_N, int b_B, int b_R, int b_Q);
 
 
 /**
@@ -401,7 +401,7 @@ bool IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
  * 2. Minors shielded by pawns
  * 3. Threats by pawn push
  */ 
-int PiecePawnInteraction(const Board &, Color, evalBits &);
+inline int PiecePawnInteraction(const Board &, Color, evalBits &);
 
 /**
  * @brief Set value for a MATERIAL_VALUES_TUNABLE array

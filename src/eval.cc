@@ -178,7 +178,7 @@ int Eval::getMaterialValue(int phase, PieceType pieceType) {
   }
 }
 
-bool Eval::IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
+inline bool Eval::IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
                         int b_N, int b_B, int b_R, int b_Q){
 
 if (w_Q > 0 || b_Q > 0 ){
@@ -219,7 +219,7 @@ return false;
 
 }
 
-int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, evalBits * eB){
+inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, evalBits * eB){
       //King safety - замена pawnsShieldingKing
     // идея в том, чтобы
     // а. Найти позицию короля
@@ -668,7 +668,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   return s;
 }
 
-int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits & eB){
+inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits & eB){
   int s = 0;
   Color otherColor = getOppositeColor(color);
   U64 blocked = ZERO;
