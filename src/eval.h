@@ -5,15 +5,6 @@
 #include "movegen.h"
 #include "bitutils.h"
 
-/**
- * @brief Represent CuttOffState of the node saved in the transposition table.
- */ 
-enum TuningFeature{
-        BISHOP_PAIR,
-        ROOK_OPEN,
-        ROOK_SEMI
-};
-
 #define gS(opS, egS) (int)((unsigned int)(opS) << 16) + (egS)
 #define opS(gS) (int16_t)((uint16_t)((unsigned)((gS) + 0x8000) >> 16))
 #define egS(gS) (int16_t)((uint16_t)((unsigned)((gS))))
@@ -139,16 +130,19 @@ const int QUEEN_MOBILITY[28] = {
            gS(11,43), gS(10,40), gS(21,28), gS(12,24), gS(20,23), gS(26,29), gS(24,26),
 };
 
-const int PIECE_ATTACK_POWER[6] = {0, 24, 50, 26, 62, 0};
-const int COUNT_TO_POWER[8] = {0, 0, 40, 65, 80, 87, 95, 100};
-const int SAFE_SHIELD_SAFETY = -50;
+
+/**
+ * @brief Various constants used for KingSafety calculation
+  * @{
+  */
+  const int PIECE_ATTACK_POWER[6] = {0, 24, 50, 26, 62, 0};
+  const int COUNT_TO_POWER[8] = {0, 0, 40, 65, 80, 87, 95, 100};
+  const int SAFE_SHIELD_SAFETY = -50;
+  /**@}*/
+
 
 /**
  * @brief Array indexed by [Phase][PieceType] of material values (in centipawns)
- * 'vBishopEG': 288, 'vBishopOP': 336, 'vKnightEG': 310, 'vKnightOP': 316, 'vPawnEG': 112, 'vQueenEG': 1005, 'vQueenOP': 1100, 'vRookEG': 500, 'vRookOP': 470}
-    Finished game 201 (Drofa_dev vs Drofa_1.2.9): 1-0 {White wins by adjudication}
-    Score of Drofa_dev vs Drofa_1.2.9: 67 - 63 - 70  [0.510] 200
-    {'vBishopEG': 357, 'vBishopOP': 336, 'vKnightEG': 328, 'vKnightOP': 304, 'vPawnEG': 86, 'vQueenEG': 995, 'vQueenOP': 1190, 'vRookEG': 565, 'vRookOP': 465}
  */
 const int MATERIAL_VALUES[6] = {
         [PAWN] = gS(70,127),
@@ -355,19 +349,6 @@ int getPhase(const Board &);
 const int MAX_PHASE = 256;
 
 /**
- * @brief Returns the evaluated advantage of the given color in centipawns
- * assuming the game is in the given phase
- *
- * @tparam phase Phase of game to evaluate for
- * @param board Board to evaluate
- * @param color Color to evaluate advantage of
- * @return Advantage of the given color in centipawns, assuming the given
- * game phase
- */
-template<GamePhase phase>
-int evaluateForPhase(const Board &, Color);
-
-/**
  * @brief Returns the value of the given PieceType used for evaluation
  * purposes in centipawns
  *
@@ -379,23 +360,6 @@ int evaluateForPhase(const Board &, Color);
  * @return The value of the given PieceType used for evaluation purposes
  */
 int getMaterialValue(int, PieceType);
-
-/**
- * @brief Evaluates pawn structure and returns a score in centipawns
- *
- * This function internally uses Eval::isolatedPawns(), Eval::passedPawns()
- * and Eval::doubledPawns(), weights each value according to its score
- * and returns the pawn structure score in centipawns.
- *
- * Additionally, if the board's pawn structure has been seen before, this
- * function will look up its value from the pawn structure hash table or
- * store its score in the table if it hasn't yet been seen.
- *
- * @return The score for the given color (in centipawns), considering only
- * its pawn structure
- */
-int evaluatePawnStructure(const Board &, Color, GamePhase);
-
 
   /**
     * @name Functions used for the evaluating positions of the Major Pieces
@@ -414,15 +378,11 @@ int evaluatePawnStructure(const Board &, Color, GamePhase);
 evalBits Setupbits(const Board &);
 
 /**
- * @brief This function analyses king safety.
- * If there is NO Queen for an opponents it returns 0
- * If there is, it assign penalty or bonus dependent on the pawn 
- * chain position around the KING
- * 
- * Replaces _pawnsShieldingKing function functionality
- * Elo gain test vs _pawnsShieldingKing: 
+ * @brief This function analyses king shield safety.
+ * it returns simple overall score gS() and
+ * adjust base safety value for some types of shields
  */ 
-int kingSafety(const Board &, Color, int, evalBits *);
+int kingShieldSafety(const Board &, Color, int, evalBits *);
 
 /**
  * @brief This function takes number of each pieceType count for each
@@ -435,17 +395,21 @@ int kingSafety(const Board &, Color, int, evalBits *);
 bool IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
                    int b_N, int b_B, int b_R, int b_Q);
 
+
 /**
- * @brief Set value for a MATERIAL_VALUES_TUNABLE array
- * which is used for optuna tuning
+ * @brief Function evaluate piece-pawns interactions for given color
+ * Includes:
+ * 1. Blocked Pawns
+ * 2. Minors shielded by pawns
+ * 3. Threats by pawn push
  */ 
-void SetupTuning(int phase, PieceType piece, int value);
+int PiecePawnInteraction(const Board &, Color, evalBits &);
 
 /**
  * @brief Set value for a MATERIAL_VALUES_TUNABLE array
  * which is used for optuna tuning
  */ 
-void SetupFeatureTuning(int phase, TuningFeature feature, int value);
+void SetupTuning(int phase, PieceType piece, int value);
 
 };
 
