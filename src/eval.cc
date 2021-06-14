@@ -672,7 +672,7 @@ int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits & eB){
   int s = 0;
   Color otherColor = getOppositeColor(color);
   U64 blocked = ZERO;
-  U64 pieces, tmpPawns;
+  U64 pieces, tmpPawns = ZERO;
 
   // 1. Blocked pawns - separate for passers and non-passers
 
@@ -719,7 +719,6 @@ int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits & eB){
                               (((tmpPawns >> 9) & ~FILE_H) >> 8) | (((tmpPawns >> 7) & ~FILE_A) >> 8) ;
   s += PAWN_PUSH_THREAT * _popCount(tmpPawns & pieces);
   if (TRACK) ft.PawnPushThreat[color] +=  _popCount(tmpPawns & pieces);
-
 
   return s;
 }
