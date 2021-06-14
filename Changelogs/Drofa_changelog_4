@@ -72,7 +72,7 @@ SPRT  | 10.0+0.10s Threads=1 Hash=16MB
 LLR   | 2.96 (-2.94, 2.94) [0.00, 5.00]
 Games | N: 120230 W: 33290 L: 32461 D: 54479
 ------------------------------------------------------------------
-11. King at Open/OwnSemiOpen/EnemySemiOpen evaluation (3.0.10) 
+11. King at Open/OwnSemiOpen/EnemySemiOpen evaluation (3.0.10)
 ------------------------------------------------------------------
 ELO   | 5.30 +- 4.14 (95%)
 SPRT  | 10.0+0.10s Threads=1 Hash=16MB
@@ -162,4 +162,32 @@ and attempts to slavage it failed
 ------------------------------------------------------------------
 change not tested, probably sligtly elo negative
 ------------------------------------------------------------------
-
+22b.Cleanup1 - remove useless code + introduce PiecePawnInteraction
+function
+------------------------------------------------------------------
+ELO   | 3.57 +- 5.26 (95%)
+SPRT  | 10.0+0.10s Threads=1 Hash=16MB
+LLR   | 2.95 (-2.94, 2.94) [-5.00, 0.00]
+Games | N: 8760 W: 2343 L: 2253 D: 4164
+------------------------------------------------------------------
+22c.Cleanup2 - remove Distortion term, since tuned to (0,0) + some
+error fixes
+------------------------------------------------------------------
+ELO   | 2.59 +- 4.78 (95%)
+SPRT  | 10.0+0.10s Threads=1 Hash=16MB
+LLR   | 2.96 (-2.94, 2.94) [-5.00, 0.00]
+Games | N: 10732 W: 2890 L: 2810 D: 5032
+------------------------------------------------------------------
+22d. Cleanup3 - code simplification and beautification
+(by Terje - Weiss author)
+------------------------------------------------------------------
+non-functional changes, same bench
+------------------------------------------------------------------
+22e. Cleanup4 - transform U64 masks from hex to (ONE << SQV)
+to ensure readability -> all this merged into (3.0.18)
+------------------------------------------------------------------
+ELO   | 3.75 +- 5.37 (95%)
+SPRT  | 10.0+0.10s Threads=1 Hash=16MB
+LLR   | 2.96 (-2.94, 2.94) [-5.00, 0.00]
+Games | N: 8532 W: 2313 L: 2221 D: 3998
+------------------------------------------------------------------
