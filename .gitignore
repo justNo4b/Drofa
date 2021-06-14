@@ -20,5 +20,3 @@ Drofa_tune
 BOOK.txt
 obj/bench.o
 playtests/Plan_3.1.0
-
-*.exe
