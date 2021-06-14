@@ -195,11 +195,11 @@ inline bool Eval::IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
       if (w_N + w_B < 2 && b_N + b_B < 2){    // тут немного криво, так как BR vs R выигрывают
         return true;
       }
-    }else if (w_R == 1 && b_R == 0){
+    } else if (w_R == 1 && b_R == 0){
       if (w_N + w_B == 0 && b_N + b_B > 1){
         return true;
       }
-    }else if (b_R == 1 && w_R == 0){
+    } else if (b_R == 1 && w_R == 0){
       if (b_N + b_B == 0 && w_N + w_B > 1){
         return true;
       }
@@ -458,7 +458,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
           s += BISHOP_PROT_OUTPOST_BLACK[relSqv];
           eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
           if (TRACK) ft.BishopOutProtBlack[relSqv][color]++;
-        }else if((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) != ZERO){
+        } else if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) != ZERO){
           s += BISHOP_OUTPOST_BLACK[relSqv];
           if (TRACK) ft.BishopOutBlack[relSqv][color]++;
         }
@@ -511,7 +511,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
           s += KNIGHT_PROT_OUTPOST_BLACK[relSqv];
           eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
           if (TRACK) ft.KnightOutProtBlack[relSqv][color]++;
-        }else if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) != ZERO){
+        } else if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) != ZERO){
           s += KNIGHT_OUTPOST_BLACK[relSqv];
           if (TRACK) ft.KnightOutBlack[relSqv][color]++;
         }
@@ -551,10 +551,10 @@ inline int Eval::evaluateKING(const Board & board, Color color, const evalBits &
     && ((file & enemyPawns) == 0)){
     s += KING_OPEN_FILE;
     if (TRACK) ft.KingOpenFile[color]++;
-  }else if ((file & ourPawns) == 0){
+  } else if ((file & ourPawns) == 0){
     s += KING_OWN_SEMI_FILE;
     if (TRACK) ft.KingSemiOwnFile[color]++;
-  }else if ((file & enemyPawns) == 0){
+  } else if ((file & enemyPawns) == 0){
     s += KING_ENEMY_SEMI_LINE;
     if (TRACK) ft.KingSemiEnemyFile[color]++;
   }
