@@ -49,19 +49,10 @@ extern U64 FORWARD_BITS[2][64];
 extern U64 PASSED_PAWN_MASKS[2][64];
 
 /**
- * @brief Array of masks indexed by [Color][sideTo_OO] containing all squares
- * that indicates where King is castled
- * 0 - kingside castle
- * 1 - queenside castle
- * 
- */ 
-extern U64 KING_OO_MASKS[2][2];
-
-/**
  * @brief Array of masks indexed by [Color][sideTo_OO][mask_NUM]
  * 0 - kindgside castle masks
  * 1 - queenside castle masks
- * 
+ *
  * maskNUMs - just all masks
  */
 extern U64 KING_PAWN_MASKS[2][2][7];
@@ -92,8 +83,8 @@ extern int PHASE_WEIGHT_SUM;
 
 /**
  * @brief Бонусы и штрафы за то, насколько король в опасности
- * 
- */ 
+ *
+ */
 const int  KING_HIGH_DANGER  = gS(-17,-26);   // применять когда жив ферзь и мы не рокированы
 const int  KING_MED_DANGER   = gS(-6,-16);   // мы рокированы, но пешечный щит кривой
 const int  KING_LOW_DANGER   = gS(-1,10);   // слабый пешечный щит
@@ -220,8 +211,8 @@ const int ROOK_SEMI_FILE_BONUS[2] = {
 
 /**
  * @brief indexed by [pieceType]
- * Evaluate OUR pieces attacked by an enemy pawn 
- * and OUR pieces attacking enemy pawns - [PAWN] 
+ * Evaluate OUR pieces attacked by an enemy pawn
+ * and OUR pieces attacking enemy pawns - [PAWN]
  */
 const int HANGING_PIECE[5] = {
            gS(-2,11), gS(-27,-15), gS(-31,-50), gS(-35,-77), gS(-21,-13),
@@ -324,8 +315,8 @@ int evaluate(const Board &, Color);
 /**
  * @brief Basically template function for testing various eval features.
  *  As I use it, it calls once before search.
- * 
- */ 
+ *
+ */
 int evalTestSuite(const Board &, Color);
 
 /**
@@ -377,17 +368,17 @@ evalBits Setupbits(const Board &);
  * @brief This function analyses king shield safety.
  * it returns simple overall score gS() and
  * adjust base safety value for some types of shields
- */ 
+ */
 inline int kingShieldSafety(const Board &, Color, int, evalBits *);
 
 /**
  * @brief This function takes number of each pieceType count for each
  * side and (assuming best play) returns if the position is deadDraw
- * 
+ *
  * Returns true is position is drawn, returns false if there is some play left.
  * Based on Vice function.
  *
- */ 
+ */
 inline bool IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
                           int b_N, int b_B, int b_R, int b_Q);
 
@@ -398,13 +389,13 @@ inline bool IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
  * 1. Blocked Pawns
  * 2. Minors shielded by pawns
  * 3. Threats by pawn push
- */ 
+ */
 inline int PiecePawnInteraction(const Board &, Color, evalBits &);
 
 /**
  * @brief Set value for a MATERIAL_VALUES_TUNABLE array
  * which is used for optuna tuning
- */ 
+ */
 void SetupTuning(int phase, PieceType piece, int value);
 
 };

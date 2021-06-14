@@ -48,55 +48,43 @@ U64 Eval::detail::OUTPOST_PROTECTION[2][64];
 U64 Eval::detail::KINGZONE[2][64];
 U64 Eval::detail::FORWARD_BITS[2][64];
 int Eval::detail::PHASE_WEIGHT_SUM = 0;
-U64 Eval::detail::KING_OO_MASKS[2][2] = {
-        [WHITE] = {
-            [0] = 0xC0ull,
-            [1] = 0x7ull
-        },
-        [BLACK] = {
-            [0] = 0xC000000000000000ull,
-            [1] = 0x700000000000000ull
-        }
-    };
 U64 Eval::detail::KING_PAWN_MASKS[2][2][7] = {
         [WHITE] = {
           [0] = {
-            [0] = 0xE000ull,
-            [1] = 0x806000ull,
-            [2] = 0x40A000ull,
-            [3] = 0x80402000ull,
-            [4] = 0xC02000ull,
-            [5] = 0xC000ull,
-            [6] = 0x804000ull
+            (ONE << f2) | (ONE << g2) | (ONE << h2),
+            (ONE << f2) | (ONE << g2) | (ONE << h3),
+            (ONE << f2) | (ONE << g3) | (ONE << h2),
+            (ONE << f2) | (ONE << g3) | (ONE << h4),
+            (ONE << f2) | (ONE << g3) | (ONE << h3),
+            (ONE << g2) | (ONE << h2),
+            (ONE << g2) | (ONE << h3)
           },
           [1] = {
-            [0] = 0x700ull,
-            [1] = 0x10600ull,
-            [2] = 0x20500ull,
-            [3] = 0x1020400ull,
-            [4] = 0x30400ull,
-            [5] = 0,
-            [6] = 0
+            (ONE << a2) | (ONE << b2) | (ONE << c2),
+            (ONE << a3) | (ONE << b2) | (ONE << c2),
+            (ONE << a2) | (ONE << b3) | (ONE << c2),
+            (ONE << a4) | (ONE << b3) | (ONE << c2),
+            (ONE << a3) | (ONE << b3) | (ONE << c2),
+            0, 0
           }
         },
         [BLACK] = {
           [0] = {
-              [0] = 0xE0000000000000ull,
-              [1] = 0x60800000000000ull,
-              [2] = 0xA0400000000000ull,
-              [3] = 0x20408000000000ull,
-              [4] = 0x20C00000000000ull,
-              [5] = 0xC0000000000000ull,
-              [6] = 0x40800000000000ull
+            (ONE << f7) | (ONE << g7) | (ONE << h7),
+            (ONE << f7) | (ONE << g7) | (ONE << h6),
+            (ONE << f7) | (ONE << g6) | (ONE << h7),
+            (ONE << f7) | (ONE << g6) | (ONE << h5),
+            (ONE << f7) | (ONE << g6) | (ONE << h6),
+            (ONE << g7) | (ONE << h7),
+            (ONE << g7) | (ONE << h6)
           },
           [1] = {
-            [0] = 0x7000000000000ull,
-            [1] = 0x6010000000000ull,
-            [2] = 0x5020000000000ull,
-            [3] = 0x4020100000000ull,
-            [4] = 0x4030000000000ull,
-            [5] = 0,
-            [6] = 0
+            (ONE << a7) | (ONE << b7) | (ONE << c7),
+            (ONE << a6) | (ONE << b7) | (ONE << c7),
+            (ONE << a7) | (ONE << b6) | (ONE << c7),
+            (ONE << a5) | (ONE << b6) | (ONE << c7),
+            (ONE << a6) | (ONE << b6) | (ONE << c7),
+            0, 0
           }
         }
     };
@@ -226,7 +214,7 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, 
 
          //0 - kingSide; 1 - QueenSide
 
-    if ((detail::KING_OO_MASKS[color][0] & board.getPieces(color, KING)) != 0){
+    if ((color == WHITE ? WHITE_K_CASTLE : BLACK_K_CASTLE) & board.getPieces(color, KING)){
       // если это верно, то мы находимся на королевском фланге
       // сравниваем с масками, возвращаем бонус если маска совпала
       if ((pawnMap & detail::KING_PAWN_MASKS[color][0][0]) == detail::KING_PAWN_MASKS[color][0][0]){
@@ -266,7 +254,7 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, 
       return KING_MED_DANGER;
     }
 
-    if ((detail::KING_OO_MASKS[color][1] & board.getPieces(color, KING)) != 0){
+    if ((color == WHITE ? WHITE_Q_CASTLE : BLACK_Q_CASTLE) & board.getPieces(color, KING)){
       // если это верно, то мы находимся на ферзевом
       // сравниваем с масками, возвращаем бонус если маска совпала
       if ((pawnMap & detail::KING_PAWN_MASKS[color][1][0]) == detail::KING_PAWN_MASKS[color][1][0]){
