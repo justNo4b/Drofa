@@ -61,42 +61,40 @@ U64 Eval::detail::KING_OO_MASKS[2][2] = {
 U64 Eval::detail::KING_PAWN_MASKS[2][2][7] = {
         [WHITE] = {
           [0] = {
-            [0] = 0xE000ull,
-            [1] = 0x806000ull,
-            [2] = 0x40A000ull,
-            [3] = 0x80402000ull,
-            [4] = 0xC02000ull,
-            [5] = 0xC000ull,
-            [6] = 0x804000ull
+            (ONE << f2) | (ONE << g2) | (ONE << h2),
+            (ONE << f2) | (ONE << g2) | (ONE << h3),
+            (ONE << f2) | (ONE << g3) | (ONE << h2),
+            (ONE << f2) | (ONE << g3) | (ONE << h4),
+            (ONE << f2) | (ONE << g3) | (ONE << h3),
+            (ONE << g2) | (ONE << h2),
+            (ONE << g2) | (ONE << h3)
           },
           [1] = {
-            [0] = 0x700ull,
-            [1] = 0x10600ull,
-            [2] = 0x20500ull,
-            [3] = 0x1020400ull,
-            [4] = 0x30400ull,
-            [5] = 0,
-            [6] = 0
+            (ONE << a2) | (ONE << b2) | (ONE << c2),
+            (ONE << a3) | (ONE << b2) | (ONE << c2),
+            (ONE << a2) | (ONE << b3) | (ONE << c2),
+            (ONE << a4) | (ONE << b3) | (ONE << c2),
+            (ONE << a3) | (ONE << b3) | (ONE << c2),
+            0, 0
           }
         },
         [BLACK] = {
           [0] = {
-              [0] = 0xE0000000000000ull,
-              [1] = 0x60800000000000ull,
-              [2] = 0xA0400000000000ull,
-              [3] = 0x20408000000000ull,
-              [4] = 0x20C00000000000ull,
-              [5] = 0xC0000000000000ull,
-              [6] = 0x40800000000000ull
+            (ONE << f7) | (ONE << g7) | (ONE << h7),
+            (ONE << f7) | (ONE << g7) | (ONE << h6),
+            (ONE << f7) | (ONE << g6) | (ONE << h7),
+            (ONE << f7) | (ONE << g6) | (ONE << h5),
+            (ONE << f7) | (ONE << g6) | (ONE << h6),
+            (ONE << g7) | (ONE << h7),
+            (ONE << g7) | (ONE << h6)
           },
           [1] = {
-            [0] = 0x7000000000000ull,
-            [1] = 0x6010000000000ull,
-            [2] = 0x5020000000000ull,
-            [3] = 0x4020100000000ull,
-            [4] = 0x4030000000000ull,
-            [5] = 0,
-            [6] = 0
+            (ONE << a7) | (ONE << b7) | (ONE << c7),
+            (ONE << a6) | (ONE << b7) | (ONE << c7),
+            (ONE << a7) | (ONE << b6) | (ONE << c7),
+            (ONE << a5) | (ONE << b6) | (ONE << c7),
+            (ONE << a6) | (ONE << b6) | (ONE << c7),
+            0, 0
           }
         }
     };
