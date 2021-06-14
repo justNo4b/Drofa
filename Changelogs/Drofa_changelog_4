@@ -157,6 +157,9 @@ SPRT  | 10.0+0.10s Threads=1 Hash=16MB
 LLR   | 2.96 (-2.94, 2.94) [0.00, 5.00]
 Games | N: 4096 W: 1192 L: 1028 D: 1876
 ------------------------------------------------------------------
-
-
+22. Remove threat by pawn push, because of too many bugs in instead
+and attempts to slavage it failed
+------------------------------------------------------------------
+change not tested, probably sligtly elo negative
+------------------------------------------------------------------
 

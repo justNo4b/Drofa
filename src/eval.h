@@ -176,8 +176,6 @@ const int PAWN_DISTORTION = gS(0,0);
 
 const int PAWN_CONNECTED = gS(4,3);
 
-const int PAWN_PUSH_THREAT = gS(5,5);
-
 const int BISHOP_RAMMED_PENALTY = gS(-2,-9);
 
 const int BISHOP_CENTER_CONTROL = gS(10,7);
