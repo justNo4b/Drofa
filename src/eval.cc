@@ -48,7 +48,7 @@ U64 Eval::detail::OUTPOST_PROTECTION[2][64];
 U64 Eval::detail::KINGZONE[2][64];
 U64 Eval::detail::FORWARD_BITS[2][64];
 int Eval::detail::PHASE_WEIGHT_SUM = 0;
-U64 Eval::detail::KING_PAWN_MASKS[2][2][7] = {
+U64 Eval::detail::KING_PAWN_MASKS[2][2][8] = {
         [WHITE] = {
           [0] = {
             (ONE << f2) | (ONE << g2) | (ONE << h2),
@@ -57,7 +57,8 @@ U64 Eval::detail::KING_PAWN_MASKS[2][2][7] = {
             (ONE << f2) | (ONE << g3) | (ONE << h4),
             (ONE << f2) | (ONE << g3) | (ONE << h3),
             (ONE << g2) | (ONE << h2),
-            (ONE << g2) | (ONE << h3)
+            (ONE << g2) | (ONE << h3),
+            (ONE << g2) | (ONE << g3) | (ONE << f2),
           },
           [1] = {
             (ONE << a2) | (ONE << b2) | (ONE << c2),
@@ -65,7 +66,9 @@ U64 Eval::detail::KING_PAWN_MASKS[2][2][7] = {
             (ONE << a2) | (ONE << b3) | (ONE << c2),
             (ONE << a4) | (ONE << b3) | (ONE << c2),
             (ONE << a3) | (ONE << b3) | (ONE << c2),
-            0, 0
+            (ONE << a2) | (ONE << b2),
+            (ONE << a3) | (ONE << b2),
+            (ONE << b2) | (ONE << b3) | (ONE << c2)
           }
         },
         [BLACK] = {
@@ -76,7 +79,8 @@ U64 Eval::detail::KING_PAWN_MASKS[2][2][7] = {
             (ONE << f7) | (ONE << g6) | (ONE << h5),
             (ONE << f7) | (ONE << g6) | (ONE << h6),
             (ONE << g7) | (ONE << h7),
-            (ONE << g7) | (ONE << h6)
+            (ONE << g7) | (ONE << h6),
+            (ONE << g7) | (ONE << g6) | (ONE << f7),
           },
           [1] = {
             (ONE << a7) | (ONE << b7) | (ONE << c7),
@@ -84,7 +88,9 @@ U64 Eval::detail::KING_PAWN_MASKS[2][2][7] = {
             (ONE << a7) | (ONE << b6) | (ONE << c7),
             (ONE << a5) | (ONE << b6) | (ONE << c7),
             (ONE << a6) | (ONE << b6) | (ONE << c7),
-            0, 0
+            (ONE << a7) | (ONE << b7),
+            (ONE << a6) | (ONE << b7),
+            (ONE << b7) | (ONE << b6) | (ONE << c7)
           }
         }
     };
@@ -209,87 +215,39 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, 
       return KING_LOW_DANGER;
     }
     U64 pawnMap = board.getPieces(color, PAWN);
+
     //проверяем где наш король. Проверка по сути на то, куда сделали рокировку.
     //если король не рокирован-выгнан с рокировки, то король не в безопасности, начислить штраф
-
-         //0 - kingSide; 1 - QueenSide
-
+    //0 - kingSide; 1 - QueenSide    
+    CastleSide cSide = NoCastle;
     if ((color == WHITE ? WHITE_K_CASTLE : BLACK_K_CASTLE) & board.getPieces(color, KING)){
-      // если это верно, то мы находимся на королевском фланге
-      // сравниваем с масками, возвращаем бонус если маска совпала
-      if ((pawnMap & detail::KING_PAWN_MASKS[color][0][0]) == detail::KING_PAWN_MASKS[color][0][0]){
-          eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
-          if (TRACK) ft.KingSafe[color]++;
-          return KING_SAFE;
-      }
-      if ((pawnMap & detail::KING_PAWN_MASKS[color][0][1]) == detail::KING_PAWN_MASKS[color][0][1]){
-          eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
-          if (TRACK) ft.KingSafe[color]++;
-          return KING_SAFE;
-      }
-      if ((pawnMap & detail::KING_PAWN_MASKS[color][0][2]) == detail::KING_PAWN_MASKS[color][0][2]){
-          eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
-          if (TRACK) ft.KingSafe[color]++;
-          return KING_SAFE;
-      }
-      if ((pawnMap & detail::KING_PAWN_MASKS[color][0][3]) == detail::KING_PAWN_MASKS[color][0][3]){
-          if (TRACK) ft.KingLowDanger[color]++;
-          return KING_LOW_DANGER;
-      }
-      if ((pawnMap & detail::KING_PAWN_MASKS[color][0][4]) == detail::KING_PAWN_MASKS[color][0][4]){
-        if (TRACK) ft.KingLowDanger[color]++;
-          return KING_LOW_DANGER;
-      }
-      if ((pawnMap & detail::KING_PAWN_MASKS[color][0][5]) == detail::KING_PAWN_MASKS[color][0][5]){
-        if (TRACK) ft.KingLowDanger[color]++;
-        return KING_LOW_DANGER;
-      }
-      if ((pawnMap & detail::KING_PAWN_MASKS[color][0][6]) == detail::KING_PAWN_MASKS[color][0][6]){
-        if (TRACK) ft.KingLowDanger[color]++;
-        return KING_LOW_DANGER;
-      }
+      cSide = KingSide;
+    } else if ((color == WHITE ? WHITE_Q_CASTLE : BLACK_Q_CASTLE) & board.getPieces(color, KING)){
+      cSide = QueenSide; 
+    }
+
+    if (cSide == NoCastle){
+      if (TRACK) ft.KingHighDanger[color]++;
+      return KING_HIGH_DANGER;
+    } 
+    // Cycle through all masks, if one of them is true,
+    // Apply bonus for safety and score
+    for (int i = 0; i < 8; i++){
+      if ((pawnMap & detail::KING_PAWN_MASKS[color][cSide][i]) == detail::KING_PAWN_MASKS[color][cSide][i]){
+                eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY[cSide][i];
+                if (TRACK){
+                  if (cSide == KingSide)  ft.KingShieldKS[i][color]++;
+                  if (cSide == QueenSide) ft.KingShieldQS[i][color]++;
+                }
+                return cSide == KingSide ? KING_PAWN_SHIELD_KS[i] : KING_PAWN_SHIELD_QS[i];
+            }
+    }
+
       // если не одна из масок не прошла, то король в опасности.
       // вернуть штраф к нашей позиции
       if (TRACK) ft.KingMedDanger[color]++;
       return KING_MED_DANGER;
-    }
 
-    if ((color == WHITE ? WHITE_Q_CASTLE : BLACK_Q_CASTLE) & board.getPieces(color, KING)){
-      // если это верно, то мы находимся на ферзевом
-      // сравниваем с масками, возвращаем бонус если маска совпала
-      if ((pawnMap & detail::KING_PAWN_MASKS[color][1][0]) == detail::KING_PAWN_MASKS[color][1][0]){
-        eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
-        if (TRACK) ft.KingSafe[color]++;
-          return KING_SAFE;
-      }
-      if ((pawnMap & detail::KING_PAWN_MASKS[color][1][1]) == detail::KING_PAWN_MASKS[color][1][1]){
-        eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
-        if (TRACK) ft.KingSafe[color]++;
-          return KING_SAFE;
-      }
-      if ((pawnMap & detail::KING_PAWN_MASKS[color][1][2]) == detail::KING_PAWN_MASKS[color][1][2]){
-        eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY;
-        if (TRACK) ft.KingSafe[color]++;
-          return KING_SAFE;
-      }
-      if ((pawnMap & detail::KING_PAWN_MASKS[color][1][3]) == detail::KING_PAWN_MASKS[color][1][3]){
-        if (TRACK) ft.KingLowDanger[color]++;
-          return KING_LOW_DANGER;
-      }
-      if ((pawnMap & detail::KING_PAWN_MASKS[color][1][4]) == detail::KING_PAWN_MASKS[color][1][4]){
-        if (TRACK) ft.KingLowDanger[color]++;
-          return KING_LOW_DANGER;
-      }
-      // если не одна из масок не прошла, то король в опасности.
-      // вернуть штраф к нашей позиции
-      if (TRACK) ft.KingMedDanger[color]++;
-      return KING_MED_DANGER;
-    }
-
-    // мы не рокированы по факту при живом ферзе.
-    // это очень опасно, вернуть штраф
-    if (TRACK) ft.KingHighDanger[color]++;
-    return KING_HIGH_DANGER;
 }
 
 int Eval::getPhase(const Board &board) {
