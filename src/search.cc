@@ -686,7 +686,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // Add this move as a new killer move and update history if move is quiet
           _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, depth);
           // Add a new tt entry for this node
-          if (!_stop){
+          if (!_stop && !sing){
             myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
           }
           // we updated beta and in the pVNode so we should update our pV
@@ -736,7 +736,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
   // Store bestScore in transposition table
-  if (!_stop){
+  if (!_stop && !sing){
       if (alpha <= alphaOrig) {
         myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), ALPHA, alpha, depth, ply);
       } else {
