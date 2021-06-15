@@ -19,6 +19,12 @@ struct evalBits{
     int KingAttackPower[2];
 };
 
+enum CastleSide {
+    KingSide,
+    QueenSide,
+    NoCastle
+};
+
 /**
  * @brief Namespace containing board evaluation functions
  */
@@ -55,7 +61,7 @@ extern U64 PASSED_PAWN_MASKS[2][64];
  *
  * maskNUMs - just all masks
  */
-extern U64 KING_PAWN_MASKS[2][2][7];
+extern U64 KING_PAWN_MASKS[2][2][8];
 
 /**
  * @brief Weights for each piece used to calculate the game phase based off
@@ -82,42 +88,33 @@ extern int PHASE_WEIGHT_SUM;
 };
 
 /**
- * @brief Бонусы и штрафы за то, насколько король в опасности
- *
- */
-const int  KING_HIGH_DANGER  = gS(-17,-26);   // применять когда жив ферзь и мы не рокированы
-const int  KING_MED_DANGER   = gS(-6,-16);   // мы рокированы, но пешечный щит кривой
-const int  KING_LOW_DANGER   = gS(-1,10);   // слабый пешечный щит
-const int  KING_SAFE         = gS(3,19);   // хороший пешечный щит
-
-/**
  * @brief Bonuses given to a player having a move available (opening/endgame)
  */
 const int BISHOP_MOBILITY[14] = {
-           gS(-23,-103), gS(-11,-44), gS(-5,-17), gS(-1,-2), gS(1,11), gS(3,22), gS(3,28),
-           gS(2,31), gS(3,34), gS(6,32), gS(11,29), gS(27,19), gS(45,28), gS(75,-4),
+           gS(-24,-103), gS(-12,-44), gS(-6,-18), gS(-2,-2), gS(0,11), gS(2,21), gS(2,28),
+           gS(1,31), gS(2,34), gS(5,32), gS(11,29), gS(26,19), gS(45,28), gS(75,-4),
 };
 
 const int KNIGHT_MOBILITY[9] = {
-           gS(-6,-71), gS(2,-25), gS(6,0), gS(8,14), gS(11,22),
-           gS(14,28), gS(18,27), gS(25,18), gS(34,4),
+           gS(-7,-71), gS(2,-25), gS(5,0), gS(8,14), gS(11,22),
+           gS(14,28), gS(18,27), gS(25,19), gS(34,4),
 };
 
 const int KING_MOBILITY[9] = {
-           gS(9,-2), gS(14,-7), gS(9,1), gS(6,6), gS(0,6),
-           gS(-7,3), gS(-4,3), gS(-18,1), gS(-13,-10),
+           gS(11,-2), gS(15,-6), gS(10,0), gS(6,5), gS(0,5),
+           gS(-7,3), gS(-4,2), gS(-20,1), gS(-15,-10),
 };
 
 const int ROOK_MOBILITY[15] = {
-           gS(-23,-102), gS(-15,-66), gS(-10,-32), gS(-8,-12), gS(-9,6), gS(-10,20), gS(-4,24),
-           gS(0,27), gS(4,31), gS(9,36), gS(11,40), gS(17,42), gS(22,42), gS(37,29),
+           gS(-23,-102), gS(-15,-67), gS(-10,-33), gS(-7,-12), gS(-9,6), gS(-10,20), gS(-4,23),
+           gS(0,26), gS(4,31), gS(9,36), gS(11,40), gS(17,42), gS(22,42), gS(37,29),
            gS(89,0),
 };
 
 const int QUEEN_MOBILITY[28] = {
-           gS(-42,-106), gS(-21,-171), gS(-8,-132), gS(-5,-76), gS(-3,-43), gS(-1,-21), gS(0,-3),
-           gS(2,8), gS(5,17), gS(7,23), gS(8,30), gS(10,34), gS(10,38), gS(9,43),
-           gS(8,49), gS(6,53), gS(5,56), gS(4,57), gS(4,57), gS(9,53), gS(12,48),
+           gS(-43,-107), gS(-21,-173), gS(-8,-132), gS(-5,-76), gS(-3,-43), gS(-1,-21), gS(0,-3),
+           gS(2,8), gS(4,17), gS(6,23), gS(7,30), gS(9,34), gS(9,38), gS(9,43),
+           gS(7,49), gS(5,53), gS(4,56), gS(3,57), gS(4,57), gS(9,53), gS(12,48),
            gS(11,43), gS(10,40), gS(21,28), gS(12,24), gS(20,23), gS(26,29), gS(24,26),
 };
 
@@ -128,7 +125,10 @@ const int QUEEN_MOBILITY[28] = {
   */
   const int PIECE_ATTACK_POWER[6] = {0, 24, 50, 26, 62, 0};
   const int COUNT_TO_POWER[8] = {0, 0, 40, 65, 80, 87, 95, 100};
-  const int SAFE_SHIELD_SAFETY = -50;
+  const int SAFE_SHIELD_SAFETY[2][9] = {
+      {-50, -50, -50, 0, 0, 0, 0, 0, 0},
+      {-50, -50, -50, 0, 0, 0, 0, 0, 0},
+  };
   /**@}*/
 
 
@@ -136,60 +136,66 @@ const int QUEEN_MOBILITY[28] = {
  * @brief Array indexed by [Phase][PieceType] of material values (in centipawns)
  */
 const int MATERIAL_VALUES[6] = {
-        [PAWN] = gS(70,127),
-        [ROOK] = gS(416,752),
-        [KNIGHT] = gS(278,414),
-        [BISHOP] = gS(305,448),
-        [QUEEN] = gS(949,1365),
+        [PAWN] = gS(68,125),
+        [ROOK] = gS(413,752),
+        [KNIGHT] = gS(276,414),
+        [BISHOP] = gS(303,448),
+        [QUEEN] = gS(948,1367),
         [KING] = gS(0, 0)
 };
 
 const int TEMPO = 5;
+const int KING_HIGH_DANGER = gS(-15,-30);
+
+const int KING_MED_DANGER = gS(-6,-22);
+
+const int KING_LOW_DANGER = gS(0,3);
+
 const int BISHOP_PAIR_BONUS = gS(15,76);
 
-const int PAWN_SUPPORTED = gS(13,4);
+const int PAWN_SUPPORTED = gS(15,5);
 
-const int DOUBLED_PAWN_PENALTY = gS(-5,-25);
+const int DOUBLED_PAWN_PENALTY = gS(-6,-22);
 
-const int ISOLATED_PAWN_PENALTY = gS(-4,-7);
+const int ISOLATED_PAWN_PENALTY = gS(-4,-10);
 
 const int PAWN_BLOCKED = gS(1,26);
 
-const int PASSER_BLOCKED = gS(1,45);
+const int PASSER_BLOCKED = gS(1,46);
 
-const int PAWN_CONNECTED = gS(4,3);
+const int PAWN_CONNECTED = gS(6,4);
 
 const int BISHOP_RAMMED_PENALTY = gS(-2,-9);
 
-const int BISHOP_CENTER_CONTROL = gS(10,7);
+const int BISHOP_CENTER_CONTROL = gS(11,6);
 
-const int MINOR_BEHIND_PAWN = gS(6,12);
+const int MINOR_BEHIND_PAWN = gS(7,22);
 
 const int MINOR_BEHIND_PASSER = gS(7,13);
 
-const int KING_AHEAD_PASSER = gS(-17,10);
+const int KING_AHEAD_PASSER = gS(-18,10);
 
 const int KING_EQUAL_PASSER = gS(6,8);
 
-const int KING_BEHIND_PASSER = gS(7,-5);
+const int KING_BEHIND_PASSER = gS(8,-5);
 
 const int KING_OPEN_FILE = gS(-50,-1);
 
-const int KING_OWN_SEMI_FILE = gS(-31,18);
+const int KING_OWN_SEMI_FILE = gS(-30,18);
 
-const int KING_ENEMY_SEMI_LINE = gS(-17,8);
+const int KING_ENEMY_SEMI_LINE = gS(-16,8);
 
-const int KING_ATTACK_PAWN = gS(21,42);
+const int KING_ATTACK_PAWN = gS(23,43);
 
 const int KING_PASSER_DISTANCE_FRIENDLY[9] = {
            gS(0,0), gS(3,35), gS(-3,26), gS(-6,11),
-           gS(-4,0), gS(-4,-4), gS(10,-9), gS(0,-19),
+           gS(-4,0), gS(-3,-4), gS(10,-9), gS(0,-19),
            gS(0,-10),
 };
 
 const int KING_PASSER_DISTANCE_ENEMY[9] = {
-           gS(0,0), gS(45,43), gS(-14,18), gS(-3,-1),
-           gS(-3,-13), gS(-2,-24), gS(5,-35), gS(14,-41),
+           gS(0,0), gS(43,43), gS(-15,18), gS(-3,0),
+           gS(-3,-13), gS(-1,-24), gS(6,-35), gS(15,-41),
            gS(0,-10),
 };
 
@@ -197,17 +203,15 @@ const int KING_PASSER_DISTANCE_ENEMY[9] = {
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
 const int ROOK_OPEN_FILE_BONUS[2] = {
-           gS(22,10), gS(23,12),
+           gS(22,10), gS(22,11),
 };
 
 /**
  * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
  */
 const int ROOK_SEMI_FILE_BONUS[2] = {
-           gS(6,3), gS(14,9),
+           gS(6,3), gS(13,9),
 };
-
-
 
 /**
  * @brief indexed by [pieceType]
@@ -215,86 +219,97 @@ const int ROOK_SEMI_FILE_BONUS[2] = {
  * and OUR pieces attacking enemy pawns - [PAWN]
  */
 const int HANGING_PIECE[5] = {
-           gS(-2,11), gS(-27,-15), gS(-31,-50), gS(-35,-77), gS(-21,-13),
+           gS(-3,11), gS(-26,-14), gS(-26,-49), gS(-31,-76), gS(-19,-13),
 };
+
+const int KING_PAWN_SHIELD_KS[8] = {
+           gS(-1,-4), gS(0,13), gS(11,12), gS(-2,12),
+           gS(3,7), gS(-5,-14), gS(4,5), gS(3,1),
+};
+
+const int KING_PAWN_SHIELD_QS[8] = {
+           gS(8,3), gS(-3,6), gS(18,4), gS(1,3),
+           gS(7,2), gS(-4,0), gS(-7,2), gS(2,0),
+};
+
 /**
  * @brief Bonuses given to a player for having a passed pawn (opening/endgame)
  */
 const int PASSED_PAWN_RANKS[8] = {
-           gS(0,0), gS(-11,-28), gS(-15,-14), gS(-8,21),
-           gS(16,55), gS(25,119), gS(73,132), gS(0,0),
+           gS(0,0), gS(-10,-27), gS(-15,-14), gS(-8,21),
+           gS(16,55), gS(26,119), gS(71,129), gS(0,0),
 };
 
 const int PASSED_PAWN_FILES[8] = {
-           gS(10,17), gS(6,16), gS(0,3), gS(-1,0),
-           gS(-4,-2), gS(-15,1), gS(-8,16), gS(9,12),
+           gS(10,17), gS(6,16), gS(0,2), gS(-1,-1),
+           gS(-4,-2), gS(-14,0), gS(-8,16), gS(8,12),
 };
 
 
 const int KING_PSQT_BLACK[64] = {
-           gS(-13,-97), gS(0,-47), gS(0,-33), gS(0,-16), gS(0,-32), gS(0,-27), gS(-1,-25), gS(-12,-89),
-           gS(-13,-37), gS(0,30), gS(5,22), gS(0,5), gS(0,2), gS(3,19), gS(0,38), gS(-12,-37),
-           gS(-2,-5), gS(27,31), gS(33,29), gS(12,19), gS(12,15), gS(35,27), gS(26,30), gS(-7,-12),
-           gS(-9,-10), gS(22,13), gS(30,27), gS(0,32), gS(7,26), gS(32,23), gS(28,11), gS(-38,-13),
-           gS(-22,-33), gS(22,0), gS(26,19), gS(-14,36), gS(0,32), gS(8,20), gS(24,2), gS(-53,-23),
-           gS(-52,-13), gS(-9,2), gS(-7,14), gS(-28,31), gS(-16,27), gS(-17,18), gS(-9,3), gS(-48,-11),
-           gS(1,-9), gS(-2,6), gS(-22,16), gS(-61,26), gS(-44,21), gS(-43,22), gS(0,4), gS(-1,-18),
-           gS(-26,-53), gS(0,-24), gS(-29,-3), gS(-32,-23), gS(-22,-36), gS(-54,-3), gS(-5,-24), gS(-15,-69),
+           gS(-13,-98), gS(0,-47), gS(0,-33), gS(0,-16), gS(0,-32), gS(0,-27), gS(0,-25), gS(-12,-90),
+           gS(-13,-37), gS(0,29), gS(5,21), gS(0,5), gS(0,1), gS(3,18), gS(0,37), gS(-12,-37),
+           gS(-2,-6), gS(27,30), gS(33,29), gS(12,18), gS(12,15), gS(35,26), gS(26,29), gS(-7,-13),
+           gS(-9,-10), gS(22,12), gS(30,27), gS(0,32), gS(7,26), gS(32,23), gS(28,11), gS(-38,-13),
+           gS(-22,-33), gS(22,0), gS(26,19), gS(-14,36), gS(0,32), gS(7,20), gS(24,2), gS(-53,-23),
+           gS(-52,-13), gS(-9,3), gS(-7,14), gS(-28,31), gS(-16,27), gS(-18,19), gS(-10,4), gS(-48,-10),
+           gS(1,-9), gS(-2,7), gS(-22,17), gS(-61,27), gS(-44,21), gS(-43,23), gS(1,4), gS(0,-18),
+           gS(-27,-53), gS(0,-24), gS(-29,-3), gS(-32,-22), gS(-21,-36), gS(-54,-3), gS(-2,-24), gS(-14,-69),
 };
 
 const int PAWN_PSQT_BLACK[64] = {
            gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0),
-           gS(61,72), gS(46,94), gS(65,90), gS(72,76), gS(80,76), gS(84,81), gS(-7,100), gS(-20,84),
-           gS(-2,47), gS(23,49), gS(37,41), gS(41,20), gS(51,20), gS(89,29), gS(55,37), gS(10,35),
-           gS(-3,19), gS(3,21), gS(4,18), gS(19,3), gS(27,7), gS(26,12), gS(9,19), gS(-1,10),
-           gS(-12,4), gS(-8,10), gS(-4,2), gS(2,1), gS(7,2), gS(3,3), gS(0,4), gS(-11,-4),
-           gS(-17,-2), gS(-17,0), gS(-14,4), gS(-12,5), gS(-6,8), gS(-6,8), gS(-1,-3), gS(-12,-12),
-           gS(-15,1), gS(-12,3), gS(-17,15), gS(-8,15), gS(-14,20), gS(6,17), gS(4,0), gS(-12,-17),
+           gS(62,74), gS(45,92), gS(64,88), gS(71,74), gS(79,74), gS(83,80), gS(-7,98), gS(-18,86),
+           gS(-2,47), gS(22,45), gS(36,38), gS(40,18), gS(50,18), gS(87,27), gS(53,34), gS(11,36),
+           gS(-2,20), gS(3,19), gS(4,16), gS(19,1), gS(28,5), gS(27,10), gS(8,17), gS(0,10),
+           gS(-11,5), gS(-8,9), gS(-4,1), gS(2,0), gS(8,1), gS(4,3), gS(0,2), gS(-9,-3),
+           gS(-16,0), gS(-17,0), gS(-14,4), gS(-12,6), gS(-6,8), gS(-6,8), gS(-4,-3), gS(-12,-10),
+           gS(-14,3), gS(-13,3), gS(-16,16), gS(-7,16), gS(-14,22), gS(6,18), gS(6,0), gS(-9,-14),
            gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0),
 };
 
 const int ROOK_PSQT_BLACK[64] = {
-           gS(29,27), gS(23,33), gS(0,42), gS(8,38), gS(13,38), gS(25,37), gS(41,31), gS(52,27),
-           gS(-1,23), gS(-4,27), gS(18,23), gS(29,23), gS(26,24), gS(44,9), gS(10,22), gS(16,18),
-           gS(-8,16), gS(31,2), gS(21,13), gS(43,2), gS(53,-3), gS(51,4), gS(70,-10), gS(15,8),
-           gS(-8,8), gS(9,7), gS(17,9), gS(39,2), gS(32,3), gS(29,2), gS(29,0), gS(13,2),
-           gS(-20,0), gS(-11,11), gS(-13,12), gS(-3,5), gS(-4,5), gS(-6,9), gS(6,5), gS(-9,-3),
-           gS(-25,-15), gS(-7,-3), gS(-15,-4), gS(-8,-9), gS(-7,-8), gS(-8,-6), gS(10,-6), gS(-15,-17),
-           gS(-55,-9), gS(-18,-16), gS(-12,-10), gS(-5,-15), gS(-4,-15), gS(-2,-19), gS(-2,-20), gS(-53,-9),
-           gS(-19,-12), gS(-12,-10), gS(-8,-8), gS(-1,-15), gS(-2,-15), gS(-4,-4), gS(-2,-12), gS(-12,-21),
+           gS(29,27), gS(23,33), gS(0,42), gS(8,38), gS(13,37), gS(25,37), gS(41,31), gS(52,27),
+           gS(-1,23), gS(-4,27), gS(18,22), gS(30,23), gS(27,24), gS(44,8), gS(10,21), gS(16,17),
+           gS(-8,16), gS(31,2), gS(21,13), gS(43,2), gS(54,-3), gS(52,3), gS(70,-10), gS(16,8),
+           gS(-8,9), gS(8,7), gS(16,9), gS(38,2), gS(30,2), gS(28,1), gS(28,0), gS(13,2),
+           gS(-20,0), gS(-12,11), gS(-14,12), gS(-4,5), gS(-5,5), gS(-7,8), gS(5,4), gS(-9,-3),
+           gS(-25,-14), gS(-8,-3), gS(-16,-4), gS(-8,-9), gS(-8,-8), gS(-8,-6), gS(9,-6), gS(-15,-17),
+           gS(-55,-9), gS(-18,-15), gS(-12,-10), gS(-5,-15), gS(-4,-15), gS(-2,-19), gS(-2,-20), gS(-53,-9),
+           gS(-17,-12), gS(-11,-10), gS(-7,-8), gS(0,-15), gS(-1,-14), gS(-3,-4), gS(-2,-12), gS(-11,-21),
 };
 
 const int BISHOP_PSQT_BLACK[64] = {
-           gS(-50,5), gS(-43,8), gS(-79,17), gS(-81,23), gS(-69,18), gS(-92,15), gS(-15,0), gS(-48,0),
-           gS(-49,1), gS(-12,4), gS(-8,7), gS(-14,15), gS(-4,13), gS(0,7), gS(-27,5), gS(-26,-4),
-           gS(1,1), gS(0,7), gS(21,3), gS(7,9), gS(23,7), gS(8,9), gS(21,2), gS(14,0),
-           gS(-11,0), gS(18,6), gS(4,6), gS(23,13), gS(21,13), gS(15,4), gS(20,3), gS(-5,0),
-           gS(0,-12), gS(5,-1), gS(11,7), gS(18,7), gS(25,6), gS(3,7), gS(13,0), gS(3,-13),
-           gS(-2,-17), gS(11,-7), gS(5,-4), gS(12,2), gS(8,4), gS(10,-5), gS(11,-8), gS(13,-11),
-           gS(8,-30), gS(7,-32), gS(9,-15), gS(2,-2), gS(6,-3), gS(7,-15), gS(17,-27), gS(5,-42),
-           gS(4,-37), gS(1,-15), gS(0,-2), gS(0,-6), gS(-1,-2), gS(0,-7), gS(-2,-10), gS(2,-38),
+           gS(-50,5), gS(-43,8), gS(-80,17), gS(-81,23), gS(-69,18), gS(-92,15), gS(-15,0), gS(-48,0),
+           gS(-49,1), gS(-13,4), gS(-8,7), gS(-14,15), gS(-4,13), gS(0,6), gS(-27,5), gS(-26,-4),
+           gS(1,1), gS(0,8), gS(20,3), gS(7,8), gS(23,7), gS(7,9), gS(21,2), gS(14,0),
+           gS(-11,0), gS(17,6), gS(3,6), gS(23,12), gS(20,13), gS(15,4), gS(19,3), gS(-5,0),
+           gS(0,-12), gS(4,0), gS(10,7), gS(17,7), gS(24,6), gS(2,6), gS(12,0), gS(2,-12),
+           gS(-2,-16), gS(10,-7), gS(5,-4), gS(12,2), gS(8,4), gS(10,-5), gS(10,-8), gS(13,-10),
+           gS(8,-30), gS(7,-32), gS(9,-15), gS(2,-2), gS(6,-4), gS(7,-15), gS(15,-26), gS(4,-42),
+           gS(5,-37), gS(2,-15), gS(1,-2), gS(0,-6), gS(0,-2), gS(0,-7), gS(-2,-10), gS(2,-38),
 };
 
 const int KNIGHT_PSQT_BLACK[64] = {
-           gS(-145,-65), gS(-35,-20), gS(-67,11), gS(-14,0), gS(0,1), gS(-55,13), gS(-28,-12), gS(-91,-70),
+           gS(-145,-65), gS(-35,-20), gS(-67,11), gS(-14,0), gS(0,1), gS(-56,13), gS(-28,-12), gS(-92,-70),
            gS(-11,-24), gS(-12,-5), gS(31,-3), gS(50,17), gS(38,17), gS(52,-11), gS(-21,-3), gS(-7,-21),
-           gS(-18,-18), gS(11,-2), gS(32,30), gS(35,28), gS(60,19), gS(45,24), gS(26,-9), gS(3,-17),
-           gS(2,-11), gS(11,4), gS(30,26), gS(30,38), gS(24,32), gS(45,20), gS(22,4), gS(13,-8),
-           gS(-5,-9), gS(10,8), gS(16,30), gS(22,33), gS(25,35), gS(22,33), gS(27,12), gS(7,0),
-           gS(-21,-33), gS(0,-5), gS(4,10), gS(13,25), gS(17,23), gS(12,8), gS(7,0), gS(-6,-25),
-           gS(-22,-16), gS(-28,0), gS(-8,-10), gS(5,7), gS(0,8), gS(-1,-9), gS(-16,-3), gS(-12,-3),
-           gS(-40,-46), gS(-15,-27), gS(-12,-17), gS(-9,3), gS(-1,2), gS(-9,-11), gS(-12,-20), gS(-41,-45),
+           gS(-17,-18), gS(11,-1), gS(32,30), gS(35,28), gS(61,19), gS(45,24), gS(27,-8), gS(3,-17),
+           gS(2,-11), gS(10,4), gS(29,26), gS(29,38), gS(22,32), gS(42,20), gS(20,4), gS(12,-8),
+           gS(-4,-9), gS(10,8), gS(15,30), gS(21,32), gS(24,35), gS(20,32), gS(26,12), gS(7,0),
+           gS(-20,-33), gS(0,-5), gS(5,10), gS(13,25), gS(17,23), gS(13,8), gS(7,0), gS(-5,-25),
+           gS(-22,-16), gS(-28,0), gS(-7,-10), gS(5,7), gS(1,9), gS(-1,-9), gS(-16,-3), gS(-12,-3),
+           gS(-40,-46), gS(-13,-27), gS(-11,-17), gS(-8,4), gS(0,2), gS(-8,-11), gS(-10,-20), gS(-41,-45),
 };
 
 const int QUEEN_PSQT_BLACK[64] = {
-           gS(-3,3), gS(0,20), gS(0,34), gS(3,47), gS(9,55), gS(31,48), gS(8,50), gS(15,38),
-           gS(-18,-4), gS(-56,36), gS(-17,26), gS(-41,72), gS(-43,108), gS(0,70), gS(-54,72), gS(-19,39),
-           gS(-15,-17), gS(-8,-18), gS(-12,14), gS(-11,42), gS(1,60), gS(10,78), gS(29,45), gS(2,60),
-           gS(-4,-33), gS(-2,0), gS(-7,2), gS(-15,45), gS(-13,65), gS(-6,71), gS(5,60), gS(9,31),
-           gS(0,-41), gS(3,-13), gS(-2,-9), gS(-9,28), gS(-5,27), gS(-5,25), gS(12,3), gS(4,8),
-           gS(-1,-58), gS(9,-42), gS(3,-21), gS(2,-28), gS(2,-27), gS(0,-9), gS(16,-31), gS(5,-47),
-           gS(-2,-66), gS(4,-61), gS(13,-76), gS(7,-46), gS(10,-49), gS(15,-88), gS(11,-83), gS(-10,-57),
-           gS(-1,-67), gS(2,-79), gS(4,-85), gS(7,-65), gS(8,-71), gS(3,-87), gS(7,-84), gS(-3,-75),
+           gS(-2,3), gS(0,21), gS(0,35), gS(3,48), gS(9,56), gS(31,49), gS(8,51), gS(16,39),
+           gS(-18,-4), gS(-56,35), gS(-17,26), gS(-41,72), gS(-42,107), gS(0,70), gS(-54,72), gS(-19,39),
+           gS(-15,-17), gS(-8,-18), gS(-12,14), gS(-11,41), gS(1,60), gS(11,78), gS(31,45), gS(4,60),
+           gS(-5,-33), gS(-3,0), gS(-8,1), gS(-15,44), gS(-14,64), gS(-7,70), gS(4,59), gS(8,31),
+           gS(-1,-41), gS(2,-13), gS(-3,-9), gS(-10,27), gS(-6,26), gS(-6,24), gS(11,3), gS(3,8),
+           gS(-1,-58), gS(9,-42), gS(3,-21), gS(2,-28), gS(2,-27), gS(0,-9), gS(14,-31), gS(5,-46),
+           gS(-2,-66), gS(4,-60), gS(13,-75), gS(7,-46), gS(10,-49), gS(15,-88), gS(11,-83), gS(-11,-57),
+           gS(0,-66), gS(3,-78), gS(4,-84), gS(8,-65), gS(8,-71), gS(3,-86), gS(7,-84), gS(-2,-75),
 };
 
 
