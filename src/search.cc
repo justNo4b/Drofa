@@ -518,12 +518,13 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // For obvious reasons its turned off with no major pieces,
   // when we are in check, and at pvNodes
   bool failedNull = false;
+  bool isEndGame = board.isEndGamePosition();
   if (!pvNode && ply > 0 && depth >= 3 &&
       !doNool && !AreWeInCheck && board.isThereMajorPiece() &&
        statEVAL >= beta && !sing){
           Board movedBoard = board;
           movedBoard.doNool();
-          int fDepth = depth - NULL_MOVE_REDUCTION - depth/4 - std::min((statEVAL - beta)/128, 4);
+          int fDepth = depth - NULL_MOVE_REDUCTION - depth/4 - std::min((statEVAL - beta)/128, 4) - !isEndGame;
           int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, ply + 1, true, 0, false);
           if (score >= beta){
             return beta;
@@ -605,7 +606,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // some pawn promotions near the leafs of the search tree
         // Thus we extend in the endgame pushes of the non-blocked
         // passers that are near the middle of the board
-        if (depth < 5 && board.isEndGamePosition() && move.isItPasserPush(board)){
+        if (depth < 5 && isEndGame && move.isItPasserPush(board)){
               tDepth++;
             }
 
