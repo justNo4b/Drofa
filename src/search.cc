@@ -485,6 +485,15 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   if (ply > 2)
     improving = !AreWeInCheck && statEVAL > _sEvalArray[ply - 2];
 
+
+  if (!AreWeInCheck && TTmove){
+    if ( probedHASHentry.Flag == EXACT ||
+        (probedHASHentry.Flag == ALPHA && probedHASHentry.score < statEVAL) ||
+        (probedHASHentry.Flag == BETA && probedHASHentry.score > statEVAL)){
+          statEVAL = probedHASHentry.score;
+        }
+  }
+
   // 1. RAZORING
   // In the very leaf nodes (d == 1)
   // with stat eval << beta we can assume that no
