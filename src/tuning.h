@@ -36,7 +36,6 @@ struct posFeatured{
     int BishopRammed[2];
     int BishopCenterControl[2];
     int MinorBehindPawn[2];
-    int MinorBehindPasser[2];
     int KingAheadPasser[2];
     int KingEqualPasser[2];
     int KingBehindPasser[2];
@@ -103,10 +102,10 @@ struct tEntry {
   const std::string TUNING_DATA        = "BOOK.txt";
   const int         TUNING_POS_COUNT   = 42484641; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 800;
+  const int         TUNING_TERMS_COUNT = 799;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
-  const int         TUNIGN_PRINT       = 25; 
+  const int         TUNIGN_PRINT       = 25;
   const int         TUNING_K_PRECISION = 10;
   const int         TUNING_L_STEP      = 1500;
   const double      TUNING_K           = 2.746758999;
@@ -116,14 +115,14 @@ struct tEntry {
   const int         TUNING_STACK_SIZE = ((int)((double) TUNING_POS_COUNT * TUNING_TERMS_COUNT / 64));
   /**@}*/
 
-  // 
-  
+  //
+
   typedef double tValueHolder[TUNING_TERMS_COUNT][2];
   typedef double featureCoeff[TUNING_TERMS_COUNT];
 
 
   #define strFail (std::string::npos)
- /** 
+ /**
   * @brief run the tuner using data specified in the TUNING_DATA
   *        All other stuff is private because it is not needed anywhere else.
   */
@@ -131,16 +130,16 @@ struct tEntry {
 
  /**
   * @brief print simple term (op, eg)
-  * 
+  *
   * @param name  name of the term
   * @param value OPENING value of the term
   * @param value ENDGAME value of the term
-  * 
-  */ 
+  *
+  */
  void EvalTermPrint(std::string, double, double, double, double);
- 
+
  void EvalArrayPrint(std::string, tValueHolder, tValueHolder, int, int, int);
- 
+
  void EvalTermInitiate(tValueHolder);
 
  bool InitTuningPositions(tEntry*);

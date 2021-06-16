@@ -218,18 +218,18 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, 
 
     //проверяем где наш король. Проверка по сути на то, куда сделали рокировку.
     //если король не рокирован-выгнан с рокировки, то король не в безопасности, начислить штраф
-    //0 - kingSide; 1 - QueenSide    
+    //0 - kingSide; 1 - QueenSide
     CastleSide cSide = NoCastle;
     if ((color == WHITE ? WHITE_K_CASTLE : BLACK_K_CASTLE) & board.getPieces(color, KING)){
       cSide = KingSide;
     } else if ((color == WHITE ? WHITE_Q_CASTLE : BLACK_Q_CASTLE) & board.getPieces(color, KING)){
-      cSide = QueenSide; 
+      cSide = QueenSide;
     }
 
     if (cSide == NoCastle){
       if (TRACK) ft.KingHighDanger[color]++;
       return KING_HIGH_DANGER;
-    } 
+    }
     // Cycle through all masks, if one of them is true,
     // Apply bonus for safety and score
     for (int i = 0; i < 8; i++){
@@ -626,12 +626,9 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   // Same as above, separate for passers and non-passers
   pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
   pieces = color == WHITE ? pieces << 8 : pieces >> 8;
-  tmpPawns = board.getPieces(color, PAWN) ^ eB.Passers[color];
+  tmpPawns = board.getPieces(color, PAWN);
   s += MINOR_BEHIND_PAWN * _popCount(tmpPawns & pieces);
   if (TRACK) ft.MinorBehindPawn[color] += _popCount(tmpPawns & pieces);
-
-  s += MINOR_BEHIND_PASSER * _popCount(eB.Passers[color] & pieces);
-  if (TRACK) ft.MinorBehindPasser[color] += _popCount(eB.Passers[color] & pieces);
 
   return s;
 }

@@ -171,8 +171,6 @@ const int BISHOP_CENTER_CONTROL = gS(10,7);
 
 const int MINOR_BEHIND_PAWN = gS(6,13);
 
-const int MINOR_BEHIND_PASSER = gS(7,14);
-
 const int KING_AHEAD_PASSER = gS(-18,11);
 
 const int KING_EQUAL_PASSER = gS(6,8);
