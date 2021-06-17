@@ -368,6 +368,10 @@ int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
           break;
         }
 
+        if (currScore >= beta) {
+          return beta;
+        }
+
         // If the current score is better than alpha, or this is the first move in the loop
         if (currScore > alpha) {
           fullWindow = false;
