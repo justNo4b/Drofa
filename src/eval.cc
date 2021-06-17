@@ -266,6 +266,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
   int s = 0;
 
   U64 pieces = board.getPieces(color, QUEEN);
+  Color otherColor = getOppositeColor(color);
 
   // Apply penalty for each Queen attacked by enemy pawn
   s += HANGING_PIECE[QUEEN] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
@@ -284,6 +285,11 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     U64 attackBitBoard = board.getMobilityForSquare(QUEEN, color, square, eB->EnemyPawnAttackMap[color]);
     s += QUEEN_MOBILITY[_popCount(attackBitBoard)];
     if (TRACK) ft.QueenMobility[_popCount(attackBitBoard)][color]++;
+
+    // QueenAttackMinor
+    U64 QueenAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
+    s += MINOR_ATTACKED_BY[QUEEN] * _popCount(QueenAttackMinor);
+    if (TRACK) ft.MinorAttackedBy[QUEEN][color] += _popCount(QueenAttackMinor);
 
     // See if a Queen is attacking an enemy unprotected pawn
     s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
@@ -323,6 +329,11 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     s += ROOK_MOBILITY[_popCount(attackBitBoard)];
     if (TRACK) ft.RookMobility[_popCount(attackBitBoard)][color]++;
 
+    // RookAttackMinor
+    U64 RookAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
+    s += MINOR_ATTACKED_BY[ROOK] * _popCount(RookAttackMinor);
+    if (TRACK) ft.MinorAttackedBy[ROOK][color] += _popCount(RookAttackMinor);
+
     // If Rook attacking squares near enemy king
     // Adjust our kind Danger code
     int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
@@ -357,6 +368,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
   int s = 0;
 
   U64 pieces = board.getPieces(color, BISHOP);
+  Color otherColor = getOppositeColor(color);
   // Bishop has penalty based on count of rammed pawns
   s += eB->RammedCount * _popCount(pieces) * BISHOP_RAMMED_PENALTY;
   if (TRACK) ft.BishopRammed[color] += eB->RammedCount * _popCount(pieces);
@@ -378,6 +390,11 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       U64 attackBitBoard = board.getMobilityForSquare(BISHOP, color, square, eB->EnemyPawnAttackMap[color]);
       s += BISHOP_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.BishopMobility[_popCount(attackBitBoard)][color]++;
+
+      // BishopAttackMinor
+      U64 BishopAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
+      s += MINOR_ATTACKED_BY[BISHOP] * _popCount(BishopAttackMinor);
+      if (TRACK) ft.MinorAttackedBy[BISHOP][color] += _popCount(BishopAttackMinor);
 
       // Bonus for bishop having central squares in mobility
       // it would mean they are not attacked by enemy pawn
@@ -420,6 +437,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
 inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB){
   int s = 0;
   U64 pieces = board.getPieces(color, KNIGHT);
+  Color otherColor = getOppositeColor(color);
 
   // Apply penalty for each Knight attacked by opponents pawn
   s += HANGING_PIECE[KNIGHT] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
@@ -437,6 +455,11 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       U64 attackBitBoard = board.getMobilityForSquare(KNIGHT, color, square,eB->EnemyPawnAttackMap[color]);
       s += KNIGHT_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.KnigthMobility[_popCount(attackBitBoard)][color]++;
+
+      // KnightAttackMinor
+      U64 KnightAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
+      s += MINOR_ATTACKED_BY[KNIGHT] * _popCount(KnightAttackMinor);
+      if (TRACK) ft.MinorAttackedBy[KNIGHT][color] += _popCount(KnightAttackMinor);
 
       // If Knight attacking squares near enemy king
       // Adjust our kind Danger code
