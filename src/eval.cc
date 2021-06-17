@@ -218,18 +218,18 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, 
 
     //проверяем где наш король. Проверка по сути на то, куда сделали рокировку.
     //если король не рокирован-выгнан с рокировки, то король не в безопасности, начислить штраф
-    //0 - kingSide; 1 - QueenSide    
+    //0 - kingSide; 1 - QueenSide
     CastleSide cSide = NoCastle;
     if ((color == WHITE ? WHITE_K_CASTLE : BLACK_K_CASTLE) & board.getPieces(color, KING)){
       cSide = KingSide;
     } else if ((color == WHITE ? WHITE_Q_CASTLE : BLACK_Q_CASTLE) & board.getPieces(color, KING)){
-      cSide = QueenSide; 
+      cSide = QueenSide;
     }
 
     if (cSide == NoCastle){
       if (TRACK) ft.KingHighDanger[color]++;
       return KING_HIGH_DANGER;
-    } 
+    }
     // Cycle through all masks, if one of them is true,
     // Apply bonus for safety and score
     for (int i = 0; i < 8; i++){
@@ -763,9 +763,9 @@ int Eval::evaluate(const Board &board, Color color) {
   score += kingShieldSafety(board, color, b_Q, &eB) - kingShieldSafety(board, otherColor, w_Q, &eB);
 
   // evluate king danger
-  int attackScore = eB.KingAttackPower[color] * COUNT_TO_POWER[std::min(7, eB.KingAttackers[color])] / 100;
+  int attackScore = eB.KingAttackPower[color] * COUNT_TO_POWER[std::min(7, eB.KingAttackers[color])] / 128;
   score += gS(std::max(0, attackScore), 0);
-  attackScore = eB.KingAttackPower[otherColor] * COUNT_TO_POWER[std::min(7, eB.KingAttackers[otherColor])] / 100;
+  attackScore = eB.KingAttackPower[otherColor] * COUNT_TO_POWER[std::min(7, eB.KingAttackers[otherColor])] / 128;
   score -= gS(std::max(0, attackScore), 0);
 
   // Bishop pair
