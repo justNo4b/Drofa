@@ -311,7 +311,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
   int s = 0;
   Color otherColor = getOppositeColor(color);
   U64 pieces = board.getPieces(color, ROOK);
-  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] ^ board.getPieces(otherColor, QUEEN);
+  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~board.getPieces(otherColor, QUEEN);
 
   // Apply penalty for each Rook attacked by enemy pawn
   s += HANGING_PIECE[ROOK] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
@@ -370,7 +370,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
 
   U64 pieces = board.getPieces(color, BISHOP);
   Color otherColor = getOppositeColor(color);
-  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] ^ (board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
+  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
 
   // Bishop has penalty based on count of rammed pawns
   s += eB->RammedCount * _popCount(pieces) * BISHOP_RAMMED_PENALTY;
@@ -441,7 +441,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
   int s = 0;
   U64 pieces = board.getPieces(color, KNIGHT);
   Color otherColor = getOppositeColor(color);
-  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] ^ (board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
+  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
 
   // Apply penalty for each Knight attacked by opponents pawn
   s += HANGING_PIECE[KNIGHT] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
