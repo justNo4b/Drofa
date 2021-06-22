@@ -295,6 +295,10 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     s += ROOK_ATTACKED_BY[QUEEN] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
     if (TRACK) ft.RookAttackedBy[QUEEN][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
 
+    //QueenAttackQueen
+    s += QUEEN_ATTACKED_BY[QUEEN] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+    if (TRACK) ft.QueenAttackedBy[QUEEN][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+
     // See if a Queen is attacking an enemy unprotected pawn
     s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
     if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
@@ -342,6 +346,10 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     //RookAttackRook
     s += ROOK_ATTACKED_BY[ROOK] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
     if (TRACK) ft.RookAttackedBy[ROOK][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
+
+    //RookAttackQueen
+    s += QUEEN_ATTACKED_BY[ROOK] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+    if (TRACK) ft.QueenAttackedBy[ROOK][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
 
     // If Rook attacking squares near enemy king
     // Adjust our kind Danger code
@@ -411,6 +419,10 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       s += ROOK_ATTACKED_BY[BISHOP] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
       if (TRACK) ft.RookAttackedBy[BISHOP][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
 
+      //BishopAttackQueen
+      s += QUEEN_ATTACKED_BY[BISHOP] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+      if (TRACK) ft.QueenAttackedBy[BISHOP][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+
       // Bonus for bishop having central squares in mobility
       // it would mean they are not attacked by enemy pawn
       // or contain our own piece
@@ -477,9 +489,13 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       s += MINOR_ATTACKED_BY[KNIGHT] * _popCount(KnightAttackMinor);
       if (TRACK) ft.MinorAttackedBy[KNIGHT][color] += _popCount(KnightAttackMinor);
 
-      //RookAttackRook
+      //KnightAttackRook
       s += ROOK_ATTACKED_BY[KNIGHT] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
-      if (TRACK) ft.RookAttackedBy[KNIGHT][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));      
+      if (TRACK) ft.RookAttackedBy[KNIGHT][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));  
+
+      //KnightAttackQueen
+      s += QUEEN_ATTACKED_BY[KNIGHT] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+      if (TRACK) ft.QueenAttackedBy[KNIGHT][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));    
 
 
       // If Knight attacking squares near enemy king
