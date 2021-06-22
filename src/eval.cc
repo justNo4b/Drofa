@@ -291,6 +291,10 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     s += MINOR_ATTACKED_BY[QUEEN] * _popCount(QueenAttackMinor);
     if (TRACK) ft.MinorAttackedBy[QUEEN][color] += _popCount(QueenAttackMinor);
 
+    //QueenAttackRook
+    s += ROOK_ATTACKED_BY[QUEEN] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
+    if (TRACK) ft.RookAttackedBy[QUEEN][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
+
     // See if a Queen is attacking an enemy unprotected pawn
     s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
     if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
@@ -311,6 +315,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
   int s = 0;
   Color otherColor = getOppositeColor(color);
   U64 pieces = board.getPieces(color, ROOK);
+  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~board.getPieces(otherColor, QUEEN);
 
   // Apply penalty for each Rook attacked by enemy pawn
   s += HANGING_PIECE[ROOK] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
@@ -325,7 +330,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
 
     // Mobility
     // Rooks are scanning through rooks and queens
-    U64 attackBitBoard = board.getMobilityForSquare(ROOK, color, square, eB->EnemyPawnAttackMap[color]);
+    U64 attackBitBoard = board.getMobilityForSquare(ROOK, color, square, mobZoneAdjusted);
     s += ROOK_MOBILITY[_popCount(attackBitBoard)];
     if (TRACK) ft.RookMobility[_popCount(attackBitBoard)][color]++;
 
@@ -333,6 +338,10 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     U64 RookAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
     s += MINOR_ATTACKED_BY[ROOK] * _popCount(RookAttackMinor);
     if (TRACK) ft.MinorAttackedBy[ROOK][color] += _popCount(RookAttackMinor);
+
+    //RookAttackRook
+    s += ROOK_ATTACKED_BY[ROOK] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
+    if (TRACK) ft.RookAttackedBy[ROOK][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
 
     // If Rook attacking squares near enemy king
     // Adjust our kind Danger code
@@ -369,6 +378,8 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
 
   U64 pieces = board.getPieces(color, BISHOP);
   Color otherColor = getOppositeColor(color);
+  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
+
   // Bishop has penalty based on count of rammed pawns
   s += eB->RammedCount * _popCount(pieces) * BISHOP_RAMMED_PENALTY;
   if (TRACK) ft.BishopRammed[color] += eB->RammedCount * _popCount(pieces);
@@ -387,7 +398,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
 
       // Mobility
       // Bishops mobility are scanning through bishops and queens
-      U64 attackBitBoard = board.getMobilityForSquare(BISHOP, color, square, eB->EnemyPawnAttackMap[color]);
+      U64 attackBitBoard = board.getMobilityForSquare(BISHOP, color, square, mobZoneAdjusted);
       s += BISHOP_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.BishopMobility[_popCount(attackBitBoard)][color]++;
 
@@ -395,6 +406,10 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       U64 BishopAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
       s += MINOR_ATTACKED_BY[BISHOP] * _popCount(BishopAttackMinor);
       if (TRACK) ft.MinorAttackedBy[BISHOP][color] += _popCount(BishopAttackMinor);
+
+      //BishopAttackRook
+      s += ROOK_ATTACKED_BY[BISHOP] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
+      if (TRACK) ft.RookAttackedBy[BISHOP][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
 
       // Bonus for bishop having central squares in mobility
       // it would mean they are not attacked by enemy pawn
@@ -438,6 +453,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
   int s = 0;
   U64 pieces = board.getPieces(color, KNIGHT);
   Color otherColor = getOppositeColor(color);
+  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
 
   // Apply penalty for each Knight attacked by opponents pawn
   s += HANGING_PIECE[KNIGHT] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
@@ -452,7 +468,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       }
 
       // Mobility
-      U64 attackBitBoard = board.getMobilityForSquare(KNIGHT, color, square,eB->EnemyPawnAttackMap[color]);
+      U64 attackBitBoard = board.getMobilityForSquare(KNIGHT, color, square, mobZoneAdjusted);
       s += KNIGHT_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.KnigthMobility[_popCount(attackBitBoard)][color]++;
 
@@ -460,6 +476,11 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       U64 KnightAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
       s += MINOR_ATTACKED_BY[KNIGHT] * _popCount(KnightAttackMinor);
       if (TRACK) ft.MinorAttackedBy[KNIGHT][color] += _popCount(KnightAttackMinor);
+
+      //RookAttackRook
+      s += ROOK_ATTACKED_BY[KNIGHT] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
+      if (TRACK) ft.RookAttackedBy[KNIGHT][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));      
+
 
       // If Knight attacking squares near enemy king
       // Adjust our kind Danger code
