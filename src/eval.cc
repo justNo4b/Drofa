@@ -677,6 +677,22 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   s += MINOR_BEHIND_PASSER * _popCount(eB.Passers[color] & pieces);
   if (TRACK) ft.MinorBehindPasser[color] += _popCount(eB.Passers[color] & pieces);
 
+  // 3. Free passer evaluation 
+  // Add bonus for each passed pawn that has no piece blocking its advance
+  // rank - based evaluation
+  tmpPawns = eB.Passers[color];
+  pieces   = board.getAllPieces(color) | board.getAllPieces(otherColor);
+  while (tmpPawns != ZERO) {
+
+    int square = _popLsb(tmpPawns);
+    int r = color == WHITE ? _row(square) : 7 - _row(square);
+    if ((detail::FORWARD_BITS[color][square] & pieces) == ZERO){
+      s += PASSED_PAWN_FREE[r];
+      ft.PassedPawnFree[r][color]++;
+    }
+  }
+
+
   return s;
 }
 
