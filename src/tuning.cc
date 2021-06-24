@@ -270,6 +270,10 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.PassedPawnFree[j][WHITE] - ft.PassedPawnFree[j][BLACK];
     }
 
+    for (int j = 0; j < 7; j++){
+        coeff[i++] = ft.PassedPawnPosAdvance[j][WHITE] - ft.PassedPawnPosAdvance[j][BLACK];
+    }
+
     for (int j = 0; j < 9; j++){
         coeff[i++] = ft.KingFriendlyPasser[j][WHITE] - ft.KingFriendlyPasser[j][BLACK];
     }
