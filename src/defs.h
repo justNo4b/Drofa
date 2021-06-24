@@ -107,6 +107,8 @@ const U64 WHITE_K_CASTLE = (ONE << g1) | (ONE << h1) | (ONE << g2) | (ONE << h2)
 const U64 WHITE_Q_CASTLE = (ONE << a1) | (ONE << b1) | (ONE << c1) | (ONE << a2) | (ONE << b2);
 const U64 BLACK_K_CASTLE = (ONE << g8) | (ONE << h8) | (ONE << g7) | (ONE << h7);
 const U64 BLACK_Q_CASTLE = (ONE << a8) | (ONE << b8) | (ONE << c8) | (ONE << a7) | (ONE << b7);
+const U64 ENEMY_SIDE[2]  = {  (RANK_5 | RANK_6 | RANK_7 | RANK_8),
+                              (RANK_1 | RANK_2 | RANK_3 | RANK_4)};
 /**@}*/
 
 /** @brief Positive infinity to be used during search (eg. as a return value for winning) */
