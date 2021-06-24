@@ -286,7 +286,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     U64 attackBitBoard = board.getMobilityForSquare(QUEEN, color, square, eB->EnemyPawnAttackMap[color]);
     s += QUEEN_MOBILITY[_popCount(attackBitBoard)];
     if (TRACK) ft.QueenMobility[_popCount(attackBitBoard)][color]++;
-    
+
     // Save our attacks for further use
     eB->AttackedSquares[color] |= attackBitBoard;
 
@@ -492,7 +492,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
 
       //RookAttackRook
       s += ROOK_ATTACKED_BY[KNIGHT] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
-      if (TRACK) ft.RookAttackedBy[KNIGHT][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));      
+      if (TRACK) ft.RookAttackedBy[KNIGHT][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
 
 
       // If Knight attacking squares near enemy king
@@ -693,9 +693,9 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   s += MINOR_BEHIND_PASSER * _popCount(eB.Passers[color] & pieces);
   if (TRACK) ft.MinorBehindPasser[color] += _popCount(eB.Passers[color] & pieces);
 
-  // Passer - piece evaluation 
+  // Passer - piece evaluation
 
-  tmpPawns = eB.Passers[color];
+  tmpPawns = eB.Passers[color] & ENEMY_SIDE[color];
   pieces   = board.getAllPieces(color) | board.getAllPieces(otherColor);
   int forward = color == WHITE ? 8 : -8;
   U64 posAdvance = ~eB.AttackedSquares[otherColor] | eB.AttackedSquares[color];
@@ -716,7 +716,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
     // 4. Moving passer evaluation
     // Add bonus when passed pawn nex square is not attacked
     // and pawn can be advanced
-    if ((((ONE << (square + forward)) & pieces) == 0) && 
+    if ((((ONE << (square + forward)) & pieces) == 0) &&
         (((ONE << (square + forward)) & posAdvance) != 0)){
           s += PASSED_PAWN_POS_ADVANCE[r];
           if (TRACK) ft.PassedPawnPosAdvance[r][color]++;
