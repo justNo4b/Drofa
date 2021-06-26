@@ -98,12 +98,12 @@ class OrderingInfo {
   /**
    * @brief Array of first killer moves by ply
    */
-  int _killer1[100];
+  int _killer1[MAX_INT_PLY];
 
   /**
    * @brief Array of second killer moves by ply
    */
-  int _killer2[100];
+  int _killer2[MAX_INT_PLY];
 
   /**
    * @brief Current ply of search

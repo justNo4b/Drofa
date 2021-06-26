@@ -64,7 +64,7 @@ class Search {
   };
 
   struct pV {
-    int     pVmoves [100];
+    int     pVmoves [MAX_INT_PLY];
     uint8_t length;
 
     pV () : pVmoves {0}, length(0) {};
@@ -117,7 +117,7 @@ class Search {
    * @brief Array of the pre-calculated move-nums
    * used for LATE MOVE PRUNING during AB-search
    */
-  int _lmp_Array[100][2]; 
+  int _lmp_Array[MAX_PLY][2]; 
 
   /**
    * @brief Default depth to search to if no limits are specified.
@@ -135,7 +135,7 @@ class Search {
    * @brief Maximum depth to search to if depth is not explicitly specified
    * and time limits are imposed.
    */
-  static const int MAX_SEARCH_DEPTH = 50;
+  static const int MAX_SEARCH_DEPTH = 64;
 
 
   //
@@ -164,7 +164,7 @@ class Search {
    * This is used for calculating "improving" paramenter 
    * during the search
    */ 
-  int _sEvalArray[100];
+  int _sEvalArray[MAX_INT_PLY];
 
   /**
    * @brief OrderingInfo object containing information about the current state
