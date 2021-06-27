@@ -29,7 +29,7 @@ void Search::init_LMR_array(){
 
   for (int i = 0; i < 34; i++){
     for (int j = 0; j < 34; j++){
-      _lmr_R_array[i][j] = (int) (0.1 + (pow(i, 0.15) * pow(j, 0.15))/1.75);
+      _lmr_R_array[i][j] = (int) round(0.1 + (pow(i, 0.15) * pow(j, 0.15))/1.75);
     }
   }
   // 2. Initialization of the LMP array.
