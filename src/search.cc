@@ -35,7 +35,7 @@ void Search::init_LMR_array(){
   // 2. Initialization of the LMP array.
   // Current formula is completely based on the
   // Weiss chess engine.
-  for (int i = 0; i < 99; i++){
+  for (int i = 0; i < MAX_PLY; i++){
     _lmp_Array[i][0] = (int) ((3 + pow( i, 2) * 2) / 2);
     _lmp_Array[i][1] = (int) (3 + pow( i, 2) * 2);
   }
@@ -228,7 +228,7 @@ bool Search::_checkLimits() {
     return false;
   }
 
-  _limitCheckCount = 4096;
+  _limitCheckCount = 2048;
 
   int elapsed =
       std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
@@ -451,7 +451,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   // Go into the QSearch if depth is 0 and we are not in check
   // Cut out pV and update our seldepth before dropping into qSearch
-  if (depth <= 0 && !AreWeInCheck) {
+  if ((depth <= 0 && !AreWeInCheck) || ply >= MAX_PLY) {
     _selDepth = std::max(ply, _selDepth);
     up_pV->length = 0;
     return _qSearch(board, alpha, beta, ply + 1 );
@@ -770,7 +770,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
   MoveGen movegen(board, true);
   MoveList legalMoves = movegen.getMoves();
   MovePicker movePicker
-      (&_orderingInfo, &board, &legalMoves, 0, board.getActivePlayer(), 99, 0);
+      (&_orderingInfo, &board, &legalMoves, 0, board.getActivePlayer(), MAX_PLY, 0);
 
   // If node is quiet, just return eval
   if (!movePicker.hasNext()) {

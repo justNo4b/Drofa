@@ -22,6 +22,8 @@ typedef unsigned long long U64;
 #define MAX_HASH    (65536)
 #define MIN_THREADS (    1)
 #define MAX_THREADS (  172)
+#define MAX_PLY     (  127)
+#define MAX_INT_PLY (  128)
 
 /**
  * @name Rank bitboards
