@@ -77,20 +77,20 @@ U64 Board::getMobilityForSquare(PieceType pieceType, Color color, int square, U6
     case PAWN:
       // pawn mobility isnt used
       return 0;
-    case ROOK: 
+    case ROOK:
       own = own ^  getPieces(color, ROOK) ^ getPieces (color, QUEEN);
       scan =  getPieces(color, ROOK) | getPieces (color, QUEEN);
       attacks = _getRookMobilityForSquare(square, own, scan);
       break;
-    case KNIGHT: 
+    case KNIGHT:
       attacks = _getKnightMobilityForSquare(square, own);
       break;
-    case BISHOP: 
+    case BISHOP:
       own = own ^ getPieces (color, QUEEN) ^ getPieces (color, BISHOP);
       scan = getPieces (color, QUEEN) | getPieces (color, BISHOP);
       attacks = _getBishopMobilityForSquare(square, own, scan);
       break;
-    case QUEEN: 
+    case QUEEN:
       // Queen is a special case
       // We sont want it to scan (i guess it plays out
       // with Safety (ie when Q behind B it isnt good in attack)
@@ -98,7 +98,7 @@ U64 Board::getMobilityForSquare(PieceType pieceType, Color color, int square, U6
       scan = ZERO;
       attacks = _getRookMobilityForSquare(square, own, scan) | _getBishopMobilityForSquare(square, own, scan);
       break;
-    case KING: 
+    case KING:
       attacks = _getKingAttacksForSquare(square, own);
       break;
   }
@@ -124,7 +124,7 @@ PSquareTable Board::getPSquareTable() const {
 
 bool Board::colorIsInCheck(Color color) const {
   int kingSquare = _bitscanForward(getPieces(color, KING));
-  
+
   // Don't choke in testing scenarios where there is no king
   if (kingSquare == -1) {
     return false;
@@ -434,96 +434,60 @@ void Board::_addPiece(Color color, PieceType pieceType, int squareIndex) {
 }
 
 bool Board:: isThereMajorPiece() const {
-
-Color active = getActivePlayer();
-if (_popCount(_allPieces[active] ^ _pieces[active][PAWN] ^ _pieces[active][KING]) > 0){
-  return true;
-}
-  return false;
+  Color active = getActivePlayer();
+  return (_popCount(_allPieces[active] ^ _pieces[active][PAWN] ^ _pieces[active][KING]) > 0);
 }
 
 bool Board:: isEndGamePosition() const {
-
-int pieceCount = _popCount(_allPieces[WHITE] ^ _pieces[WHITE][PAWN]) + 
-_popCount(_allPieces[BLACK] ^ _pieces[BLACK][PAWN]);
-
-  return pieceCount < 5 ? true : false;
-}
-
-int  Board:: MostFancyPieceCost() const{
-
-  int mvpCost = opS(Eval::MATERIAL_VALUES[PAWN]);
-  if (getActivePlayer() == WHITE && (getPieces(WHITE, PAWN) & RANK_7)){
-      mvpCost = opS(Eval::MATERIAL_VALUES[QUEEN]);
-  }
-
-  if (getActivePlayer() == BLACK && (getPieces(BLACK, PAWN) & RANK_2)){
-      mvpCost = opS(Eval::MATERIAL_VALUES[QUEEN]);
-  }
-
-  if (getPieces(getInactivePlayer(), QUEEN)){
-    return mvpCost + opS(Eval::MATERIAL_VALUES[QUEEN]);
-  }
-
-  if (getPieces(getInactivePlayer(), ROOK)){
-    return mvpCost + opS(Eval::MATERIAL_VALUES[ROOK]);
-  }
-
-  if (getPieces(getInactivePlayer(), BISHOP)){
-    return mvpCost + opS(Eval::MATERIAL_VALUES[BISHOP]);
-  }
-  if (getPieces(getInactivePlayer(), KNIGHT)){
-    return mvpCost + opS(Eval::MATERIAL_VALUES[KNIGHT]);
-  }
-  
-  return mvpCost;
+  return (_popCount(_allPieces[WHITE] ^ _pieces[WHITE][PAWN]) +
+          _popCount(_allPieces[BLACK] ^ _pieces[BLACK][PAWN])) < 5;
 }
 
 U64 Board::_getLeastValuableAttacker(Color color, U64 attackers, PieceType &piece) const{
-  
+
   U64 tmp = ZERO;
   //check pawns
   tmp = attackers & getPieces(color, PAWN);
   if (tmp){
     piece = PAWN;
     return ONE << _popLsb(tmp);
-  } 
+  }
   //check knight
   tmp = attackers & getPieces(color, KNIGHT);
   if (tmp){
     piece = KNIGHT;
     return ONE << _popLsb(tmp);
-  } 
+  }
   //check bishop
   tmp = attackers & getPieces(color, BISHOP);
   if (tmp){
     piece = BISHOP;
     return ONE << _popLsb(tmp);
-  } 
+  }
   // check ROOK
    tmp = attackers & getPieces(color, ROOK);
   if (tmp){
     piece = ROOK;
     return ONE << _popLsb(tmp);
-  } 
+  }
   // Check QUEEN
   tmp = attackers & getPieces(color, QUEEN);
-    if (tmp){ 
+    if (tmp){
     piece = QUEEN;
     return ONE << _popLsb(tmp);
-  } 
+  }
   // King
   tmp = attackers & getPieces(color, KING);
     if (tmp){
     piece = KING;
     return ONE << _popLsb(tmp);
-  } 
+  }
   piece = KING;
   return 0;
 }
 
 int  Board:: Calculate_SEE(const Move move) const{
-  
+
   // in search we do not need full SEE
   // but rather need to know if SEE
   // of the move is good enough
@@ -559,7 +523,7 @@ int  Board:: Calculate_SEE(const Move move) const{
 
   U64 horiXray = getPieces(WHITE, ROOK) | getPieces(WHITE, QUEEN) |  getPieces(BLACK, ROOK) | getPieces(BLACK, QUEEN);
   U64 diagXray = getPieces(WHITE, PAWN) | getPieces(WHITE, BISHOP) | getPieces(WHITE, QUEEN) |
-                 getPieces(BLACK, PAWN) | getPieces(BLACK, BISHOP) | getPieces(BLACK, QUEEN);              
+                 getPieces(BLACK, PAWN) | getPieces(BLACK, BISHOP) | getPieces(BLACK, QUEEN);
   U64 attBit = (ONE << from);
 
 
@@ -573,7 +537,7 @@ int  Board:: Calculate_SEE(const Move move) const{
     //std::cout <<"d"<< d << " gain[d] " << gain [d] <<std::endl;
     if ( std::max(-gain[d-1], gain[d]) < 0){
       break;
-    } 
+    }
     aBoard[side] = aBoard[side] ^ attBit;
     occupied = occupied ^ attBit;
     if (horiXray & attBit){

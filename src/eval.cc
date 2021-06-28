@@ -221,9 +221,9 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, 
     //если король не рокирован-выгнан с рокировки, то король не в безопасности, начислить штраф
     //0 - kingSide; 1 - QueenSide
     CastleSide cSide = NoCastle;
-    if ((color == WHITE ? WHITE_K_CASTLE : BLACK_K_CASTLE) & board.getPieces(color, KING)){
+    if (KSIDE_CASTLE[color] & board.getPieces(color, KING)){
       cSide = KingSide;
-    } else if ((color == WHITE ? WHITE_Q_CASTLE : BLACK_Q_CASTLE) & board.getPieces(color, KING)){
+    } else if (QSIDE_CASTLE[color] & board.getPieces(color, KING)){
       cSide = QueenSide;
     }
 
