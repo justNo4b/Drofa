@@ -653,7 +653,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           //Search with reduced depth around alpha in assumtion
           // that alpha would not be beaten here
-          score = -_negaMax(movedBoard, &thisPV, fDepth, -alpha - 1 , -alpha, ply + 1, false, move.getMoveINT(), false);
+          score = -_negaMax(movedBoard, &thisPV, fDepth, -alpha - 1 , -alpha, ply + 1, failedNull, move.getMoveINT(), false);
         }
 
         // Code here is restructured based on Weiss
