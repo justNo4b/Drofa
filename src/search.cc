@@ -607,7 +607,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         if (!pvNode && !AreWeInCheck && LegalMoveCount > 1 && tDepth < 3
         && (!giveCheck || badHistory) && alpha < WON_IN_X && !(move.getFlags() & Move::PROMOTION)){
-          int moveGain = isQuiet ? 0 : opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]);
+          int moveGain = isQuiet ? 0 : board.Calculate_SEE(move);
           if (statEVAL + FUTIL_MOVE_CONST * tDepth + moveGain - 100 * improving <= alpha){
               continue;
           }
