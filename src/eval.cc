@@ -146,7 +146,7 @@ evalBits Eval::Setupbits(const Board &board){
     eB.EnemyKingZone[!color] = detail::KINGZONE[color][_bitscanForward(king)];
   }
 
-  eB.RammedCount = _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN));
+  eB.RammedPawns = (board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN);
   eB.OutPostedLines[0] = 0, eB.OutPostedLines[1] = 0;
   eB.KingAttackers[0] = 0, eB.KingAttackers[1] = 0;
   eB.KingAttackPower[0] = 0, eB.KingAttackPower[1] = 0;
@@ -366,8 +366,12 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     // we differentiate between open/semiopen based on
     // if there are enemys protected outpost here
     U64 file = detail::FILES[_col(square)];
-    if ( ((file & board.getPieces(color, PAWN)) == 0)
-      && ((file & board.getPieces(otherColor, PAWN)) == 0)){
+    if ((file & eB->RammedPawns) != 0){
+      s += ROOK_RAMMED_LINE;
+      if (TRACK) ft.RookRammedLine[color]++;
+    }
+    else if ( ((file & board.getPieces(color, PAWN)) == 0)
+           && ((file & board.getPieces(otherColor, PAWN)) == 0)){
       s += ROOK_OPEN_FILE_BONUS[((file & eB->OutPostedLines[otherColor]) != 0)];
       if (TRACK) ft.RookOpenFile[((file & eB->OutPostedLines[otherColor]) != 0)][color]++;
     }
@@ -388,8 +392,8 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
   U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
 
   // Bishop has penalty based on count of rammed pawns
-  s += eB->RammedCount * _popCount(pieces) * BISHOP_RAMMED_PENALTY;
-  if (TRACK) ft.BishopRammed[color] += eB->RammedCount * _popCount(pieces);
+  s += _popCount(eB->RammedPawns) * _popCount(pieces) * BISHOP_RAMMED_PENALTY;
+  if (TRACK) ft.BishopRammed[color] += _popCount(eB->RammedPawns) * _popCount(pieces);
 
   // Apply a penalty for each Bishop attacked by enemy pawn
   s += HANGING_PIECE[BISHOP] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));

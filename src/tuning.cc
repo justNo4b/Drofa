@@ -249,6 +249,7 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.BishopCenterControl[WHITE] - ft.BishopCenterControl[BLACK];
     coeff[i++] = ft.MinorBehindPawn[WHITE] - ft.MinorBehindPawn[BLACK];
     coeff[i++] = ft.MinorBehindPasser[WHITE] - ft.MinorBehindPasser[BLACK];
+    coeff[i++] = ft.RookRammedLine[WHITE] - ft.RookRammedLine[BLACK];
     coeff[i++] = ft.KingAheadPasser[WHITE] - ft.KingAheadPasser[BLACK];
     coeff[i++] = ft.KingEqualPasser[WHITE] - ft.KingEqualPasser[BLACK];
     coeff[i++] = ft.KingBehindPasser[WHITE] - ft.KingBehindPasser[BLACK];
