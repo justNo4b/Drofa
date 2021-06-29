@@ -57,8 +57,8 @@ struct posFeatured{
     int MinorAttackedBy[5][2];
     int RookAttackedBy[5][2];
     //Array - Safety Shields
-    int KingShieldKS[8][2];
-    int KingShieldQS[8][2];
+    int KingShieldKS[10][2];
+    int KingShieldQS[10][2];
     //Array Features  - Mobility
     int BishopMobility[14][2];
     int KnigthMobility[9][2];
@@ -107,7 +107,7 @@ struct tEntry {
   const std::string TUNING_DATA        = "BOOK.txt";
   const int         TUNING_POS_COUNT   = 42484641; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 830;
+  const int         TUNING_TERMS_COUNT = 834;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
   const int         TUNIGN_PRINT       = 25; 

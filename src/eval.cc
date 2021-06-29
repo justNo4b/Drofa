@@ -48,7 +48,7 @@ U64 Eval::detail::OUTPOST_PROTECTION[2][64];
 U64 Eval::detail::KINGZONE[2][64];
 U64 Eval::detail::FORWARD_BITS[2][64];
 int Eval::detail::PHASE_WEIGHT_SUM = 0;
-U64 Eval::detail::KING_PAWN_MASKS[2][2][8] = {
+U64 Eval::detail::KING_PAWN_MASKS[2][2][10] = {
         [WHITE] = {
           [0] = {
             (ONE << f2) | (ONE << g2) | (ONE << h2),
@@ -59,6 +59,8 @@ U64 Eval::detail::KING_PAWN_MASKS[2][2][8] = {
             (ONE << g2) | (ONE << h2),
             (ONE << g2) | (ONE << h3),
             (ONE << g2) | (ONE << g3) | (ONE << f2),
+            (ONE << g3) | (ONE << h2),
+            (ONE << g3) | (ONE << f2)
           },
           [1] = {
             (ONE << a2) | (ONE << b2) | (ONE << c2),
@@ -68,7 +70,9 @@ U64 Eval::detail::KING_PAWN_MASKS[2][2][8] = {
             (ONE << a3) | (ONE << b3) | (ONE << c2),
             (ONE << a2) | (ONE << b2),
             (ONE << a3) | (ONE << b2),
-            (ONE << b2) | (ONE << b3) | (ONE << c2)
+            (ONE << b2) | (ONE << b3) | (ONE << c2),
+            (ONE << b3) | (ONE << a2),
+            (ONE << b3) | (ONE << c2)
           }
         },
         [BLACK] = {
@@ -81,6 +85,9 @@ U64 Eval::detail::KING_PAWN_MASKS[2][2][8] = {
             (ONE << g7) | (ONE << h7),
             (ONE << g7) | (ONE << h6),
             (ONE << g7) | (ONE << g6) | (ONE << f7),
+            (ONE << g6) | (ONE << h7),
+            (ONE << g6) | (ONE << f7)
+            
           },
           [1] = {
             (ONE << a7) | (ONE << b7) | (ONE << c7),
@@ -90,7 +97,9 @@ U64 Eval::detail::KING_PAWN_MASKS[2][2][8] = {
             (ONE << a6) | (ONE << b6) | (ONE << c7),
             (ONE << a7) | (ONE << b7),
             (ONE << a6) | (ONE << b7),
-            (ONE << b7) | (ONE << b6) | (ONE << c7)
+            (ONE << b7) | (ONE << b6) | (ONE << c7),
+            (ONE << b6) | (ONE << a7),
+            (ONE << b6) | (ONE << c7)
           }
         }
     };
@@ -233,7 +242,7 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, 
     }
     // Cycle through all masks, if one of them is true,
     // Apply bonus for safety and score
-    for (int i = 0; i < 8; i++){
+    for (int i = 0; i < 10; i++){
       if ((pawnMap & detail::KING_PAWN_MASKS[color][cSide][i]) == detail::KING_PAWN_MASKS[color][cSide][i]){
                 eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY[cSide][i];
                 if (TRACK){

@@ -305,11 +305,11 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.RookAttackedBy[j][WHITE] - ft.RookAttackedBy[j][BLACK];
     }
 
-    for (int j = 0; j < 8; j++){
+    for (int j = 0; j < 10; j++){
         coeff[i++] = ft.KingShieldKS[j][WHITE] - ft.KingShieldKS[j][BLACK];
     }
 
-    for (int j = 0; j < 8; j++){
+    for (int j = 0; j < 10; j++){
         coeff[i++] = ft.KingShieldQS[j][WHITE] - ft.KingShieldQS[j][BLACK];
     }
 
