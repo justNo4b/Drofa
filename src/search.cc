@@ -473,7 +473,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // Check if we are improving
   // The idea is if we are not improving in this line we probably can prune a bit more
   bool improving = false;
-  if (ply > 2) improving = !AreWeInCheck && statEVAL > _sEvalArray[ply - 2];
+  if (ply > 2 && !AreWeInCheck) improving = (statEVAL > _sEvalArray[ply - 2]) ||
+                                            (ply > 4 && _sEvalArray[ply - 2] == NOSCORE && statEVAL > _sEvalArray[ply - 4]);
+
+
 
   // Check if we are doing pre-move pruning techniques
   // We do not do them InCheck, in pvNodes and when proving singularity
