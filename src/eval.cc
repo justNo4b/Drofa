@@ -726,6 +726,17 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   }
 
+  // Calculate space
+  // Grab pawns and do a rear-fill
+  U64 spaceZone = board.getPieces(color, PAWN);
+  spaceZone |= color == WHITE ? spaceZone >> 8 : spaceZone << 8;
+  spaceZone |= color == WHITE ? spaceZone >> 16 : spaceZone << 16;
+  spaceZone |= color == WHITE ? spaceZone >> 32 : spaceZone << 32;
+  // see free safe squares: no enemy pieces, no enemy attacks, in ext center
+  spaceZone = spaceZone & ~(board.getAllPieces(otherColor) | eB.EnemyPawnAttackMap[color]) & EXTENDED_CENTER;
+  s += SPACE[_popCount(spaceZone)];
+  if (TRACK) ft.Space[_popCount(spaceZone)][color]++;
+
 
   return s;
 }
