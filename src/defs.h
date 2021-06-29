@@ -103,14 +103,14 @@ const U64 WHITE_SQUARES = 0x55AA55AA55AA55AA;
  */
 const U64 CENTER         = (ONE << e4) | (ONE << e5) | (ONE << d4) | (ONE << d5);
 const U64 FIGHTING_AREA  = RANK_3 | RANK_4 | RANK_5 | RANK_6;
-const U64 PASSER_ZONE_W  = RANK_5 | RANK_6;
-const U64 PASSER_ZONE_B  = RANK_3 | RANK_4;
-const U64 WHITE_K_CASTLE = (ONE << g1) | (ONE << h1) | (ONE << g2) | (ONE << h2);
-const U64 WHITE_Q_CASTLE = (ONE << a1) | (ONE << b1) | (ONE << c1) | (ONE << a2) | (ONE << b2);
-const U64 BLACK_K_CASTLE = (ONE << g8) | (ONE << h8) | (ONE << g7) | (ONE << h7);
-const U64 BLACK_Q_CASTLE = (ONE << a8) | (ONE << b8) | (ONE << c8) | (ONE << a7) | (ONE << b7);
-const U64 ENEMY_SIDE[2]  = {  (RANK_5 | RANK_6 | RANK_7 | RANK_8),
-                              (RANK_1 | RANK_2 | RANK_3 | RANK_4)};
+const U64 PASSER_ZONE [2] = { (RANK_5 | RANK_6),
+                              (RANK_3 | RANK_4) };
+const U64 ENEMY_SIDE [2]  = { (RANK_5 | RANK_6 | RANK_7 | RANK_8),
+                              (RANK_1 | RANK_2 | RANK_3 | RANK_4) };
+const U64 KSIDE_CASTLE [2] = { ((ONE << g1) | (ONE << h1) | (ONE << g2) | (ONE << h2)),
+                               ((ONE << g8) | (ONE << h8) | (ONE << g7) | (ONE << h7)) };
+const U64 QSIDE_CASTLE [2] = { ((ONE << a1) | (ONE << b1) | (ONE << c1) | (ONE << a2) | (ONE << b2)),
+                               ((ONE << a8) | (ONE << b8) | (ONE << c8) | (ONE << a7) | (ONE << b7)) };
 /**@}*/
 
 /** @brief Positive infinity to be used during search (eg. as a return value for winning) */
