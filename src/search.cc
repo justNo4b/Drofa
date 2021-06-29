@@ -787,9 +787,9 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
       break;
     }
 
-    int moveGain = opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]);
-    if (!(move.getFlags() & Move::PROMOTION) && standPat + moveGain + DELTA_MOVE_CONST < alpha)
-      continue;
+    // Use Halogen futility variation
+    if (!(move.getFlags() & Move::PROMOTION) && standPat + move.getValue() + DELTA_MOVE_CONST < alpha)
+      break;
 
     Board movedBoard = board;
     movedBoard.doMove(move);
