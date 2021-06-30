@@ -482,6 +482,12 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       s += KNIGHT_MOBILITY[_popCount(attackBitBoard)];
       if (TRACK) ft.KnigthMobility[_popCount(attackBitBoard)][color]++;
 
+      // If knight can move only to the corner, give a penalty
+      if ((attackBitBoard & CORNERS) == attackBitBoard){
+        s += KNIGHT_CORNER_ONLY;
+        if (TRACK) ft.KnightOnlyCorner[color]++; 
+      }
+
       // Save our attacks for further use
       eB->AttackedSquares[color] |= attackBitBoard;
 
