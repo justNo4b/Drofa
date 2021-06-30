@@ -857,6 +857,8 @@ int Eval::evaluate(const Board &board, Color color) {
 
   // Calculation of the phase value
   int phase = getPhase(board);
+  int max_scale = 256;
+  int scale     = 256;
 
   // Interpolate between opening/endgame scores depending on the phase
   int final_eval = ((opS(score) * (MAX_PHASE - phase)) + (egS(score) * phase)) / MAX_PHASE;
@@ -867,14 +869,16 @@ int Eval::evaluate(const Board &board, Color color) {
       w_B == 1 && b_B == 1){
     U64 bothBishops = board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP);
     if (_popCount(bothBishops & WHITE_SQUARES) == 1){
-        final_eval = final_eval / 2;
+        int passers = final_eval > 0 ? _popCount(eB.Passers[color]) : _popCount(eB.Passers[otherColor]);
+        scale = std::min(256, 64 + passers * 64);
+        final_eval = final_eval * scale / max_scale;
         if (TRACK) ft.OCBscale = true;
     }
   }
 
   if (DrawishMaterial){
     if ((final_eval > 0 && w_P == 0) || (final_eval < 0 && b_P == 0))
-      final_eval = final_eval / 4;
+      final_eval = final_eval * 64 / max_scale;
   }
 
   return final_eval + TEMPO;
