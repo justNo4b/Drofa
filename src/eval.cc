@@ -869,8 +869,9 @@ int Eval::evaluate(const Board &board, Color color) {
       w_B == 1 && b_B == 1){
     U64 bothBishops = board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP);
     if (_popCount(bothBishops & WHITE_SQUARES) == 1){
-        int passers = final_eval > 0 ? _popCount(eB.Passers[color]) : _popCount(eB.Passers[otherColor]);
-        scale = std::min(256, 64 + passers * passers * 48);
+        int pawnCount = final_eval > 0 ? w_P - b_P : b_P - w_P;
+        pawnCount = std::max(0, pawnCount);
+        scale = std::min(256, 96 + pawnCount * 48);
         final_eval = final_eval * scale / max_scale;
         if (TRACK) ft.OCBscale = true;
     }
