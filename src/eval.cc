@@ -872,7 +872,7 @@ int Eval::evaluate(const Board &board, Color color) {
         int passers = final_eval > 0 ? _popCount(eB.Passers[color]) : _popCount(eB.Passers[otherColor]);
         int pawnCount = final_eval > 0 ? w_P - b_P : b_P - w_P;
         pawnCount = std::max(0, pawnCount);
-        scale = std::min(256, 64 + passers * passers * 48 + pawnCount * 32);
+        scale = std::min(256, 64 + 2 * passers * 32 + pawnCount * 32);
         final_eval = final_eval * scale / max_scale;
         if (TRACK) ft.OCBscale = true;
     }
