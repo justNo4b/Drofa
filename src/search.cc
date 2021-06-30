@@ -463,7 +463,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   if (AreWeInCheck) {
     _sEvalArray[ply] = NOSCORE;
   }else if (pMove == 0){
-    statEVAL = -_sEvalArray[ply - 1] + 14;
+    statEVAL = -_sEvalArray[ply - 1] + 20;
     _sEvalArray[ply] = statEVAL;
   }else{
     statEVAL = Eval::evaluate(board, board.getActivePlayer());

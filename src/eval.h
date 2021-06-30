@@ -145,7 +145,7 @@ const int MATERIAL_VALUES[6] = {
         [KING] = gS(0, 0)
 };
 
-const int TEMPO = 7;
+const int TEMPO = 10;
 const int KING_HIGH_DANGER = gS(-20,-69);
 
 const int KING_MED_DANGER = gS(-6,-31);
