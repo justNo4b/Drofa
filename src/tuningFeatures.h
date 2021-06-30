@@ -5,7 +5,7 @@
 #include "eval.h"
 #include "outposts.h"
 
-#define BIG_FEATURE_NUMBER (54)
+#define BIG_FEATURE_NUMBER (55)
 
 enum TuningType{
     ALL,
@@ -58,6 +58,7 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("PASSED_PAWN_FILES", true, Eval::PASSED_PAWN_FILES, 8, 4, ALL),
     tFeature("PASSED_PAWN_FREE", true, Eval::PASSED_PAWN_FREE, 7, 4, ALL),
     tFeature("PASSED_PAWN_POS_ADVANCE", true, Eval::PASSED_PAWN_POS_ADVANCE, 7, 4, ALL),
+    tFeature("PASSED_PASSED_DISTANCE", true, Eval::PASSED_PASSED_DISTANCE, 8, 4, ALL),
     tFeature("KING_PASSER_DISTANCE_FRIENDLY", true, Eval::KING_PASSER_DISTANCE_FRIENDLY, 9, 4, ALL),
     tFeature("KING_PASSER_DISTANCE_ENEMY", true, Eval::KING_PASSER_DISTANCE_ENEMY, 9, 4, ALL),
     tFeature("ROOK_OPEN_FILE_BONUS", true, Eval::ROOK_OPEN_FILE_BONUS, 2, 10, ALL),
