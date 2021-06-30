@@ -611,6 +611,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
   U64 pawns = board.getPieces(color, PAWN);
   U64 tmpPawns = pawns;
+  int forward = color == WHITE ? 8 : -8;
 
   while (tmpPawns != ZERO) {
 
@@ -651,6 +652,13 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       if (TRACK) ft.PawnConnected[r][color]++;
       s += PAWN_CONNECTED[r];
     }
+
+    // we evaluate appereance of blocked pawn on 6th rank by file it is on
+    if (r == 5 && ((ONE << square + forward) & board.getPieces(getOppositeColor(color), PAWN))){
+      s += PAWN_RAMMED_6TH[pawnCol];
+      if (TRACK) ft.PawnRammed6th[pawnCol][color]++;
+    }
+
   }
 
   return s;

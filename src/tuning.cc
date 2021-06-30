@@ -257,6 +257,10 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.KingSemiEnemyFile[WHITE] - ft.KingSemiEnemyFile[BLACK];
     coeff[i++] = ft.KingAttackPawn[WHITE] - ft.KingAttackPawn[BLACK];
 
+    for (int j = 0; j < 8; j++){
+        coeff[i++] = ft.PawnRammed6th[j][WHITE] - ft.PawnRammed6th[j][BLACK];
+    }
+
     for (int j = 0; j < 7; j++){
         coeff[i++] = ft.PawnConnected[j][WHITE] - ft.PawnConnected[j][BLACK];
     }
