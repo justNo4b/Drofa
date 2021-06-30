@@ -870,7 +870,7 @@ int Eval::evaluate(const Board &board, Color color) {
     U64 bothBishops = board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP);
     if (_popCount(bothBishops & WHITE_SQUARES) == 1){
         int passers = final_eval > 0 ? _popCount(eB.Passers[color]) : _popCount(eB.Passers[otherColor]);
-        int pawnCount = final_eval > 0 ? w_P - b_P : b_P - w_P;
+        int pawnCount = final_eval > 0 ? w_P - b_P - passers : b_P - w_P - passers;
         pawnCount = std::max(0, pawnCount);
         scale = std::min(256, 64 + passers * passers * 48 + pawnCount * 48);
         final_eval = final_eval * scale / max_scale;
