@@ -481,7 +481,7 @@ double TuningEval(tEntry* entry, tValueHolder diff){
     // Adjust eval for OCBendgame and noPawnsEndgames
     if (entry->OCBEndgame) final_eval = final_eval / 2;
 
-    return final_eval + (entry->stm == WHITE ? 7 : -7);
+    return final_eval + (entry->stm == WHITE ? 10 : -10);
 }
 
 double TunedError(tEntry* entries, tValueHolder diff) {
