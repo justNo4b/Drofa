@@ -632,6 +632,19 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         ft.PassedPawnRank[r][color]++;
         ft.PassedPawnFile[pawnCol][color]++;
       }
+      // if the pawn is passed evaluate how far 
+      // is it from other passers (_col-wise)
+      U64 tmpPassers = eB->Passers[color];
+      while (tmpPassers != ZERO){
+        int tPasSquare = _popLsb(tmpPassers);
+        int tPasCol = _col(tPasSquare);
+
+        s += PASSED_PASSED_DISTANCE[abs(tPasCol - pawnCol)];
+        if (TRACK) ft.PassedPassedDistance[abs(tPasCol - pawnCol)][color]++;
+      }
+
+      // Add pawn to the passers list for further use
+      eB->Passers[color] = eB->Passers[color] | (ONE << square);
     }
 
     // add penalties for the doubled pawns
