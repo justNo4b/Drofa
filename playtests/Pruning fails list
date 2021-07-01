@@ -16,7 +16,7 @@ bestmove Nf6
 From TCEC S21 games:
 
 Invictus - Drofa bm Bb4!!
-r3r1k1/2qnb1p1/2p1p1p1/pp1pP3/5B2/5P2/PPPQ3P/1K2RB1R w - - 0 21
+r3r1k1/2qnb1pp/2p1p1P1/pp1pP3/5B2/5P2/PPPQ3P/1K2RB1R b - - 0 20
 
 8/2p2rkp/3p3p/2pP4/p5PK/2P1R2P/P3RP2/6r1 b - - 3 35
 
@@ -34,3 +34,6 @@ h4
 
 f3
 2r3k1/p2b1p1r/1pnBpQp1/4P2p/P5PP/8/P1R2P2/6K1 w - - 0 36
+
+Nh7
+3r1rk1/pp1bbp1p/1qn1p1p1/3nP1N1/8/P1NB4/1P3PPP/1RBQR1K1 w - - 0 15
