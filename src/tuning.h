@@ -114,7 +114,7 @@ struct tEntry {
   const int         TUNIGN_PRINT       = 25; 
   const int         TUNING_K_PRECISION = 10;
   const int         TUNING_L_STEP      = 1500;
-  const double      TUNING_K           = 2.746758999;
+  const double      TUNING_K           = 2.829175699;
   const double      TUNING_L_DROP      = 1.0;
   const double      TUNING_L_RATE      = 10.0;
 
