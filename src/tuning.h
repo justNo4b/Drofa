@@ -105,8 +105,8 @@ struct tEntry {
   * @brief Main tuning constants are defined here
   * @{
   */
-  const std::string TUNING_DATA        = "BOOK.txt";
-  const int         TUNING_POS_COUNT   = 42484641; //9996883 42484641
+  const std::string TUNING_DATA        = "LiChessBOOK.txt";
+  const int         TUNING_POS_COUNT   = 7153653; //9996883 42484641
   const int         TUNING_THREADS     = 16;
   const int         TUNING_TERMS_COUNT = 838;
   const int         TUNING_BATCH_SIZE  = 0;
@@ -114,7 +114,7 @@ struct tEntry {
   const int         TUNIGN_PRINT       = 25; 
   const int         TUNING_K_PRECISION = 10;
   const int         TUNING_L_STEP      = 1500;
-  const double      TUNING_K           = 2.829175699;
+  const double      TUNING_K           = 3.198216899; //2.829175699;
   const double      TUNING_L_DROP      = 1.0;
   const double      TUNING_L_RATE      = 10.0;
 
