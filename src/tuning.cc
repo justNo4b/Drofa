@@ -57,7 +57,7 @@ void TunerStart(){
     std::cout << std::setprecision(16);
 
     std::cout << "\n Calculating K... " << std::endl;
-    double K = TUNING_K; //CalculateFactorK(entries);
+    double K = CalculateFactorK(entries);
     std::cout << "\n Optimal K = " << K << std::endl;
     for (int epoch = 0; epoch < TUNIGN_MAX_ITER; epoch++){
 
