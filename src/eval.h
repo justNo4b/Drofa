@@ -136,11 +136,11 @@ const int QUEEN_MOBILITY[28] = {
  * @brief Array indexed by [Phase][PieceType] of material values (in centipawns)
  */
 const int MATERIAL_VALUES[6] = {
-        [PAWN] = gS(64,115),
-        [ROOK] = gS(412,749),
-        [KNIGHT] = gS(291,409),
-        [BISHOP] = gS(317,433),
-        [QUEEN] = gS(922,1361),
+        [PAWN] = gS(64,114),
+        [ROOK] = gS(419,741),
+        [KNIGHT] = gS(298,403),
+        [BISHOP] = gS(325,426),
+        [QUEEN] = gS(918,1359),
         [KING] = gS(0, 0)
 };
 
