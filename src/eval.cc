@@ -632,7 +632,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         ft.PassedPawnRank[r][color]++;
         ft.PassedPawnFile[pawnCol][color]++;
       }
-      // if the pawn is passed evaluate how far 
+      // if the pawn is passed evaluate how far
       // is it from other passers (_col-wise)
       U64 tmpPassers = eB->Passers[color];
       while (tmpPassers != ZERO){
@@ -872,7 +872,12 @@ int Eval::evaluate(const Board &board, Color color) {
   int phase = getPhase(board);
 
   // Interpolate between opening/endgame scores depending on the phase
-  int final_eval = ((opS(score) * (MAX_PHASE - phase)) + (egS(score) * phase)) / MAX_PHASE;
+
+  int max_scale = 128;
+  int scale     = egS(score) == 0 ? 128 :
+                  egS(score) >  0 ? TOTAL_PAWN_WINNABLE_SCALE[w_P] : TOTAL_PAWN_WINNABLE_SCALE[b_P];
+
+  int final_eval = ((opS(score) * (MAX_PHASE - phase)) + (egS(score) * phase * scale / max_scale)) / MAX_PHASE;
 
   if (w_Q == 0 && b_Q == 0 &&
       w_R == 0 && b_R == 0 &&

@@ -119,6 +119,12 @@ const int QUEEN_MOBILITY[28] = {
            gS(20,50), gS(14,46), gS(24,32), gS(13,28), gS(21,24), gS(26,29), gS(24,26),
 };
 
+
+  // Assuming Max is 128
+  const int TOTAL_PAWN_WINNABLE_SCALE[9] = {
+    32, 48, 64, 96, 128, 128, 160, 160, 160
+  };
+
 /**
  * @brief Various constants used for KingSafety calculation
   * @{
