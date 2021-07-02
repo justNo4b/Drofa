@@ -279,7 +279,7 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 8; j++){
         coeff[i++] = ft.PassedPassedDistance[j][WHITE] - ft.PassedPassedDistance[j][BLACK];
-    }    
+    }
 
     for (int j = 0; j < 9; j++){
         coeff[i++] = ft.KingFriendlyPasser[j][WHITE] - ft.KingFriendlyPasser[j][BLACK];
@@ -299,6 +299,10 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 5; j++){
         coeff[i++] = ft.HangingPiece[j][WHITE] - ft.HangingPiece[j][BLACK];
+    }
+
+    for (int j = 0; j < 9; j++){
+        coeff[i++] = ft.KnightPawnAdjustment[j][WHITE] - ft.KnightPawnAdjustment[j][BLACK];
     }
 
     for (int j = 0; j < 5; j++){

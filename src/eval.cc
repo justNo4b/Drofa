@@ -465,6 +465,10 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
   Color otherColor = getOppositeColor(color);
   U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
 
+  // adjust eval based on number of enemy pawns
+  s += KNIGHT_PAWN_ADJUSTMENT[_popCount(board.getPieces(otherColor, PAWN))] * _popCount(pieces);
+  if (TRACK) ft.KnightPawnAdjustment[_popCount(board.getPieces(otherColor, PAWN))][color] += _popCount(pieces);
+
   // Apply penalty for each Knight attacked by opponents pawn
   s += HANGING_PIECE[KNIGHT] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
   if (TRACK) ft.HangingPiece[KNIGHT][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
@@ -632,7 +636,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         ft.PassedPawnRank[r][color]++;
         ft.PassedPawnFile[pawnCol][color]++;
       }
-      // if the pawn is passed evaluate how far 
+      // if the pawn is passed evaluate how far
       // is it from other passers (_col-wise)
       U64 tmpPassers = eB->Passers[color];
       while (tmpPassers != ZERO){

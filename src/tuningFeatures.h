@@ -5,7 +5,7 @@
 #include "eval.h"
 #include "outposts.h"
 
-#define BIG_FEATURE_NUMBER (55)
+#define BIG_FEATURE_NUMBER (56)
 
 enum TuningType{
     ALL,
@@ -22,7 +22,7 @@ struct tFeature {
     TuningType      type;
 
     tFeature () : name("0"), isArray(false), startValue(nullptr),  valuesTotal(1), padding(1), type(ALL) {};
-    tFeature (std::string n, bool b, const int * s, int v, int p, TuningType t) : 
+    tFeature (std::string n, bool b, const int * s, int v, int p, TuningType t) :
                   name(n), isArray(b), startValue(s), valuesTotal(v), padding(p), type(t) {};
 
 };
@@ -64,6 +64,7 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("ROOK_OPEN_FILE_BONUS", true, Eval::ROOK_OPEN_FILE_BONUS, 2, 10, ALL),
     tFeature("ROOK_SEMI_FILE_BONUS", true, Eval::ROOK_SEMI_FILE_BONUS, 2, 10, ALL),
     tFeature("HANGING_PIECE", true, Eval::HANGING_PIECE, 5, 10, ALL),
+    tFeature("KNIGHT_PAWN_ADJUSTMENT", true, Eval::KNIGHT_PAWN_ADJUSTMENT, 9, 4, ALL),
     tFeature("MINOR_ATTACKED_BY", true, Eval::MINOR_ATTACKED_BY, 5, 10, ALL),
     tFeature("ROOK_ATTACKED_BY", true, Eval::ROOK_ATTACKED_BY, 5, 10, ALL),
     tFeature("KING_PAWN_SHIELD_KS", true, Eval::KING_PAWN_SHIELD_KS, 8, 4, ALL),
