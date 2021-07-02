@@ -5,7 +5,7 @@
 #include "eval.h"
 #include "outposts.h"
 
-#define BIG_FEATURE_NUMBER (55)
+#define BIG_FEATURE_NUMBER (56)
 
 enum TuningType{
     ALL,
@@ -22,7 +22,7 @@ struct tFeature {
     TuningType      type;
 
     tFeature () : name("0"), isArray(false), startValue(nullptr),  valuesTotal(1), padding(1), type(ALL) {};
-    tFeature (std::string n, bool b, const int * s, int v, int p, TuningType t) : 
+    tFeature (std::string n, bool b, const int * s, int v, int p, TuningType t) :
                   name(n), isArray(b), startValue(s), valuesTotal(v), padding(p), type(t) {};
 
 };
@@ -42,6 +42,7 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("ISOLATED_PAWN_PENALTY", false, &Eval::ISOLATED_PAWN_PENALTY, 1, 1, ALL),
     tFeature("PAWN_BLOCKED", false, &Eval::PAWN_BLOCKED, 1, 1, ALL),
     tFeature("PASSER_BLOCKED", false, &Eval::PASSER_BLOCKED, 1, 1, ALL),
+    tFeature("PAWN_PUSH_THREAT", false, &Eval::PAWN_PUSH_THREAT, 1, 1, ALL),
     tFeature("BISHOP_RAMMED_PENALTY", false, &Eval::BISHOP_RAMMED_PENALTY, 1, 1, ALL),
     tFeature("BISHOP_CENTER_CONTROL", false, &Eval::BISHOP_CENTER_CONTROL, 1, 1, ALL),
     tFeature("MINOR_BEHIND_PAWN", false, &Eval::MINOR_BEHIND_PASSER, 1, 1, ALL),

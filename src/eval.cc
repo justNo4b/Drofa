@@ -632,7 +632,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         ft.PassedPawnRank[r][color]++;
         ft.PassedPawnFile[pawnCol][color]++;
       }
-      // if the pawn is passed evaluate how far 
+      // if the pawn is passed evaluate how far
       // is it from other passers (_col-wise)
       U64 tmpPassers = eB->Passers[color];
       while (tmpPassers != ZERO){
@@ -739,7 +739,15 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   }
 
-
+  // 5. Pawn push threats
+  //
+  U64 allPieces = board.getAllPieces(WHITE) | board.getAllPieces(BLACK);
+  U64 pawns     = color == WHITE ? board.getPieces(color, PAWN) << 8 : board.getPieces(color, PAWN) >> 8;
+  pawns = pawns & ~allPieces;
+  pawns = color == WHITE ? ((pawns << 9) & ~FILE_A) | ((pawns << 7) & ~FILE_H)
+                         : ((pawns >> 9) & ~FILE_H) | ((pawns >> 7) & ~FILE_A);
+  s += PAWN_PUSH_THREAT * _popCount(pawns & (board.getAllPieces(otherColor) ^ board.getPieces(otherColor, PAWN)));
+  if (TRACK) ft.PawnPushThreat[color] += _popCount(pawns & (board.getAllPieces(otherColor) ^ board.getPieces(otherColor, PAWN)));
   return s;
 }
 
