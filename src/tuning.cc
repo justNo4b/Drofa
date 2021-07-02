@@ -256,6 +256,7 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.KingSemiOwnFile[WHITE] - ft.KingSemiOwnFile[BLACK];
     coeff[i++] = ft.KingSemiEnemyFile[WHITE] - ft.KingSemiEnemyFile[BLACK];
     coeff[i++] = ft.KingAttackPawn[WHITE] - ft.KingAttackPawn[BLACK];
+    coeff[i++] = ft.Activity[WHITE] - ft.Activity[BLACK];
 
     for (int j = 0; j < 7; j++){
         coeff[i++] = ft.PawnConnected[j][WHITE] - ft.PawnConnected[j][BLACK];
@@ -279,7 +280,7 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 8; j++){
         coeff[i++] = ft.PassedPassedDistance[j][WHITE] - ft.PassedPassedDistance[j][BLACK];
-    }    
+    }
 
     for (int j = 0; j < 9; j++){
         coeff[i++] = ft.KingFriendlyPasser[j][WHITE] - ft.KingFriendlyPasser[j][BLACK];

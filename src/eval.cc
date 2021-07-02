@@ -632,7 +632,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         ft.PassedPawnRank[r][color]++;
         ft.PassedPawnFile[pawnCol][color]++;
       }
-      // if the pawn is passed evaluate how far 
+      // if the pawn is passed evaluate how far
       // is it from other passers (_col-wise)
       U64 tmpPassers = eB->Passers[color];
       while (tmpPassers != ZERO){
@@ -738,6 +738,14 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
         }
 
   }
+
+  // 5. Activity
+  // Evaluate # of square on the enemy side that we control
+
+  s += ACTIVITY * _popCount(eB.AttackedSquares[color] & ENEMY_SIDE[color] & ~eB.AttackedSquares[otherColor]);
+  if (TRACK) ft.Activity[color] += _popCount(eB.AttackedSquares[color] & ENEMY_SIDE[color] & ~eB.AttackedSquares[otherColor]);
+
+
 
 
   return s;
