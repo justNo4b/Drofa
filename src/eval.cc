@@ -552,9 +552,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   U64 ourPawns   = board.getPieces(color, PAWN);
   U64 enemyPawns = board.getPieces(otherColor, PAWN);
 
-  // See if a King is attacking an enemy unprotected pawn
-  s += KING_ATTACK_PAWN * _popCount(attackBitBoard & enemyPawns);
-  if (TRACK) ft.KingAttackPawn[color] += _popCount(attackBitBoard & enemyPawns);
+
 
   if (((file & ourPawns) == 0) && ((file & enemyPawns) == 0)){
     s += KING_OPEN_FILE;
@@ -566,6 +564,29 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
     s += KING_ENEMY_SEMI_LINE;
     if (TRACK) ft.KingSemiEnemyFile[color]++;
   }
+
+  U64 nearSquares = detail::CONNECTED_MASK[square];
+  while(nearSquares){
+    int nSquare = _popLsb(nearSquares);
+    U64 nFile = detail::FILES[_col(nSquare)];
+
+    if (((nFile & ourPawns) == 0) && ((nFile & enemyPawns) == 0)){
+      s += KING_NEAR_OPEN;
+      if (TRACK) ft.KingNearOpenFile[color]++;
+    } else if ((nFile & ourPawns) == 0){
+      s += KING_NEAR_OUR_SEMI;
+      if (TRACK) ft.KingNearSemiOwnFile[color]++;
+    } else if ((nFile & enemyPawns) == 0){
+      s += KING_NEAR_ENEMY_SEMI;
+      if (TRACK) ft.KingNearSemiEnemyFile[color]++;
+    }
+
+  }
+
+
+  // See if a King is attacking an enemy unprotected pawn
+  s += KING_ATTACK_PAWN * _popCount(attackBitBoard & enemyPawns);
+  if (TRACK) ft.KingAttackPawn[color] += _popCount(attackBitBoard & enemyPawns);
 
   U64 tmpPawns = eB->Passers[color];
   while (tmpPawns != ZERO) {
@@ -632,7 +653,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         ft.PassedPawnRank[r][color]++;
         ft.PassedPawnFile[pawnCol][color]++;
       }
-      // if the pawn is passed evaluate how far 
+      // if the pawn is passed evaluate how far
       // is it from other passers (_col-wise)
       U64 tmpPassers = eB->Passers[color];
       while (tmpPassers != ZERO){

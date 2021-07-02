@@ -5,7 +5,7 @@
 #include "eval.h"
 #include "outposts.h"
 
-#define BIG_FEATURE_NUMBER (55)
+#define BIG_FEATURE_NUMBER (58)
 
 enum TuningType{
     ALL,
@@ -22,7 +22,7 @@ struct tFeature {
     TuningType      type;
 
     tFeature () : name("0"), isArray(false), startValue(nullptr),  valuesTotal(1), padding(1), type(ALL) {};
-    tFeature (std::string n, bool b, const int * s, int v, int p, TuningType t) : 
+    tFeature (std::string n, bool b, const int * s, int v, int p, TuningType t) :
                   name(n), isArray(b), startValue(s), valuesTotal(v), padding(p), type(t) {};
 
 };
@@ -52,6 +52,9 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("KING_OPEN_FILE", false, &Eval::KING_OPEN_FILE, 1, 1, ALL),
     tFeature("KING_OWN_SEMI_FILE", false, &Eval::KING_OWN_SEMI_FILE, 1, 1, ALL),
     tFeature("KING_ENEMY_SEMI_LINE", false, &Eval::KING_ENEMY_SEMI_LINE, 1, 1, ALL),
+    tFeature("KING_NEAR_OPEN", false, &Eval::KING_NEAR_OPEN, 1, 1, ALL),
+    tFeature("KING_NEAR_OUR_SEMI", false, &Eval::KING_NEAR_OUR_SEMI, 1, 1, ALL),
+    tFeature("KING_NEAR_ENEMY_SEMI", false, &Eval::KING_NEAR_ENEMY_SEMI, 1, 1, ALL),
     tFeature("KING_ATTACK_PAWN", false, &Eval::KING_ATTACK_PAWN, 1, 1, ALL),
     tFeature("PAWN_CONNECTED", true, Eval::PAWN_CONNECTED, 7, 4, ALL),
     tFeature("PASSED_PAWN_RANKS", true, Eval::PASSED_PAWN_RANKS, 8, 4, ALL),
