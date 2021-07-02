@@ -462,10 +462,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // If last Move was Null, just negate prev eval and add 2x tempo bonus (10)
   if (AreWeInCheck) {
     _sEvalArray[ply] = NOSCORE;
-  }else if (pMove == 0){
-    statEVAL = -_sEvalArray[ply - 1] + 20;
-    _sEvalArray[ply] = statEVAL;
-  }else{
+  }else {
     statEVAL = Eval::evaluate(board, board.getActivePlayer());
     _sEvalArray[ply] = statEVAL;
   }
