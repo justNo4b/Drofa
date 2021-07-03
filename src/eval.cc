@@ -632,7 +632,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         ft.PassedPawnRank[r][color]++;
         ft.PassedPawnFile[pawnCol][color]++;
       }
-      // if the pawn is passed evaluate how far 
+      // if the pawn is passed evaluate how far
       // is it from other passers (_col-wise)
       U64 tmpPassers = eB->Passers[color];
       while (tmpPassers != ZERO){
@@ -863,6 +863,10 @@ int Eval::evaluate(const Board &board, Color color) {
     if (TRACK) ft.BishopPair[otherColor]++;
   }
 
+  // Evaluate Tempo
+  score += TEMPO;
+  if (TRACK) ft.Tempo[color]++;
+
   if (TRACK){
     ft.FinalEval = score;
     ft.OCBscale  = false;
@@ -890,7 +894,7 @@ int Eval::evaluate(const Board &board, Color color) {
       final_eval = final_eval / 4;
   }
 
-  return final_eval + TEMPO;
+  return final_eval;
 }
 
 int Eval::evalTestSuite(const Board &board, Color color)

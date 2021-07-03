@@ -236,6 +236,7 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.KnightValue[WHITE] - ft.KnightValue[BLACK];
     coeff[i++] = ft.BishopValue[WHITE] - ft.BishopValue[BLACK];
     coeff[i++] = ft.QueenValue[WHITE] - ft.QueenValue[BLACK];
+    coeff[i++] = ft.Tempo[WHITE] - ft.Tempo[BLACK];
     coeff[i++] = ft.KingHighDanger[WHITE] - ft.KingHighDanger[BLACK];
     coeff[i++] = ft.KingMedDanger[WHITE] - ft.KingMedDanger[BLACK];
     coeff[i++] = ft.KingLowDanger[WHITE] - ft.KingLowDanger[BLACK];
@@ -279,7 +280,7 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 8; j++){
         coeff[i++] = ft.PassedPassedDistance[j][WHITE] - ft.PassedPassedDistance[j][BLACK];
-    }    
+    }
 
     for (int j = 0; j < 9; j++){
         coeff[i++] = ft.KingFriendlyPasser[j][WHITE] - ft.KingFriendlyPasser[j][BLACK];
@@ -485,7 +486,7 @@ double TuningEval(tEntry* entry, tValueHolder diff){
     // Adjust eval for OCBendgame and noPawnsEndgames
     if (entry->OCBEndgame) final_eval = final_eval / 2;
 
-    return final_eval + (entry->stm == WHITE ? 10 : -10);
+    return final_eval;
 }
 
 double TunedError(tEntry* entries, tValueHolder diff) {

@@ -5,7 +5,7 @@
 #include "eval.h"
 #include "outposts.h"
 
-#define BIG_FEATURE_NUMBER (55)
+#define BIG_FEATURE_NUMBER (56)
 
 enum TuningType{
     ALL,
@@ -22,7 +22,7 @@ struct tFeature {
     TuningType      type;
 
     tFeature () : name("0"), isArray(false), startValue(nullptr),  valuesTotal(1), padding(1), type(ALL) {};
-    tFeature (std::string n, bool b, const int * s, int v, int p, TuningType t) : 
+    tFeature (std::string n, bool b, const int * s, int v, int p, TuningType t) :
                   name(n), isArray(b), startValue(s), valuesTotal(v), padding(p), type(t) {};
 
 };
@@ -33,6 +33,7 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("KnightValue", false, &Eval::MATERIAL_VALUES[KNIGHT], 1, 1, ALL),
     tFeature("BishopValue", false, &Eval::MATERIAL_VALUES[BISHOP], 1, 1, ALL),
     tFeature("QueenValue", false, &Eval::MATERIAL_VALUES[QUEEN], 1, 1, ALL),
+    tFeature("TEMPO", false, &Eval::TEMPO, 1, 1, ALL),
     tFeature("KING_HIGH_DANGER", false, &Eval::KING_HIGH_DANGER, 1, 1, ALL),
     tFeature("KING_MED_DANGER", false, &Eval::KING_MED_DANGER, 1, 1, ALL),
     tFeature("KING_LOW_DANGER", false, &Eval::KING_LOW_DANGER, 1, 1, ALL),
