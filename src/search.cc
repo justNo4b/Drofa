@@ -498,13 +498,14 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // Apart from usual  stuff we do not use NMP when there is only Kings and Pawns
   // and when last move was also null
   // Drofa also track status of the Null move failure
+  bool isEndGame = board.isEndGamePosition();
   bool failedNull = false;
   if (isPrune && depth >= 3 && doNool == 0 && statEVAL >= beta &&
       board.isThereMajorPiece()){
           Board movedBoard = board;
           movedBoard.doNool();
           int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((statEVAL - beta) / 128, 4);
-          int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, ply + 1, 3, 0, false);
+          int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, ply + 1, 2 + isEndGame, 0, false);
           if (score >= beta){
             return beta;
           }
@@ -575,7 +576,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // some pawn promotions near the leafs of the search tree
         // Thus we extend in the endgame pushes of the non-blocked
         // passers that are near the middle of the board
-        if (depth < 5 && board.isEndGamePosition() && move.isItPasserPush(board)){
+        if (depth < 5 && isEndGame  && move.isItPasserPush(board)){
               tDepth++;
             }
 
