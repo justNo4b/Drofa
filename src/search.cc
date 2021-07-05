@@ -462,7 +462,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // If last Move was Null, just negate prev eval and add 2x tempo bonus (10)
   if (AreWeInCheck) {
     _sEvalArray[ply] = NOSCORE;
-  }else {
+  }else if (pMove == 0){
+    statEVAL = -_sEvalArray[ply - 1] + 20;
+    _sEvalArray[ply] = statEVAL;
+  }else{
     statEVAL = Eval::evaluate(board, board.getActivePlayer());
     _sEvalArray[ply] = statEVAL;
   }
@@ -760,7 +763,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
     return beta;
   }
 
-  if (alpha < standPat) {
+  if (alpha < standPat && !board.colorIsInCheck(board.getActivePlayer())) {
     alpha = standPat;
   }
 

@@ -105,6 +105,20 @@ class Search {
    */ 
   int getNodes();
 
+    /**
+   * @brief Performs a quiescence search
+   *
+   * _qSearch only takes into account captures (checks, promotions are not
+   * considered)
+   *
+   * @param  board Board to perform a quiescence search on
+   * @param  alpha Alpha value
+   * @param  beta  Beta value
+   * @param  ply   ply value (distance from root)
+   * @return The score of the given board
+   */
+  int _qSearch(const Board &, int= -INF, int= INF, int = 0);
+
  private:
 
   /**
@@ -322,19 +336,7 @@ class Search {
    */
   int _negaMax(const Board &, pV *myPV, int, int, int, int, bool, int, bool);
 
-  /**
-   * @brief Performs a quiescence search
-   *
-   * _qSearch only takes into account captures (checks, promotions are not
-   * considered)
-   *
-   * @param  board Board to perform a quiescence search on
-   * @param  alpha Alpha value
-   * @param  beta  Beta value
-   * @param  ply   ply value (distance from root)
-   * @return The score of the given board
-   */
-  int _qSearch(const Board &, int= -INF, int= INF, int = 0);
+
 
   /**
    * @brief Logs info about a search according to the UCI protocol.
