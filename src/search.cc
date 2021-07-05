@@ -505,7 +505,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           Board movedBoard = board;
           movedBoard.doNool();
           int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((statEVAL - beta) / 128, 4);
-          int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, ply + 1, 2 + isEndGame, 0, false);
+          int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, ply + 1, 2 + !isEndGame, 0, false);
           if (score >= beta){
             return beta;
           }
