@@ -432,15 +432,12 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         hashScore = (hashScore > 0) ? (hashScore - ply) :  (hashScore + ply);
       }
       if (probedHASHentry.Flag == EXACT){
-        _updateAlpha(hashedMove.isQuiet(), hashedMove, board.getActivePlayer(), depth);
         return hashScore;
       }
       if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){
-        _updateAlpha(hashedMove.isQuiet(), hashedMove, board.getActivePlayer(), depth);
         return alpha;
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
-        _updateBeta(hashedMove.isQuiet(), hashedMove, board.getActivePlayer(), pMove, ply, depth);
         return beta;
       }
     }
@@ -563,8 +560,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         int score;
 
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
-        int  moveHistory  = isQuiet ? _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) : 0;
-        bool badHistory = (isQuiet && moveHistory < _badHistMargin);
+        //int  moveHistory  = isQuiet ? _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) : 0;
+        //bool badHistory = (isQuiet && moveHistory < _badHistMargin);
         qCount += isQuiet;
         int tDepth = depth;
         // 6. EXTENTIONS
@@ -603,7 +600,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // We do not prune in the PV nodes.
 
         if (!pvNode && !AreWeInCheck && LegalMoveCount > 1 && tDepth < 3
-        && (!giveCheck || badHistory) && alpha < WON_IN_X && !(move.getFlags() & Move::PROMOTION)){
+        && (!giveCheck) && alpha < WON_IN_X && !(move.getFlags() & Move::PROMOTION)){
           int moveGain = isQuiet ? 0 : opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]);
           if (statEVAL + FUTIL_MOVE_CONST * tDepth + moveGain - 100 * improving <= alpha){
               continue;
@@ -613,7 +610,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         //7. LATE MOVE REDUCTIONS
         //mix of ideas from Weiss code, own ones and what is written in the chessprogramming wiki
-        doLMR = tDepth > 2 && LegalMoveCount > 2 + pvNode && !AreWeInCheck && (!giveCheck || badHistory);
+        doLMR = tDepth > 2 && LegalMoveCount > 2 + pvNode && !AreWeInCheck && (!giveCheck);
         if (doLMR){
 
           //Basic reduction is done according to the array
@@ -628,9 +625,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // if we failed NULL, likely most of our Quiet moves are crap, so reduce them even more
           // qCount > 3 is actually seems to be optimal
           reduction += isQuiet && qCount > 3 && failedNull;
-
-          // reduce more if move has a bad history
-          reduction += isQuiet && moveHistory < _badHistMargin;
 
           //if we are improving, reduce a bit less (from Weiss)
           reduction -= improving;
