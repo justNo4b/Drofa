@@ -14,14 +14,14 @@ class OrderingInfo {
  public:
   /**
    * @brief Construct a new OrderingInfo
-   * 
+   *
    */
   OrderingInfo();
 
   /**
-   * @brief Increment the history heuristic value of the board for 
+   * @brief Increment the history heuristic value of the board for
    * the given color, from square, to square and depth.
-   * 
+   *
    * @param color Color to increment history for
    * @param from From square to increment history for
    * @param to To square to increment history for
@@ -30,9 +30,9 @@ class OrderingInfo {
   void incrementHistory(Color, PieceType, int, int, int, int);
 
   /**
-   * @brief Lower history heuristic value of the board for 
+   * @brief Lower history heuristic value of the board for
    * the given color, from square, to square and depth.
-   * 
+   *
    * @param color Color to increment history for
    * @param from From square to increment history for
    * @param to To square to increment history for
@@ -42,26 +42,26 @@ class OrderingInfo {
 
   /**
    * @brief Update countermove.
-   * 
-   * @param color Color of the current sideToMove 
+   *
+   * @param color Color of the current sideToMove
    * @param counteredMove Previous move made in the Search
    * @param counterMove Move that rejected counteredMove
-   * 
+   *
    */
   void updateCounterMove(Color, int , int);
 
   /**
    * @brief Gets CounterMove using last move made in the position as info
-   * 
+   *
    * @param color Color of the current sideToMove
    * @param pMove Previous move made in the Search
    */
-  int getCounterMoveINT(Color, int) const; 
+  int getCounterMoveINT(Color, int) const;
 
   /**
    * @brief Get beta-cutoff history information for the given color, from square and
    * to square.
-   * 
+   *
    * @param color Color of side moving
    * @param from From square to get history for
    * @param to To square to get history for
@@ -69,11 +69,11 @@ class OrderingInfo {
    */
   int getHistory(Color, int, int) const;
 
-  int getCounterHistory(Color, int, PieceType, int) const; 
+  int getCounterHistory(int, PieceType, int) const;
 
   /**
    * @brief Update the killer moves for the given ply with the given move.
-   * 
+   *
    * @param ply Ply to update killer moves for
    * @param move Move to update killer moves with
    */
@@ -81,7 +81,7 @@ class OrderingInfo {
 
   /**
    * @brief Get the first killer move for the given ply.
-   * 
+   *
    * @param ply Ply to get killer move for
    * @return First killer move at the given ply
    */
@@ -89,7 +89,7 @@ class OrderingInfo {
 
   /**
    * @brief Get the second killer move for the given ply.
-   * 
+   *
    * @param ply Ply to get killer move for
    * @return Move Second killer move at the given ply
    */
@@ -122,13 +122,13 @@ class OrderingInfo {
    * made on the previous ply (cause beta - cutoff)
    * Indexed by [OppositeColor][PieceType][to_square] of the move they countered
    */
-  int _counterMove[2][6][64]; 
+  int _counterMove[2][6][64];
 
   /**
    * @brief Array of the history indexed by the previous move
    * Indexed by [color][cmPiece][cmTo][piece][pieceTo]
    */
-  int _counterMoveHistory[2][6][64][6][64];
+  int _counterMoveHistory[6][64][6][64];
 };
 
 #endif
