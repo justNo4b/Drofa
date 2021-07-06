@@ -3,6 +3,7 @@
 #include "tuning.h"
 #include "board.h"
 #include "outposts.h"
+#include "tuningFeatures.h"
 #include <limits>
 #include <fstream>
 #include <cstring>
@@ -17,6 +18,8 @@ int eTraceStackSize;
 posFeatured ft, zero;
 
 #ifdef _TUNE_
+
+TuningType FeatureTypeMap[TUNING_TERMS_COUNT];
 
 void TunerStart(){
     // Startup messages
@@ -35,6 +38,10 @@ void TunerStart(){
     double rate  = TUNING_L_RATE;
     double error = 0;
 
+    // Check if our number of terms
+    // is consistent with number of features
+    CheckFeaturesNumber();
+
     //Initiate our terms
     tValueHolder currTerms = {{0}};
     EvalTermInitiate(currTerms);
@@ -50,7 +57,7 @@ void TunerStart(){
     std::cout << std::setprecision(16);
 
     std::cout << "\n Calculating K... " << std::endl;
-    double K = TUNING_K; //CalculateFactorK(entries);
+    double K = CalculateFactorK(entries);
     std::cout << "\n Optimal K = " << K << std::endl;
     for (int epoch = 0; epoch < TUNIGN_MAX_ITER; epoch++){
 
@@ -65,8 +72,8 @@ void TunerStart(){
                 diffTerms[i][OPENING] += (TUNING_K / 200.0) * (gradient[i][OPENING] / TUNING_POS_COUNT) * (rate / sqrt(1e-8 + gradTerms[i][OPENING]));
                 diffTerms[i][ENDGAME] += (TUNING_K / 200.0) * (gradient[i][ENDGAME] / TUNING_POS_COUNT) * (rate / sqrt(1e-8 + gradTerms[i][ENDGAME]));
         }
-        
-        
+
+
         // Learning drop rate
         if (epoch % TUNING_L_STEP == 0){
             rate = rate / TUNING_L_DROP;
@@ -77,7 +84,7 @@ void TunerStart(){
             std::cout << "\n\n IterationNum = " + std::to_string(epoch) + " Error: " <<  error;
             std::cout << "\n Printing Terms: \n";
             PrintTunedParams(currTerms, diffTerms);
-        } 
+        }
     }
 
     std::cout << "\n Finishing. Final Parameters: \n" << std::endl;
@@ -88,11 +95,11 @@ void TunerStart(){
 void EvalTermPrint(std::string name, double opV, double egV, double opDiff, double egDiff){
     std::string op = std::to_string( (int)(opV + opDiff));
     std::string eg = std::to_string( (int)(egV + egDiff));
-    std::cout << name + " = gS(" + op + "," + eg + ");"<< std::endl;
+    std::cout <<"\nconst int "<< name + " = gS(" + op + "," + eg + ");"<< std::endl;
 }
 
 void EvalArrayPrint(std::string name, tValueHolder current, tValueHolder diff, int head, int length, int per){
-    std::cout << name + "[" + std::to_string(length) + "] = {\n          ";
+    std::cout << "\nconst int " << name + "[" + std::to_string(length) + "] = {\n          ";
     for (int i = 0; i < length; i++){
 
         if (i != 0 && i % per == 0){
@@ -100,7 +107,7 @@ void EvalArrayPrint(std::string name, tValueHolder current, tValueHolder diff, i
         }
 
         std::string op = std::to_string( (int)(current[head + i][OPENING] + diff[head + i][OPENING]));
-        std::string eg = std::to_string( (int)(current[head + i][ENDGAME] + diff[head + i][ENDGAME]));  
+        std::string eg = std::to_string( (int)(current[head + i][ENDGAME] + diff[head + i][ENDGAME]));
         std::cout << " gS(" + op + "," + eg + "),";
     }
 
@@ -110,213 +117,21 @@ void EvalArrayPrint(std::string name, tValueHolder current, tValueHolder diff, i
 
 void EvalTermInitiate(tValueHolder cTerms){
     int c = 0;
-    // Setup terms for tuning
-    // 1. Simple terms (op, eg) only
-    // a. PieceValues
-    cTerms[c][OPENING] = opS(Eval::MATERIAL_VALUES[PAWN]);
-    cTerms[c][ENDGAME] = egS(Eval::MATERIAL_VALUES[PAWN]);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::MATERIAL_VALUES[ROOK]);
-    cTerms[c][ENDGAME] = egS(Eval::MATERIAL_VALUES[ROOK]);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::MATERIAL_VALUES[KNIGHT]);
-    cTerms[c][ENDGAME] = egS(Eval::MATERIAL_VALUES[KNIGHT]);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::MATERIAL_VALUES[BISHOP]);
-    cTerms[c][ENDGAME] = egS(Eval::MATERIAL_VALUES[BISHOP]);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::MATERIAL_VALUES[QUEEN]);
-    cTerms[c][ENDGAME] = egS(Eval::MATERIAL_VALUES[QUEEN]);
-    c++;
-    // b. Other terms
-    cTerms[c][OPENING] = opS(Eval::BISHOP_PAIR_BONUS);
-    cTerms[c][ENDGAME] = egS(Eval::BISHOP_PAIR_BONUS);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::KING_HIGH_DANGER);
-    cTerms[c][ENDGAME] = egS(Eval::KING_HIGH_DANGER);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::KING_MED_DANGER);
-    cTerms[c][ENDGAME] = egS(Eval::KING_MED_DANGER);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::KING_LOW_DANGER);
-    cTerms[c][ENDGAME] = egS(Eval::KING_LOW_DANGER);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::KING_SAFE);
-    cTerms[c][ENDGAME] = egS(Eval::KING_SAFE);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::PAWN_SUPPORTED);
-    cTerms[c][ENDGAME] = egS(Eval::PAWN_SUPPORTED);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::DOUBLED_PAWN_PENALTY);
-    cTerms[c][ENDGAME] = egS(Eval::DOUBLED_PAWN_PENALTY);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::ISOLATED_PAWN_PENALTY);
-    cTerms[c][ENDGAME] = egS(Eval::ISOLATED_PAWN_PENALTY);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::PAWN_BLOCKED);
-    cTerms[c][ENDGAME] = egS(Eval::PAWN_BLOCKED);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::PASSER_BLOCKED);
-    cTerms[c][ENDGAME] = egS(Eval::PASSER_BLOCKED);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::PAWN_DISTORTION);
-    cTerms[c][ENDGAME] = egS(Eval::PAWN_DISTORTION);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::BISHOP_RAMMED_PENALTY);
-    cTerms[c][ENDGAME] = egS(Eval::BISHOP_RAMMED_PENALTY);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::BISHOP_CENTER_CONTROL);
-    cTerms[c][ENDGAME] = egS(Eval::BISHOP_CENTER_CONTROL);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::MINOR_BEHIND_PAWN);
-    cTerms[c][ENDGAME] = egS(Eval::MINOR_BEHIND_PAWN);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::MINOR_BEHIND_PASSER);
-    cTerms[c][ENDGAME] = egS(Eval::MINOR_BEHIND_PASSER);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::KING_AHEAD_PASSER);
-    cTerms[c][ENDGAME] = egS(Eval::KING_AHEAD_PASSER);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::KING_EQUAL_PASSER);
-    cTerms[c][ENDGAME] = egS(Eval::KING_EQUAL_PASSER);
-    c++;
-    cTerms[c][OPENING] = opS(Eval::KING_BEHIND_PASSER);
-    cTerms[c][ENDGAME] = egS(Eval::KING_BEHIND_PASSER);
-    c++;
-
-    // c. Array terms
-    for (int j = 0; j < 8; j++){
-        cTerms[c][OPENING] = opS(Eval::PASSED_PAWN_RANKS[j]);
-        cTerms[c][ENDGAME] = egS(Eval::PASSED_PAWN_RANKS[j]);
-        c++;
+    for (int i = 0; i < BIG_FEATURE_NUMBER; i++){
+        if (myFeatures[i].isArray){
+            for (int j = 0; j < myFeatures[i].valuesTotal; j++){
+                cTerms[c][OPENING] = opS(myFeatures[i].startValue[j]);
+                cTerms[c][ENDGAME] = egS(myFeatures[i].startValue[j]);
+                FeatureTypeMap[c] = myFeatures[i].type;
+                c++;
+            }
+        }else{
+            cTerms[c][OPENING] = opS(*myFeatures[i].startValue);
+            cTerms[c][ENDGAME] = egS(*myFeatures[i].startValue);
+            FeatureTypeMap[c] = myFeatures[i].type;
+            c++;
+        }
     }
-
-    for (int j = 0; j < 8; j++){
-        cTerms[c][OPENING] = opS(Eval::PASSED_PAWN_FILES[j]);
-        cTerms[c][ENDGAME] = egS(Eval::PASSED_PAWN_FILES[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 9; j++){
-        cTerms[c][OPENING] = opS(Eval::KING_PASSER_DISTANCE_FRIENDLY[j]);
-        cTerms[c][ENDGAME] = egS(Eval::KING_PASSER_DISTANCE_FRIENDLY[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 9; j++){
-        cTerms[c][OPENING] = opS(Eval::KING_PASSER_DISTANCE_ENEMY[j]);
-        cTerms[c][ENDGAME] = egS(Eval::KING_PASSER_DISTANCE_ENEMY[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 2; j++){
-        cTerms[c][OPENING] = opS(Eval::ROOK_OPEN_FILE_BONUS[j]);
-        cTerms[c][ENDGAME] = egS(Eval::ROOK_OPEN_FILE_BONUS[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 2; j++){
-        cTerms[c][OPENING] = opS(Eval::ROOK_SEMI_FILE_BONUS[j]);
-        cTerms[c][ENDGAME] = egS(Eval::ROOK_SEMI_FILE_BONUS[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 5; j++){
-        cTerms[c][OPENING] = opS(Eval::HANGING_PIECE[j]);
-        cTerms[c][ENDGAME] = egS(Eval::HANGING_PIECE[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 14; j++){
-        cTerms[c][OPENING] = opS(Eval::BISHOP_MOBILITY[j]);
-        cTerms[c][ENDGAME] = egS(Eval::BISHOP_MOBILITY[j]);
-        c++;
-    }
-    
-    for (int j = 0; j < 9; j++){
-        cTerms[c][OPENING] = opS(Eval::KNIGHT_MOBILITY[j]);
-        cTerms[c][ENDGAME] = egS(Eval::KNIGHT_MOBILITY[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 9; j++){
-        cTerms[c][OPENING] = opS(Eval::KING_MOBILITY[j]);
-        cTerms[c][ENDGAME] = egS(Eval::KING_MOBILITY[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 15; j++){
-        cTerms[c][OPENING] = opS(Eval::ROOK_MOBILITY[j]);
-        cTerms[c][ENDGAME] = egS(Eval::ROOK_MOBILITY[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 28; j++){
-        cTerms[c][OPENING] = opS(Eval::QUEEN_MOBILITY[j]);
-        cTerms[c][ENDGAME] = egS(Eval::QUEEN_MOBILITY[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 64; j++){
-        cTerms[c][OPENING] = opS(Eval::KING_PSQT_BLACK[j]);
-        cTerms[c][ENDGAME] = egS(Eval::KING_PSQT_BLACK[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 64; j++){
-        cTerms[c][OPENING] = opS(Eval::PAWN_PSQT_BLACK[j]);
-        cTerms[c][ENDGAME] = egS(Eval::PAWN_PSQT_BLACK[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 64; j++){
-        cTerms[c][OPENING] = opS(Eval::ROOK_PSQT_BLACK[j]);
-        cTerms[c][ENDGAME] = egS(Eval::ROOK_PSQT_BLACK[j]);
-        c++;
-    }
-    
-    for (int j = 0; j < 64; j++){
-        cTerms[c][OPENING] = opS(Eval::BISHOP_PSQT_BLACK[j]);
-        cTerms[c][ENDGAME] = egS(Eval::BISHOP_PSQT_BLACK[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 64; j++){
-        cTerms[c][OPENING] = opS(Eval::KNIGHT_PSQT_BLACK[j]);
-        cTerms[c][ENDGAME] = egS(Eval::KNIGHT_PSQT_BLACK[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 64; j++){
-        cTerms[c][OPENING] = opS(Eval::QUEEN_PSQT_BLACK[j]);
-        cTerms[c][ENDGAME] = egS(Eval::QUEEN_PSQT_BLACK[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 64; j++){
-        cTerms[c][OPENING] = opS(KNIGHT_PROT_OUTPOST_BLACK[j]);
-        cTerms[c][ENDGAME] = egS(KNIGHT_PROT_OUTPOST_BLACK[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 64; j++){
-        cTerms[c][OPENING] = opS(BISHOP_PROT_OUTPOST_BLACK[j]);
-        cTerms[c][ENDGAME] = egS(BISHOP_PROT_OUTPOST_BLACK[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 64; j++){
-        cTerms[c][OPENING] = opS(KNIGHT_OUTPOST_BLACK[j]);
-        cTerms[c][ENDGAME] = egS(KNIGHT_OUTPOST_BLACK[j]);
-        c++;
-    }
-
-    for (int j = 0; j < 64; j++){
-        cTerms[c][OPENING] = opS(BISHOP_OUTPOST_BLACK[j]);
-        cTerms[c][ENDGAME] = egS(BISHOP_OUTPOST_BLACK[j]);
-        c++;
-    }
-
 }
 
 bool InitTuningPositions(tEntry * positionList){
@@ -374,8 +189,8 @@ void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
     // 3. Prepare for evaluatin and save evaluation - stuff
     // Evaluation should be from White POW, but we stiif call
     // evaluate() from stm perspective to get right tempo evaluation
-    ft  = zero; 
-    featureCoeff newCoeffs; 
+    ft  = zero;
+    featureCoeff newCoeffs;
     positionList[pCount].stm = b.getActivePlayer();
     positionList[pCount].statEval = b.getActivePlayer() == WHITE ? Eval::evaluate(b, b.getActivePlayer()) : -Eval::evaluate(b, b.getActivePlayer());
 
@@ -391,7 +206,7 @@ void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
     // we need to adjust it here to be from WHITE POW
     positionList[pCount].FinalEval =  b.getActivePlayer() == WHITE ? ft.FinalEval : -ft.FinalEval;
 
-    // 6. Also save modifiers to know is it is 
+    // 6. Also save modifiers to know is it is
     // OCBEndgame
     positionList[pCount].OCBEndgame = ft.OCBscale;
 
@@ -421,17 +236,15 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.KnightValue[WHITE] - ft.KnightValue[BLACK];
     coeff[i++] = ft.BishopValue[WHITE] - ft.BishopValue[BLACK];
     coeff[i++] = ft.QueenValue[WHITE] - ft.QueenValue[BLACK];
-	coeff[i++] = ft.BishopPair[WHITE] - ft.BishopPair[BLACK];
     coeff[i++] = ft.KingHighDanger[WHITE] - ft.KingHighDanger[BLACK];
     coeff[i++] = ft.KingMedDanger[WHITE] - ft.KingMedDanger[BLACK];
     coeff[i++] = ft.KingLowDanger[WHITE] - ft.KingLowDanger[BLACK];
-    coeff[i++] = ft.KingSafe[WHITE] - ft.KingSafe[BLACK];
+    coeff[i++] = ft.BishopPair[WHITE] - ft.BishopPair[BLACK];
     coeff[i++] = ft.PawnSupported[WHITE] - ft.PawnSupported[BLACK];
     coeff[i++] = ft.PawnDoubled[WHITE] - ft.PawnDoubled[BLACK];
     coeff[i++] = ft.PawnIsolated[WHITE] - ft.PawnIsolated[BLACK];
     coeff[i++] = ft.PawnBlocked[WHITE] - ft.PawnBlocked[BLACK];
     coeff[i++] = ft.PassersBlocked[WHITE] - ft.PassersBlocked[BLACK];
-    coeff[i++] = ft.PawnDistortion[WHITE] - ft.PawnDistortion[BLACK];
     coeff[i++] = ft.BishopRammed[WHITE] - ft.BishopRammed[BLACK];
     coeff[i++] = ft.BishopCenterControl[WHITE] - ft.BishopCenterControl[BLACK];
     coeff[i++] = ft.MinorBehindPawn[WHITE] - ft.MinorBehindPawn[BLACK];
@@ -439,6 +252,14 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.KingAheadPasser[WHITE] - ft.KingAheadPasser[BLACK];
     coeff[i++] = ft.KingEqualPasser[WHITE] - ft.KingEqualPasser[BLACK];
     coeff[i++] = ft.KingBehindPasser[WHITE] - ft.KingBehindPasser[BLACK];
+    coeff[i++] = ft.KingOpenFile[WHITE] - ft.KingOpenFile[BLACK];
+    coeff[i++] = ft.KingSemiOwnFile[WHITE] - ft.KingSemiOwnFile[BLACK];
+    coeff[i++] = ft.KingSemiEnemyFile[WHITE] - ft.KingSemiEnemyFile[BLACK];
+    coeff[i++] = ft.KingAttackPawn[WHITE] - ft.KingAttackPawn[BLACK];
+
+    for (int j = 0; j < 7; j++){
+        coeff[i++] = ft.PawnConnected[j][WHITE] - ft.PawnConnected[j][BLACK];
+    }
 
     for (int j = 0; j < 8; j++){
         coeff[i++] = ft.PassedPawnRank[j][WHITE] - ft.PassedPawnRank[j][BLACK];
@@ -447,6 +268,18 @@ void InitCoefficients(featureCoeff coeff){
     for (int j = 0; j < 8; j++){
         coeff[i++] = ft.PassedPawnFile[j][WHITE] - ft.PassedPawnFile[j][BLACK];
     }
+
+    for (int j = 0; j < 7; j++){
+        coeff[i++] = ft.PassedPawnFree[j][WHITE] - ft.PassedPawnFree[j][BLACK];
+    }
+
+    for (int j = 0; j < 7; j++){
+        coeff[i++] = ft.PassedPawnPosAdvance[j][WHITE] - ft.PassedPawnPosAdvance[j][BLACK];
+    }
+
+    for (int j = 0; j < 8; j++){
+        coeff[i++] = ft.PassedPassedDistance[j][WHITE] - ft.PassedPassedDistance[j][BLACK];
+    }    
 
     for (int j = 0; j < 9; j++){
         coeff[i++] = ft.KingFriendlyPasser[j][WHITE] - ft.KingFriendlyPasser[j][BLACK];
@@ -466,6 +299,22 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 5; j++){
         coeff[i++] = ft.HangingPiece[j][WHITE] - ft.HangingPiece[j][BLACK];
+    }
+
+    for (int j = 0; j < 5; j++){
+        coeff[i++] = ft.MinorAttackedBy[j][WHITE] - ft.MinorAttackedBy[j][BLACK];
+    }
+
+    for (int j = 0; j < 5; j++){
+        coeff[i++] = ft.RookAttackedBy[j][WHITE] - ft.RookAttackedBy[j][BLACK];
+    }
+
+    for (int j = 0; j < 8; j++){
+        coeff[i++] = ft.KingShieldKS[j][WHITE] - ft.KingShieldKS[j][BLACK];
+    }
+
+    for (int j = 0; j < 8; j++){
+        coeff[i++] = ft.KingShieldQS[j][WHITE] - ft.KingShieldQS[j][BLACK];
     }
 
     for (int j = 0; j < 14; j++){
@@ -499,7 +348,7 @@ void InitCoefficients(featureCoeff coeff){
     for (int j = 0; j < 64; j++){
         coeff[i++] = ft.RookPsqtBlack[j][WHITE] - ft.RookPsqtBlack[j][BLACK];
     }
-    
+
     for (int j = 0; j < 64; j++){
         coeff[i++] = ft.BishopPsqtBlack[j][WHITE] - ft.BishopPsqtBlack[j][BLACK];
     }
@@ -597,15 +446,18 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
 
     double opBase = X * entry->pFactors[OPENING];
     double egBase = X * entry->pFactors[ENDGAME];
-    double scale = 1.0;    
+    double scale = 1.0;
     if (entry->OCBEndgame) scale = 0.5;
 
     for (int i = 0; i < entry->tracesCount; i++){
         int index = entry->traces[i].index;
         int count = entry->traces[i].count;
 
-        local[index][OPENING] +=  opBase * count * scale;
-        local[index][ENDGAME] +=  egBase * count * scale;
+        // Check if the gradient needs to be updated for the selected stage
+        // and the actually update gradient
+
+        if (FeatureTypeMap[index] == ALL || FeatureTypeMap[index] == OP_ONLY) local[index][OPENING] +=  opBase * count * scale;
+        if (FeatureTypeMap[index] == ALL || FeatureTypeMap[index] == EG_ONLY) local[index][ENDGAME] +=  egBase * count * scale;
 
     }
 }
@@ -628,12 +480,12 @@ double TuningEval(tEntry* entry, tValueHolder diff){
         egScore += (double) entry->traces[i].count * diff[entry->traces[i].index][ENDGAME];
     }
 
-    double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase)) / 256.0;    
+    double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase)) / 256.0;
 
     // Adjust eval for OCBendgame and noPawnsEndgames
-    if (entry->OCBEndgame) final_eval = final_eval / 2;        
+    if (entry->OCBEndgame) final_eval = final_eval / 2;
 
-    return final_eval + (entry->stm == WHITE ? 5 : -5);
+    return final_eval + (entry->stm == WHITE ? 10 : -10);
 }
 
 double TunedError(tEntry* entries, tValueHolder diff) {
@@ -666,97 +518,15 @@ double StaticError(tEntry * entries, double K) {
 
 void PrintTunedParams(tValueHolder currTerms, tValueHolder diffTerms){
     int i = 0;
-
-    EvalTermPrint("\n PawnValue", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\n RookValue", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\n KnightValue", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\n BishopValue", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\n QueenValue", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  BISHOP_PAIR_BONUS", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  KING_HIGH_DANGER ", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  KING_MED_DANGER  ", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  KING_LOW_DANGER  ", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  KING_SAFE        ", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  PAWN_SUPPORTED", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  DOUBLED_PAWN_PENALTY", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  ISOLATED_PAWN_PENALTY", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  PAWN_BLOCKED", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;    
-    EvalTermPrint("\nconst int  PASSER_BLOCKED", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  PAWN_DISTORTION", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  BISHOP_RAMMED_PENALTY", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  BISHOP_CENTER_CONTROL", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  MINOR_BEHIND_PAWN", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  MINOR_BEHIND_PASSER", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  KING_AHEAD_PASSER", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  KING_EQUAL_PASSER", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalTermPrint("\nconst int  KING_BEHIND_PASSER", currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
-    i++;
-    EvalArrayPrint("\nconst int  PASSED_PAWN_RANKS", currTerms, diffTerms, i, 8, 4);
-    i = i + 8;
-    EvalArrayPrint("\nconst int  PASSED_PAWN_FILES", currTerms, diffTerms, i, 8, 4);
-    i = i + 8;
-    EvalArrayPrint("\nconst int  KING_PASSER_DISTANCE_FRIENDLY", currTerms, diffTerms, i, 9, 4);
-	i = i + 9;
-    EvalArrayPrint("\nconst int  KING_PASSER_DISTANCE_ENEMY", currTerms, diffTerms, i, 9, 4);
-    i = i + 9;
-    EvalArrayPrint("\nconst int  ROOK_OPEN_FILE_BONUS", currTerms, diffTerms, i, 2, 10);
-    i = i + 2;
-    EvalArrayPrint("\nconst int  ROOK_SEMI_FILE_BONUS", currTerms, diffTerms, i, 2, 10);
-    i = i + 2;
-    EvalArrayPrint("\nconst int  HANGING_PIECE", currTerms, diffTerms, i, 5, 10);
-    i = i + 5;
-    EvalArrayPrint("\nconst int  BISHOP_MOBILITY", currTerms, diffTerms, i, 14, 7);
-    i = i + 14;
-    EvalArrayPrint("\nconst int  KNIGHT_MOBILITY", currTerms, diffTerms, i, 9, 5);
-    i = i + 9;
-    EvalArrayPrint("\nconst int  KING_MOBILITY", currTerms, diffTerms, i, 9, 5);
-    i = i + 9;
-    EvalArrayPrint("\nconst int  ROOK_MOBILITY", currTerms, diffTerms, i, 15, 7);
-    i = i + 15;
-    EvalArrayPrint("\nconst int  QUEEN_MOBILITY", currTerms, diffTerms, i, 28, 7);
-    i = i + 28;
-    EvalArrayPrint("\nconst int  KING_PSQT_BLACK", currTerms, diffTerms, i, 64, 8);
-    i = i + 64;
-    EvalArrayPrint("\nconst int  PAWN_PSQT_BLACK", currTerms, diffTerms, i, 64, 8);
-    i = i + 64;
-    EvalArrayPrint("\nconst int  ROOK_PSQT_BLACK", currTerms, diffTerms, i, 64, 8);
-    i = i + 64;
-    EvalArrayPrint("\nconst int  BISHOP_PSQT_BLACK", currTerms, diffTerms, i, 64, 8);
-    i = i + 64;
-    EvalArrayPrint("\nconst int  KNIGHT_PSQT_BLACK", currTerms, diffTerms, i, 64, 8);
-    i = i + 64;
-    EvalArrayPrint("\nconst int  QUEEN_PSQT_BLACK", currTerms, diffTerms, i, 64, 8);
-    i = i + 64;
-    EvalArrayPrint("\nconst int KNIGHT_PROT_OUTPOST_BLACK", currTerms, diffTerms, i, 64, 8);
-    i = i + 64;
-    EvalArrayPrint("\nconst int BISHOP_PROT_OUTPOST_BLACK", currTerms, diffTerms, i, 64, 8);
-    i = i + 64;
-    EvalArrayPrint("\nconst int KNIGHT_OUTPOST_BLACK", currTerms, diffTerms, i, 64, 8);
-    i = i + 64;
-    EvalArrayPrint("\nconst int BISHOP_OUTPOST_BLACK", currTerms, diffTerms, i, 64, 8);
-    i = i + 64;
+    for (int c = 0; c < BIG_FEATURE_NUMBER; c++){
+        if (myFeatures[c].isArray){
+            EvalArrayPrint(myFeatures[c].name, currTerms, diffTerms, i, myFeatures[c].valuesTotal, myFeatures[c].padding);
+            i = i +  myFeatures[c].valuesTotal;
+        }else{
+            EvalTermPrint(myFeatures[c].name ,currTerms[i][OPENING], currTerms[i][ENDGAME], diffTerms[i][OPENING], diffTerms[i][ENDGAME]);
+            i++;
+        }
+    }
 }
 
 double CalculateFactorK(tEntry * entries){
@@ -783,5 +553,18 @@ double CalculateFactorK(tEntry * entries){
     }
 
     return start;
+}
+
+void CheckFeaturesNumber(){
+    int c = 0;
+    for (int i = 0; i < BIG_FEATURE_NUMBER; i++){
+        c += myFeatures[i].valuesTotal;
+    }
+
+    if (c != TUNING_TERMS_COUNT){
+        std::cout << "Numbers of terms and features do not match" << std::endl;
+        std::cout << "Features(terms): " << c << " Features: " << TUNING_TERMS_COUNT << std::endl;
+        exit(1);
+    }
 }
 #endif

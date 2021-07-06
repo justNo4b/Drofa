@@ -20,8 +20,8 @@ extern HASH * myHASH;
 void Search::init_LMR_array(){
 
   // 1. Initialization of the LMR_array.
-  // Original formula, came up after plotting 
-  // Weiss formula and trying to came up with 
+  // Original formula, came up after plotting
+  // Weiss formula and trying to came up with
   // something similar, but based on the pow (x,y)
   // function for easier tuning later.
   // i here is DETPTH
@@ -33,9 +33,9 @@ void Search::init_LMR_array(){
     }
   }
   // 2. Initialization of the LMP array.
-  // Current formula is completely based on the 
+  // Current formula is completely based on the
   // Weiss chess engine.
-  for (int i = 0; i < 99; i++){
+  for (int i = 0; i < MAX_PLY; i++){
     _lmp_Array[i][0] = (int) ((3 + pow( i, 2) * 2) / 2);
     _lmp_Array[i][1] = (int) (3 + pow( i, 2) * 2);
   }
@@ -66,7 +66,7 @@ Search::Search(const Board &board, Limits limits, Hist positionHistory, bool log
   } else if (_limits.moveTime != 0) {
     _searchDepth = MAX_SEARCH_DEPTH;
     _timeAllocated = _limits.moveTime;
-  } else if (_limits.time[_initialBoard.getActivePlayer()] != 0) { 
+  } else if (_limits.time[_initialBoard.getActivePlayer()] != 0) {
     _setupTimer(board, 0);
   } else { // No limits specified, use default depth
     _searchDepth = DEFAULT_SEARCH_DEPTH;
@@ -89,7 +89,7 @@ void Search::iterDeep() {
   int aspDelta  = 50;
 
   for (int currDepth = 1; currDepth <= _searchDepth; currDepth++) {
-    _curMaxDepth = currDepth;
+    _badHistMargin = -3 * pow(currDepth, 2);
 
     int aspAlpha = LOST_SCORE;
     int aspBeta  =-LOST_SCORE;
@@ -115,7 +115,7 @@ void Search::iterDeep() {
     }
 
 
-    
+
     if (_stop) break;
     int elapsed =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
@@ -156,7 +156,7 @@ void Search::iterDeep() {
       cSearch[i] = nullptr;
     }
 }
-  
+
 }
 
 MoveList Search::_getPv() {
@@ -191,10 +191,10 @@ void Search::_logUciInfo(const MoveList &pv, int depth, int bestScore, U64 nodes
   //collect info about nodes from all Threads
   for (int i = 1; i < myTHREADSCOUNT; i++){
     if (cSearch[i] != nullptr){
-      nodes += cSearch[i]->getNodes(); 
+      nodes += cSearch[i]->getNodes();
     }
   }
-  
+
   std::cout << "info depth " + std::to_string(depth) + " ";
   std::cout << "seldepth " + std::to_string(_selDepth) + " ";
   std::cout << "nodes " + std::to_string(nodes) + " ";
@@ -228,7 +228,7 @@ bool Search::_checkLimits() {
     return false;
   }
 
-  _limitCheckCount = 4096;
+  _limitCheckCount = 2048;
 
   int elapsed =
       std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
@@ -258,7 +258,7 @@ bool Search::_checkLimits() {
       return true;
     }
 
-  } 
+  }
 
   return false;
 }
@@ -277,9 +277,9 @@ void Search::_setupTimer(const Board &board, int curPlyNum){
 
     double tCoefficient = 0;
 
-    // Divide up the remaining time (If movestogo not specified we are in 
+    // Divide up the remaining time (If movestogo not specified we are in
     // sudden death)
-    if (_limits.movesToGo == 0) { 
+    if (_limits.movesToGo == 0) {
       tCoefficient = 10 * (tWidth_a / pow((tWidth + pow((moveNum - tMove), 2)), 1.5));
       _timeAllocated = ourTime * tCoefficient;
       if (moveNum > criticalMove) _timeAllocated = ourTime / 10 + ourIncrement;
@@ -290,7 +290,7 @@ void Search::_setupTimer(const Board &board, int curPlyNum){
       tWidth = 200;
       tMove = 35;
       criticalMove = 20;
-      
+
       tCoefficient = 10 * (tWidth_a / pow((tWidth + pow((moveNum - tMove), 2)), 1.5));
       _timeAllocated = ourTime * tCoefficient;
       if (moveNum > criticalMove) _timeAllocated = ourTime / 10 + ourIncrement;
@@ -302,14 +302,14 @@ void Search::_setupTimer(const Board &board, int curPlyNum){
     _ourTimeLeft = ourTime - _timeAllocated;
 }
 
-inline void Search::_updateAlpha(const Move move, Color color, int depth, int pMove){
-  if (!(move.getFlags() & 0x63)){
+inline void Search::_updateAlpha(bool isQuiet, const Move move, Color color, int depth, int pMove){
+  if (isQuiet){
     _orderingInfo.incrementHistory(color, move.getPieceType(), move.getFrom(), move.getTo(), depth, pMove);
   }
 }
 
-inline void Search::_updateBeta(const Move move, Color color, int pMove, int ply, int depth){
-	if (!(move.getFlags() & 0x63)) {
+inline void Search::_updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ply, int depth){
+	if (isQuiet) {
     _orderingInfo.updateKillers(ply, move);
     _orderingInfo.incrementHistory(color, move.getPieceType(), move.getFrom(), move.getTo(), depth, pMove);
     _orderingInfo.updateCounterMove(color, pMove, move.getMoveINT());
@@ -327,7 +327,7 @@ inline bool Search::_isRepetitionDraw(U64 currKey){
 
 int Search::_rootMax(const Board &board, int alpha, int beta, int depth, int ply) {
   _nodes++;
-  
+
   MoveGen movegen(board, false);
   MoveList legalMoves = movegen.getMoves();
   pV rootPV = pV();
@@ -357,10 +357,10 @@ int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
     movedBoard.doMove(move);
     if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
         if (fullWindow) {
-          currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, ply + 1, false, move.getMoveINT());
+          currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, ply + 1, false, move.getMoveINT(), false);
         } else {
-          currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -alpha - 1, -alpha, ply +1, false, move.getMoveINT());
-          if (currScore > alpha) currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, ply + 1, false, move.getMoveINT());
+          currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -alpha - 1, -alpha, ply +1, false, move.getMoveINT(), false);
+          if (currScore > alpha) currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, ply + 1, false, move.getMoveINT(), false);
         }
 
         if (_stop || _checkLimits()) {
@@ -379,7 +379,7 @@ int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
           std::memcpy(_ourPV.pVmoves + 1, rootPV.pVmoves, sizeof(int) * rootPV.length);
           // Break if we've found a checkmate
         }
-    
+
     }
 
   }
@@ -393,191 +393,164 @@ int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
   return alpha;
 }
 
-// this is basically my main search
-// 
-int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int beta, int ply, bool doNool, int pMove) {
-  // Check search limits
+int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int beta, int ply, bool doNool, int pMove, bool sing) {
+
   _nodes++;
   bool AreWeInCheck;
-  int score;
   bool pvNode = alpha != beta - 1;
   bool TTmove = false;
+  int score;
+  int alphaOrig = alpha;
+  int statEVAL = 0;
+  Move hashedMove = Move(0);
   pV   thisPV = pV();
 
+  // Check if we are out of time
   if (_stop || _checkLimits()) {
     up_pV->length = 0;
     _stop = true;
     return 0;
   }
 
-  // Check for threefold repetition draws
-  if (_isRepetitionDraw(board.getZKey().getValue())) {
-    // cut pV out if we found rep
+  // Check for threefold repetition draws and 50 - move rule draw
+  // cut pV out if we found draw
+  if (board.getHalfmoveClock() >= 100 || _isRepetitionDraw(board.getZKey().getValue())) {
     up_pV->length = 0;
     return 0;
   }
 
-  // Check for 50 move rule draws
-  if (board.getHalfmoveClock() >= 100) {
-    // cut pV out if we found 50-move draw
-    up_pV->length = 0;
-    return 0;
-  }
-
-  int alphaOrig = alpha;
-  int hashedMove = 0;
   // Check transposition table cache
-  // If TT is causing a cuttoff, we update 
-  // move ordering stuff
-
+  // If TT is causing a cuttoff, we update move ordering stuff
   const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
-
   if (probedHASHentry.Flag != NONE){
     TTmove = true;
-    hashedMove = probedHASHentry.move;
-    if (probedHASHentry.depth >= depth && !pvNode){
+    hashedMove = Move(probedHASHentry.move);
+    if (probedHASHentry.depth >= depth && !pvNode && !sing){
       int hashScore = probedHASHentry.score;
 
       if (abs(hashScore) > WON_IN_X){
-        hashScore = (hashScore > 0) ? (hashScore - ply) :  (hashScore + ply);   
+        hashScore = (hashScore > 0) ? (hashScore - ply) :  (hashScore + ply);
       }
       if (probedHASHentry.Flag == EXACT){
-        _updateAlpha(Move(probedHASHentry.move), board.getActivePlayer(), depth, pMove);
+        _updateAlpha(hashedMove.isQuiet(), Move(probedHASHentry.move), board.getActivePlayer(), depth, pMove);
         return hashScore;
       }
-      if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){ 
-        _updateAlpha(Move(probedHASHentry.move), board.getActivePlayer(), depth, pMove);
-        return alpha;
+      if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){
+        _updateAlpha(hashedMove.isQuiet(), Move(probedHASHentry.move), board.getActivePlayer(), depth, pMove);
+        return hashScore;
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
-        _updateBeta(Move(probedHASHentry.move), board.getActivePlayer(), pMove, ply, depth);
+        _updateBeta(hashedMove.isQuiet(), hashedMove, board.getActivePlayer(), pMove, ply, depth);
         return beta;
       }
     }
   }
-  
-  // Extentions are summed up here
-  // InCheck extentions - we extend when the sideToMove is inCheck
-  // If we are not in fact in check, evaluate a board for pruning later
-  // We dont evaluate when in check because we dont prune in check
-  int statEVAL = 0;
 
+  // Check our InCheck status
   AreWeInCheck = board.colorIsInCheck(board.getActivePlayer());
 
-  // Go into the QSearch if depth is 0
-  if (depth <= 0 && !AreWeInCheck) {
+  // Go into the QSearch if depth is 0 and we are not in check
+  // Cut out pV and update our seldepth before dropping into qSearch
+  if ((depth <= 0 && !AreWeInCheck) || ply >= MAX_PLY) {
     _selDepth = std::max(ply, _selDepth);
-    // cut our pv if we are dropping in the qSearch
     up_pV->length = 0;
     return _qSearch(board, alpha, beta, ply + 1 );
   }
 
+  // Statically evaluate our position
+  // Do the Evaluation, unless we are in check or prev move was NULL
+  // If last Move was Null, just negate prev eval and add 2x tempo bonus (10)
   if (AreWeInCheck) {
     _sEvalArray[ply] = NOSCORE;
-  }else if (pMove == 0){
-    // last Move was Null, so we can omit stat eval here
-    // just negate prev eval and add 2x tempo bonus (10)
-    statEVAL = -_sEvalArray[ply - 1] + 10;
-    _sEvalArray[ply] = statEVAL;
-  }else{
+  }else {
     statEVAL = Eval::evaluate(board, board.getActivePlayer());
     _sEvalArray[ply] = statEVAL;
   }
 
   // Check if we are improving
-  // The idea is if we are not improving in this line
-  // We probably can prune a bit more
+  // The idea is if we are not improving in this line we probably can prune a bit more
   bool improving = false;
-  if (ply > 2)
-    improving = !AreWeInCheck && statEVAL > _sEvalArray[ply - 2];  
+  if (ply > 2) improving = !AreWeInCheck && statEVAL > _sEvalArray[ply - 2];
+
+  // Check if we are doing pre-move pruning techniques
+  // We do not do them InCheck, in pvNodes and when proving singularity
+  bool isPrune = !pvNode && !AreWeInCheck && !sing;
 
   // 1. RAZORING
-  // In the very leaf nodes (d == 1)
-  // with stat eval << beta we can assume that no 
-  // Quiet move can beat it and drop to the QSearch 
-  // immidiately
-
-  if (!pvNode && !AreWeInCheck && depth == 1 &&
-      statEVAL + RAZORING_MARGIN < beta){
-        int qVal = _qSearch(board, alpha, beta, ply + 1);
-        return std::max (qVal, statEVAL + RAZORING_MARGIN);
+  // In the very leaf nodes (d == 1) with stat eval << beta we can assume that no
+  // Quiet move can beat it and drop to the QSearch immidiately
+  if (isPrune && depth == 1 && (statEVAL + RAZORING_MARGIN < beta)){
+        return _qSearch(board, alpha, beta, ply + 1);
       }
-
 
   // 2. REVERSE FUTILITY
   // The idea is so if we are very far ahead of beta at low
   // depth, we can just return estimated eval (eval - margin),
   // because beta probably will be beaten
-  // 
-  // For now dont Prune in PV, in check, and at high depth
-  // btw d < 5 is totally arbitrary, tune it later maybe
-
-  if (!pvNode && !AreWeInCheck && depth < 5){
-      if ((statEVAL - REVF_MOVE_CONST * depth + 100 * improving) >= beta)
+  if (isPrune && depth < 6 && ((statEVAL - REVF_MOVE_CONST * depth + 100 * improving) >= beta)){
       return statEVAL - REVF_MOVE_CONST * depth + 100 * improving;
   }
 
   // 3. NULL MOVE
-  // If we are doing so well, that giving opponent 2
-  // moves wont improve his position
-  // we can safely prune this position
-  //
-  // For obvious reasons its turned off with no major pieces,
-  // when we are in check, and at pvNodes
-  if (!pvNode && ply > 0 && depth >= 3 &&
-      !doNool && !AreWeInCheck && board.isThereMajorPiece() &&
-       statEVAL >= beta){
+  // If we are doing so well, that giving opponent 2 moves wont improve his position
+  // we can safely prune this position.
+  // Apart from usual  stuff we do not use NMP when there is only Kings and Pawns
+  // and when last move was also null
+  // Drofa also track status of the Null move failure
+  bool failedNull = false;
+  if (isPrune && depth >= 3 && !doNool && statEVAL >= beta &&
+      board.isThereMajorPiece()){
           Board movedBoard = board;
           movedBoard.doNool();
-          int fDepth = depth - NULL_MOVE_REDUCTION - depth/4 - std::min((statEVAL - beta)/128, 4); 
-          int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, ply + 1, true, 0);
+          int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((statEVAL - beta) / 128, 4);
+          int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, ply + 1, true, 0, false);
           if (score >= beta){
             return beta;
           }
+          failedNull = true;
   }
 
   // 4. UN_HASHED REDUCTION
-  // We reduce depth by 1 if the position we currently 
-  // analysing isnt hashed.
-  // Based on talkchess discussion, replaces Internal
-  // iterative deepening.
-  // 
-  // The justification is if our hashing is decent, if the 
-  // position at high depth isnt here, its probably position 
-  // not worth searching
-  if (depth >= 5 && !TTmove)
+  // We reduce depth by 1 if the position we currently analysing isnt hashed.
+  // Based on talkchess discussion, replaces Internal iterative deepening.
+  // The justification is if our hashing is decent, if the
+  // position at high depth isnt here, its probably position not worth searching
+  //
+  // Drofa dont do this reduction after NullMove, because we already reduced a lot,
+  // and reducing further may reduce quality of the NM_Search
+  if (depth >= 5 && !TTmove && !doNool && !sing)
     depth--;
 
   // No pruning occured, generate moves and recurse
   MoveGen movegen(board, false);
   MoveList legalMoves = movegen.getMoves();
-  MovePicker movePicker
-      (&_orderingInfo, &board, &legalMoves, hashedMove, board.getActivePlayer(), ply, pMove);
-
+  MovePicker movePicker(&_orderingInfo, &board, &legalMoves, hashedMove.getMoveINT(), board.getActivePlayer(), ply, pMove);
   Move bestMove;
   int  LegalMoveCount = 0;
   int  qCount = 0;
-  // вероятно не самая эффективная конструкция, но оптимизация потом
+
   while (movePicker.hasNext()) {
 
     Move move = movePicker.getNext();
-    bool isQuiet = !(move.getFlags() & 0x63);
+    if (move == probedHASHentry.move && sing){
+      continue;
+    }
+    bool isQuiet = move.isQuiet();
 
-    // 5. LATE MOVE PRUNING
-    // If we made many quiet moves in the position already
-    // we suppose other moves wont improve our situation
-    //
-    // Weirdly working, searchdepth is way up, elo gain is not so great
-
-    if (!pvNode 
-        && !AreWeInCheck 
+    if (!pvNode
+        && !AreWeInCheck
         && alpha < WON_IN_X){
 
+      // 5. LATE MOVE PRUNING
+      // If we made many quiet moves in the position already
+      // we suppose other moves wont improve our situation
       if (qCount > _lmp_Array[depth][improving]) break;
 
-      if (depth <= 6 
+      // 6. SEE pruning of quiet moves
+      // At shallow depth prune highlyish -negative SEE-moves
+      if (depth <= 6
           && LegalMoveCount > 1
-          && isQuiet 
+          && isQuiet
           && board.Calculate_SEE(move) < -51 * depth) continue;
     }
 
@@ -591,21 +564,37 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
         int  moveHistory  = isQuiet ? _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) : 0;
-        bool badHistory = (isQuiet && moveHistory < -3*depth*depth);                
-        if (isQuiet)
-          qCount++;
+        bool badHistory = (isQuiet && moveHistory < _badHistMargin);
+        qCount += isQuiet;
         int tDepth = depth;
         // 6. EXTENTIONS
-        // 
+        //
         // 6.1. Passed pawn push extention
         // In the late game  we fear that we may miss
         // some pawn promotions near the leafs of the search tree
-        // Thus we extend in the endgame pushes of the non-blocked 
+        // Thus we extend in the endgame pushes of the non-blocked
         // passers that are near the middle of the board
         if (depth < 5 && board.isEndGamePosition() && move.isItPasserPush(board)){
               tDepth++;
             }
-        
+
+        // 6.2 Singular move extention
+        // At high depth if we have the TT move, and we are certain
+        // that non other moves are even close to it, extend this move
+        if (depth > 8 &&
+            !AreWeInCheck &&
+            probedHASHentry.Flag != ALPHA &&
+            probedHASHentry.depth >= depth - 2 &&
+            probedHASHentry.move == move.getMoveINT() &&
+            abs(probedHASHentry.score) < WON_IN_X / 4){
+              int sDepth = depth / 2;
+              int sBeta = probedHASHentry.score - depth * 2;
+              Board sBoard = board;
+              int score = _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, ply, false, pMove, true);
+              if (sBeta > score){
+                tDepth++;
+              }
+            }
 
         // 6. EXTENDED FUTILITY PRUNING
         // We try to pune a move, if depth is low (1 or 2)
@@ -613,7 +602,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // we also should not be in check and close to the MATE score
         // We do not prune in the PV nodes.
 
-        if (!pvNode && !AreWeInCheck && LegalMoveCount > 1 && tDepth < 3 
+        if (!pvNode && !AreWeInCheck && LegalMoveCount > 1 && tDepth < 3
         && (!giveCheck || badHistory) && alpha < WON_IN_X && !(move.getFlags() & Move::PROMOTION)){
           int moveGain = isQuiet ? 0 : opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]);
           if (statEVAL + FUTIL_MOVE_CONST * tDepth + moveGain - 100 * improving <= alpha){
@@ -623,96 +612,86 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         _posHist.Add(board.getZKey().getValue());
 
         //7. LATE MOVE REDUCTIONS
-        //mix of ideas from Weiss code and what is written in the chessprogramming wiki
-        //
-        //For now we dont reduce if depth too low, when we are in check
-        //and when move give check (with good history).
-        //Currently we try to reduce 3rd move and beyond and 4th and beyond in the pvNode.
-        //Considering tactical blunders are often in Drofa, this should be subject of
-        //modification/tuning
-
-
+        //mix of ideas from Weiss code, own ones and what is written in the chessprogramming wiki
         doLMR = tDepth > 2 && LegalMoveCount > 2 + pvNode && !AreWeInCheck && (!giveCheck || badHistory);
         if (doLMR){
 
           //Basic reduction is done according to the array
-          //Initiated at the ini() of the Search Class
-          //Now mostly 0 -> 1
           int reduction = _lmr_R_array[std::min(33, tDepth)][std::min(33, LegalMoveCount)];
 
           // Reduction tweaks
-          // We generally want to guess if the move will not improve alpha
-          // and guess right to do no re-searches
+          // We generally want to guess if the move will not improve alpha and guess right to do no re-searches
 
           // if move is quiet, reduce a bit more (from Weiss)
           reduction += isQuiet;
 
+          // if we failed NULL, likely most of our Quiet moves are crap, so reduce them even more
+          // qCount > 3 is actually seems to be optimal
+          reduction += isQuiet && qCount > 3 && failedNull;
+
           // reduce more if move has a bad history
-          reduction += isQuiet && moveHistory < -3*_curMaxDepth*_curMaxDepth;
+          reduction += isQuiet && moveHistory < _badHistMargin;
 
           //if we are improving, reduce a bit less (from Weiss)
           reduction -= improving;
-          
+
           // reduce less when move is a Queen promotion
           reduction -= (move.getFlags() & Move::PROMOTION) && (move.getPromotionPieceType() == QUEEN);
 
           // Reduce less for CounterMove and both Killers
           reduction -= (move.getMoveINT() == _orderingInfo.getCounterMoveINT(board.getActivePlayer(), pMove) ||
-                        move == _orderingInfo.getKiller1(ply) ||  move == _orderingInfo.getKiller2(ply));  
+                        move == _orderingInfo.getKiller1(ply) ||  move == _orderingInfo.getKiller2(ply));
 
           // We finished reduction tweaking, calculate final depth and search
           // Avoid reduction being less than 0
           reduction = std::max(0, reduction);
           //Avoid to reduce so much that we go to QSearch right away
           int fDepth = std::max(1, tDepth - 1 - reduction);
-          
+
           //Search with reduced depth around alpha in assumtion
           // that alpha would not be beaten here
-          score = -_negaMax(movedBoard, &thisPV, fDepth, -alpha - 1 , -alpha, ply + 1, false, move.getMoveINT());
+          score = -_negaMax(movedBoard, &thisPV, fDepth, -alpha - 1 , -alpha, ply + 1, false, move.getMoveINT(), false);
         }
-        
+
         // Code here is restructured based on Weiss
         // First part is clear here: if we did LMR and score beats alpha
         // We need to do a re-search.
-        // 
-        // If we did not do LMR: if we are in a non-PV our we already have alpha == beta - 1,
-        // and if we are searching 2nd move and so on we already did full window search - 
-        // So for both of this cases we do limited window search. 
         //
-        // This system is implemented instead of fullDepth = true/false basic approach.
+        // If we did not do LMR: if we are in a non-PV our we already have alpha == beta - 1,
+        // and if we are searching 2nd move and so on we already did full window search -
+        // So for both of this cases we do limited window search.
         if (doLMR){
           if (score > alpha){
-            score = -_negaMax(movedBoard, &thisPV, tDepth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT());
+            score = -_negaMax(movedBoard, &thisPV, tDepth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT(), false);
           }
         } else if (!pvNode || LegalMoveCount > 1){
-          score = -_negaMax(movedBoard, &thisPV, tDepth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT());
+          score = -_negaMax(movedBoard, &thisPV, tDepth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT(), false);
         }
 
-        // If we are in the PV 
+        // If we are in the PV
         // Search with a full window the first move to calculate bounds
         // or if score improved alpha during the current round of search.
         if  (pvNode) {
           if ((LegalMoveCount == 1) || (score > alpha && score < beta)){
-            score = -_negaMax(movedBoard, &thisPV, tDepth - 1 + AreWeInCheck, -beta, -alpha, ply + 1, false, move.getMoveINT());  
+            score = -_negaMax(movedBoard, &thisPV, tDepth - 1 + AreWeInCheck, -beta, -alpha, ply + 1, false, move.getMoveINT(), false);
           }
         }
-        
+
         _posHist.Remove();
         // Beta cutoff
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
-          _updateBeta(move, board.getActivePlayer(), pMove, ply, depth);
+          _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, depth);
           // Add a new tt entry for this node
-          if (!_stop){
+          if (!_stop && !sing){
             myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
           }
-          // we updated alpha and in the pVNode
-          // so we should update our pV
+          // we updated beta and in the pVNode so we should update our pV
           if (pvNode && !_stop){
             up_pV->length = thisPV.length + 1;
             up_pV->pVmoves[0] = move.getMoveINT();
             // memcpy - (куда, откуда, длина)
-            std::memcpy(up_pV->pVmoves + 1, thisPV.pVmoves, sizeof(int) * thisPV.length);            
+            std::memcpy(up_pV->pVmoves + 1, thisPV.pVmoves, sizeof(int) * thisPV.length);
           }
 
           return beta;
@@ -720,25 +699,22 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         // Check if alpha raised (new best move)
         if (score > alpha) {
-          _updateAlpha(move, board.getActivePlayer(), depth, pMove);
+          _updateAlpha(isQuiet, move, board.getActivePlayer(), depth, pMove);
           alpha = score;
           bestMove = move;
-          // we updated alpha and in the pVNode
-          // so we should update our pV
+          // we updated alpha and in the pVNode so we should update our pV
           if (pvNode && !_stop){
             up_pV->length = thisPV.length + 1;
             up_pV->pVmoves[0] = move.getMoveINT();
             // memcpy - (куда, откуда, длина)
-            std::memcpy(up_pV->pVmoves + 1, thisPV.pVmoves, sizeof(int) * thisPV.length);            
+            std::memcpy(up_pV->pVmoves + 1, thisPV.pVmoves, sizeof(int) * thisPV.length);
           }
 
         }else{
-          // Beta was not beaten and we dont improve alpha
-          // In this case we lower our search history values
-          // In order to improve ordering if some move was beaten at very high depth
+          // Beta was not beaten and we dont improve alpha in this case we lower our search history values
           _orderingInfo.decrementHistory(board.getActivePlayer(), move.getPieceType(), move.getFrom(), move.getTo(), depth, pMove);
         }
-      } 
+      }
 
   }
 
@@ -750,14 +726,14 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
   // If the best move was not set in the main search loop
-  // alpha was not raised at any point, just return alpha 
+  // alpha was not raised at any point, just return alpha
   // (ie do not write in the TT)
   if (bestMove.getFlags() & Move::NULL_MOVE) {
     return alpha;
   }
 
   // Store bestScore in transposition table
-  if (!_stop){
+  if (!_stop && !sing){
       if (alpha <= alphaOrig) {
         myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), ALPHA, alpha, depth, ply);
       } else {
@@ -765,13 +741,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       }
   }
 
-
-
   return alpha;
 }
-// end basic search
 
-// qsearch
+
+
 int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
   // Check search limits
    _nodes++;
@@ -785,7 +759,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
   if (standPat >= beta) {
     return beta;
   }
-  
+
   if (alpha < standPat) {
     alpha = standPat;
   }
@@ -793,7 +767,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
   MoveGen movegen(board, true);
   MoveList legalMoves = movegen.getMoves();
   MovePicker movePicker
-      (&_orderingInfo, &board, &legalMoves, 0, board.getActivePlayer(), 99, 0);
+      (&_orderingInfo, &board, &legalMoves, 0, board.getActivePlayer(), MAX_PLY, 0);
 
   // If node is quiet, just return eval
   if (!movePicker.hasNext()) {
@@ -803,16 +777,16 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
 
   while (movePicker.hasNext()) {
     Move move = movePicker.getNext();
-    
+
     // in qSearch if Value < 0 it means it is a bad capture
     // and we should prune it
     if (move.getValue() < 0){
       break;
     }
 
-    int moveGain = opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]);
-    if (!(move.getFlags() & Move::PROMOTION) && standPat + moveGain + DELTA_MOVE_CONST < alpha)
-      continue;
+    // Use Halogen futility variation
+    if (!(move.getFlags() & Move::PROMOTION) && standPat + move.getValue() + DELTA_MOVE_CONST < alpha)
+      break;
 
     Board movedBoard = board;
     movedBoard.doMove(move);
@@ -832,5 +806,3 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
   }
   return alpha;
 }
-
-//end

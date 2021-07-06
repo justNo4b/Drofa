@@ -27,21 +27,23 @@ void MovePicker::_scoreMoves(const Board *board) {
     if (_hashMove != 0 && moveINT == _hashMove) {
       move.setValue(INF);
     } else if (move.getFlags() & Move::CAPTURE) {
-      if (board->Calculate_SEE(move) >= 0){
-        move.setValue(CAPTURE_BONUS + _mvvLvaTable[move.getCapturedPieceType()][move.getPieceType()]);
-      }else{
-        move.setValue(BAD_CAPTURE + _mvvLvaTable[move.getCapturedPieceType()][move.getPieceType()]);
+      int see   = board->Calculate_SEE(move);
+      int value = _ply == MAX_PLY ? see : _mvvLvaTable[move.getCapturedPieceType()][move.getPieceType()];
+      if (_ply != MAX_PLY){
+        value += see >= 0 ? CAPTURE_BONUS : BAD_CAPTURE;
       }
+      move.setValue(value);
     } else if (move.getFlags() & Move::PROMOTION) {
       move.setValue(PROMOTION_SORT[move.getPromotionPieceType()]);
     } else if (moveINT == Killer1) {
       move.setValue(KILLER1_BONUS);
     } else if (moveINT == Killer2) {
       move.setValue(KILLER2_BONUS);
+    } else if (moveINT == Counter){
+      move.setValue(COUNTERMOVE_BONUS);
     } else { // Quiet
       int value =  _orderingInfo->getHistory(_color, move.getFrom(), move.getTo());
       if (_pMove != 0 ) value += _orderingInfo->getCounterHistory(_color, _pMove, move.getPieceType(), move.getTo());
-      if (moveINT == Counter) value += COUNTERMOVE_BONUS;
       move.setValue(value);
     }
   }

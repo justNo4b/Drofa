@@ -70,6 +70,11 @@ unsigned int Move::getFlags() const {
   return ((_move >> 21) & 0x7f);
 }
 
+bool Move::isQuiet() const {
+  // geflags + stuff
+  return !(((_move >> 21) & 0x7f) & 0x63);
+}
+
 bool Move::isItPasserPush(const Board &board) const{
   Color movingColor = board.getActivePlayer();
   Color defColor = board.getInactivePlayer();
@@ -77,9 +82,7 @@ bool Move::isItPasserPush(const Board &board) const{
   if (getPieceType() == PAWN &&
       !(board.getPieces(defColor, PAWN) & Eval::detail::PASSED_PAWN_MASKS[movingColor][to]) &&
       !(board.getAllPieces(defColor) & Eval::detail::FORWARD_BITS[movingColor][to])){
-        U64 mSqv = ONE << to;
-        U64 pZone = movingColor == WHITE ? PASSER_ZONE_W : PASSER_ZONE_B;
-        return mSqv & pZone ? true : false;
+        return ((ONE << to) & PASSER_ZONE[movingColor]) ? true : false;
       }
   return false;
 }
