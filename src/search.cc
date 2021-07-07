@@ -561,7 +561,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
         int  moveHistory  = isQuiet ? _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) : 0;
-        //bool badHistory = (isQuiet && moveHistory < _badHistMargin);
+        bool badHistory = (isQuiet && moveHistory < -8192);
         qCount += isQuiet;
         int tDepth = depth;
         // 6. EXTENTIONS
@@ -600,7 +600,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // We do not prune in the PV nodes.
 
         if (!pvNode && !AreWeInCheck && LegalMoveCount > 1 && tDepth < 3
-        && (!giveCheck) && alpha < WON_IN_X && !(move.getFlags() & Move::PROMOTION)){
+        && (!giveCheck || badHistory) && alpha < WON_IN_X && !(move.getFlags() & Move::PROMOTION)){
           int moveGain = isQuiet ? 0 : opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]);
           if (statEVAL + FUTIL_MOVE_CONST * tDepth + moveGain - 100 * improving <= alpha){
               continue;
@@ -610,7 +610,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         //7. LATE MOVE REDUCTIONS
         //mix of ideas from Weiss code, own ones and what is written in the chessprogramming wiki
-        doLMR = tDepth > 2 && LegalMoveCount > 2 + pvNode && !AreWeInCheck && (!giveCheck);
+        doLMR = tDepth > 2 && LegalMoveCount > 2 + pvNode && !AreWeInCheck && (!giveCheck || badHistory);
         if (doLMR){
 
           //Basic reduction is done according to the array
