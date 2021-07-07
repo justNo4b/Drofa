@@ -560,7 +560,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         int score;
 
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
-        //int  moveHistory  = isQuiet ? _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) : 0;
+        int  moveHistory  = isQuiet ? _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) : 0;
         //bool badHistory = (isQuiet && moveHistory < _badHistMargin);
         qCount += isQuiet;
         int tDepth = depth;
@@ -626,8 +626,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // qCount > 3 is actually seems to be optimal
           reduction += isQuiet && qCount > 3 && failedNull;
 
-          //if we are improving, reduce a bit less (from Weiss)
+          // if we are improving, reduce a bit less (from Weiss)
           reduction -= improving;
+
+          // reduce more/less based on the hitory
+          reduction -= moveHistory / 8192;
 
           // reduce less when move is a Queen promotion
           reduction -= (move.getFlags() & Move::PROMOTION) && (move.getPromotionPieceType() == QUEEN);
