@@ -89,7 +89,6 @@ void Search::iterDeep() {
   int aspDelta  = 50;
 
   for (int currDepth = 1; currDepth <= _searchDepth; currDepth++) {
-    _badHistMargin = -3 * pow(currDepth, 2);
 
     int aspAlpha = LOST_SCORE;
     int aspBeta  =-LOST_SCORE;
