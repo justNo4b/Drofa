@@ -302,7 +302,7 @@ void Search::_setupTimer(const Board &board, int curPlyNum){
 }
 
 inline void Search::_updateAlpha(bool isQuiet, const Move move, Color color, int depth){
-  if (isQuiet){
+  if (isQuiet && depth > 1){
     _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
   }
 }
@@ -310,7 +310,7 @@ inline void Search::_updateAlpha(bool isQuiet, const Move move, Color color, int
 inline void Search::_updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ply, int depth){
 	if (isQuiet) {
     _orderingInfo.updateKillers(ply, move);
-    _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
+    if (depth > 1) _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
     _orderingInfo.updateCounterMove(color, pMove, move.getMoveINT());
   }
 }
@@ -708,7 +708,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         }else{
           // Beta was not beaten and we dont improve alpha in this case we lower our search history values
-          _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
+          if (depth > 1) _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
         }
       }
 
