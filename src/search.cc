@@ -367,8 +367,8 @@ int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
           break;
         }
 
-        // If the current score is better than alpha, or this is the first move in the loop
-        if (currScore > alpha) {
+        // If the current is within our bounds, assign new best move
+        if (currScore > alpha && currScore < beta) {
           fullWindow = false;
           bestMove = move;
           alpha = currScore;
