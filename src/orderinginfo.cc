@@ -21,6 +21,7 @@ int OrderingInfo::getCounterMoveINT(Color color, int pMove) const{
   return _counterMove[color][type][to];
 }
 
+// currently use formula clamps history between (-16384 and 16384)
 void OrderingInfo::incrementHistory(Color color, int from, int to, int depth) {
   int16_t current = _history[color][from][to];
   int16_t bonus   = depth * depth;
