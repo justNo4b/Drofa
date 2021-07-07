@@ -301,16 +301,16 @@ void Search::_setupTimer(const Board &board, int curPlyNum){
     _ourTimeLeft = ourTime - _timeAllocated;
 }
 
-inline void Search::_updateAlpha(bool isQuiet, const Move move, Color color, int depth){
+inline void Search::_updateAlpha(bool isQuiet, const Move move, Color color, int depth, int pMove){
   if (isQuiet){
-    _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
+    _orderingInfo.incrementHistory(color,move.getPieceType(), move.getFrom(), move.getTo(), depth, pMove);
   }
 }
 
 inline void Search::_updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ply, int depth){
 	if (isQuiet) {
     _orderingInfo.updateKillers(ply, move);
-    _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
+    _orderingInfo.incrementHistory(color, move.getPieceType(), move.getFrom(), move.getTo(), depth, pMove);
     _orderingInfo.updateCounterMove(color, pMove, move.getMoveINT());
   }
 }
@@ -559,7 +559,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         int score;
 
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
-        int  moveHistory  = isQuiet ? _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) : 0;
+        int  moveHistory  = isQuiet ? _orderingInfo.getHistory(board.getActivePlayer(), move.getPieceType(), move.getFrom(), move.getTo(), pMove) : 0;
         bool badHistory = (isQuiet && moveHistory < -8192);
         qCount += isQuiet;
         int tDepth = depth;
@@ -695,7 +695,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         // Check if alpha raised (new best move)
         if (score > alpha) {
-          _updateAlpha(isQuiet, move, board.getActivePlayer(), depth);
+          _updateAlpha(isQuiet, move, board.getActivePlayer(), depth, pMove);
           alpha = score;
           bestMove = move;
           // we updated alpha and in the pVNode so we should update our pV
@@ -708,7 +708,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         }else{
           // Beta was not beaten and we dont improve alpha in this case we lower our search history values
-          _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
+          _orderingInfo.decrementHistory(board.getActivePlayer(), move.getPieceType(), move.getFrom(), move.getTo(), depth, pMove);
         }
       }
 

@@ -4,6 +4,7 @@
 OrderingInfo::OrderingInfo() {
   _ply = 0;
   std::memset(_history, 0, sizeof(_history));
+  std::memset(_counterMoveHistory, 0, sizeof(_counterMoveHistory));
   std::memset(_counterMove, 0, sizeof(_counterMove));
   std::memset(_killer1, 0, sizeof(_killer1));
   std::memset(_killer2, 0, sizeof(_killer2));
@@ -22,20 +23,25 @@ int OrderingInfo::getCounterMoveINT(Color color, int pMove) const{
 }
 
 // currently use formula clamps history between (-16384 and 16384)
-void OrderingInfo::incrementHistory(Color color, int from, int to, int depth) {
+void OrderingInfo::incrementHistory(Color color, PieceType movingType, int from, int to, int depth, int prevMove) {
   int16_t current = _history[color][from][to];
   int16_t bonus   = depth * depth;
   _history[color][from][to] += 32 * bonus - current * abs(bonus) / 512;
+  current = _counterMoveHistory[(prevMove & 0x7)][((prevMove >> 15) & 0x3f)][movingType][to];
+  _counterMoveHistory[(prevMove & 0x7)][((prevMove >> 15) & 0x3f)][movingType][to] += 32 * bonus - current * abs(bonus) / 512;
 }
 
-void OrderingInfo::decrementHistory(Color color, int from, int to, int depth) {
+void OrderingInfo::decrementHistory(Color color, PieceType movingType, int from, int to, int depth, int prevMove) {
   int16_t current = _history[color][from][to];
   int16_t bonus   = -1 * depth * (depth - 1);
   _history[color][from][to] += 32 * bonus - current * abs(bonus) / 512;
+  current = _counterMoveHistory[(prevMove & 0x7)][((prevMove >> 15) & 0x3f)][movingType][to];
+  _counterMoveHistory[(prevMove & 0x7)][((prevMove >> 15) & 0x3f)][movingType][to] += 32 * bonus - current * abs(bonus) / 512;
 }
 
-int OrderingInfo::getHistory(Color color, int from, int to) const {
-  return _history[color][from][to];
+int OrderingInfo::getHistory(Color color, PieceType movingType, int from, int to, int prevMove) const {
+  return _history[color][from][to] +
+         _counterMoveHistory[(prevMove & 0x7)][((prevMove >> 15) & 0x3f)][movingType][to];
 }
 
 void OrderingInfo::updateKillers(int ply, Move move) {

@@ -42,7 +42,7 @@ void MovePicker::_scoreMoves(const Board *board) {
     } else if (moveINT == Counter){
       move.setValue(COUNTERMOVE_BONUS);
     } else { // Quiet
-      move.setValue(_orderingInfo->getHistory(_color, move.getFrom(), move.getTo()));
+      move.setValue(_orderingInfo->getHistory(_color, move.getPieceType(), move.getFrom(), move.getTo(), _pMove));
     }
   }
 }
