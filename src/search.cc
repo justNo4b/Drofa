@@ -385,7 +385,7 @@ int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
 
   if (!_stop && !(bestMove.getFlags() & Move::NULL_MOVE)) {
     myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), EXACT, alpha, depth, ply);
-    _bestMove = bestMove;
+    if (alpha < beta) _bestMove = bestMove;
     _bestScore = alpha;
   }
 
