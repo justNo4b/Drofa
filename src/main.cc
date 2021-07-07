@@ -7,7 +7,8 @@
 #include "bench.h"
 #include <cstring>
 
-extern HASH * myHASH;
+extern  HASH * myHASH;
+OrderingInfo * myOrdering;
 
 int main(int argCount, char* argValue[]) {
   Rays::init();
@@ -18,6 +19,8 @@ int main(int argCount, char* argValue[]) {
 
   myHASH = new HASH();
   myHASH->HASH_Initalize_MB(16);
+
+  myOrdering = new OrderingInfo();
 
   #ifdef _TUNE_
   TunerStart();

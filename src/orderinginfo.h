@@ -19,6 +19,11 @@ class OrderingInfo {
   OrderingInfo();
 
   /**
+   * @brief clear all existing history scores
+   */
+  void clearAllHistory();
+
+  /**
    * @brief Increment the history heuristic value of the board for
    * the given color, from square, to square and depth.
    *
