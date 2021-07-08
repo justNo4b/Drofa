@@ -581,6 +581,12 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               tDepth++;
             }
 
+        if (pvNode && !AreWeInCheck &&
+            (((pMove >> 21) & 0x7f) & 0x63) && (move.getTo() == ((pMove >> 15) & 0x3f))){
+              tDepth++;
+            }
+
+
         // 6.2 Singular move extention
         // At high depth if we have the TT move, and we are certain
         // that non other moves are even close to it, extend this move
