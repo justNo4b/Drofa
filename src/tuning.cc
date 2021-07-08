@@ -221,6 +221,9 @@ int simplifyPhaseCalculation(const Board &board){
     phase -= _popCount(board.getPieces(BLACK, pieceType)) * Eval::detail::PHASE_WEIGHTS[pieceType];
   }
 
+  // Make sure phase is not negative
+  phase = std::max(0, phase);
+
   return phase;
 
 }
@@ -279,7 +282,7 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 8; j++){
         coeff[i++] = ft.PassedPassedDistance[j][WHITE] - ft.PassedPassedDistance[j][BLACK];
-    }    
+    }
 
     for (int j = 0; j < 9; j++){
         coeff[i++] = ft.KingFriendlyPasser[j][WHITE] - ft.KingFriendlyPasser[j][BLACK];
