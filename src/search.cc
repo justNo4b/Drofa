@@ -560,7 +560,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
         int  moveHistory  = isQuiet ? _orderingInfo.getHistory(board.getActivePlayer(), move.getPieceType(), move.getFrom(), move.getTo(), pMove) : 0;
-        bool badHistory = (isQuiet && moveHistory < -8192);
+        bool badHistory = (isQuiet && moveHistory < -16384);
         qCount += isQuiet;
         int tDepth = depth;
         // 6. EXTENTIONS
@@ -629,7 +629,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           reduction -= improving;
 
           // reduce more/less based on the hitory
-          reduction -= moveHistory / 8192;
+          reduction -= moveHistory / 16384;
 
           // reduce less when move is a Queen promotion
           reduction -= (move.getFlags() & Move::PROMOTION) && (move.getPromotionPieceType() == QUEEN);
