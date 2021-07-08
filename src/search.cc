@@ -85,7 +85,7 @@ void Search::iterDeep() {
   _nodes = 0;
   _selDepth = 0;
   _lastPlyTime = 0;
-  int aspWindow = 25;
+  int aspWindow = 20;
   int aspDelta  = 50;
 
   for (int currDepth = 1; currDepth <= _searchDepth; currDepth++) {
