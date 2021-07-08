@@ -12,9 +12,10 @@
 
 extern int g_TT_MO_hit;
 extern int myTHREADSCOUNT;
-extern Search * cSearch[MAX_THREADS];
-extern std::thread cThread[MAX_THREADS];
-extern HASH * myHASH;
+extern OrderingInfo   * cOrdering[MAX_THREADS];
+extern Search         * cSearch[MAX_THREADS];
+extern std::thread      cThread[MAX_THREADS];
+extern HASH           * myHASH;
 
 
 void Search::init_LMR_array(){
@@ -42,8 +43,8 @@ void Search::init_LMR_array(){
 
 }
 
-Search::Search(const Board &board, Limits limits, Hist positionHistory, bool logUci) :
-    _orderingInfo(OrderingInfo()),
+Search::Search(const Board &board, Limits limits, Hist positionHistory, OrderingInfo *info, bool logUci) :
+    _orderingInfo(*info),
     _limits(limits),
     _initialBoard(board),
     _logUci(logUci),
@@ -153,6 +154,12 @@ void Search::iterDeep() {
     for (int i = 1; i < myTHREADSCOUNT; i++){
       delete cSearch[i];
       cSearch[i] = nullptr;
+    }
+
+    //all done, delete excessive OrderingInfos
+    for (int i = 1; i < myTHREADSCOUNT; i++){
+      delete cOrdering[i];
+      cOrdering[i] = nullptr;
     }
 }
 
