@@ -636,7 +636,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // Reduce less for CounterMove and both Killers
           reduction -= (move.getMoveINT() == _orderingInfo.getCounterMoveINT(board.getActivePlayer(), pMove) ||
-                        move == _orderingInfo.getKiller1(ply) ||  move == _orderingInfo.getKiller2(ply));
+                        move.getMoveINT() == _orderingInfo.getKiller1(ply) ||  move.getMoveINT() == _orderingInfo.getKiller2(ply));
 
           // We finished reduction tweaking, calculate final depth and search
           // Avoid reduction being less than 0
