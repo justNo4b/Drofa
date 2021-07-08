@@ -152,14 +152,17 @@ bool InitTuningPositions(tEntry * positionList){
     for (int pCount = 0; pCount < TUNING_POS_COUNT; pCount++){
         std::getline(file, myFen);
 
-        if (myFen.find("[1.0]") !=  strFail) {
+        if (myFen.find("[1]") !=  strFail) {
             positionList[pCount].result = 1.0;
         }else if (myFen.find("[0.5]") !=  strFail) {
             positionList[pCount].result = 0.5;
-        }else if (myFen.find("[0.0]") !=  strFail) {
+        }else if (myFen.find("[0]") !=  strFail) {
             positionList[pCount].result = 0.0;
         }else {
+	    std::cout << pCount << std::endl;
+	    std::cout << myFen << std::endl;
             std::cout << "Bad position format. Exit"<< std::endl;
+
             return false;
         }
 
