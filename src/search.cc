@@ -444,6 +444,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         return alpha;
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
+        _updateBeta(hashedMove.isQuiet(), hashedMove, board.getActivePlayer(), pMove, ply, depth);
         return beta;
       }
     }
