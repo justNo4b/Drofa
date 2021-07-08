@@ -635,7 +635,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           reduction -= (move.getFlags() & Move::PROMOTION) && (move.getPromotionPieceType() == QUEEN);
 
           // Reduce less for CounterMove and both Killers
-          reduction -= move.getValue() >= 50000;
+          reduction -= isQuiet && move.getValue() >= 50000;
 
           // We finished reduction tweaking, calculate final depth and search
           // Avoid reduction being less than 0
