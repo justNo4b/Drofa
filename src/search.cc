@@ -92,6 +92,7 @@ void Search::iterDeep() {
 
     int aspAlpha = LOST_SCORE;
     int aspBeta  =-LOST_SCORE;
+    int dynamicDepth = currDepth;
     if (currDepth > 6){
       aspAlpha = _bestScore - aspWindow;
       aspBeta  = _bestScore + aspWindow;
@@ -99,13 +100,15 @@ void Search::iterDeep() {
 
     while (true){
 
-    int score = _rootMax(_initialBoard, aspAlpha, aspBeta, currDepth, 0);
+    int score = _rootMax(_initialBoard, aspAlpha, aspBeta, dynamicDepth, 0);
 
     if (_stop) break;
     if (score <= aspAlpha){
       aspAlpha = std::max(aspAlpha - aspDelta, LOST_SCORE);
+      dynamicDepth = currDepth;
     }else if( score >= aspBeta){
       aspBeta  = std::min(aspBeta + aspDelta, -LOST_SCORE);
+      dynamicDepth--;
     }else{
       break;
     }
