@@ -259,6 +259,9 @@ int Eval::getPhase(const Board &board) {
     phase -= _popCount(board.getPieces(BLACK, pieceType)) * detail::PHASE_WEIGHTS[pieceType];
   }
 
+  // Make sure phase is not negative
+  phase = std::max(0, phase);
+
   // Transform phase from the range 0 - PHASE_WEIGHT_SUM to 0 - PHASE_WEIGHT_MAX
   return ((phase * MAX_PHASE) + (detail::PHASE_WEIGHT_SUM / 2)) / detail::PHASE_WEIGHT_SUM;
 }
@@ -632,7 +635,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         ft.PassedPawnRank[r][color]++;
         ft.PassedPawnFile[pawnCol][color]++;
       }
-      // if the pawn is passed evaluate how far 
+      // if the pawn is passed evaluate how far
       // is it from other passers (_col-wise)
       U64 tmpPassers = eB->Passers[color];
       while (tmpPassers != ZERO){
