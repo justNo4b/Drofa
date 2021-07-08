@@ -575,7 +575,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             }
 
         if (move.getMoveINT() == _orderingInfo.getCounterMoveINT(board.getActivePlayer(), pMove) &&
-            move.getMoveINT() == _orderingInfo.getKiller1(ply) && move.getValue() > 8192){
+            move.getMoveINT() == _orderingInfo.getKiller1(ply) && move.getValue() > 8192 && pvNode){
               tDepth++;
             }
 
