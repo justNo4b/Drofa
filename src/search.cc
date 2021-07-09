@@ -502,7 +502,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // and when last move was also null
   // Drofa also track status of the Null move failure
   bool failedNull = false;
-  if (isPrune && depth >= 3 && !doNool && statEVAL >= beta - 10 * !TTmove &&
+  if (isPrune && depth >= 3 && !doNool && statEVAL >= beta + 10 * !TTmove &&
       board.isThereMajorPiece()){
           Board movedBoard = board;
           movedBoard.doNool();
