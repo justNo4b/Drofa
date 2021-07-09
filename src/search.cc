@@ -438,6 +438,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         hashScore = (hashScore > 0) ? (hashScore - ply) :  (hashScore + ply);
       }
       if (probedHASHentry.Flag == EXACT){
+        _updateAlpha(hashedMove.isQuiet(), hashedMove, board.getActivePlayer(), depth);
         return hashScore;
       }
       if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){
