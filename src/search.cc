@@ -600,6 +600,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               }
             }
 
+        if (qCount < 3 && isQuiet && moveHistory > 12288){
+          tDepth++;
+        }
+
         // 6. EXTENDED FUTILITY PRUNING
         // We try to pune a move, if depth is low (1 or 2)
         // Move should not give check, shoudnt be a promotion and should not be the first move
