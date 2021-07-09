@@ -2,6 +2,10 @@
 #include <cstring>
 
 OrderingInfo::OrderingInfo() {
+  clearAllHistory();
+}
+
+void OrderingInfo::clearAllHistory(){
   _ply = 0;
   std::memset(_history, 0, sizeof(_history));
   std::memset(_counterMoveHistory, 0, sizeof(_counterMoveHistory));
