@@ -582,8 +582,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               tDepth++;
             }
 
-        if (TTmove && pvNode && !AreWeInCheck &&
-            (((pMove >> 21) & 0x7f) & 0x63) && (move.getTo() == ((pMove >> 15) & 0x3f))){
+        if (pvNode && (((pMove >> 21) & 0x7f) & 0x63) && (move.getTo() == ((pMove >> 15) & 0x3f))){
               tDepth++;
             }
 
