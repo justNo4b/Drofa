@@ -582,7 +582,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               tDepth++;
             }
 
-        if (pvNode && !AreWeInCheck &&
+        if (TTmove && pvNode && !AreWeInCheck &&
             (((pMove >> 21) & 0x7f) & 0x63) && (move.getTo() == ((pMove >> 15) & 0x3f))){
               tDepth++;
             }
@@ -604,9 +604,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                 tDepth++;
               }
             }
-
-        // Clamp extentions to be not greater than 1
-        tDepth = std::min(depth + 1, tDepth);
 
         // 6. EXTENDED FUTILITY PRUNING
         // We try to pune a move, if depth is low (1 or 2)
