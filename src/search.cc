@@ -764,7 +764,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
     return beta;
   }
 
-  if (alpha < standPat) {
+  if (alpha < standPat && !board.colorIsInCheck(board.getActivePlayer())) {
     alpha = standPat;
   }
 
