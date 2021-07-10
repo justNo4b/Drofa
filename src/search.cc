@@ -600,12 +600,15 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               }
             }
 
+        // 6.3 Last capture extention
+        // In the endgame positions we extend any non-pawn captures
+        // It seems benefitial as we calculate resulting endgame more accurately
         if (!isQuiet && board.isEndGamePosition() &&
             move.getCapturedPieceType() != PAWN){
               tDepth++;
             }
 
-        // 6. EXTENDED FUTILITY PRUNING
+        // 7. EXTENDED FUTILITY PRUNING
         // We try to pune a move, if depth is low (1 or 2)
         // Move should not give check, shoudnt be a promotion and should not be the first move
         // we also should not be in check and close to the MATE score
@@ -620,8 +623,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         }
         _posHist.Add(board.getZKey().getValue());
 
-        //7. LATE MOVE REDUCTIONS
-        //mix of ideas from Weiss code, own ones and what is written in the chessprogramming wiki
+        // 8. LATE MOVE REDUCTIONS
+        // mix of ideas from Weiss code, own ones and what is written in the chessprogramming wiki
         doLMR = tDepth > 2 && LegalMoveCount > 2 + pvNode && !AreWeInCheck && (!giveCheck || badHistory);
         if (doLMR){
 
