@@ -626,6 +626,11 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       ft.PawnPsqtBlack[relSqv][color]++;
     }
 
+    if (detail::OUTPOST_PROTECTION[color][square] & pawns){
+      s += PAWN_SUPPORTED[r];
+      if (TRACK) ft.PawnSupported[r][color]++;
+    }
+
     // add bonuses if the pawn is passed
     if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
       eB->Passers[color] = eB->Passers[color] | (ONE << square);
@@ -817,15 +822,6 @@ int Eval::evaluate(const Board &board, Color color) {
   else
   #endif
   {
-    // PawnSupported
-    // Apply bonus for each pawn protected by allied pawn
-    pScore += PAWN_SUPPORTED * _popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
-    pScore -= PAWN_SUPPORTED * _popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
-    if (TRACK){
-      ft.PawnSupported[WHITE] +=_popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
-      ft.PawnSupported[BLACK] +=_popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
-    }
-
     // Evaluate pawn-by-pawn terms
     // Passed, isolated, doubled
     pScore += evaluatePAWNS(board, WHITE, &eB) - evaluatePAWNS(board, BLACK, &eB);
