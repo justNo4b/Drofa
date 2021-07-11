@@ -711,7 +711,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         // Check if alpha raised (new best move)
         if (score > alpha) {
-          _updateAlpha(isQuiet, move, board.getActivePlayer(), depth);
           alpha = score;
           bestMove = move;
           // we updated alpha and in the pVNode so we should update our pV
