@@ -308,12 +308,6 @@ void Search::_setupTimer(const Board &board, int curPlyNum){
     _ourTimeLeft = ourTime - _timeAllocated;
 }
 
-inline void Search::_updateAlpha(bool isQuiet, const Move move, Color color, int depth){
-  if (isQuiet){
-    _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
-  }
-}
-
 inline void Search::_updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ply, int depth){
 	if (isQuiet) {
     _orderingInfo.updateKillers(ply, move);
@@ -754,8 +748,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   return alpha;
 }
-
-
 
 int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
   // Check search limits

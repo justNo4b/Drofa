@@ -263,19 +263,9 @@ class Search {
   int _bestScore;
 
   /**
-   *
-   *
+   * @brief principal variantion we calculated
    */
   pV _ourPV;
-
-  /**
-   * @brief updating heuristics when alpha cut occured
-   *
-   * @param move  Move that caused cut
-   * @param color moving player
-   * @param depth search depth
-   */
-  inline void _updateAlpha(bool isQuiet, const Move move, Color Color, int depth);
 
   /**
    * @brief updating heuristics when beta cut occured
