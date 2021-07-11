@@ -272,7 +272,7 @@ bool Search::_checkLimits() {
 void Search::_setupTimer(const Board &board, int curPlyNum){
 
     int ourTime = _limits.time[_initialBoard.getActivePlayer()];
-    int opponentTime = _limits.time[_initialBoard.getInactivePlayer()];
+    //int opponentTime = _limits.time[_initialBoard.getInactivePlayer()];
     int moveNum = board._getGameClock() / 2;
     int ourIncrement = _limits.increment[_initialBoard.getActivePlayer()];
 
