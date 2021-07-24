@@ -179,6 +179,7 @@ void go(std::istringstream &is) {
     }
   }
 
+  myOrdering->clearKillers();
   search = std::make_shared<Search>(board, limits, positionHistory, myOrdering);
 
   std::thread searchThread(&pickBestMove);

@@ -24,6 +24,11 @@ class OrderingInfo {
   void clearAllHistory();
 
   /**
+   * @brief clear killers and counters
+   */
+  void clearKillers();
+
+  /**
    * @brief Increment the history heuristic value of the board for
    * the given color, from square, to square and depth.
    *
