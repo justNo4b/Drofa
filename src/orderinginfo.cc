@@ -13,6 +13,12 @@ void OrderingInfo::clearAllHistory(){
   std::memset(_killer2, 0, sizeof(_killer2));
 }
 
+void OrderingInfo::clearKillers(){
+  _ply = 0;
+  std::memset(_killer1, 0, sizeof(_killer1));
+  std::memset(_killer2, 0, sizeof(_killer2));
+}
+
 void OrderingInfo::updateCounterMove(Color color, int counteredMove, int counterMove){
   int pType = counteredMove & 0x7;
   int to = (counteredMove >> 15) & 0x3f;
