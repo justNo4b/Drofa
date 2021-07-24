@@ -50,6 +50,10 @@ class OrderingInfo {
    */
   void decrementHistory(Color, int, int, int);
 
+  void incrementCapHistory(PieceType, PieceType, int, int);
+
+  void decrementCapHistory(PieceType, PieceType, int, int);
+
   /**
    * @brief Update countermove.
    *
@@ -78,6 +82,15 @@ class OrderingInfo {
    * @return int History heuristic value for the given from square, to square and color
    */
   int getHistory(Color, int, int) const;
+
+  /**
+   * @brief Get history information for the current capture move
+   *
+   * @param capuringPiece   piece that is capturing
+   * @param capturedPiece   piece that getting capured
+   * @param to              move to location
+   */
+  int getCaptureHistory(PieceType, PieceType, int) const;
 
   /**
    * @brief Update the killer moves for the given ply with the given move.
@@ -124,6 +137,11 @@ class OrderingInfo {
    * @brief Table of beta-cutoff history values indexed by [color][from_square][to_square]
    */
   int16_t _history[2][64][64];
+
+  /**
+   * @brief Table of beta-cutoff values for captures indexed by [capturingPiece][capturedPiece][to_square]
+   */
+  int16_t _captureHistory[6][6][64];
 
   /**
    * @brief Array of the moves (represented by their INT), that counter move
