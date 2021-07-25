@@ -874,8 +874,15 @@ int Eval::evaluate(const Board &board, Color color) {
   // Calculation of the phase value
   int phase = getPhase(board);
 
+  // adjust EG eval based on pawns left
+  int NormalScale = 64;
+  int MaxScale = 128;
+  int StrongPawn = egS(score) > 0 ? w_P : b_P;
+  int Scale = std::min(MaxScale, 32 + 8 * StrongPawn);
+
+
   // Interpolate between opening/endgame scores depending on the phase
-  int final_eval = ((opS(score) * (MAX_PHASE - phase)) + (egS(score) * phase)) / MAX_PHASE;
+  int final_eval = ((opS(score) * (MAX_PHASE - phase)) + (egS(score) * phase * Scale / NormalScale)) / MAX_PHASE;
 
   if (w_Q == 0 && b_Q == 0 &&
       w_R == 0 && b_R == 0 &&
