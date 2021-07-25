@@ -6,7 +6,8 @@
 #include <memory>
 
 
-extern HASH * myHASH;
+extern HASH         * myHASH;
+extern OrderingInfo * myOrdering;
 
 void myBench(){
     std::cout << "Bench started..." << std::endl;
@@ -22,14 +23,15 @@ void myBench(){
     for (int i = 0; i < BENCH_POS_NUMBER; i++){
         int curNodes = 0;
         board = Board(BENCH_POSITION[i]);
-        search = std::make_shared<Search>(board, limits, history, false);
+        search = std::make_shared<Search>(board, limits, history, myOrdering, false);
         search->iterDeep();
         curNodes = search->getNodes();
         nodes_total += curNodes;
         myHASH->HASH_Clear();
+        myOrdering->clearAllHistory();
         printf("Position [# %2d] Best: %6s %5i cp  Nodes: %12i", i + 1,search->getBestMove().getNotation().c_str(),
                  search->getBestScore(), curNodes);
-        std::cout << std::endl;       
+        std::cout << std::endl;
     }
 
     int elapsed =std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timer_start).count();

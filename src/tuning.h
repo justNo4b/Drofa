@@ -27,14 +27,11 @@ struct posFeatured{
     int KingHighDanger[2];
     int KingMedDanger[2];
     int KingLowDanger[2];
-    int KingSafe[2];
     int PawnSupported[2];
     int PawnDoubled[2];
     int PawnIsolated[2];
     int PawnBlocked[2];
     int PassersBlocked[2];
-    int PawnDistortion[2];
-    int PawnConnected[2];
     int BishopRammed[2];
     int BishopCenterControl[2];
     int MinorBehindPawn[2];
@@ -47,13 +44,22 @@ struct posFeatured{
     int KingSemiEnemyFile[2];
     int KingAttackPawn[2];
     //Array features
+    int PawnConnected[7][2];
     int PassedPawnRank[8][2];
     int PassedPawnFile[8][2];
+    int PassedPawnFree[7][2];
+    int PassedPawnPosAdvance[7][2];
+    int PassedPassedDistance[8][2];
     int KingFriendlyPasser[9][2];
     int KingEnemyPasser[9][2];
     int RookOpenFile[2][2];
     int RookHalfFile[2][2];
     int HangingPiece[5][2];
+    int MinorAttackedBy[5][2];
+    int RookAttackedBy[5][2];
+    //Array - Safety Shields
+    int KingShieldKS[8][2];
+    int KingShieldQS[8][2];
     //Array Features  - Mobility
     int BishopMobility[14][2];
     int KnigthMobility[9][2];
@@ -99,16 +105,16 @@ struct tEntry {
   * @brief Main tuning constants are defined here
   * @{
   */
-  const std::string TUNING_DATA        = "BOOK.txt";
-  const int         TUNING_POS_COUNT   = 42484641; //9996883 42484641
+  const std::string TUNING_DATA        = "LiChessBOOK.txt";
+  const int         TUNING_POS_COUNT   = 7153653; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 786;
+  const int         TUNING_TERMS_COUNT = 838;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
   const int         TUNIGN_PRINT       = 25; 
   const int         TUNING_K_PRECISION = 10;
   const int         TUNING_L_STEP      = 1500;
-  const double      TUNING_K           = 2.746758999;
+  const double      TUNING_K           = 3.198216899; //2.829175699;
   const double      TUNING_L_DROP      = 1.0;
   const double      TUNING_L_RATE      = 10.0;
 

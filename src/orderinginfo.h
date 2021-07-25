@@ -14,14 +14,24 @@ class OrderingInfo {
  public:
   /**
    * @brief Construct a new OrderingInfo
-   * 
+   *
    */
   OrderingInfo();
 
   /**
-   * @brief Increment the history heuristic value of the board for 
+   * @brief clear all existing history scores
+   */
+  void clearAllHistory();
+
+  /**
+   * @brief clear killers and counters
+   */
+  void clearKillers();
+
+  /**
+   * @brief Increment the history heuristic value of the board for
    * the given color, from square, to square and depth.
-   * 
+   *
    * @param color Color to increment history for
    * @param from From square to increment history for
    * @param to To square to increment history for
@@ -30,9 +40,9 @@ class OrderingInfo {
   void incrementHistory(Color, int, int, int);
 
   /**
-   * @brief Lower history heuristic value of the board for 
+   * @brief Lower history heuristic value of the board for
    * the given color, from square, to square and depth.
-   * 
+   *
    * @param color Color to increment history for
    * @param from From square to increment history for
    * @param to To square to increment history for
@@ -40,28 +50,32 @@ class OrderingInfo {
    */
   void decrementHistory(Color, int, int, int);
 
+  void incrementCapHistory(PieceType, PieceType, int, int);
+
+  void decrementCapHistory(PieceType, PieceType, int, int);
+
   /**
    * @brief Update countermove.
-   * 
-   * @param color Color of the current sideToMove 
+   *
+   * @param color Color of the current sideToMove
    * @param counteredMove Previous move made in the Search
    * @param counterMove Move that rejected counteredMove
-   * 
+   *
    */
   void updateCounterMove(Color, int , int);
 
   /**
    * @brief Gets CounterMove using last move made in the position as info
-   * 
+   *
    * @param color Color of the current sideToMove
    * @param pMove Previous move made in the Search
    */
-  int getCounterMoveINT(Color, int) const; 
+  int getCounterMoveINT(Color, int) const;
 
   /**
    * @brief Get beta-cutoff history information for the given color, from square and
    * to square.
-   * 
+   *
    * @param color Color of side moving
    * @param from From square to get history for
    * @param to To square to get history for
@@ -70,8 +84,17 @@ class OrderingInfo {
   int getHistory(Color, int, int) const;
 
   /**
+   * @brief Get history information for the current capture move
+   *
+   * @param capuringPiece   piece that is capturing
+   * @param capturedPiece   piece that getting capured
+   * @param to              move to location
+   */
+  int getCaptureHistory(PieceType, PieceType, int) const;
+
+  /**
    * @brief Update the killer moves for the given ply with the given move.
-   * 
+   *
    * @param ply Ply to update killer moves for
    * @param move Move to update killer moves with
    */
@@ -79,7 +102,7 @@ class OrderingInfo {
 
   /**
    * @brief Get the first killer move for the given ply.
-   * 
+   *
    * @param ply Ply to get killer move for
    * @return First killer move at the given ply
    */
@@ -87,7 +110,7 @@ class OrderingInfo {
 
   /**
    * @brief Get the second killer move for the given ply.
-   * 
+   *
    * @param ply Ply to get killer move for
    * @return Move Second killer move at the given ply
    */
@@ -98,12 +121,12 @@ class OrderingInfo {
   /**
    * @brief Array of first killer moves by ply
    */
-  int _killer1[100];
+  int _killer1[MAX_INT_PLY];
 
   /**
    * @brief Array of second killer moves by ply
    */
-  int _killer2[100];
+  int _killer2[MAX_INT_PLY];
 
   /**
    * @brief Current ply of search
@@ -113,14 +136,19 @@ class OrderingInfo {
   /**
    * @brief Table of beta-cutoff history values indexed by [color][from_square][to_square]
    */
-  int _history[2][64][64];
+  int16_t _history[2][64][64];
+
+  /**
+   * @brief Table of beta-cutoff values for captures indexed by [capturingPiece][capturedPiece][to_square]
+   */
+  int16_t _captureHistory[6][6][64];
 
   /**
    * @brief Array of the moves (represented by their INT), that counter move
    * made on the previous ply (cause beta - cutoff)
    * Indexed by [OppositeColor][PieceType][to_square] of the move they countered
    */
-  int _counterMove[2][6][64]; 
+  int _counterMove[2][6][64];
 };
 
 #endif

@@ -64,7 +64,7 @@ class Search {
   };
 
   struct pV {
-    int     pVmoves [100];
+    int     pVmoves [MAX_INT_PLY];
     uint8_t length;
 
     pV () : pVmoves {0}, length(0) {};
@@ -80,7 +80,7 @@ class Search {
    * @param logUci If logUci is set, UCI info commands about the search will be printed
    * to standard output in real time.k
    */
-  Search(const Board &, Limits, Hist, bool= true);
+  Search(const Board &, Limits, Hist, OrderingInfo *, bool= true);
 
   /**
    * @brief Performs an iterative deepening search within the constraints of the given limits.
@@ -101,23 +101,23 @@ class Search {
   void stop();
 
   /**
-   * 
-   */ 
+   *
+   */
   int getNodes();
 
  private:
 
   /**
-   * @brief Array of reductions applied to the branch during 
+   * @brief Array of reductions applied to the branch during
    * LATE MOVE REDUCTION during AB-search
-   */ 
+   */
   int _lmr_R_array[34][34];
 
   /**
    * @brief Array of the pre-calculated move-nums
    * used for LATE MOVE PRUNING during AB-search
    */
-  int _lmp_Array[100][2]; 
+  int _lmp_Array[MAX_PLY][2];
 
   /**
    * @brief Default depth to search to if no limits are specified.
@@ -135,7 +135,7 @@ class Search {
    * @brief Maximum depth to search to if depth is not explicitly specified
    * and time limits are imposed.
    */
-  static const int MAX_SEARCH_DEPTH = 50;
+  static const int MAX_SEARCH_DEPTH = 64;
 
 
   //
@@ -153,28 +153,28 @@ class Search {
 
   /**
    * @brief Vector of ZKeys for each position that has occurred in the game
-   * 
+   *
    * This is used to detect threefold repetitions.
    */
   Hist  _posHist;
 
   /**
    * @brief Array of int, constitutes history of the static eval
-   * 
-   * This is used for calculating "improving" paramenter 
+   *
+   * This is used for calculating "improving" paramenter
    * during the search
-   */ 
-  int _sEvalArray[100];
+   */
+  int _sEvalArray[MAX_INT_PLY];
 
   /**
    * @brief OrderingInfo object containing information about the current state
    * of this search
    */
-  OrderingInfo _orderingInfo;
+  OrderingInfo & _orderingInfo;
 
   /**
    * @brief Limits object representing limits imposed on this search.
-   * 
+   *
    */
   Limits _limits;
 
@@ -196,35 +196,29 @@ class Search {
   /**
    * @brief This variable holds value of how much time left on our
    * clock. If it is too low, we do not prolong search.
-   * 
+   *
    */
   int _ourTimeLeft;
 
   /**
    * @brief We keep track of times we prolonged thought
-   * during the search. It is important to not prolong a more 
+   * during the search. It is important to not prolong a more
    * than one in a row in order not to lose on time.
-   * 
+   *
    */
   bool _wasThoughtProlonged;
 
   /**
-   *  @brief We track how much time we spended while 
-   *  searching last ply. It is used to estimate how much time 
+   *  @brief We track how much time we spended while
+   *  searching last ply. It is used to estimate how much time
    *  we grant engine when search be prolonged.
    */
-  int _lastPlyTime; 
+  int _lastPlyTime;
 
   /**
    * @brief Depth of this search in plys
    */
   int _searchDepth;
-
-  /**
-   * @brief Margin used for history LMR adjustments
-   * and pruning decisions
-   */ 
-  int _badHistMargin;
 
   /**
    * @brief If this flag is set, calls to _negaMax() and _rootMax() will end as soon
@@ -238,12 +232,12 @@ class Search {
   std::chrono::time_point<std::chrono::steady_clock> _start;
 
   /**
-   * @brief Returns True if this search has exceeded its given limits 
-   * 
+   * @brief Returns True if this search has exceeded its given limits
+   *
    * Note that to avoid a needless amount of computation, limits are only
    * checked every 4096 calls to _checkLimits() (using the Search::_limitCheckCount property).
    * If Search::_limitCheckCount is not 0, false will be returned.
-   * 
+   *
    * @return True if this search has exceed its limits, true otherwise
    */
   bool _checkLimits();
@@ -269,22 +263,12 @@ class Search {
   int _bestScore;
 
   /**
-   * 
-   * 
+   * @brief principal variantion we calculated
    */
-  pV _ourPV; 
+  pV _ourPV;
 
   /**
-   * @brief updating heuristics when alpha cut occured 
-   *
-   * @param move  Move that caused cut
-   * @param color moving player
-   * @param depth search depth
-   */
-  inline void _updateAlpha(bool isQuiet, const Move move, Color Color, int depth);
-
-  /**
-   * @brief updating heuristics when beta cut occured 
+   * @brief updating heuristics when beta cut occured
    *
    * @param move Move that caused cut
    * @param color moving player
@@ -320,7 +304,7 @@ class Search {
    * @param  int    int of the last move that was made
    * @return The score of the given board
    */
-  int _negaMax(const Board &, pV *myPV, int, int, int, int, bool, int);
+  int _negaMax(const Board &, pV *myPV, int, int, int, int, bool, int, bool);
 
   /**
    * @brief Performs a quiescence search
@@ -349,10 +333,10 @@ class Search {
 
   /**
    * @brief Returns the principal variation for the last performed search.
-   * 
+   *
    * Internally, this method probes the transposition table for the PV of the last
    * performed search.
-   * 
+   *
    * @return MoveList The principal variation for the last performed search
    */
   MoveList _getPv();
@@ -360,7 +344,7 @@ class Search {
   /**
    * @brief this function calculates reductions values and stores
    * it in the _lmr_R_array
-   */ 
+   */
   void init_LMR_array();
 
   void _setupTimer(const Board &, int);

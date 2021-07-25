@@ -57,7 +57,7 @@ void TunerStart(){
     std::cout << std::setprecision(16);
 
     std::cout << "\n Calculating K... " << std::endl;
-    double K = TUNING_K; //CalculateFactorK(entries);
+    double K = CalculateFactorK(entries);
     std::cout << "\n Optimal K = " << K << std::endl;
     for (int epoch = 0; epoch < TUNIGN_MAX_ITER; epoch++){
 
@@ -72,8 +72,8 @@ void TunerStart(){
                 diffTerms[i][OPENING] += (TUNING_K / 200.0) * (gradient[i][OPENING] / TUNING_POS_COUNT) * (rate / sqrt(1e-8 + gradTerms[i][OPENING]));
                 diffTerms[i][ENDGAME] += (TUNING_K / 200.0) * (gradient[i][ENDGAME] / TUNING_POS_COUNT) * (rate / sqrt(1e-8 + gradTerms[i][ENDGAME]));
         }
-        
-        
+
+
         // Learning drop rate
         if (epoch % TUNING_L_STEP == 0){
             rate = rate / TUNING_L_DROP;
@@ -84,7 +84,7 @@ void TunerStart(){
             std::cout << "\n\n IterationNum = " + std::to_string(epoch) + " Error: " <<  error;
             std::cout << "\n Printing Terms: \n";
             PrintTunedParams(currTerms, diffTerms);
-        } 
+        }
     }
 
     std::cout << "\n Finishing. Final Parameters: \n" << std::endl;
@@ -107,7 +107,7 @@ void EvalArrayPrint(std::string name, tValueHolder current, tValueHolder diff, i
         }
 
         std::string op = std::to_string( (int)(current[head + i][OPENING] + diff[head + i][OPENING]));
-        std::string eg = std::to_string( (int)(current[head + i][ENDGAME] + diff[head + i][ENDGAME]));  
+        std::string eg = std::to_string( (int)(current[head + i][ENDGAME] + diff[head + i][ENDGAME]));
         std::cout << " gS(" + op + "," + eg + "),";
     }
 
@@ -189,8 +189,8 @@ void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
     // 3. Prepare for evaluatin and save evaluation - stuff
     // Evaluation should be from White POW, but we stiif call
     // evaluate() from stm perspective to get right tempo evaluation
-    ft  = zero; 
-    featureCoeff newCoeffs; 
+    ft  = zero;
+    featureCoeff newCoeffs;
     positionList[pCount].stm = b.getActivePlayer();
     positionList[pCount].statEval = b.getActivePlayer() == WHITE ? Eval::evaluate(b, b.getActivePlayer()) : -Eval::evaluate(b, b.getActivePlayer());
 
@@ -206,7 +206,7 @@ void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
     // we need to adjust it here to be from WHITE POW
     positionList[pCount].FinalEval =  b.getActivePlayer() == WHITE ? ft.FinalEval : -ft.FinalEval;
 
-    // 6. Also save modifiers to know is it is 
+    // 6. Also save modifiers to know is it is
     // OCBEndgame
     positionList[pCount].OCBEndgame = ft.OCBscale;
 
@@ -220,6 +220,9 @@ int simplifyPhaseCalculation(const Board &board){
     phase -= _popCount(board.getPieces(WHITE, pieceType)) * Eval::detail::PHASE_WEIGHTS[pieceType];
     phase -= _popCount(board.getPieces(BLACK, pieceType)) * Eval::detail::PHASE_WEIGHTS[pieceType];
   }
+
+  // Make sure phase is not negative
+  phase = std::max(0, phase);
 
   return phase;
 
@@ -239,15 +242,12 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.KingHighDanger[WHITE] - ft.KingHighDanger[BLACK];
     coeff[i++] = ft.KingMedDanger[WHITE] - ft.KingMedDanger[BLACK];
     coeff[i++] = ft.KingLowDanger[WHITE] - ft.KingLowDanger[BLACK];
-    coeff[i++] = ft.KingSafe[WHITE] - ft.KingSafe[BLACK];
     coeff[i++] = ft.BishopPair[WHITE] - ft.BishopPair[BLACK];
     coeff[i++] = ft.PawnSupported[WHITE] - ft.PawnSupported[BLACK];
     coeff[i++] = ft.PawnDoubled[WHITE] - ft.PawnDoubled[BLACK];
     coeff[i++] = ft.PawnIsolated[WHITE] - ft.PawnIsolated[BLACK];
     coeff[i++] = ft.PawnBlocked[WHITE] - ft.PawnBlocked[BLACK];
     coeff[i++] = ft.PassersBlocked[WHITE] - ft.PassersBlocked[BLACK];
-    coeff[i++] = ft.PawnDistortion[WHITE] - ft.PawnDistortion[BLACK];
-    coeff[i++] = ft.PawnConnected[WHITE] - ft.PawnConnected[BLACK];
     coeff[i++] = ft.BishopRammed[WHITE] - ft.BishopRammed[BLACK];
     coeff[i++] = ft.BishopCenterControl[WHITE] - ft.BishopCenterControl[BLACK];
     coeff[i++] = ft.MinorBehindPawn[WHITE] - ft.MinorBehindPawn[BLACK];
@@ -260,12 +260,28 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.KingSemiEnemyFile[WHITE] - ft.KingSemiEnemyFile[BLACK];
     coeff[i++] = ft.KingAttackPawn[WHITE] - ft.KingAttackPawn[BLACK];
 
+    for (int j = 0; j < 7; j++){
+        coeff[i++] = ft.PawnConnected[j][WHITE] - ft.PawnConnected[j][BLACK];
+    }
+
     for (int j = 0; j < 8; j++){
         coeff[i++] = ft.PassedPawnRank[j][WHITE] - ft.PassedPawnRank[j][BLACK];
     }
 
     for (int j = 0; j < 8; j++){
         coeff[i++] = ft.PassedPawnFile[j][WHITE] - ft.PassedPawnFile[j][BLACK];
+    }
+
+    for (int j = 0; j < 7; j++){
+        coeff[i++] = ft.PassedPawnFree[j][WHITE] - ft.PassedPawnFree[j][BLACK];
+    }
+
+    for (int j = 0; j < 7; j++){
+        coeff[i++] = ft.PassedPawnPosAdvance[j][WHITE] - ft.PassedPawnPosAdvance[j][BLACK];
+    }
+
+    for (int j = 0; j < 8; j++){
+        coeff[i++] = ft.PassedPassedDistance[j][WHITE] - ft.PassedPassedDistance[j][BLACK];
     }
 
     for (int j = 0; j < 9; j++){
@@ -286,6 +302,22 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 5; j++){
         coeff[i++] = ft.HangingPiece[j][WHITE] - ft.HangingPiece[j][BLACK];
+    }
+
+    for (int j = 0; j < 5; j++){
+        coeff[i++] = ft.MinorAttackedBy[j][WHITE] - ft.MinorAttackedBy[j][BLACK];
+    }
+
+    for (int j = 0; j < 5; j++){
+        coeff[i++] = ft.RookAttackedBy[j][WHITE] - ft.RookAttackedBy[j][BLACK];
+    }
+
+    for (int j = 0; j < 8; j++){
+        coeff[i++] = ft.KingShieldKS[j][WHITE] - ft.KingShieldKS[j][BLACK];
+    }
+
+    for (int j = 0; j < 8; j++){
+        coeff[i++] = ft.KingShieldQS[j][WHITE] - ft.KingShieldQS[j][BLACK];
     }
 
     for (int j = 0; j < 14; j++){
@@ -319,7 +351,7 @@ void InitCoefficients(featureCoeff coeff){
     for (int j = 0; j < 64; j++){
         coeff[i++] = ft.RookPsqtBlack[j][WHITE] - ft.RookPsqtBlack[j][BLACK];
     }
-    
+
     for (int j = 0; j < 64; j++){
         coeff[i++] = ft.BishopPsqtBlack[j][WHITE] - ft.BishopPsqtBlack[j][BLACK];
     }
@@ -417,7 +449,7 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
 
     double opBase = X * entry->pFactors[OPENING];
     double egBase = X * entry->pFactors[ENDGAME];
-    double scale = 1.0;    
+    double scale = 1.0;
     if (entry->OCBEndgame) scale = 0.5;
 
     for (int i = 0; i < entry->tracesCount; i++){
@@ -451,12 +483,12 @@ double TuningEval(tEntry* entry, tValueHolder diff){
         egScore += (double) entry->traces[i].count * diff[entry->traces[i].index][ENDGAME];
     }
 
-    double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase)) / 256.0;    
+    double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase)) / 256.0;
 
     // Adjust eval for OCBendgame and noPawnsEndgames
-    if (entry->OCBEndgame) final_eval = final_eval / 2;        
+    if (entry->OCBEndgame) final_eval = final_eval / 2;
 
-    return final_eval + (entry->stm == WHITE ? 5 : -5);
+    return final_eval + (entry->stm == WHITE ? 10 : -10);
 }
 
 double TunedError(tEntry* entries, tValueHolder diff) {
@@ -534,7 +566,7 @@ void CheckFeaturesNumber(){
 
     if (c != TUNING_TERMS_COUNT){
         std::cout << "Numbers of terms and features do not match" << std::endl;
-        std::cout << "Features(terms): " << c << " Features: " << TUNING_TERMS_COUNT << std::endl; 
+        std::cout << "Features(terms): " << c << " Features: " << TUNING_TERMS_COUNT << std::endl;
         exit(1);
     }
 }

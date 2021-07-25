@@ -5,7 +5,7 @@
 #include "eval.h"
 #include "outposts.h"
 
-#define BIG_FEATURE_NUMBER (50)
+#define BIG_FEATURE_NUMBER (55)
 
 enum TuningType{
     ALL,
@@ -36,15 +36,12 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("KING_HIGH_DANGER", false, &Eval::KING_HIGH_DANGER, 1, 1, ALL),
     tFeature("KING_MED_DANGER", false, &Eval::KING_MED_DANGER, 1, 1, ALL),
     tFeature("KING_LOW_DANGER", false, &Eval::KING_LOW_DANGER, 1, 1, ALL),
-    tFeature("KING_SAFE", false, &Eval::KING_SAFE, 1, 1, ALL),
     tFeature("BISHOP_PAIR_BONUS", false, &Eval::BISHOP_PAIR_BONUS, 1, 1, ALL),
     tFeature("PAWN_SUPPORTED", false, &Eval::PAWN_SUPPORTED, 1, 1, ALL),
     tFeature("DOUBLED_PAWN_PENALTY", false, &Eval::DOUBLED_PAWN_PENALTY, 1, 1, ALL),
     tFeature("ISOLATED_PAWN_PENALTY", false, &Eval::ISOLATED_PAWN_PENALTY, 1, 1, ALL),
     tFeature("PAWN_BLOCKED", false, &Eval::PAWN_BLOCKED, 1, 1, ALL),
     tFeature("PASSER_BLOCKED", false, &Eval::PASSER_BLOCKED, 1, 1, ALL),
-    tFeature("PAWN_DISTORTION", false, &Eval::PAWN_DISTORTION, 1, 1, ALL),
-    tFeature("PAWN_CONNECTED", false, &Eval::PAWN_CONNECTED, 1, 1, ALL),
     tFeature("BISHOP_RAMMED_PENALTY", false, &Eval::BISHOP_RAMMED_PENALTY, 1, 1, ALL),
     tFeature("BISHOP_CENTER_CONTROL", false, &Eval::BISHOP_CENTER_CONTROL, 1, 1, ALL),
     tFeature("MINOR_BEHIND_PAWN", false, &Eval::MINOR_BEHIND_PASSER, 1, 1, ALL),
@@ -56,13 +53,21 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("KING_OWN_SEMI_FILE", false, &Eval::KING_OWN_SEMI_FILE, 1, 1, ALL),
     tFeature("KING_ENEMY_SEMI_LINE", false, &Eval::KING_ENEMY_SEMI_LINE, 1, 1, ALL),
     tFeature("KING_ATTACK_PAWN", false, &Eval::KING_ATTACK_PAWN, 1, 1, ALL),
+    tFeature("PAWN_CONNECTED", true, Eval::PAWN_CONNECTED, 7, 4, ALL),
     tFeature("PASSED_PAWN_RANKS", true, Eval::PASSED_PAWN_RANKS, 8, 4, ALL),
     tFeature("PASSED_PAWN_FILES", true, Eval::PASSED_PAWN_FILES, 8, 4, ALL),
+    tFeature("PASSED_PAWN_FREE", true, Eval::PASSED_PAWN_FREE, 7, 4, ALL),
+    tFeature("PASSED_PAWN_POS_ADVANCE", true, Eval::PASSED_PAWN_POS_ADVANCE, 7, 4, ALL),
+    tFeature("PASSED_PASSED_DISTANCE", true, Eval::PASSED_PASSED_DISTANCE, 8, 4, ALL),
     tFeature("KING_PASSER_DISTANCE_FRIENDLY", true, Eval::KING_PASSER_DISTANCE_FRIENDLY, 9, 4, ALL),
     tFeature("KING_PASSER_DISTANCE_ENEMY", true, Eval::KING_PASSER_DISTANCE_ENEMY, 9, 4, ALL),
     tFeature("ROOK_OPEN_FILE_BONUS", true, Eval::ROOK_OPEN_FILE_BONUS, 2, 10, ALL),
     tFeature("ROOK_SEMI_FILE_BONUS", true, Eval::ROOK_SEMI_FILE_BONUS, 2, 10, ALL),
     tFeature("HANGING_PIECE", true, Eval::HANGING_PIECE, 5, 10, ALL),
+    tFeature("MINOR_ATTACKED_BY", true, Eval::MINOR_ATTACKED_BY, 5, 10, ALL),
+    tFeature("ROOK_ATTACKED_BY", true, Eval::ROOK_ATTACKED_BY, 5, 10, ALL),
+    tFeature("KING_PAWN_SHIELD_KS", true, Eval::KING_PAWN_SHIELD_KS, 8, 4, ALL),
+    tFeature("KING_PAWN_SHIELD_QS", true, Eval::KING_PAWN_SHIELD_QS, 8, 4, ALL),
     tFeature("BISHOP_MOBILITY", true, Eval::BISHOP_MOBILITY, 14, 7, ALL),
     tFeature("KNIGHT_MOBILITY", true, Eval::KNIGHT_MOBILITY, 9, 5, ALL),
     tFeature("KING_MOBILITY", true, Eval::KING_MOBILITY, 9, 5, ALL),

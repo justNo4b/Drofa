@@ -5,11 +5,14 @@
 #include <iostream>
 #include <thread>
 
-extern HASH * myHASH;
+extern HASH         * myHASH;
+extern OrderingInfo * myOrdering;
 
 int myTHREADSCOUNT = 1;
-Search * cSearch[MAX_THREADS];
-std::thread cThread[MAX_THREADS];
+
+OrderingInfo  * cOrdering[MAX_THREADS];
+Search        * cSearch[MAX_THREADS];
+std::thread     cThread[MAX_THREADS];
 
 namespace {
 Book book;
@@ -51,23 +54,20 @@ void changeThreadsNumber(){
 #ifdef _TUNE_
 void loadCosts(){
 
-Eval::SetupTuning(OPENING, PAWN, atoi(optionsMap["vPawnOP"].getValue().c_str())); 
-Eval::SetupTuning(ENDGAME, PAWN, atoi(optionsMap["vPawnEG"].getValue().c_str()));   
+Eval::SetupTuning(OPENING, PAWN, atoi(optionsMap["vPawnOP"].getValue().c_str()));
+Eval::SetupTuning(ENDGAME, PAWN, atoi(optionsMap["vPawnEG"].getValue().c_str()));
 
-Eval::SetupTuning(OPENING, KNIGHT, atoi(optionsMap["vKnightOP"].getValue().c_str())); 
-Eval::SetupTuning(ENDGAME, KNIGHT, atoi(optionsMap["vKnightEG"].getValue().c_str())); 
+Eval::SetupTuning(OPENING, KNIGHT, atoi(optionsMap["vKnightOP"].getValue().c_str()));
+Eval::SetupTuning(ENDGAME, KNIGHT, atoi(optionsMap["vKnightEG"].getValue().c_str()));
 
-Eval::SetupTuning(OPENING, BISHOP, atoi(optionsMap["vBishopOP"].getValue().c_str())); 
-Eval::SetupTuning(ENDGAME, BISHOP, atoi(optionsMap["vBishopEG"].getValue().c_str())); 
+Eval::SetupTuning(OPENING, BISHOP, atoi(optionsMap["vBishopOP"].getValue().c_str()));
+Eval::SetupTuning(ENDGAME, BISHOP, atoi(optionsMap["vBishopEG"].getValue().c_str()));
 
-Eval::SetupTuning(OPENING, ROOK, atoi(optionsMap["vRookOP"].getValue().c_str())); 
-Eval::SetupTuning(ENDGAME, ROOK, atoi(optionsMap["vRookEG"].getValue().c_str())); 
+Eval::SetupTuning(OPENING, ROOK, atoi(optionsMap["vRookOP"].getValue().c_str()));
+Eval::SetupTuning(ENDGAME, ROOK, atoi(optionsMap["vRookEG"].getValue().c_str()));
 
-Eval::SetupTuning(OPENING, QUEEN, atoi(optionsMap["vQueenOP"].getValue().c_str())); 
-Eval::SetupTuning(ENDGAME, QUEEN, atoi(optionsMap["vQueenEG"].getValue().c_str())); 
-
-Eval::SetupFeatureTuning(OPENING, BISHOP_PAIR, atoi(optionsMap["vBPairOP"].getValue().c_str())); 
-Eval::SetupFeatureTuning(ENDGAME, BISHOP_PAIR, atoi(optionsMap["vBPairEG"].getValue().c_str())); 
+Eval::SetupTuning(OPENING, QUEEN, atoi(optionsMap["vQueenOP"].getValue().c_str()));
+Eval::SetupTuning(ENDGAME, QUEEN, atoi(optionsMap["vQueenEG"].getValue().c_str()));
 }
 #endif
 
@@ -81,7 +81,7 @@ void initOptions() {
   // Options for tuning is defined here.
   // They are used only if programm is build with "make tune"
   // Tuning versionshould not be the one playing regular games
-  // but having this options here allows tuner 
+  // but having this options here allows tuner
   // to change different parameters via communocation
   // with the engine.
 
@@ -96,9 +96,6 @@ void initOptions() {
   optionsMap["vRookEG"] =   Option(500, 25, 2048, &loadCosts);
   optionsMap["vQueenOP"] =  Option(900, 25, 2048, &loadCosts);
   optionsMap["vQueenEG"] =  Option(900, 25, 2048, &loadCosts);
-
-  optionsMap["vBPairOP"] =  Option(20, -10, 200, &loadCosts);
-  optionsMap["vBPairEG"] =  Option(20, -10, 200, &loadCosts);
 #endif
 
 }
@@ -176,12 +173,14 @@ void go(std::istringstream &is) {
       Hist h = positionHistory;
 
       // create new search and start
-      cSearch[i] = new Search(b, l, h, false);
+      cOrdering[i] = new OrderingInfo();
+      cSearch[i] = new Search(b, l, h, cOrdering[i], false);
       cThread[i] = std::thread(&Search::iterDeep, cSearch[i]);
     }
   }
 
-  search = std::make_shared<Search>(board, limits, positionHistory);
+  myOrdering->clearKillers();
+  search = std::make_shared<Search>(board, limits, positionHistory, myOrdering);
 
   std::thread searchThread(&pickBestMove);
   searchThread.detach();
