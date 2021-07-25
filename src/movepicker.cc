@@ -27,12 +27,11 @@ void MovePicker::_scoreMoves(const Board *board) {
     if (_hashMove != 0 && moveINT == _hashMove) {
       move.setValue(INF);
     } else if (move.getFlags() & Move::CAPTURE) {
-      int see   = board->Calculate_SEE(move);
-      int value = _ply == MAX_PLY ? see :
-                                  opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]) +
-                                  _orderingInfo->getCaptureHistory(move.getPieceType(),move.getCapturedPieceType(), move.getTo());
+      int see     = board->Calculate_SEE(move);
+      int history = _orderingInfo->getCaptureHistory(move.getPieceType(),move.getCapturedPieceType(), move.getTo());
+      int value   = _ply == MAX_PLY ? see : opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]) + history;
       if (_ply != MAX_PLY){
-        value += see >= 0 ? CAPTURE_BONUS : BAD_CAPTURE;
+        value += (see >= 0 || history > 8192) ? CAPTURE_BONUS : BAD_CAPTURE;
       }
       move.setValue(value);
     } else if (move.getFlags() & Move::PROMOTION) {
