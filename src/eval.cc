@@ -895,11 +895,6 @@ int Eval::evaluate(const Board &board, Color color) {
     }
   }
 
-  if (DrawishMaterial){
-    if ((final_eval > 0 && w_P == 0) || (final_eval < 0 && b_P == 0))
-      final_eval = final_eval / 4;
-  }
-
   return final_eval + TEMPO;
 }
 
