@@ -546,7 +546,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       // 5. LATE MOVE PRUNING
       // If we made many quiet moves in the position already
       // we suppose other moves wont improve our situation
-      if (qCount > _lmp_Array[depth][improving]) break;
+      if (LegalMoveCount > 1 &&
+          qCount > _lmp_Array[depth][improving]) break;
 
       // 6. SEE pruning of quiet moves
       // At shallow depth prune highlyish -negative SEE-moves
