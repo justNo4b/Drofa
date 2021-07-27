@@ -537,6 +537,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       continue;
     }
     bool isQuiet = move.isQuiet();
+    qCount += isQuiet;
 
     if (!pvNode
         && !AreWeInCheck
@@ -568,7 +569,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                             _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) :
                             _orderingInfo.getCaptureHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo());
         bool badHistory = (isQuiet && moveHistory < -8192);
-        qCount += isQuiet;
         int tDepth = depth;
         // 6. EXTENTIONS
         //
