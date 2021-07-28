@@ -644,6 +644,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // if we are improving, reduce a bit less (from Weiss)
           reduction -= improving;
 
+          reduction -= giveCheck;
+
           // reduce more/less based on the hitory
           reduction -= moveHistory / 8192;
 
