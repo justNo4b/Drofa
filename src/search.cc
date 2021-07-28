@@ -402,6 +402,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   bool AreWeInCheck;
   bool pvNode = alpha != beta - 1;
   bool TTmove = false;
+  bool quietTT = false;
   int score;
   int alphaOrig = alpha;
   int statEVAL = 0;
@@ -428,6 +429,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   if (probedHASHentry.Flag != NONE){
     TTmove = true;
     hashedMove = Move(probedHASHentry.move);
+    quietTT = hashedMove.isQuiet();
     if (probedHASHentry.depth >= depth && !pvNode && !sing){
       int hashScore = probedHASHentry.score;
 
@@ -441,7 +443,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         return alpha;
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
-        _updateBeta(hashedMove.isQuiet(), hashedMove, board.getActivePlayer(), pMove, ply, depth);
+        _updateBeta(quietTT, hashedMove, board.getActivePlayer(), pMove, ply, depth);
         return beta;
       }
     }
@@ -640,6 +642,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // if we failed NULL, likely most of our Quiet moves are crap, so reduce them even more
           // qCount > 3 is actually seems to be optimal
           reduction += isQuiet && qCount > 3 && failedNull;
+
+          reduction += isQuiet && qCount > 3 && !quietTT && TTmove;
 
           // if we are improving, reduce a bit less (from Weiss)
           reduction -= improving;
