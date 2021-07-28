@@ -643,6 +643,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // qCount > 3 is actually seems to be optimal
           reduction += isQuiet && qCount > 3 && failedNull;
 
+          // Reduce more for late quiets if TTmove exists and it is non-Quiet move
           reduction += isQuiet && qCount > 3 && !quietTT && TTmove;
 
           // if we are improving, reduce a bit less (from Weiss)
