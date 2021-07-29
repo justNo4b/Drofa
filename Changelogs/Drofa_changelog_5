@@ -163,3 +163,11 @@ SPRT  | 10.0+0.10s Threads=1 Hash=16MB
 LLR   | 2.96 (-2.94, 2.94) [-1.00, 4.00]
 GAMES | N: 34048 W: 8754 L: 8505 D: 16789
 ------------------------------------------------------------------
+24. Use Drofa data in the tuning. Although it loses elo, the dataset
+is larger, hopefully preventing overfit. And well, it feels good to
+be trained on own data (3.1.21)
+------------------------------------------------------------------
+ELO   | -5.90 +- 4.23 (95%)
+CONF  | 10.0+0.10s Threads=1 Hash=16MB
+GAMES | N: 15008 W: 4222 L: 4477 D: 6309
+------------------------------------------------------------------
