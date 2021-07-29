@@ -105,7 +105,7 @@ struct tEntry {
   * @brief Main tuning constants are defined here
   * @{
   */
-  const std::string TUNING_DATA        = "d8Filtered_general_mixed.epd";
+  const std::string TUNING_DATA        = "d8FENS_WrongResults_mixed.epd";
   const int         TUNING_POS_COUNT   = 35821985; //9996883 42484641
   const int         TUNING_THREADS     = 16;
   const int         TUNING_TERMS_COUNT = 838;
@@ -114,7 +114,7 @@ struct tEntry {
   const int         TUNIGN_PRINT       = 25; 
   const int         TUNING_K_PRECISION = 10;
   const int         TUNING_L_STEP      = 1500;
-  const double      TUNING_K           = 2.814330889; //2.829175699;
+  const double      TUNING_K           = 3.155529889; //2.829175699;
   const double      TUNING_L_DROP      = 1.0;
   const double      TUNING_L_RATE      = 10.0;
 
