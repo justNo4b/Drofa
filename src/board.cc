@@ -561,6 +561,45 @@ int  Board:: Calculate_SEE(const Move move) const{
   return gain[0];
 }
 
+int Board::Calculate_MoveGain(const Move move, int phase) const {
+  Color color = getActivePlayer();
+  bool isQuiet = move.isQuiet();
+
+  int to   = color == WHITE ? _mir(move.getTo()) : move.getTo();
+  int from = color == WHITE ? _mir(move.getFrom()) : move.getFrom();
+  int gain = isQuiet ? 0 : Eval::MATERIAL_VALUES[move.getCapturedPieceType()];
+
+  switch (move.getPieceType())
+  {
+  case PAWN:
+    gain -= Eval::PAWN_PSQT_BLACK[from];
+    gain += Eval::PAWN_PSQT_BLACK[to];
+    break;
+  case ROOK:
+    gain -= Eval::ROOK_PSQT_BLACK[from];
+    gain += Eval::ROOK_PSQT_BLACK[to];
+    break;
+  case KNIGHT:
+    gain -= Eval::KNIGHT_PSQT_BLACK[from];
+    gain += Eval::KNIGHT_PSQT_BLACK[to];
+    break;
+  case BISHOP:
+    gain -= Eval::BISHOP_PSQT_BLACK[from];
+    gain += Eval::BISHOP_PSQT_BLACK[to];
+    break;
+  case QUEEN:
+    gain -= Eval::QUEEN_PSQT_BLACK[from];
+    gain += Eval::QUEEN_PSQT_BLACK[to];
+    break;
+  case KING:
+    gain -= Eval::KING_PSQT_BLACK[from];
+    gain += Eval::KING_PSQT_BLACK[to];
+    break;
+  }
+
+  return ((opS(gain) * (256 - phase)) + (egS(gain) * phase)) / 256;
+}
+
 void Board::doMove(Move move) {
   // Clear En passant info after each move if it exists
   if (_enPassant) {
