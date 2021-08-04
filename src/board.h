@@ -11,7 +11,7 @@ class Move;
 
 struct Hist{
     U64         hisKey[MAX_GAME_PLY];
-    uint16_t    head; 
+    uint16_t    head;
 
     Hist() : hisKey {0}, head(0)  {};
     void Add(U64 key){
@@ -84,8 +84,8 @@ class Board {
    /**
     *
     * @brief Performs NULL move
-    * 
-    * 
+    *
+    *
     */
   void doNool();
 
@@ -273,8 +273,8 @@ class Board {
 
   /**
    * @brief Returns a bitboard containing all of the squares that a piece of the specified
-   * piece type and color could move to if it was on the specified square. The difference 
-   * with "getAttecks" is that we scan through own pieces in case of some majors, allowing 
+   * piece type and color could move to if it was on the specified square. The difference
+   * with "getAttecks" is that we scan through own pieces in case of some majors, allowing
    * more accurate mobility calculation.
    *
    * @param  pieceType The piece type to lookup move locations for
@@ -287,29 +287,34 @@ class Board {
 
   /**
    * @brief return true if current sideToMove have at least 1 non-pawn on the board.
-   * 
+   *
    * Used in the NULL_MOVE routine as soft zugzwang detection
    */
   bool isThereMajorPiece() const;
 
   /**
    * @brief return true if we are currently in the mid-endgame Position
-   * 
+   *
    * Used for passed Pawns Extention
    */
   bool isEndGamePosition() const;
 
   /**
    * @brief returns the cost of the most valuable piece on the bord
-   * 
+   *
    * Used for DELTA PRUNING
    */
   int  MostFancyPieceCost() const;
 
   /**
    * @brief Calculates SEE of the Move
-   */ 
+   */
   int Calculate_SEE(const Move move) const;
+
+  /**
+   * @brief Estimates potential scoreGain of the given move
+   */
+  int Calculate_MoveGain(const Move move, int phase) const;
 
  private:
   /**

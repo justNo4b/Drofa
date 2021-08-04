@@ -531,7 +531,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   Move bestMove;
   int  LegalMoveCount = 0;
   int  qCount = 0;
-
+  int  ph     = Eval::getPhase(board);
   while (movePicker.hasNext()) {
 
     Move move = movePicker.getNext();
@@ -558,8 +558,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       // We do not prune in the PV nodes.
 
       if (depth < 3 && !(move.getFlags() & Move::PROMOTION)){
-        int moveGain = isQuiet ? 0 : opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]);
-        if (statEVAL + FUTIL_MOVE_CONST * depth + moveGain - 100 * improving <= alpha) continue;
+        if (statEVAL + board.Calculate_MoveGain(move, ph) +
+            FUTIL_MOVE_CONST * depth - 100 * improving <= alpha) continue;
       }
 
       // 7. SEE pruning of quiet moves
