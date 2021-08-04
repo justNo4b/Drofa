@@ -23,10 +23,10 @@ Special thanks to:
 
 ## Strength (ccrl blitz elo):
 ```
-Drofa 1.0.0 64-bit	2061
-Drofa 2.0.0 64-bit	2458
-Drofa 3.0.0 64-bit  2891
-Drofa 3.1.0 64-bit  2968
+Drofa 1.0.0 64-bit    2061
+Drofa 2.0.0 64-bit    2458
+Drofa 3.0.0 64-bit    2891
+Drofa 3.1.0 64-bit    2968
 ```
 Historically Drofa scales a bit better in LTC.
 
