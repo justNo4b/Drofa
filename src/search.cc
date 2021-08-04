@@ -543,15 +543,26 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
     if (!pvNode
         && !AreWeInCheck
-        && alpha < WON_IN_X){
+        && alpha < WON_IN_X
+        && LegalMoveCount > 1){
 
       // 5. LATE MOVE PRUNING
       // If we made many quiet moves in the position already
       // we suppose other moves wont improve our situation
-      if (LegalMoveCount > 1 &&
-          qCount > _lmp_Array[depth][improving]) break;
+      if (qCount > _lmp_Array[depth][improving]) break;
 
-      // 6. SEE pruning of quiet moves
+      // 6. EXTENDED FUTILITY PRUNING
+      // We try to pune a move, if depth is low (1 or 2)
+      // Move should not give check, shoudnt be a promotion and should not be the first move
+      // we also should not be in check and close to the MATE score
+      // We do not prune in the PV nodes.
+
+      if (depth < 3 && !(move.getFlags() & Move::PROMOTION)){
+        int moveGain = isQuiet ? 0 : opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]);
+        if (statEVAL + FUTIL_MOVE_CONST * depth + moveGain - 100 * improving <= alpha) continue;
+      }
+
+      // 7. SEE pruning of quiet moves
       // At shallow depth prune highlyish -negative SEE-moves
       if (depth <= 6
           && LegalMoveCount > 1
@@ -571,7 +582,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         int  moveHistory  = isQuiet ?
                             _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) :
                             _orderingInfo.getCaptureHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo());
-        bool badHistory = (isQuiet && moveHistory < -8192);
         int tDepth = depth;
         // 6. EXTENTIONS
         //
@@ -610,19 +620,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               tDepth++;
             }
 
-        // 7. EXTENDED FUTILITY PRUNING
-        // We try to pune a move, if depth is low (1 or 2)
-        // Move should not give check, shoudnt be a promotion and should not be the first move
-        // we also should not be in check and close to the MATE score
-        // We do not prune in the PV nodes.
-
-        if (!pvNode && !AreWeInCheck && LegalMoveCount > 1 && tDepth < 3
-        && (!giveCheck || badHistory) && alpha < WON_IN_X && !(move.getFlags() & Move::PROMOTION)){
-          int moveGain = isQuiet ? 0 : opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]);
-          if (statEVAL + FUTIL_MOVE_CONST * tDepth + moveGain - 100 * improving <= alpha){
-              continue;
-          }
-        }
         _posHist.Add(board.getZKey().getValue());
 
         // 8. LATE MOVE REDUCTIONS
