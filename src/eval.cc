@@ -430,6 +430,16 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       s += BISHOP_CENTER_CONTROL * _popCount(attackBitBoard & CENTER);
       if (TRACK) ft.BishopCenterControl[color] +=  _popCount(attackBitBoard & CENTER);
 
+      // Apply a penalty when our bishop has two our own pawns in front of it
+      if (board.getPieces(color, PAWN) & detail::OUTPOST_PROTECTION[otherColor][square] &&
+          (color == WHITE ? _row(square) < 2 : 7 - _row(square) < 2) &&
+          _popCount(attackBitBoard) < 4){
+        s += BISHOP_GLORIFIED_PAWN;
+        if (TRACK) ft.BishopGlorifiedPawn[color]++;
+      }
+
+
+
       // If Bishop attacking squares near enemy king
       // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
