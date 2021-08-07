@@ -898,6 +898,11 @@ int Eval::evaluate(const Board &board, Color color) {
         w_R == 1 && b_R == 1 &&
         w_N == 0 && b_N == 0){
           final_eval = final_eval * 3 / 4;
+        } else if (
+        w_Q == 0 && b_Q == 0 &&
+        w_R == 0 && b_R == 0 &&
+        w_N == 1 && b_N == 1){
+          final_eval = final_eval * 3 / 4;
         }
   }
 
