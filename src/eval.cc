@@ -884,15 +884,21 @@ int Eval::evaluate(const Board &board, Color color) {
   // Interpolate between opening/endgame scores depending on the phase
   int final_eval = ((opS(score) * (MAX_PHASE - phase)) + (egS(score) * phase * Scale / NormalScale)) / MAX_PHASE;
 
-  if (w_Q == 0 && b_Q == 0 &&
-      w_R == 0 && b_R == 0 &&
-      w_N == 0 && b_N == 0 &&
-      w_B == 1 && b_B == 1){
-    U64 bothBishops = board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP);
-    if (_popCount(bothBishops & WHITE_SQUARES) == 1){
-        final_eval = final_eval / 2;
-        if (TRACK) ft.OCBscale = true;
-    }
+  bool isOCB =  w_B == 1 && b_B == 1 &&
+                _popCount((board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP)) & WHITE_SQUARES) == 1;
+
+  if (isOCB){
+    if (w_Q == 0 && b_Q == 0 &&
+        w_R == 0 && b_R == 0 &&
+        w_N == 0 && b_N == 0){
+          final_eval = final_eval / 2;
+          if (TRACK) ft.OCBscale = true;
+        } else if (
+        w_Q == 0 && b_Q == 0 &&
+        w_R == 1 && b_R == 1 &&
+        w_N == 0 && b_N == 0){
+          final_eval = final_eval * 3 / 4;
+        }
   }
 
   return final_eval + TEMPO;
