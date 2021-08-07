@@ -745,7 +745,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   }
 
-  eB.KingAttackPower[color] += UNCONTESTED_KING_ATTACK * _popCount(eB.AttackedSquares[color] & eB.EnemyKingZone[color] & ~eB.AttackedSquares[otherColor]);
+  eB.KingAttackPower[color] += -20 + UNCONTESTED_KING_ATTACK * _popCount(eB.AttackedSquares[color] & eB.EnemyKingZone[color] & ~eB.AttackedSquares[otherColor]);
   return s;
 }
 
