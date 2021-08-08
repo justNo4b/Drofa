@@ -17,7 +17,7 @@ int eTraceStackSize;
 
 posFeatured ft, zero;
 
-#ifdef _TUNE_
+//#ifdef _TUNE_
 
 TuningType FeatureTypeMap[TUNING_TERMS_COUNT];
 
@@ -208,7 +208,7 @@ void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
 
     // 6. Also save modifiers to know is it is
     // OCBEndgame
-    positionList[pCount].OCBEndgame = ft.OCBscale;
+    positionList[pCount].FinalEvalScale = ft.Scale;
 
 }
 
@@ -449,8 +449,7 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
 
     double opBase = X * entry->pFactors[OPENING];
     double egBase = X * entry->pFactors[ENDGAME];
-    double scale = 1.0;
-    if (entry->OCBEndgame) scale = 0.5;
+    double scale = entry->FinalEvalScale / 4;
 
     for (int i = 0; i < entry->tracesCount; i++){
         int index = entry->traces[i].index;
@@ -485,8 +484,7 @@ double TuningEval(tEntry* entry, tValueHolder diff){
 
     double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase)) / 256.0;
 
-    // Adjust eval for OCBendgame and noPawnsEndgames
-    if (entry->OCBEndgame) final_eval = final_eval / 2;
+    final_eval = final_eval * entry->FinalEvalScale / 4;
 
     return final_eval + (entry->stm == WHITE ? 10 : -10);
 }
@@ -570,4 +568,4 @@ void CheckFeaturesNumber(){
         exit(1);
     }
 }
-#endif
+//#endif
