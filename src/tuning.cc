@@ -17,7 +17,7 @@ int eTraceStackSize;
 
 posFeatured ft, zero;
 
-//#ifdef _TUNE_
+#ifdef _TUNE_
 
 TuningType FeatureTypeMap[TUNING_TERMS_COUNT];
 
@@ -568,4 +568,4 @@ void CheckFeaturesNumber(){
         exit(1);
     }
 }
-//#endif
+#endif
