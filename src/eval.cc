@@ -152,6 +152,7 @@ evalBits Eval::Setupbits(const Board &board){
   eB.KingAttackPower[0] = 0, eB.KingAttackPower[1] = 0;
   eB.Passers[0] = 0, eB.Passers[1] = 0;
   eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
+  eB.AttackedByKing[0] = 0, eB.AttackedByKing[1] = 0;
   return eB;
 }
 
@@ -546,7 +547,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   }
 
   // Save our attacks for further use
-  eB->AttackedSquares[color] |= attackBitBoard;
+  eB->AttackedByKing[color] |= attackBitBoard;
 
   // See if our king is on the Openish-files
   // Test for Open - SemiOpenToUs - SemiOpenToEnemy
@@ -677,6 +678,8 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   Color otherColor = getOppositeColor(color);
   U64 blocked = ZERO;
   U64 pieces, tmpPawns = ZERO;
+  U64 AllOurAttacks = eB.AttackedSquares[color] | eB.AttackedByKing[color];
+  U64 AllTheirAttacks = eB.AttackedSquares[otherColor] | eB.AttackedByKing[otherColor];
 
   // 1. Blocked pawns - separate for passers and non-passers
 
@@ -716,7 +719,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   tmpPawns = eB.Passers[color] & ENEMY_SIDE[color];
   pieces   = board.getAllPieces(color) | board.getAllPieces(otherColor);
   int forward = color == WHITE ? 8 : -8;
-  U64 posAdvance = ~eB.AttackedSquares[otherColor] | eB.AttackedSquares[color];
+  U64 posAdvance = ~AllTheirAttacks | AllOurAttacks;
 
   while (tmpPawns != ZERO) {
 
@@ -742,6 +745,8 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   }
 
+  int unContested = _popCount(eB.AttackedSquares[color] & eB.EnemyKingZone[color] & ~eB.AttackedSquares[otherColor]);
+  eB.KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
 
   return s;
 }

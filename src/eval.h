@@ -15,6 +15,7 @@ struct evalBits{
     U64 EnemyKingZone[2];
     U64 Passers[2];
     U64 AttackedSquares[2];
+    U64 AttackedByKing[2];
     int RammedCount;
     int KingAttackers[2];
     int KingAttackPower[2];
@@ -123,6 +124,9 @@ const int QUEEN_MOBILITY[28] = {
  * @brief Various constants used for KingSafety calculation
   * @{
   */
+  const int UNCONTESTED_KING_ATTACK [6] = {
+      -70, -20, 0, 100, 150, 200
+  };
   const int PIECE_ATTACK_POWER[6] = {0, 24, 50, 26, 62, 0};
   const int COUNT_TO_POWER[8] = {0, 0, 51, 83, 102, 111, 122, 128};
   const int SAFE_SHIELD_SAFETY[2][9] = {
