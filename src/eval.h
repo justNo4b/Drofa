@@ -124,7 +124,9 @@ const int QUEEN_MOBILITY[28] = {
  * @brief Various constants used for KingSafety calculation
   * @{
   */
-  const int UNCONTESTED_KING_ATTACK = 10;
+  const int UNCONTESTED_KING_ATTACK [6] = {
+      -70, -20, 0, 100, 150, 200
+  };
   const int PIECE_ATTACK_POWER[6] = {0, 24, 50, 26, 62, 0};
   const int COUNT_TO_POWER[8] = {0, 0, 51, 83, 102, 111, 122, 128};
   const int SAFE_SHIELD_SAFETY[2][9] = {
