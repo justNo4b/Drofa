@@ -873,7 +873,7 @@ int Eval::evaluate(const Board &board, Color color) {
 
   if (TRACK){
     ft.FinalEval = score;
-    ft.OCBscale  = false;
+    ft.Scale  = 4;
   }
 
   // Calculation of the phase value
@@ -897,17 +897,19 @@ int Eval::evaluate(const Board &board, Color color) {
         w_R == 0 && b_R == 0 &&
         w_N == 0 && b_N == 0){
           final_eval = final_eval / 2;
-          if (TRACK) ft.OCBscale = true;
+          if (TRACK) ft.Scale = 2;
         } else if (
         w_Q == 0 && b_Q == 0 &&
         w_R == 1 && b_R == 1 &&
         w_N == 0 && b_N == 0){
           final_eval = final_eval * 3 / 4;
+          if (TRACK) ft.Scale = 3;
         } else if (
         w_Q == 0 && b_Q == 0 &&
         w_R == 0 && b_R == 0 &&
         w_N == 1 && b_N == 1){
           final_eval = final_eval * 3 / 4;
+          if (TRACK) ft.Scale = 3;
         }
   }
 
