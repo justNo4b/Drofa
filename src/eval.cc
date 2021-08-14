@@ -570,7 +570,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
     if (TRACK) ft.KingSemiEnemyFile[color]++;
   }
 
-  U64 tmpPawns = eB->Passers[color];
+  U64 tmpPawns = eB->Passers[color] & ENEMY_SIDE[color];
   while (tmpPawns != ZERO) {
 
     // Evaluate distance of our king to each of our own passers
@@ -597,7 +597,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
     }
   }
 
-  tmpPawns = eB->Passers[getOppositeColor(color)];
+  tmpPawns = eB->Passers[getOppositeColor(color)] & ENEMY_SIDE[color];
   while (tmpPawns != ZERO) {
 
     // Evaluate distance of our king to each of enemys passers
