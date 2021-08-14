@@ -349,6 +349,7 @@ void Board::setToFen(std::string fenString) {
 
   // Halfmove clock
   fenStream >> _halfmoveClock;
+  fenStream >> _gameClock;
 
   _updateNonPieceBitBoards();
   _zKey = ZKey(*this);
