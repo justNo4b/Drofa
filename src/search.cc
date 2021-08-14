@@ -295,7 +295,7 @@ void Search::_setupTimer(const Board &board, int curPlyNum){
     if (_limits.movesToGo == 0) {
       tCoefficient = 10 * (tWidth_a / pow((tWidth + pow((moveNum - tMove), 2)), 1.5));
       _timeAllocated = ourTime * tCoefficient * oppTimeCoefficient;
-      if (moveNum > criticalMove) _timeAllocated = ourTime / 10 + ourIncrement;
+      if (moveNum > criticalMove) _timeAllocated = ourTime * oppTimeCoefficient / 10 + ourIncrement;
       _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - 10);
     } else {
       // when movetogo is specified, use different coefficients
@@ -306,7 +306,7 @@ void Search::_setupTimer(const Board &board, int curPlyNum){
 
       tCoefficient = 10 * (tWidth_a / pow((tWidth + pow((moveNum - tMove), 2)), 1.5));
       _timeAllocated = ourTime * tCoefficient * oppTimeCoefficient;
-      if (moveNum > criticalMove) _timeAllocated = ourTime / 10 + ourIncrement;
+      if (moveNum > criticalMove) _timeAllocated = ourTime * oppTimeCoefficient / 10 + ourIncrement;
       _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - 10);
     }
 
