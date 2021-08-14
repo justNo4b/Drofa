@@ -272,7 +272,7 @@ bool Search::_checkLimits() {
 void Search::_setupTimer(const Board &board, int curPlyNum){
 
     int ourTime = _limits.time[_initialBoard.getActivePlayer()];
-    //int opponentTime = _limits.time[_initialBoard.getInactivePlayer()];
+    int opponentTime = _limits.time[_initialBoard.getInactivePlayer()];
     int moveNum = board._getGameClock() / 2;
     int ourIncrement = _limits.increment[_initialBoard.getActivePlayer()];
 
@@ -283,11 +283,18 @@ void Search::_setupTimer(const Board &board, int curPlyNum){
 
     double tCoefficient = 0;
 
+    // Calculate time coefficient.
+    // Use more time when we have more time than our opponent
+    // clamp between 0.5x and 2x
+    double oppTimeCoefficient = ourTime / opponentTime;
+    oppTimeCoefficient = oppTimeCoefficient > 2   ? 2 :
+                         oppTimeCoefficient < 0.5 ? 0.5 : oppTimeCoefficient;
+
     // Divide up the remaining time (If movestogo not specified we are in
     // sudden death)
     if (_limits.movesToGo == 0) {
       tCoefficient = 10 * (tWidth_a / pow((tWidth + pow((moveNum - tMove), 2)), 1.5));
-      _timeAllocated = ourTime * tCoefficient;
+      _timeAllocated = ourTime * tCoefficient * oppTimeCoefficient;
       if (moveNum > criticalMove) _timeAllocated = ourTime / 10 + ourIncrement;
       _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - 10);
     } else {
@@ -298,7 +305,7 @@ void Search::_setupTimer(const Board &board, int curPlyNum){
       criticalMove = 20;
 
       tCoefficient = 10 * (tWidth_a / pow((tWidth + pow((moveNum - tMove), 2)), 1.5));
-      _timeAllocated = ourTime * tCoefficient;
+      _timeAllocated = ourTime * tCoefficient * oppTimeCoefficient;
       if (moveNum > criticalMove) _timeAllocated = ourTime / 10 + ourIncrement;
       _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - 10);
     }
@@ -344,11 +351,9 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth, int ply
     return 0;
   }
 
-const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
-int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
-  MovePicker movePicker
-      (&_orderingInfo, &board, &legalMoves, hashMove, board.getActivePlayer(), 0, 0);
-
+  const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
+  int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
+  MovePicker movePicker(&_orderingInfo, &board, &legalMoves, hashMove, board.getActivePlayer(), 0, 0);
   int currScore;
 
   Move bestMove;
@@ -380,11 +385,8 @@ int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
           _ourPV.pVmoves[0] = move.getMoveINT();
           // memcpy - (куда, откуда, длина)
           std::memcpy(_ourPV.pVmoves + 1, rootPV.pVmoves, sizeof(int) * rootPV.length);
-          // Break if we've found a checkmate
         }
-
     }
-
   }
 
   if (!_stop && !(bestMove.getFlags() & Move::NULL_MOVE)) {
