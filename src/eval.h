@@ -129,10 +129,6 @@ const int QUEEN_MOBILITY[28] = {
   };
   const int PIECE_ATTACK_POWER[6] = {0, 24, 50, 26, 62, 0};
   const int COUNT_TO_POWER[8] = {0, 0, 51, 83, 102, 111, 122, 128};
-  const int SAFE_SHIELD_SAFETY[2][9] = {
-      {-50, -50, -50, 0, 0, 0, 0, 0, 0},
-      {-50, -50, -50, 0, 0, 0, 0, 0, 0},
-  };
   /**@}*/
 
 

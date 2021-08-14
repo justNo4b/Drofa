@@ -149,7 +149,7 @@ evalBits Eval::Setupbits(const Board &board){
   eB.RammedCount = _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN));
   eB.OutPostedLines[0] = 0, eB.OutPostedLines[1] = 0;
   eB.KingAttackers[0] = 0, eB.KingAttackers[1] = 0;
-  eB.KingAttackPower[0] = 0, eB.KingAttackPower[1] = 0;
+  eB.KingAttackPower[0] = -50, eB.KingAttackPower[1] = -50;
   eB.Passers[0] = 0, eB.Passers[1] = 0;
   eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
   eB.AttackedByKing[0] = 0, eB.AttackedByKing[1] = 0;
@@ -236,7 +236,6 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, 
     // Apply bonus for safety and score
     for (int i = 0; i < 8; i++){
       if ((pawnMap & detail::KING_PAWN_MASKS[color][cSide][i]) == detail::KING_PAWN_MASKS[color][cSide][i]){
-                eB->KingAttackPower[getOppositeColor(color)] += SAFE_SHIELD_SAFETY[cSide][i];
                 if (TRACK){
                   if (cSide == KingSide)  ft.KingShieldKS[i][color]++;
                   if (cSide == QueenSide) ft.KingShieldQS[i][color]++;
