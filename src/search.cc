@@ -287,8 +287,8 @@ void Search::_setupTimer(const Board &board, int curPlyNum){
     // Use more time when we have more time than our opponent
     // clamp between 0.5x and 2x
     double oppTimeCoefficient = ourTime / opponentTime;
-    oppTimeCoefficient = oppTimeCoefficient > 2   ? 2 :
-                         oppTimeCoefficient < 0.5 ? 0.5 : oppTimeCoefficient;
+    oppTimeCoefficient = oppTimeCoefficient > 2 ? 2 :
+                         oppTimeCoefficient < 1 ? 1 : oppTimeCoefficient;
 
     // Divide up the remaining time (If movestogo not specified we are in
     // sudden death)
