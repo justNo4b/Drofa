@@ -548,27 +548,10 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   // Save our attacks for further use
   eB->AttackedByKing[color] |= attackBitBoard;
 
-  // See if our king is on the Openish-files
-  // Test for Open - SemiOpenToUs - SemiOpenToEnemy
-  // General idea is from SF HCE
-  U64 file       = detail::FILES[_col(square)];
-  U64 ourPawns   = board.getPieces(color, PAWN);
-  U64 enemyPawns = board.getPieces(otherColor, PAWN);
-
   // See if a King is attacking an enemy unprotected pawn
+  U64 enemyPawns = board.getPieces(otherColor, PAWN);
   s += KING_ATTACK_PAWN * _popCount(attackBitBoard & enemyPawns);
   if (TRACK) ft.KingAttackPawn[color] += _popCount(attackBitBoard & enemyPawns);
-
-  if (((file & ourPawns) == 0) && ((file & enemyPawns) == 0)){
-    s += KING_OPEN_FILE;
-    if (TRACK) ft.KingOpenFile[color]++;
-  } else if ((file & ourPawns) == 0){
-    s += KING_OWN_SEMI_FILE;
-    if (TRACK) ft.KingSemiOwnFile[color]++;
-  } else if ((file & enemyPawns) == 0){
-    s += KING_ENEMY_SEMI_LINE;
-    if (TRACK) ft.KingSemiEnemyFile[color]++;
-  }
 
   return s;
 }
@@ -660,6 +643,26 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       s += PAWN_CONNECTED[r];
     }
   }
+
+  // Evaluate King On Line
+  // See if our king is on the Openish-files
+  // Test for Open - SemiOpenToUs - SemiOpenToEnemy
+  // General idea is from SF HCE
+  U64 file       = detail::FILES[_col(ourKingSquare)];
+  U64 ourPawns   = board.getPieces(color, PAWN);
+  U64 enemyPawns = board.getPieces(otherColor, PAWN);
+
+  if (((file & ourPawns) == 0) && ((file & enemyPawns) == 0)){
+    s += KING_OPEN_FILE;
+    if (TRACK) ft.KingOpenFile[color]++;
+  } else if ((file & ourPawns) == 0){
+    s += KING_OWN_SEMI_FILE;
+    if (TRACK) ft.KingSemiOwnFile[color]++;
+  } else if ((file & enemyPawns) == 0){
+    s += KING_ENEMY_SEMI_LINE;
+    if (TRACK) ft.KingSemiEnemyFile[color]++;
+  }
+
 
   return s;
 }
