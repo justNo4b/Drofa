@@ -149,7 +149,7 @@ evalBits Eval::Setupbits(const Board &board){
   eB.RammedCount = _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN));
   eB.OutPostedLines[0] = 0, eB.OutPostedLines[1] = 0;
   eB.KingAttackers[0] = 0, eB.KingAttackers[1] = 0;
-  eB.KingAttackPower[0] = -50, eB.KingAttackPower[1] = -50;
+  eB.KingAttackPower[0] = BASE_KING_ATTACK, eB.KingAttackPower[1] = BASE_KING_ATTACK;
   eB.Passers[0] = 0, eB.Passers[1] = 0;
   eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
   eB.AttackedByKing[0] = 0, eB.AttackedByKing[1] = 0;
