@@ -319,8 +319,8 @@ inline void Search::_updateBeta(bool isQuiet, const Move move, Color color, int 
   }
 }
 
-inline bool Search::_isRepetitionDraw(U64 currKey){
-  for (int i = _posHist.head - 1; i >= 0; i--){
+inline bool Search::_isRepetitionDraw(U64 currKey, int untillFifty){
+  for (int i = _posHist.head - 2; (i >= 0 || i > _posHist.head - 2 - untillFifty); i-=2){
     if (_posHist.hisKey[i] == currKey){
       return true;
     }
@@ -418,7 +418,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   // Check for threefold repetition draws and 50 - move rule draw
   // cut pV out if we found draw
-  if (board.getHalfmoveClock() >= 100 || _isRepetitionDraw(board.getZKey().getValue())) {
+  if (board.getHalfmoveClock() >= 100 || _isRepetitionDraw(board.getZKey().getValue(), board.getHalfmoveClock())) {
     up_pV->length = 0;
     return 0;
   }
@@ -504,9 +504,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   if (isPrune && depth >= 3 && !doNool && statEVAL >= beta &&
       board.isThereMajorPiece()){
           Board movedBoard = board;
+          _posHist.Add(board.getZKey().getValue());
           movedBoard.doNool();
           int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((statEVAL - beta) / 128, 4);
           int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, ply + 1, true, 0, false);
+          _posHist.Remove();
           if (score >= beta){
             return beta;
           }
