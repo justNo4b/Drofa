@@ -102,8 +102,8 @@ void ZKey::setFromPawnStructure(const Board &board) {
   // Add white/black pieces
   U64 whitePawns = board.getPieces(WHITE, PAWN);
   U64 blackPawns = board.getPieces(BLACK, PAWN);
-  U64 whiteKing  = board.getPieces(WHITE, PAWN);
-  U64 blackKing  = board.getPieces(BLACK, PAWN);
+  U64 whiteKing  = board.getPieces(WHITE, KING);
+  U64 blackKing  = board.getPieces(BLACK, KING);
 
   for (unsigned int squareIndex = 0; squareIndex < 64; squareIndex++) {
     U64 square = ONE << squareIndex;
