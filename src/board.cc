@@ -405,6 +405,7 @@ void Board::_movePiece(Color color, PieceType pieceType, int from, int to) {
   _occupied ^= squareMask;
 
   _zKey.movePiece(color, pieceType, from, to);
+  if (pieceType == KING || pieceType == PAWN) _pawnStructureZkey.movePiece(color, pieceType, from, to);
   _pst.movePiece(color, pieceType, from, to);
 }
 
@@ -689,11 +690,6 @@ void Board::doMove(Move move) {
 
   if (_castlingRights) {
     _updateCastlingRightsForMove(move);
-  }
-
-  // Update pawn structure ZKey if this is a pawn move
-  if (move.getPieceType() == PAWN) {
-    _pawnStructureZkey.movePiece(_activePlayer, PAWN, from, to);
   }
 
   _zKey.flipActivePlayer();
