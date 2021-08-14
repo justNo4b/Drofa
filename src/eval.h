@@ -193,9 +193,8 @@ const int KING_PASSER_DISTANCE_FRIENDLY[9] = {
 };
 
 const int KING_PASSER_DISTANCE_ENEMY[9] = {
-           gS(0,0), gS(35,3), gS(-14,19), gS(-3,0),
-           gS(-5,-11), gS(0,-21), gS(-1,-22), gS(11,-21),
-           gS(0,-10),
+           gS(0,0), gS(-35,-3), gS(14,-19), gS(3,0),
+           gS(5,11), gS(0,21), gS(1,22), gS(-11,21),
 };
 
 /**

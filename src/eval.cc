@@ -570,50 +570,21 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
     if (TRACK) ft.KingSemiEnemyFile[color]++;
   }
 
-  U64 tmpPawns = eB->Passers[color];
-  while (tmpPawns != ZERO) {
-
-    // Evaluate distance of our king to each of our own passers
-    int passerSquare = _popLsb(tmpPawns);
-    s += KING_PASSER_DISTANCE_FRIENDLY[Eval::detail::DISTANCE[square][passerSquare]];
-    if (TRACK) ft.KingFriendlyPasser[Eval::detail::DISTANCE[square][passerSquare]][color]++;
-
-
-    // if we are within 1 square to passer
-    // determine if King is ahead of pawn, behind or on equal rank
-    if (Eval::detail::DISTANCE[square][passerSquare] == 1){
-      int kingRank = color == WHITE ? _row(square) : 7 - _row(square);
-      int pawnRank = color == WHITE ? _row(passerSquare) : 7 - _row(passerSquare);
-      if (kingRank > pawnRank){
-        s += KING_AHEAD_PASSER;
-        if (TRACK) ft.KingAheadPasser[color]++;
-      } else if (kingRank == pawnRank){
-        s += KING_EQUAL_PASSER;
-        if (TRACK) ft.KingEqualPasser[color]++;
-      } else if (kingRank < pawnRank){
-        s += KING_BEHIND_PASSER;
-        if (TRACK) ft.KingBehindPasser[color]++;
-      }
-    }
-  }
-
-  tmpPawns = eB->Passers[getOppositeColor(color)];
-  while (tmpPawns != ZERO) {
-
-    // Evaluate distance of our king to each of enemys passers
-    int passerSquare = _popLsb(tmpPawns);
-    s += KING_PASSER_DISTANCE_ENEMY[Eval::detail::DISTANCE[square][passerSquare]];
-    if (TRACK) ft.KingEnemyPasser[Eval::detail::DISTANCE[square][passerSquare]][color]++;
-  }
-
   return s;
 }
 
 inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   int s = 0;
 
+  Color otherColor = getOppositeColor(color);
+
   U64 pawns = board.getPieces(color, PAWN);
   U64 tmpPawns = pawns;
+  U64 ourKing = board.getPieces(color, KING);
+  int ourKingSquare = _popLsb(ourKing);
+  int ourkingRank = color == WHITE ? _row(ourKingSquare) : 7 - _row(ourKingSquare);
+  U64 enemyKing = board.getPieces(otherColor, KING);
+  int enemyKingSquare = _popLsb(enemyKing);
 
   while (tmpPawns != ZERO) {
 
@@ -627,14 +598,35 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     }
 
     // add bonuses if the pawn is passed
-    if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
+    if ((board.getPieces(otherColor, PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
       eB->Passers[color] = eB->Passers[color] | (ONE << square);
 
       s += PASSED_PAWN_RANKS[r] + PASSED_PAWN_FILES[pawnCol];
+      // Evaluate how close the passed pawn is from our/enemy King
+      s += KING_PASSER_DISTANCE_ENEMY[Eval::detail::DISTANCE[square][enemyKingSquare]];
+      s += KING_PASSER_DISTANCE_FRIENDLY[Eval::detail::DISTANCE[square][ourKingSquare]];
+
       if (TRACK){
         ft.PassedPawnRank[r][color]++;
         ft.PassedPawnFile[pawnCol][color]++;
+        ft.KingEnemyPasser[Eval::detail::DISTANCE[square][enemyKingSquare]][color]++;
+        ft.KingFriendlyPasser[Eval::detail::DISTANCE[square][ourKingSquare]][color]++;
       }
+
+      if (Eval::detail::DISTANCE[square][ourKingSquare] == 1){
+        if (ourkingRank > r){
+          s += KING_AHEAD_PASSER;
+          if (TRACK) ft.KingAheadPasser[color]++;
+        } else if (ourkingRank == r){
+          s += KING_EQUAL_PASSER;
+          if (TRACK) ft.KingEqualPasser[color]++;
+        } else if (ourkingRank < r){
+          s += KING_BEHIND_PASSER;
+          if (TRACK) ft.KingBehindPasser[color]++;
+        }
+      }
+
+
       // if the pawn is passed evaluate how far
       // is it from other passers (_col-wise)
       U64 tmpPassers = eB->Passers[color];
