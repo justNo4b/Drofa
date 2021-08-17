@@ -149,7 +149,7 @@ evalBits Eval::Setupbits(const Board &board){
   eB.RammedCount = _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN));
   eB.OutPostedLines[0] = 0, eB.OutPostedLines[1] = 0;
   eB.KingAttackers[0] = 0, eB.KingAttackers[1] = 0;
-  eB.KingAttackPower[0] = -50, eB.KingAttackPower[1] = -50;
+  eB.KingAttackPower[0] = START_ATTACK_VALUE, eB.KingAttackPower[1] = START_ATTACK_VALUE;
   eB.Passers[0] = 0, eB.Passers[1] = 0;
   eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
   eB.AttackedByKing[0] = 0, eB.AttackedByKing[1] = 0;
@@ -570,42 +570,6 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
     if (TRACK) ft.KingSemiEnemyFile[color]++;
   }
 
-  U64 tmpPawns = eB->Passers[color];
-  while (tmpPawns != ZERO) {
-
-    // Evaluate distance of our king to each of our own passers
-    int passerSquare = _popLsb(tmpPawns);
-    s += KING_PASSER_DISTANCE_FRIENDLY[Eval::detail::DISTANCE[square][passerSquare]];
-    if (TRACK) ft.KingFriendlyPasser[Eval::detail::DISTANCE[square][passerSquare]][color]++;
-
-
-    // if we are within 1 square to passer
-    // determine if King is ahead of pawn, behind or on equal rank
-    if (Eval::detail::DISTANCE[square][passerSquare] == 1){
-      int kingRank = color == WHITE ? _row(square) : 7 - _row(square);
-      int pawnRank = color == WHITE ? _row(passerSquare) : 7 - _row(passerSquare);
-      if (kingRank > pawnRank){
-        s += KING_AHEAD_PASSER;
-        if (TRACK) ft.KingAheadPasser[color]++;
-      } else if (kingRank == pawnRank){
-        s += KING_EQUAL_PASSER;
-        if (TRACK) ft.KingEqualPasser[color]++;
-      } else if (kingRank < pawnRank){
-        s += KING_BEHIND_PASSER;
-        if (TRACK) ft.KingBehindPasser[color]++;
-      }
-    }
-  }
-
-  tmpPawns = eB->Passers[getOppositeColor(color)];
-  while (tmpPawns != ZERO) {
-
-    // Evaluate distance of our king to each of enemys passers
-    int passerSquare = _popLsb(tmpPawns);
-    s += KING_PASSER_DISTANCE_ENEMY[Eval::detail::DISTANCE[square][passerSquare]];
-    if (TRACK) ft.KingEnemyPasser[Eval::detail::DISTANCE[square][passerSquare]][color]++;
-  }
-
   return s;
 }
 
@@ -715,32 +679,65 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   // Passer - piece evaluation
 
-  tmpPawns = eB.Passers[color] & ENEMY_SIDE[color];
+  tmpPawns = eB.Passers[color];
   pieces   = board.getAllPieces(color) | board.getAllPieces(otherColor);
   int forward = color == WHITE ? 8 : -8;
   U64 posAdvance = ~AllTheirAttacks | AllOurAttacks;
+  int ourKingSquare = _bitscanForward(board.getPieces(color, KING));
+  int enemyKingSquare = _bitscanForward(board.getPieces(otherColor, KING));
 
   while (tmpPawns != ZERO) {
 
     int square = _popLsb(tmpPawns);
     int r = color == WHITE ? _row(square) : 7 - _row(square);
 
-    // 3. Free passer evaluation
-    // Add bonus for each passed pawn that has no piece blocking its advance
-    // rank - based evaluation
-    if ((detail::FORWARD_BITS[color][square] & pieces) == ZERO){
-      s += PASSED_PAWN_FREE[r];
-      if (TRACK) ft.PassedPawnFree[r][color]++;
+
+    // Evaluate Distance between both kings and current passer
+    s += KING_PASSER_DISTANCE_FRIENDLY[Eval::detail::DISTANCE[square][ourKingSquare]];
+    s += KING_PASSER_DISTANCE_ENEMY[Eval::detail::DISTANCE[square][enemyKingSquare]];
+    if (TRACK){
+      ft.KingFriendlyPasser[Eval::detail::DISTANCE[square][ourKingSquare]][color]++;
+      ft.KingEnemyPasser[Eval::detail::DISTANCE[square][enemyKingSquare]][color]++;
     }
 
-    // 4. Moving passer evaluation
-    // Add bonus when passed pawn nex square is not attacked
-    // and pawn can be advanced
-    if ((((ONE << (square + forward)) & pieces) == 0) &&
-        (((ONE << (square + forward)) & posAdvance) != 0)){
-          s += PASSED_PAWN_POS_ADVANCE[r];
-          if (TRACK) ft.PassedPawnPosAdvance[r][color]++;
-        }
+
+    // if our own king is within 1 square to passer
+    // determine if King is ahead of pawn, behind or on equal rank
+    if (Eval::detail::DISTANCE[square][ourKingSquare] == 1){
+      int kingRank = color == WHITE ? _row(ourKingSquare) : 7 - _row(ourKingSquare);
+      int pawnRank = color == WHITE ? _row(square) : 7 - _row(square);
+      if (kingRank > pawnRank){
+        s += KING_AHEAD_PASSER;
+        if (TRACK) ft.KingAheadPasser[color]++;
+      } else if (kingRank == pawnRank){
+        s += KING_EQUAL_PASSER;
+        if (TRACK) ft.KingEqualPasser[color]++;
+      } else if (kingRank < pawnRank){
+        s += KING_BEHIND_PASSER;
+        if (TRACK) ft.KingBehindPasser[color]++;
+      }
+    }
+
+    // For passers on the enemy side of the board, consider their advancing ability
+    if (r >= 4){
+      // 3. Free passer evaluation
+      // Add bonus for each passed pawn that has no piece blocking its advance
+      // rank - based evaluation
+      if ((detail::FORWARD_BITS[color][square] & pieces) == ZERO){
+        s += PASSED_PAWN_FREE[r];
+        if (TRACK) ft.PassedPawnFree[r][color]++;
+      }
+
+      // 4. Moving passer evaluation
+      // Add bonus when passed pawn nex square is not attacked
+      // and pawn can be advanced
+      if ((((ONE << (square + forward)) & pieces) == 0) &&
+          (((ONE << (square + forward)) & posAdvance) != 0)){
+            s += PASSED_PAWN_POS_ADVANCE[r];
+            if (TRACK) ft.PassedPawnPosAdvance[r][color]++;
+          }
+    }
+
 
   }
 
@@ -749,7 +746,6 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   return s;
 }
-
 
 int Eval::evaluate(const Board &board, Color color) {
 

@@ -124,6 +124,7 @@ const int QUEEN_MOBILITY[28] = {
  * @brief Various constants used for KingSafety calculation
   * @{
   */
+  const int START_ATTACK_VALUE = -50;
   const int UNCONTESTED_KING_ATTACK [6] = {
       -70, -20, 0, 100, 150, 200
   };
@@ -193,8 +194,8 @@ const int KING_PASSER_DISTANCE_FRIENDLY[9] = {
 };
 
 const int KING_PASSER_DISTANCE_ENEMY[9] = {
-           gS(0,0), gS(35,3), gS(-14,19), gS(-3,0),
-           gS(-5,-11), gS(0,-21), gS(-1,-22), gS(11,-21),
+           gS(0,0), gS(-35,-3), gS(14,-19), gS(3,0),
+           gS(5,11), gS(0,21), gS(1,22), gS(-11,21),
            gS(0,-10),
 };
 
