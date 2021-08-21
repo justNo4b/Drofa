@@ -293,15 +293,6 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     // Save our attacks for further use
     eB->AttackedSquares[color] |= attackBitBoard;
 
-    // QueenAttackMinor
-    U64 QueenAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
-    s += MINOR_ATTACKED_BY[QUEEN] * _popCount(QueenAttackMinor);
-    if (TRACK) ft.MinorAttackedBy[QUEEN][color] += _popCount(QueenAttackMinor);
-
-    //QueenAttackRook
-    s += ROOK_ATTACKED_BY[QUEEN] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
-    if (TRACK) ft.RookAttackedBy[QUEEN][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
-
     // See if a Queen is attacking an enemy unprotected pawn
     s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
     if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
