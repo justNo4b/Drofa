@@ -125,6 +125,7 @@ const int QUEEN_MOBILITY[28] = {
   * @{
   */
   const int START_ATTACK_VALUE = -50;
+  const int ATTACK_TEMPO = 25;
   const int UNCONTESTED_KING_ATTACK [6] = {
       -70, -20, 0, 100, 150, 200
   };
