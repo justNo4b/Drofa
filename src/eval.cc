@@ -344,6 +344,10 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     s += ROOK_ATTACKED_BY[ROOK] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
     if (TRACK) ft.RookAttackedBy[ROOK][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
 
+    // Rook Attack Queen
+    s += QUEEN_ATTACKED_BY[ROOK] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+    if (TRACK) ft.QueenAttackedBy[ROOK][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+
     // If Rook attacking squares near enemy king
     // Adjust our kind Danger code
     int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
@@ -420,6 +424,10 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       // or contain our own piece
       s += BISHOP_CENTER_CONTROL * _popCount(attackBitBoard & CENTER);
       if (TRACK) ft.BishopCenterControl[color] +=  _popCount(attackBitBoard & CENTER);
+
+      // Bishop Attack Queen
+      s += QUEEN_ATTACKED_BY[BISHOP] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+      if (TRACK) ft.QueenAttackedBy[BISHOP][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
 
       // If Bishop attacking squares near enemy king
       // Adjust our kind Danger code
@@ -500,6 +508,10 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       // See if a Knight is attacking an enemy unprotected pawn
       s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
       if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
+
+      // Bishop Attack Queen
+      s += QUEEN_ATTACKED_BY[KNIGHT] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+      if (TRACK) ft.QueenAttackedBy[KNIGHT][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
 
       // OUTPOSTED KNIGHT
       // We use separed PSQT for protected and unprotected outposts
