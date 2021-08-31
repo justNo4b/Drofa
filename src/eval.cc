@@ -124,9 +124,9 @@ void Eval::init() {
       detail::KINGZONE[color][square] = color == WHITE ? sqv | kingAttack | (kingAttack << 8)
                                                        : sqv | kingAttack | (kingAttack >> 8);
       if (_col(square) == 0){
-        detail::KINGZONE[color][square] = detail::KINGZONE[color][square] | detail::KINGZONE[color][square] >> 1;
-      }else if (_col(square) == 7){
         detail::KINGZONE[color][square] = detail::KINGZONE[color][square] | detail::KINGZONE[color][square] << 1;
+      }else if (_col(square) == 7){
+        detail::KINGZONE[color][square] = detail::KINGZONE[color][square] | detail::KINGZONE[color][square] >> 1;
       }
 
     }
