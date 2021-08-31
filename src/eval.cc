@@ -123,6 +123,8 @@ void Eval::init() {
       U64 kingAttack = Attacks::getNonSlidingAttacks(KING, square, WHITE);
       detail::KINGZONE[color][square] = color == WHITE ? sqv | kingAttack | (kingAttack << 8)
                                                        : sqv | kingAttack | (kingAttack >> 8);
+      // When king is on the side files (A and H) include
+      // squares on the C and F files to the kingzone
       if (_col(square) == 0){
         detail::KINGZONE[color][square] = detail::KINGZONE[color][square] | detail::KINGZONE[color][square] << 1;
       }else if (_col(square) == 7){
