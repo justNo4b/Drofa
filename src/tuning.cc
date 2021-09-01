@@ -234,11 +234,6 @@ void InitCoefficients(featureCoeff coeff){
     // Insert features here
     // Basicall we calculate if feature difference, so we dont hold it if it is 0
     // and to take less space to hold it in general
-    coeff[i++] = ft.PawnValue[WHITE] - ft.PawnValue[BLACK];
-    coeff[i++] = ft.RookValue[WHITE] - ft.RookValue[BLACK];
-    coeff[i++] = ft.KnightValue[WHITE] - ft.KnightValue[BLACK];
-    coeff[i++] = ft.BishopValue[WHITE] - ft.BishopValue[BLACK];
-    coeff[i++] = ft.QueenValue[WHITE] - ft.QueenValue[BLACK];
     coeff[i++] = ft.KingHighDanger[WHITE] - ft.KingHighDanger[BLACK];
     coeff[i++] = ft.KingMedDanger[WHITE] - ft.KingMedDanger[BLACK];
     coeff[i++] = ft.KingLowDanger[WHITE] - ft.KingLowDanger[BLACK];
@@ -264,7 +259,7 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.PawnConnected[j][WHITE] - ft.PawnConnected[j][BLACK];
     }
 
-    for (int j = 0; j < 8; j++){
+    for (int j = 0; j < 7; j++){
         coeff[i++] = ft.PassedPawnRank[j][WHITE] - ft.PassedPawnRank[j][BLACK];
     }
 
@@ -284,11 +279,11 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.PassedPassedDistance[j][WHITE] - ft.PassedPassedDistance[j][BLACK];
     }
 
-    for (int j = 0; j < 9; j++){
+    for (int j = 0; j < 8; j++){
         coeff[i++] = ft.KingFriendlyPasser[j][WHITE] - ft.KingFriendlyPasser[j][BLACK];
     }
 
-    for (int j = 0; j < 9; j++){
+    for (int j = 0; j < 8; j++){
         coeff[i++] = ft.KingEnemyPasser[j][WHITE] - ft.KingEnemyPasser[j][BLACK];
     }
 
@@ -304,11 +299,11 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.HangingPiece[j][WHITE] - ft.HangingPiece[j][BLACK];
     }
 
-    for (int j = 0; j < 5; j++){
+    for (int j = 0; j < 4; j++){
         coeff[i++] = ft.MinorAttackedBy[j][WHITE] - ft.MinorAttackedBy[j][BLACK];
     }
 
-    for (int j = 0; j < 5; j++){
+    for (int j = 0; j < 4; j++){
         coeff[i++] = ft.RookAttackedBy[j][WHITE] - ft.RookAttackedBy[j][BLACK];
     }
 
@@ -383,6 +378,9 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.BishopOutBlack[j][WHITE] - ft.BishopOutBlack[j][BLACK];
     }
 
+    for (int j = 0; j < 5; j++){
+        coeff[i++] = ft.MaterialValue[j][WHITE] - ft.MaterialValue[j][BLACK];
+    }
 
 
 
