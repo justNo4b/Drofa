@@ -801,7 +801,7 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
 
   // adjust EG eval based on pawns left
   int StrongPawn = egS(score) > 0 ? _popCount(board.getPieces(color, PAWN)) : _popCount(board.getPieces(otherColor, PAWN));
-  int Scale = std::min(EG_SCALE_MAXIMUM, EG_SCALE_MINIMAL + EG_SCALE_PAWN * StrongPawn);
+  int Scale = std::min(EG_SCALE_NORMAL, EG_SCALE_MINIMAL + EG_SCALE_PAWN * StrongPawn);
 
 
   // Interpolate between opening/endgame scores depending on the phase
