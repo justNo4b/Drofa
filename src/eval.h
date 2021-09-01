@@ -90,16 +90,41 @@ extern int PHASE_WEIGHT_SUM;
 };
 
 /**
+ * @brief Various constants used for Scaling evaluation
+ * The basic idea is that in some endgames it is hard to convert even a big advantage
+ * We want our engine to avoid such endgames, so we scale down the evaluation if the endgame
+ * is hard to win (OCB and its derivates, no pany pawns, etc)
+ *
+  * @{
+  */
+  const int EG_SCALE_NORMAL = 64;
+  const int EG_SCALE_MAXIMUM = 128;
+  const int EG_SCALE_MINIMAL = 32;
+  const int EG_SCALE_PAWN    = 8;
+
+  const int BOTH_SCALE_NORMAL = 4;
+  const int BOTH_SCALE_OCB = 2;
+  const int BOTH_SCALE_ROOK_OCB = 3;
+  const int BOTH_SCALE_KNIGHT_OCB = 3;
+  /**@}*/
+
+/**
  * @brief Various constants used for KingSafety calculation
   * @{
   */
   const int START_ATTACK_VALUE = -50;
   const int ATTACK_TEMPO = 35;
+
   const int UNCONTESTED_KING_ATTACK [6] = {
       -70, -20, 0, 100, 150, 200
   };
-  const int PIECE_ATTACK_POWER[6] = {0, 24, 50, 26, 62, 0};
+
+  const int PIECE_ATTACK_POWER[6] = {
+        0, 24, 50, 26, 62, 0
+  };
+
   const int COUNT_TO_POWER[8] = {0, 0, 51, 83, 102, 111, 122, 128};
+  const int COUNT_TO_POWER_DIVISOR = 128;
   /**@}*/
 
 const int TEMPO = 10;
@@ -400,6 +425,7 @@ int getMaterialValue(int, PieceType);
    inline int evaluateKNIGHT(const Board &, Color, evalBits *);
    inline int evaluatePAWNS(const Board &, Color, evalBits *);
    inline int evaluateKING(const Board &, Color, evalBits *);
+   inline int probePawnStructure(const Board &, Color, evalBits *);
 
   /**@}*/
 
@@ -431,7 +457,19 @@ inline bool IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
  * 2. Minors shielded by pawns
  * 3. Threats by pawn push
  */
-inline int PiecePawnInteraction(const Board &, Color, evalBits &);
+inline int PiecePawnInteraction(const Board &, Color, evalBits *);
+
+/**
+ * @brief Taper evaluation between Opening and Endgame and scale it
+ * if there is some specific endgame position
+ */
+inline int TaperAndScale(const Board &, Color, int);
+
+/**
+ * @brief Transform danger score accumulated in other functions in
+ *        a score used for an evaluation
+ */
+inline int kingDanger(Color, const evalBits *);
 
 /**
  * @brief Set value for a MATERIAL_VALUES_TUNABLE array

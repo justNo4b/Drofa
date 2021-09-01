@@ -392,6 +392,12 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
   Color otherColor = getOppositeColor(color);
   U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
 
+  // Bishop pair
+  if (_popCount(pieces) > 1){
+    s += BISHOP_PAIR_BONUS;
+    if (TRACK) ft.BishopPair[color]++;
+  }
+
   // Bishop has penalty based on count of rammed pawns
   s += eB->RammedCount * _popCount(pieces) * BISHOP_RAMMED_PENALTY;
   if (TRACK) ft.BishopRammed[color] += eB->RammedCount * _popCount(pieces);
@@ -583,11 +589,35 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   return s;
 }
 
+inline int Eval::probePawnStructure(const Board & board, Color color, evalBits * eB){
+  // Pawn structure
+  int pScore = 0;
+  pawn_HASH_Entry pENTRY  = myHASH->pHASH_Get(board.getPawnStructureZKey().getValue());
+
+  #ifndef _TUNE_
+  if (pENTRY.posKey != 0){
+    eB->Passers[WHITE] = pENTRY.wPassers;
+    eB->Passers[BLACK] = pENTRY.bPassers;
+
+    return color == WHITE ? pENTRY.score : -pENTRY.score;
+  }
+  else
+  #endif
+  {
+    pScore += evaluatePAWNS(board, WHITE, eB) - evaluatePAWNS(board, BLACK, eB);
+    myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB->Passers[WHITE], eB->Passers[BLACK], pScore);
+    return color == WHITE ? pScore : -pScore;
+  }
+}
+
 inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   int s = 0;
 
   U64 pawns = board.getPieces(color, PAWN);
   U64 tmpPawns = pawns;
+  // PawnSupported - Apply bonus for each pawn protected by allied pawn
+  s += PAWN_SUPPORTED * _popCount(pawns & eB->EnemyPawnAttackMap[getOppositeColor(color)]);
+  if (TRACK) ft.PawnSupported[color] += _popCount(pawns & eB->EnemyPawnAttackMap[getOppositeColor(color)]);
 
   while (tmpPawns != ZERO) {
 
@@ -646,13 +676,13 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   return s;
 }
 
-inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits & eB){
+inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits * eB){
   int s = 0;
   Color otherColor = getOppositeColor(color);
   U64 blocked = ZERO;
   U64 pieces, tmpPawns = ZERO;
-  U64 AllOurAttacks = eB.AttackedSquares[color] | eB.AttackedByKing[color];
-  U64 AllTheirAttacks = eB.AttackedSquares[otherColor] | eB.AttackedByKing[otherColor];
+  U64 AllOurAttacks = eB->AttackedSquares[color] | eB->AttackedByKing[color];
+  U64 AllTheirAttacks = eB->AttackedSquares[otherColor] | eB->AttackedByKing[otherColor];
 
   // 1. Blocked pawns - separate for passers and non-passers
 
@@ -660,7 +690,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   //  a. Non-passer pawns
   pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP) |
            board.getPieces(color, ROOK)   | board.getPieces(color, QUEEN);
-  tmpPawns = board.getPieces(otherColor, PAWN) ^ eB.Passers[otherColor];
+  tmpPawns = board.getPieces(otherColor, PAWN) ^ eB->Passers[otherColor];
 
   // Shift stuff, give evaluation
   // Do not forget to add pawns to BlockedBB for later use
@@ -670,7 +700,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   if (TRACK) ft.PawnBlocked[color] += (_popCount(pieces & tmpPawns));
 
   // same stuff, but with passed pawns
-  tmpPawns = otherColor == WHITE ? eB.Passers[otherColor] << 8 : eB.Passers[otherColor] >> 8;
+  tmpPawns = otherColor == WHITE ? eB->Passers[otherColor] << 8 : eB->Passers[otherColor] >> 8;
   s += PASSER_BLOCKED * (_popCount(pieces & tmpPawns));
   blocked |= (pieces & tmpPawns);
   if (TRACK) ft.PassersBlocked[color] += (_popCount(pieces & tmpPawns));
@@ -680,16 +710,16 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   // Same as above, separate for passers and non-passers
   pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
   pieces = color == WHITE ? pieces << 8 : pieces >> 8;
-  tmpPawns = board.getPieces(color, PAWN) ^ eB.Passers[color];
+  tmpPawns = board.getPieces(color, PAWN) ^ eB->Passers[color];
   s += MINOR_BEHIND_PAWN * _popCount(tmpPawns & pieces);
   if (TRACK) ft.MinorBehindPawn[color] += _popCount(tmpPawns & pieces);
 
-  s += MINOR_BEHIND_PASSER * _popCount(eB.Passers[color] & pieces);
-  if (TRACK) ft.MinorBehindPasser[color] += _popCount(eB.Passers[color] & pieces);
+  s += MINOR_BEHIND_PASSER * _popCount(eB->Passers[color] & pieces);
+  if (TRACK) ft.MinorBehindPasser[color] += _popCount(eB->Passers[color] & pieces);
 
   // Passer - piece evaluation
 
-  tmpPawns = eB.Passers[color];
+  tmpPawns = eB->Passers[color];
   pieces   = board.getAllPieces(color) | board.getAllPieces(otherColor);
   int forward = color == WHITE ? 8 : -8;
   U64 posAdvance = ~AllTheirAttacks | AllOurAttacks;
@@ -751,11 +781,62 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   }
 
-  int unContested = _popCount(eB.AttackedSquares[color] & eB.EnemyKingZone[color] & ~eB.AttackedSquares[otherColor]);
-  eB.KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
-  if (board.getActivePlayer() == color) eB.KingAttackPower[color] += ATTACK_TEMPO;
+  int unContested = _popCount(eB->AttackedSquares[color] & eB->EnemyKingZone[color] & ~eB->AttackedSquares[otherColor]);
+  eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
+  if (board.getActivePlayer() == color) eB->KingAttackPower[color] += ATTACK_TEMPO;
 
   return s;
+}
+
+inline int Eval::kingDanger(Color color, const evalBits * eB){
+  int attackScore = eB->KingAttackPower[color] * COUNT_TO_POWER[std::min(7, eB->KingAttackers[color])] / COUNT_TO_POWER_DIVISOR;
+  return gS(std::max(0, attackScore), 0);
+}
+
+inline int Eval::TaperAndScale(const Board &board, Color color, int score){
+
+  // Calculation of the phase value
+  Color otherColor  = getOppositeColor(color);
+  int phase         = getPhase(board);
+
+  // adjust EG eval based on pawns left
+  int StrongPawn = egS(score) > 0 ? _popCount(board.getPieces(color, PAWN)) : _popCount(board.getPieces(otherColor, PAWN));
+  int Scale = std::min(EG_SCALE_MAXIMUM, EG_SCALE_MINIMAL + EG_SCALE_PAWN * StrongPawn);
+
+
+  // Interpolate between opening/endgame scores depending on the phase
+  int final_eval = ((opS(score) * (MAX_PHASE - phase)) + (egS(score) * phase * Scale / EG_SCALE_NORMAL)) / MAX_PHASE;
+
+  // Initiate values for tuning
+  if (TRACK){ ft.FinalEval = score;  ft.Scale  = BOTH_SCALE_NORMAL;}
+
+  // see if we are in OCB endgame
+  bool isOCB =  _popCount(board.getPieces(color, BISHOP)) == 1 && _popCount(board.getPieces(otherColor, BISHOP)) == 1 &&
+                _popCount((board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP)) & WHITE_SQUARES) == 1;
+
+  // correct our score if there is an OCB case
+  if (isOCB){
+    U64 bothQueens  = board.getPieces(color, QUEEN) | board.getPieces(otherColor, QUEEN);
+    U64 bothRooks   = board.getPieces(color, ROOK) | board.getPieces(otherColor, ROOK);
+    U64 bothKnights = board.getPieces(color, KNIGHT) | board.getPieces(otherColor, KNIGHT);
+
+    if (!bothQueens && !bothRooks && !bothKnights){
+          final_eval = final_eval * BOTH_SCALE_OCB / BOTH_SCALE_NORMAL;
+          if (TRACK) ft.Scale = BOTH_SCALE_OCB;
+        } else if (
+        !bothQueens && !bothKnights &&
+        _popCount(board.getPieces(color, ROOK)) == 1 && _popCount(board.getPieces(otherColor, ROOK)) == 1){
+          final_eval = final_eval * BOTH_SCALE_ROOK_OCB / BOTH_SCALE_NORMAL;
+          if (TRACK) ft.Scale = BOTH_SCALE_ROOK_OCB;
+        } else if (
+        !bothQueens && !bothRooks &&
+        _popCount(board.getPieces(color, KNIGHT)) == 1 && _popCount(board.getPieces(otherColor, KNIGHT)) == 1){
+          final_eval = final_eval * BOTH_SCALE_KNIGHT_OCB / BOTH_SCALE_NORMAL;
+          if (TRACK) ft.Scale = BOTH_SCALE_KNIGHT_OCB;
+        }
+  }
+
+  return final_eval;
 }
 
 int Eval::evaluate(const Board &board, Color color) {
@@ -809,42 +890,8 @@ int Eval::evaluate(const Board &board, Color color) {
   // Create evalBits stuff
   evalBits eB = Eval::Setupbits(board);
 
-  // Pawn structure
-  int pScore = 0;
-  pawn_HASH_Entry pENTRY  = myHASH->pHASH_Get(board.getPawnStructureZKey().getValue());
-
-  #ifndef _TUNE_
-  if (pENTRY.posKey != 0){
-    eB.Passers[WHITE] = pENTRY.wPassers;
-    eB.Passers[BLACK] = pENTRY.bPassers;
-
-    if (color == BLACK) {
-      score -= pENTRY.score;
-    } else {
-      score += pENTRY.score;
-    }
-
-  }
-  else
-  #endif
-  {
-    // PawnSupported
-    // Apply bonus for each pawn protected by allied pawn
-    pScore += PAWN_SUPPORTED * _popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
-    pScore -= PAWN_SUPPORTED * _popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
-    if (TRACK){
-      ft.PawnSupported[WHITE] +=_popCount(board.getPieces(WHITE, PAWN) & eB.EnemyPawnAttackMap[BLACK]);
-      ft.PawnSupported[BLACK] +=_popCount(board.getPieces(BLACK, PAWN) & eB.EnemyPawnAttackMap[WHITE]);
-    }
-
-    // Evaluate pawn-by-pawn terms
-    // Passed, isolated, doubled
-    pScore += evaluatePAWNS(board, WHITE, &eB) - evaluatePAWNS(board, BLACK, &eB);
-
-    myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB.Passers[WHITE], eB.Passers[BLACK], pScore);
-
-    score += color == WHITE ? pScore : -pScore;
-  }
+  // Probe pawnHash, if not found, do full pawn evaluation
+  score += probePawnStructure(board, color, &eB);
 
   // Evaluate pieces
   score +=  evaluateBISHOP(board, color, &eB) - evaluateBISHOP(board, otherColor, &eB)
@@ -853,71 +900,19 @@ int Eval::evaluate(const Board &board, Color color) {
           + evaluateQUEEN (board, color, &eB) - evaluateQUEEN (board, otherColor, &eB)
           + evaluateKING  (board, color, &eB)  - evaluateKING  (board, otherColor, &eB);
 
-  score +=  PiecePawnInteraction(board, color, eB)
-          - PiecePawnInteraction(board, otherColor, eB);
+  // Interactions between pieces and pawns
+  score +=  PiecePawnInteraction(board, color, &eB)
+          - PiecePawnInteraction(board, otherColor, &eB);
 
-  // King pawn shield
-  // Tapering is included in, so we count it in both phases
-  score += kingShieldSafety(board, color, b_Q, &eB) - kingShieldSafety(board, otherColor, w_Q, &eB);
+  score +=  kingShieldSafety(board, color, b_Q, &eB)
+          - kingShieldSafety(board, otherColor, w_Q, &eB);
 
-  // evluate king danger
-  int attackScore = eB.KingAttackPower[color] * COUNT_TO_POWER[std::min(7, eB.KingAttackers[color])] / 128;
-  score += gS(std::max(0, attackScore), 0);
-  attackScore = eB.KingAttackPower[otherColor] * COUNT_TO_POWER[std::min(7, eB.KingAttackers[otherColor])] / 128;
-  score -= gS(std::max(0, attackScore), 0);
+  // Transform obtained safety score into game score
+  score +=  kingDanger(color, &eB)
+          - kingDanger(otherColor, &eB);
 
-  // Bishop pair
-  if (w_B > 1){
-    score += BISHOP_PAIR_BONUS;
-    if (TRACK) ft.BishopPair[color]++;
-  }
-
-  if (b_B > 1){
-    score -= BISHOP_PAIR_BONUS;
-    if (TRACK) ft.BishopPair[otherColor]++;
-  }
-
-  if (TRACK){
-    ft.FinalEval = score;
-    ft.Scale  = 4;
-  }
-
-  // Calculation of the phase value
-  int phase = getPhase(board);
-
-  // adjust EG eval based on pawns left
-  int NormalScale = 64;
-  int MaxScale = 128;
-  int StrongPawn = egS(score) > 0 ? w_P : b_P;
-  int Scale = std::min(MaxScale, 32 + 8 * StrongPawn);
-
-
-  // Interpolate between opening/endgame scores depending on the phase
-  int final_eval = ((opS(score) * (MAX_PHASE - phase)) + (egS(score) * phase * Scale / NormalScale)) / MAX_PHASE;
-
-  bool isOCB =  w_B == 1 && b_B == 1 &&
-                _popCount((board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP)) & WHITE_SQUARES) == 1;
-
-  if (isOCB){
-    if (w_Q == 0 && b_Q == 0 &&
-        w_R == 0 && b_R == 0 &&
-        w_N == 0 && b_N == 0){
-          final_eval = final_eval / 2;
-          if (TRACK) ft.Scale = 2;
-        } else if (
-        w_Q == 0 && b_Q == 0 &&
-        w_R == 1 && b_R == 1 &&
-        w_N == 0 && b_N == 0){
-          final_eval = final_eval * 3 / 4;
-          if (TRACK) ft.Scale = 3;
-        } else if (
-        w_Q == 0 && b_Q == 0 &&
-        w_R == 0 && b_R == 0 &&
-        w_N == 1 && b_N == 1){
-          final_eval = final_eval * 3 / 4;
-          if (TRACK) ft.Scale = 3;
-        }
-  }
+  // Taper and Scale obtained score
+  int final_eval = TaperAndScale(board, color, score);
 
   return final_eval + TEMPO;
 }
