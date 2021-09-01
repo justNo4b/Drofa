@@ -90,37 +90,6 @@ extern int PHASE_WEIGHT_SUM;
 };
 
 /**
- * @brief Bonuses given to a player having a move available (opening/endgame)
- */
-const int BISHOP_MOBILITY[14] = {
-           gS(-13,-66), gS(-3,-27), gS(4,-14), gS(10,-3), gS(13,6), gS(15,10), gS(16,14),
-           gS(17,14), gS(18,15), gS(20,14), gS(22,12), gS(34,4), gS(37,20), gS(69,-6),
-};
-
-const int KNIGHT_MOBILITY[9] = {
-           gS(-4,-81), gS(8,-34), gS(15,-7), gS(20,2), gS(25,10),
-           gS(29,16), gS(33,14), gS(38,9), gS(42,0),
-};
-
-const int KING_MOBILITY[9] = {
-           gS(18,-8), gS(10,-2), gS(5,2), gS(1,6), gS(-3,4),
-           gS(-10,4), gS(-6,3), gS(-11,0), gS(-4,-17),
-};
-
-const int ROOK_MOBILITY[15] = {
-           gS(-23,-89), gS(-10,-53), gS(-5,-31), gS(1,-17), gS(3,-4), gS(1,8), gS(6,10),
-           gS(8,10), gS(12,16), gS(14,20), gS(18,25), gS(21,27), gS(26,26), gS(32,25),
-           gS(55,16),
-};
-
-const int QUEEN_MOBILITY[28] = {
-           gS(-17,-114), gS(-13,-176), gS(-11,-119), gS(-10,-66), gS(-8,-41), gS(-6,-25), gS(-5,-10),
-           gS(-3,-1), gS(-1,10), gS(0,19), gS(1,25), gS(2,31), gS(3,35), gS(4,38),
-           gS(4,42), gS(5,46), gS(5,50), gS(7,48), gS(7,48), gS(10,45), gS(12,40),
-           gS(16,37), gS(11,40), gS(22,28), gS(10,25), gS(18,21), gS(23,26), gS(21,23),
-};
-
-/**
  * @brief Various constants used for KingSafety calculation
   * @{
   */
@@ -132,19 +101,6 @@ const int QUEEN_MOBILITY[28] = {
   const int PIECE_ATTACK_POWER[6] = {0, 24, 50, 26, 62, 0};
   const int COUNT_TO_POWER[8] = {0, 0, 51, 83, 102, 111, 122, 128};
   /**@}*/
-
-
-/**
- * @brief Array indexed by [Phase][PieceType] of material values (in centipawns)
- */
-const int MATERIAL_VALUES[6] = {
-        [PAWN] = gS(76,113),
-        [ROOK] = gS(475,698),
-        [KNIGHT] = gS(334,384),
-        [BISHOP] = gS(358,413),
-        [QUEEN] = gS(966,1324),
-        [KING] = gS(0, 0)
-};
 
 const int TEMPO = 10;
 
@@ -188,76 +144,17 @@ const int KING_ENEMY_SEMI_LINE = gS(-18,8);
 
 const int KING_ATTACK_PAWN = gS(19,50);
 
-
-
-const int KING_PASSER_DISTANCE_FRIENDLY[9] = {
-           gS(0,0), gS(1,37), gS(-6,26), gS(-3,7),
-           gS(0,-1), gS(0,0), gS(16,-3), gS(10,-3),
-           gS(0,-10),
-};
-
-const int KING_PASSER_DISTANCE_ENEMY[9] = {
-           gS(0,0), gS(-37,-2), gS(13,-18), gS(3,0),
-           gS(5,11), gS(0,21), gS(0,22), gS(-12,20),
-           gS(0,-10),
-};
-
 /**
- * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
- */
-const int ROOK_OPEN_FILE_BONUS[2] = {
-           gS(32,-4), gS(33,0),
-};
-
-/**
- * @brief Bonuses given to a player for each rook on an open file (opening/endgame)
- */
-const int ROOK_SEMI_FILE_BONUS[2] = {
-           gS(14,-3), gS(22,12),
-};
-
-/**
- * @brief indexed by [pieceType]
- * Evaluate OUR pieces attacked by an enemy pawn
- * and OUR pieces attacking enemy pawns - [PAWN]
- */
-const int HANGING_PIECE[5] = {
-           gS(0,19), gS(-62,-37), gS(-48,-42), gS(-52,-67), gS(-46,-21),
-};
-
-const int MINOR_ATTACKED_BY[5] = {
-           gS(0,0), gS(14,33), gS(14,35), gS(14,30), gS(0,26),
-};
-
-const int ROOK_ATTACKED_BY[5] = {
-           gS(0,0), gS(-5,18), gS(61,21), gS(41,39), gS(-2,-4),
-};
-
-const int QUEEN_ATTACKED_BY[4] = {
-           gS(0,0), gS(47,17), gS(33,6), gS(36,8),
-};
-
-const int KING_PAWN_SHIELD_KS[8] = {
-           gS(-1,0), gS(5,21), gS(6,8), gS(0,24),
-           gS(-5,5), gS(-14,-20), gS(-3,2), gS(0,5),
-};
-
-const int KING_PAWN_SHIELD_QS[8] = {
-           gS(11,5), gS(12,29), gS(20,7), gS(25,25),
-           gS(12,5), gS(-12,-9), gS(-4,3), gS(10,0),
-};
-
-/**
- * @brief Bonuses given to a player for having a passed pawn (opening/endgame)
+ * @brief Various array terms, related to the evaluation of the pawns
  */
 const int PAWN_CONNECTED[7] = {
            gS(0,0), gS(4,0), gS(6,6), gS(9,11),
            gS(18,26), gS(36,56), gS(4,25),
 };
 
-const int PASSED_PAWN_RANKS[8] = {
+const int PASSED_PAWN_RANKS[7] = {
            gS(0,0), gS(0,-8), gS(-2,8), gS(-1,46),
-           gS(14,55), gS(26,78), gS(59,85), gS(0,0),
+           gS(14,55), gS(26,78), gS(59,85),
 };
 
 const int PASSED_PAWN_FILES[8] = {
@@ -280,6 +177,94 @@ const int PASSED_PASSED_DISTANCE[8] = {
            gS(-15,-6), gS(-21,-8), gS(-22,-11), gS(-20,-9),
 };
 
+const int KING_PASSER_DISTANCE_FRIENDLY[8] = {
+           gS(0,0), gS(1,37), gS(-6,26), gS(-3,7),
+           gS(0,-1), gS(0,0), gS(16,-3), gS(10,-3),
+};
+
+const int KING_PASSER_DISTANCE_ENEMY[8] = {
+           gS(0,0), gS(-37,-2), gS(13,-18), gS(3,0),
+           gS(5,11), gS(0,21), gS(0,22), gS(-12,20),
+};
+
+/**
+ * @brief Bonuses given to a player for each rook on an Open and SemiOpen file
+ *        We apply different bonus if there is an enemy outpost on that file
+ */
+const int ROOK_OPEN_FILE_BONUS[2] = {
+           gS(32,-4), gS(33,0),
+};
+
+const int ROOK_SEMI_FILE_BONUS[2] = {
+           gS(14,-3), gS(22,12),
+};
+
+/**
+ * @brief indexed by [pieceType]
+ * Evaluate OUR pieces attacked by an enemy pawn
+ * and OUR pieces attacking enemy pawns - [PAWN]
+ */
+const int HANGING_PIECE[5] = {
+           gS(0,19), gS(-62,-37), gS(-48,-42), gS(-52,-67), gS(-46,-21),
+};
+
+const int MINOR_ATTACKED_BY[4] = {
+           gS(0,0), gS(14,33), gS(14,35), gS(14,30),
+};
+
+const int ROOK_ATTACKED_BY[4] = {
+           gS(0,0), gS(-5,18), gS(61,21), gS(41,39),
+};
+
+const int QUEEN_ATTACKED_BY[4] = {
+           gS(0,0), gS(47,17), gS(33,6), gS(36,8),
+};
+
+const int KING_PAWN_SHIELD_KS[8] = {
+           gS(-1,0), gS(5,21), gS(6,8), gS(0,24),
+           gS(-5,5), gS(-14,-20), gS(-3,2), gS(0,5),
+};
+
+const int KING_PAWN_SHIELD_QS[8] = {
+           gS(11,5), gS(12,29), gS(20,7), gS(25,25),
+           gS(12,5), gS(-12,-9), gS(-4,3), gS(10,0),
+};
+
+/**
+ * @brief Bonuses given to a player having a move available (opening/endgame)
+ */
+const int BISHOP_MOBILITY[14] = {
+           gS(-13,-66), gS(-3,-27), gS(4,-14), gS(10,-3), gS(13,6), gS(15,10), gS(16,14),
+           gS(17,14), gS(18,15), gS(20,14), gS(22,12), gS(34,4), gS(37,20), gS(69,-6),
+};
+
+const int KNIGHT_MOBILITY[9] = {
+           gS(-4,-81), gS(8,-34), gS(15,-7), gS(20,2), gS(25,10),
+           gS(29,16), gS(33,14), gS(38,9), gS(42,0),
+};
+
+const int KING_MOBILITY[9] = {
+           gS(18,-8), gS(10,-2), gS(5,2), gS(1,6), gS(-3,4),
+           gS(-10,4), gS(-6,3), gS(-11,0), gS(-4,-17),
+};
+
+const int ROOK_MOBILITY[15] = {
+           gS(-23,-89), gS(-10,-53), gS(-5,-31), gS(1,-17), gS(3,-4), gS(1,8), gS(6,10),
+           gS(8,10), gS(12,16), gS(14,20), gS(18,25), gS(21,27), gS(26,26), gS(32,25),
+           gS(55,16),
+};
+
+const int QUEEN_MOBILITY[28] = {
+           gS(-17,-114), gS(-13,-176), gS(-11,-119), gS(-10,-66), gS(-8,-41), gS(-6,-25), gS(-5,-10),
+           gS(-3,-1), gS(-1,10), gS(0,19), gS(1,25), gS(2,31), gS(3,35), gS(4,38),
+           gS(4,42), gS(5,46), gS(5,50), gS(7,48), gS(7,48), gS(10,45), gS(12,40),
+           gS(16,37), gS(11,40), gS(22,28), gS(10,25), gS(18,21), gS(23,26), gS(21,23),
+};
+
+/**
+ * @brief Piece - Square - Tables
+ * Bonuses for each piece being on the square on the board. From Black point of view
+ */
 const int KING_PSQT_BLACK[64] = {
            gS(-9,-102), gS(0,-44), gS(0,-28), gS(0,-13), gS(0,-28), gS(0,-23), gS(0,-20), gS(-8,-94),
            gS(-10,-29), gS(0,29), gS(5,27), gS(1,21), gS(1,12), gS(4,29), gS(0,31), gS(-7,-26),
@@ -346,6 +331,18 @@ const int QUEEN_PSQT_BLACK[64] = {
            gS(2,-63), gS(5,-73), gS(3,-76), gS(3,-62), gS(4,-65), gS(-6,-80), gS(0,-80), gS(6,-70),
 };
 
+
+/**
+ * @brief Array indexed by [PieceType] of material values (in centipawns)
+ */
+const int MATERIAL_VALUES[6] = {
+        [PAWN] = gS(76,113),
+        [ROOK] = gS(475,698),
+        [KNIGHT] = gS(334,384),
+        [BISHOP] = gS(358,413),
+        [QUEEN] = gS(966,1324),
+        [KING] = gS(0, 0)
+};
 
 /**
  * @brief Initializes all inner constants used by functions in the Eval namespace

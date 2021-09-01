@@ -278,7 +278,6 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
   int s = 0;
 
   U64 pieces = board.getPieces(color, QUEEN);
-  Color otherColor = getOppositeColor(color);
 
   // Apply penalty for each Queen attacked by enemy pawn
   s += HANGING_PIECE[QUEEN] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
@@ -788,20 +787,20 @@ int Eval::evaluate(const Board &board, Color color) {
   score += (w_Q - b_Q) * MATERIAL_VALUES[QUEEN];
 
   if (TRACK){
-    ft.PawnValue[color]+= w_P;
-    ft.PawnValue[otherColor]+= b_P;
+    ft.MaterialValue[PAWN][color]+= w_P;
+    ft.MaterialValue[PAWN][otherColor]+= b_P;
 
-    ft.KnightValue[color]+= w_N;
-    ft.KnightValue[otherColor]+= b_N;
+    ft.MaterialValue[KNIGHT][color]+= w_N;
+    ft.MaterialValue[KNIGHT][otherColor]+= b_N;
 
-    ft.BishopValue[color]+= w_B;
-    ft.BishopValue[otherColor]+= b_B;
+    ft.MaterialValue[BISHOP][color]+= w_B;
+    ft.MaterialValue[BISHOP][otherColor]+= b_B;
 
-    ft.RookValue[color]+= w_R;
-    ft.RookValue[otherColor]+= b_R;
+    ft.MaterialValue[ROOK][color]+= w_R;
+    ft.MaterialValue[ROOK][otherColor]+= b_R;
 
-    ft.QueenValue[color]+= w_Q;
-    ft.QueenValue[otherColor]+= b_Q;
+    ft.MaterialValue[QUEEN][color]+= w_Q;
+    ft.MaterialValue[QUEEN][otherColor]+= b_Q;
   }
 
   // Piece square tables

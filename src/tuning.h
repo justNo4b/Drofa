@@ -16,13 +16,6 @@ struct posFeatured{
     int Scale;
 
     // Simple features
-    // a. Piece Values
-    int PawnValue[2];
-    int RookValue[2];
-    int KnightValue[2];
-    int BishopValue[2];
-    int QueenValue[2];
-    // b. other simple
     int BishopPair[2];
     int KingHighDanger[2];
     int KingMedDanger[2];
@@ -45,18 +38,18 @@ struct posFeatured{
     int KingAttackPawn[2];
     //Array features
     int PawnConnected[7][2];
-    int PassedPawnRank[8][2];
+    int PassedPawnRank[7][2];
     int PassedPawnFile[8][2];
     int PassedPawnFree[7][2];
     int PassedPawnPosAdvance[7][2];
     int PassedPassedDistance[8][2];
-    int KingFriendlyPasser[9][2];
-    int KingEnemyPasser[9][2];
+    int KingFriendlyPasser[8][2];
+    int KingEnemyPasser[8][2];
     int RookOpenFile[2][2];
     int RookHalfFile[2][2];
     int HangingPiece[5][2];
-    int MinorAttackedBy[5][2];
-    int RookAttackedBy[5][2];
+    int MinorAttackedBy[4][2];
+    int RookAttackedBy[4][2];
     int QueenAttackedBy[4][2];
     //Array - Safety Shields
     int KingShieldKS[8][2];
@@ -79,6 +72,8 @@ struct posFeatured{
     int BishopOutProtBlack[64][2];
     int KnightOutBlack[64][2];
     int BishopOutBlack[64][2];
+    // Material
+    int MaterialValue[5][2];
 };
 
 struct eTrace {
@@ -109,10 +104,10 @@ struct tEntry {
   const std::string TUNING_DATA        = "d8FENS_WrongResults_mixed.epd";
   const int         TUNING_POS_COUNT   = 35821985; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 842;
+  const int         TUNING_TERMS_COUNT = 837;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
-  const int         TUNIGN_PRINT       = 25; 
+  const int         TUNIGN_PRINT       = 25;
   const int         TUNING_K_PRECISION = 10;
   const int         TUNING_L_STEP      = 1500;
   const double      TUNING_K           = 3.155529889; //2.829175699;
@@ -122,14 +117,14 @@ struct tEntry {
   const int         TUNING_STACK_SIZE = ((int)((double) TUNING_POS_COUNT * TUNING_TERMS_COUNT / 64));
   /**@}*/
 
-  // 
-  
+  //
+
   typedef double tValueHolder[TUNING_TERMS_COUNT][2];
   typedef double featureCoeff[TUNING_TERMS_COUNT];
 
 
   #define strFail (std::string::npos)
- /** 
+ /**
   * @brief run the tuner using data specified in the TUNING_DATA
   *        All other stuff is private because it is not needed anywhere else.
   */
@@ -137,16 +132,16 @@ struct tEntry {
 
  /**
   * @brief print simple term (op, eg)
-  * 
+  *
   * @param name  name of the term
   * @param value OPENING value of the term
   * @param value ENDGAME value of the term
-  * 
-  */ 
+  *
+  */
  void EvalTermPrint(std::string, double, double, double, double);
- 
+
  void EvalArrayPrint(std::string, tValueHolder, tValueHolder, int, int, int);
- 
+
  void EvalTermInitiate(tValueHolder);
 
  bool InitTuningPositions(tEntry*);
