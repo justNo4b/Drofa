@@ -592,6 +592,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // some pawn promotions near the leafs of the search tree
         // Thus we extend in the endgame pushes of the non-blocked
         // passers that are near the middle of the board
+        // Extend more if null move failed
         if (depth < 5 && board.isEndGamePosition() && move.isItPasserPush(board)){
               tDepth += 1 + failedNull;
             }
