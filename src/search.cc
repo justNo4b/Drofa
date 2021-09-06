@@ -593,7 +593,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // Thus we extend in the endgame pushes of the non-blocked
         // passers that are near the middle of the board
         if (depth < 5 && board.isEndGamePosition() && move.isItPasserPush(board)){
-              tDepth++;
+              tDepth += 1 + failedNull;
             }
 
         // 6.2 Singular move extention
