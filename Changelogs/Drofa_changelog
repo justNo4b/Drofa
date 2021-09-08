@@ -1,5 +1,5 @@
-Drofa changelog (initial Shallow_Blue commit -> Drofa 1.0)
-
+                  Shallow_Blue -> Drofa 1.0.0 log
+////////////////////////////////////////////////////////////////////
 1. Fuxed 50-move detection bug
 2. Fixed KillerMove bug causing to have 2 exact killers sometimes
 3. Fixed History updating in the beta cutoff area
@@ -69,7 +69,7 @@ the longer game lasts. Fixed bug that caused crush under high search depth.
 
 16. King Safety reactivated. Most Likely elogainer:
 ---------------------------------------------------
-	 400 game test: 
+	 400 game test:
 	+26 +/-29 elo
 ---------------------------------------------------
 17. Pawn hashtable was rewritten to be structured as regular hashtable.

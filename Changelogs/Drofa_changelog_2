@@ -1,6 +1,6 @@
-Drofa changelog: Drofa 1.0 -> Drofa 2.0
----------------------------------------
-
+            Drofa 1.0.0 -> Drofa 2.0.0 log
+////////////////////////////////////////////////////////////////////
+------------------------------------------------------------
 1.QSearch MovePicker merged with GeneralMovePicker. ProbeTT for a move in QSearch.
 Removed scoring during movegen.
 ------------------------------------------
@@ -141,15 +141,15 @@ LTC:
 Score of Drofa_dev vs Drofa_1.2.9: 285 - 301 - 414  [0.492] 1000
 Elo difference: -5.56 +/- 16.47
 --------------------------------------
-19. Added -tune complilation mode. Piece values tuned with 
+19. Added -tune complilation mode. Piece values tuned with
 "https://github.com/fsmosca/Optuna-Game-Parameter-Tuner"
 Tuner parameters:
-initial-best-value 0.54 
-games-per-trial 100 
-base-time-sec 10 
-inc-time-sec 0.1 
+initial-best-value 0.54
+games-per-trial 100
+base-time-sec 10
+inc-time-sec 0.1
 trials 250 (actually run only 231 test, used best params from 225)
-threshold-pruner result=0.35 
+threshold-pruner result=0.35
 acquisition_function=LCB
 --------------------------------------
 Score of Drofa_dev vs Drofa_1.2.9: 1128 - 950 - 922  [0.530] 3000
