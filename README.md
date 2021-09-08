@@ -17,7 +17,7 @@ LMP base reduction formulas. Althouth Adagrad tuning implementation is not copy-
 
 Special thanks to:
  - Terje Kirstihagen (Weiss author)
- - Andrew Grant (AdaGrad paper and Ethereal chess engine are great sources of knowledge; Ethereal tuning dataset was a great help in tuning)
+ - Andrew Grant. AdaGrad paper and Ethereal chess engine are great sources of knowledge; Ethereal tuning dataset was a great help in tuning. As well as allowing me on main OpenBench instance
  - Kim Kahre, Finn Eggers and Eugenio Bruno (Koivisto team) for allowing Drofa on Koi OpenBench instance and motivating me to work on the engine
  - OpenBench community for helping me in finding bugs, teaching me (even if unknowingly) good programming practices and interesting discussions
 
@@ -27,6 +27,7 @@ Drofa 1.0.0 64-bit    2061
 Drofa 2.0.0 64-bit    2458
 Drofa 3.0.0 64-bit    2891
 Drofa 3.1.0 64-bit    2968
+Drofa 3.2.0 64-bit    ????
 ```
 Historically Drofa scales a bit better in LTC.
 
@@ -38,6 +39,7 @@ Almost-full changelog with elo-gains measured for some of the features can be fo
  - Drofa 1.0.0 -> Drofa 2.0.0 in the `Drofa_changelog_2` file
  - Drofa 2.0.0 -> Drofa 3.0.0 in the `Drofa_changelog_3` file
  - Drofa 3.0.0 -> Drofa 3.1.0 in the `Drofa_changelog_4` file
+ - Drofa 3.1.0 -> Drofa 3.2.0 in the `Drofa_changelog_5` file
 
 ## Building
 
