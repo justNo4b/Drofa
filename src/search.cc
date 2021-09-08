@@ -543,8 +543,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     bool isQuiet = move.isQuiet();
     qCount += isQuiet;
 
-    if (!pvNode
-        && alpha < WON_IN_X
+    if (alpha < WON_IN_X
         && LegalMoveCount > 1){
 
       // 5. LATE MOVE PRUNING
@@ -566,7 +565,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       // 7. SEE pruning of quiet moves
       // At shallow depth prune highlyish -negative SEE-moves
       if (depth <= 10
-          && LegalMoveCount > 1
           && isQuiet
           && board.Calculate_SEE(move) < -51 * depth) continue;
     }
