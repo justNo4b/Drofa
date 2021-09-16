@@ -64,29 +64,6 @@ extern U64 PASSED_PAWN_MASKS[2][64];
  * maskNUMs - just all masks
  */
 extern U64 KING_PAWN_MASKS[2][2][8];
-
-/**
- * @brief Weights for each piece used to calculate the game phase based off
- * remaining material
- */
-const int PHASE_WEIGHTS[6] = {
-    [PAWN] = 0,
-    [ROOK] = 2,
-    [KNIGHT] = 1,
-    [BISHOP] = 1,
-    [QUEEN] = 4,
-    [KING] = 0
-};
-
-/**
- * @brief Weighted sum of the values in PHASE_WEIGHTS used for calculating
- * a tapered evaluation score
- *
- * This is the sum of each item in detail::PHASE_WEIGHTS with each value multiplied
- * by how many of those pieces are initially on the board (Multiply the
- * value for pawns by 16, knights by 4, etc.).
- */
-extern int PHASE_WEIGHT_SUM;
 };
 
 /**
@@ -384,22 +361,6 @@ int evaluate(const Board &, Color);
  *
  */
 int evalTestSuite(const Board &, Color);
-
-/**
- * @brief Returns a numeric representation of the given board's phase based
- * off remaining material
- *
- * The returned score will range from 0 - Eval::MAX_PHASE.
- *
- * @return A numeric representation of the game phase
- */
-int getPhase(const Board &);
-
-/**
- * @brief Use this number as an upper bound on the numerical representation of
- * the game phase when performing a tapered evaluation
- */
-const int MAX_PHASE = 256;
 
 /**
  * @brief Returns the value of the given PieceType used for evaluation
