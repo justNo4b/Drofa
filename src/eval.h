@@ -436,7 +436,7 @@ evalBits Setupbits(const Board &);
  * it returns simple overall score gS() and
  * adjust base safety value for some types of shields
  */
-inline int kingShieldSafety(const Board &, Color, int, evalBits *);
+inline int kingShieldSafety(const Board &, Color, evalBits *);
 
 /**
  * @brief This function takes number of each pieceType count for each
@@ -446,8 +446,7 @@ inline int kingShieldSafety(const Board &, Color, int, evalBits *);
  * Based on Vice function.
  *
  */
-inline bool IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
-                          int b_N, int b_B, int b_R, int b_Q);
+inline bool IsItDeadDraw (const Board &, Color);
 
 
 /**
