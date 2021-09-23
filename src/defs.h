@@ -138,6 +138,18 @@ enum PieceType {
   KING
 };
 
+const int PHASE_WEIGHT_SUM = 24;
+const int MAX_PHASE = 256;
+
+const int PHASE_WEIGHTS[6] = {
+    [PAWN] = 0,
+    [ROOK] = 2,
+    [KNIGHT] = 1,
+    [BISHOP] = 1,
+    [QUEEN] = 4,
+    [KING] = 0
+};
+
 /**
  * @brief Returns the opposite of the given color
  *

@@ -353,6 +353,17 @@ void Board::setToFen(std::string fenString) {
   fenStream >> _gameClock;
   _gameClock = _gameClock * 2;
 
+
+  _phase = PHASE_WEIGHT_SUM;
+
+  for (auto pieceType : {ROOK, KNIGHT, BISHOP, QUEEN}) {
+    _phase -= _popCount(getPieces(WHITE, pieceType)) * PHASE_WEIGHTS[pieceType];
+    _phase -= _popCount(getPieces(BLACK, pieceType)) * PHASE_WEIGHTS[pieceType];
+  }
+
+  // Make sure phase is not negative
+  _phase = std::max(0, _phase);
+
   _updateNonPieceBitBoards();
   _zKey = ZKey(*this);
   _pawnStructureZkey.setFromPawnStructure(*this);
@@ -410,6 +421,7 @@ void Board::_movePiece(Color color, PieceType pieceType, int from, int to) {
 
 void Board::_removePiece(Color color, PieceType pieceType, int squareIndex) {
   U64 square = ONE << squareIndex;
+  _phase += PHASE_WEIGHTS[pieceType];
 
   _pieces[color][pieceType] ^= square;
   _allPieces[color] ^= square;
@@ -426,6 +438,7 @@ void Board::_removePiece(Color color, PieceType pieceType, int squareIndex) {
 
 void Board::_addPiece(Color color, PieceType pieceType, int squareIndex) {
   U64 square = ONE << squareIndex;
+  _phase -= PHASE_WEIGHTS[pieceType];
 
   _pieces[color][pieceType] |= square;
   _allPieces[color] |= square;
@@ -564,9 +577,10 @@ int  Board:: Calculate_SEE(const Move move) const{
   return gain[0];
 }
 
-int Board::Calculate_MoveGain(const Move move, int phase) const {
-  Color color = getActivePlayer();
+int Board::Calculate_MoveGain(const Move move) const {
+  Color color  = getActivePlayer();
   bool isQuiet = move.isQuiet();
+  int  phase   = getPhase();
 
   int to   = color == WHITE ? _mir(move.getTo()) : move.getTo();
   int from = color == WHITE ? _mir(move.getFrom()) : move.getFrom();
@@ -847,4 +861,8 @@ U64 Board::_getKnightMobilityForSquare(int square, U64 own) const {
 
 int Board::_getGameClock() const{
   return _gameClock;
+}
+
+int Board::getPhase() const{
+  return ((std::max(0, _phase) * MAX_PHASE) + (PHASE_WEIGHT_SUM / 2)) / PHASE_WEIGHT_SUM;
 }

@@ -47,7 +47,6 @@ U64 Eval::detail::CONNECTED_MASK[64];
 U64 Eval::detail::OUTPOST_PROTECTION[2][64];
 U64 Eval::detail::KINGZONE[2][64];
 U64 Eval::detail::FORWARD_BITS[2][64];
-int Eval::detail::PHASE_WEIGHT_SUM = 0;
 U64 Eval::detail::KING_PAWN_MASKS[2][2][8] = {
         [WHITE] = {
           [0] = {
@@ -133,13 +132,6 @@ void Eval::init() {
 
     }
   }
-
-  // Initialize PHASE_WEIGHT_SUM
-  detail::PHASE_WEIGHT_SUM += 16 * detail::PHASE_WEIGHTS[PAWN];
-  detail::PHASE_WEIGHT_SUM +=  4 * detail::PHASE_WEIGHTS[KNIGHT];
-  detail::PHASE_WEIGHT_SUM +=  4 * detail::PHASE_WEIGHTS[BISHOP];
-  detail::PHASE_WEIGHT_SUM +=  4 * detail::PHASE_WEIGHTS[ROOK];
-  detail::PHASE_WEIGHT_SUM +=  2 * detail::PHASE_WEIGHTS[QUEEN];
 }
 
 evalBits Eval::Setupbits(const Board &board){
@@ -266,21 +258,6 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, evalBits * eB
       if (TRACK) ft.KingMedDanger[color]++;
       return KING_MED_DANGER;
 
-}
-
-int Eval::getPhase(const Board &board) {
-  int phase = detail::PHASE_WEIGHT_SUM;
-
-  for (auto pieceType : {ROOK, KNIGHT, BISHOP, QUEEN}) {
-    phase -= _popCount(board.getPieces(WHITE, pieceType)) * detail::PHASE_WEIGHTS[pieceType];
-    phase -= _popCount(board.getPieces(BLACK, pieceType)) * detail::PHASE_WEIGHTS[pieceType];
-  }
-
-  // Make sure phase is not negative
-  phase = std::max(0, phase);
-
-  // Transform phase from the range 0 - PHASE_WEIGHT_SUM to 0 - PHASE_WEIGHT_MAX
-  return ((phase * MAX_PHASE) + (detail::PHASE_WEIGHT_SUM / 2)) / detail::PHASE_WEIGHT_SUM;
 }
 
 inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
@@ -806,7 +783,7 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
 
   // Calculation of the phase value
   Color otherColor  = getOppositeColor(color);
-  int phase         = getPhase(board);
+  int phase         = board.getPhase();
 
   // adjust EG eval based on pawns left
   int StrongPawn = egS(score) > 0 ? _popCount(board.getPieces(color, PAWN)) : _popCount(board.getPieces(otherColor, PAWN));
