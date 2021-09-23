@@ -165,38 +165,47 @@ int Eval::getMaterialValue(int phase, PieceType pieceType) {
                           : egS(MATERIAL_VALUES[pieceType]);
 }
 
-inline bool Eval::IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
-                        int b_N, int b_B, int b_R, int b_Q){
+inline bool Eval::IsItDeadDraw (const Board &board, Color color){
+  Color otherColor = getOppositeColor(color);
 
-  if (w_Q > 0 || b_Q > 0 ){
-    return false;           // есть есть хоть 1 королева, то ещё играем
+  // если есть хоть одна пешка или королева, то играем
+  if ((board.getPieces(color, QUEEN) | board.getPieces(otherColor, QUEEN)) ||
+      (board.getPieces(color, PAWN) | board.getPieces(otherColor, PAWN))){
+    return false;
   }
 
-  if (w_R == 0 && b_R == 0){ // нет пешек, нет королев, нет ладей
-    if (w_B == 0 && b_B == 0){  // нет пешек, ладей, слонов.
-        if (w_N < 3 && b_N < 3){ // меньше 2х коней = ничья
+  int ownBishop = _popCount(board.getPieces(color, BISHOP));
+  int oppBishop = _popCount(board.getPieces(otherColor, BISHOP));
+  int ownKnight = _popCount(board.getPieces(color, KNIGHT));
+  int oppKnight = _popCount(board.getPieces(otherColor, KNIGHT));
+  int ownRook   = _popCount(board.getPieces(color, ROOK));
+  int oppRook   = _popCount(board.getPieces(otherColor, ROOK));
+
+  if (!(board.getPieces(color, ROOK) | board.getPieces(otherColor, ROOK))){ // нет пешек, нет королев, нет ладей
+    if (!(board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP))){  // нет пешек, ладей, слонов.
+        if (_popCount(board.getPieces(color, KNIGHT)) < 3 && _popCount(board.getPieces(otherColor, KNIGHT)) < 3){ // меньше 2х коней = ничья
           return true;
         }
-    } else if (w_N == 0 && b_N == 0){ // нет пешек, королев, ладей, коней
-        if (abs( w_B - b_B) < 2){
+    } else if (!(board.getPieces(color, KNIGHT) | board.getPieces(otherColor, KNIGHT))){ // нет пешек, королев, ладей, коней
+        if (abs(ownBishop - oppBishop) < 2){
           return true;
         }
-    } else if (( w_N < 3 && w_B ==0) || (w_B == 1 &&  w_N == 0)){
-      if ((b_N < 3 && b_B == 0)||(b_B == 1 && b_N == 0)){
+    } else if ((ownKnight < 3 && ownBishop == 0) || (ownBishop == 1 &&  ownKnight == 0)){
+      if ((oppKnight < 3 && oppBishop == 0)||(oppBishop == 1 && oppKnight == 0)){
         return true;
       }
     }
   } else {                             // ладьи есть
-    if (w_R == 1 && b_R == 1){
-      if (w_N + w_B < 2 && b_N + b_B < 2){    // тут немного криво, так как BR vs R выигрывают
+    if (ownRook == 1 && oppRook == 1){
+      if (ownKnight + ownBishop < 2 && oppKnight + oppBishop < 2){    // тут немного криво, так как BR vs R выигрывают
         return true;
       }
-    } else if (w_R == 1 && b_R == 0){
-      if (w_N + w_B == 0 && b_N + b_B > 1){
+    } else if (ownRook == 1 && oppRook == 0){
+      if (ownKnight + ownBishop == 0 && oppKnight + oppBishop > 1){
         return true;
       }
-    } else if (b_R == 1 && w_R == 0){
-      if (b_N + b_B == 0 && w_N + w_B > 1){
+    } else if (oppRook == 1 && ownRook == 0){
+      if (oppKnight + oppBishop == 0 && ownKnight + ownBishop > 1){
         return true;
       }
     }
@@ -205,14 +214,14 @@ inline bool Eval::IsItDeadDraw (int w_N, int w_B, int w_R, int w_Q,
   return false;
 }
 
-inline int Eval::kingShieldSafety(const Board &board, Color color, int Q_count, evalBits * eB){
+inline int Eval::kingShieldSafety(const Board &board, Color color, evalBits * eB){
       //King safety - замена pawnsShieldingKing
     // идея в том, чтобы
     // а. Найти позицию короля
     // b. Для каждой выбранной позиции мы имеем некую маску и скор того, насколько она "безопасна"
 
     // Упрощённо будем считать, что если нет ферзя у врага, то мы в безопасности.
-    if (Q_count == 0){
+    if (!board.getPieces(getOppositeColor(color), QUEEN)){
       if (TRACK) ft.KingLowDanger[color]++;
       return KING_LOW_DANGER;
     }
@@ -821,44 +830,25 @@ int Eval::evaluate(const Board &board, Color color) {
   int score = 0;
   Color otherColor = getOppositeColor(color);
 
-  // Material value
-  int w_P = _popCount(board.getPieces(color, PAWN));
-  int b_P = _popCount(board.getPieces(otherColor, PAWN));
-  int w_N = _popCount(board.getPieces(color, KNIGHT));
-  int b_N = _popCount(board.getPieces(otherColor, KNIGHT));
-  int w_B = _popCount(board.getPieces(color, BISHOP));
-  int b_B = _popCount(board.getPieces(otherColor, BISHOP));
-  int w_R = _popCount(board.getPieces(color, ROOK));
-  int b_R = _popCount(board.getPieces(otherColor, ROOK));
-  int w_Q = _popCount(board.getPieces(color, QUEEN));
-  int b_Q = _popCount(board.getPieces(otherColor, QUEEN));
-
-  bool DrawishMaterial = IsItDeadDraw(w_N, w_B, w_R, w_Q, b_N, b_B, b_R, b_Q);
-  if (DrawishMaterial && w_P == 0 && b_P == 0){
+  if (IsItDeadDraw(board, color)){
     return 0;
   }
 
-  score += (w_P - b_P) * MATERIAL_VALUES[PAWN];
-  score += (w_N - b_N) * MATERIAL_VALUES[KNIGHT];
-  score += (w_B - b_B) * MATERIAL_VALUES[BISHOP];
-  score += (w_R - b_R) * MATERIAL_VALUES[ROOK];
-  score += (w_Q - b_Q) * MATERIAL_VALUES[QUEEN];
-
   if (TRACK){
-    ft.MaterialValue[PAWN][color]+= w_P;
-    ft.MaterialValue[PAWN][otherColor]+= b_P;
+    ft.MaterialValue[PAWN][color]+= _popCount(board.getPieces(color, PAWN));
+    ft.MaterialValue[PAWN][otherColor]+= _popCount(board.getPieces(otherColor, PAWN));
 
-    ft.MaterialValue[KNIGHT][color]+= w_N;
-    ft.MaterialValue[KNIGHT][otherColor]+= b_N;
+    ft.MaterialValue[KNIGHT][color]+= _popCount(board.getPieces(color, KNIGHT));
+    ft.MaterialValue[KNIGHT][otherColor]+= _popCount(board.getPieces(otherColor, KNIGHT));
 
-    ft.MaterialValue[BISHOP][color]+= w_B;
-    ft.MaterialValue[BISHOP][otherColor]+= b_B;
+    ft.MaterialValue[BISHOP][color]+= _popCount(board.getPieces(color, BISHOP));
+    ft.MaterialValue[BISHOP][otherColor]+= _popCount(board.getPieces(otherColor, BISHOP));
 
-    ft.MaterialValue[ROOK][color]+= w_R;
-    ft.MaterialValue[ROOK][otherColor]+= b_R;
+    ft.MaterialValue[ROOK][color]+= _popCount(board.getPieces(color, ROOK));
+    ft.MaterialValue[ROOK][otherColor]+= _popCount(board.getPieces(otherColor, ROOK));
 
-    ft.MaterialValue[QUEEN][color]+= w_Q;
-    ft.MaterialValue[QUEEN][otherColor]+= b_Q;
+    ft.MaterialValue[QUEEN][color]+= _popCount(board.getPieces(color, QUEEN));
+    ft.MaterialValue[QUEEN][otherColor]+= _popCount(board.getPieces(otherColor, QUEEN));
   }
 
   // Piece square tables
@@ -881,8 +871,8 @@ int Eval::evaluate(const Board &board, Color color) {
   score +=  PiecePawnInteraction(board, color, &eB)
           - PiecePawnInteraction(board, otherColor, &eB);
 
-  score +=  kingShieldSafety(board, color, b_Q, &eB)
-          - kingShieldSafety(board, otherColor, w_Q, &eB);
+  score +=  kingShieldSafety(board, color, &eB)
+          - kingShieldSafety(board, otherColor, &eB);
 
   // Transform obtained safety score into game score
   score +=  kingDanger(color, &eB)

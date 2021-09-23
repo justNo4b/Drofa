@@ -51,10 +51,12 @@ PSquareTable::PSquareTable(const Board &board) {
 
 void PSquareTable::addPiece(Color color, PieceType pieceType, unsigned int square) {
   _scores[color] += PIECE_VALUES[color][pieceType][square];
+  _scores[color] += Eval::MATERIAL_VALUES[pieceType];
 }
 
 void PSquareTable::removePiece(Color color, PieceType pieceType, unsigned int square) {
   _scores[color] -= PIECE_VALUES[color][pieceType][square];
+  _scores[color] -= Eval::MATERIAL_VALUES[pieceType];
 }
 
 void PSquareTable::movePiece(Color color, PieceType pieceType, unsigned int fromSquare, unsigned int toSquare) {
