@@ -18,6 +18,7 @@ class Poshistory
         void AddNode(U64, int);
         void RemoveLast();
         void UpdateEval();
+        bool IsRepetitionDraw(U64, int);
 
 };
 
