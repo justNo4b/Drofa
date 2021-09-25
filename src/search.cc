@@ -556,9 +556,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       // we also should not be in check and close to the MATE score
       // We do not prune in the PV nodes.
 
-      if (depth < 3 && !(move.getFlags() & Move::PROMOTION)){
-        if (statEVAL + board.Calculate_MoveGain(move) +
-            FUTIL_MOVE_CONST * depth - 100 * improving <= alpha) continue;
+      if (!AreWeInCheck &&
+          depth < 3 &&
+          !(move.getFlags() & Move::PROMOTION) &&
+          statEVAL + board.Calculate_MoveGain(move) + FUTIL_MOVE_CONST * depth - 100 * improving <= alpha){
+            continue;
       }
 
       // 7. SEE pruning of quiet moves
