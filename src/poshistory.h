@@ -15,10 +15,17 @@ class Poshistory
 
     public:
 
+        Poshistory();
         void AddNode(U64, int);
         void RemoveLast();
-        void UpdateEval();
+        void UpdateEval(int);
         bool IsRepetitionDraw(U64, int);
+        void ZeroingTables();
+        void ZeroingPly();
+
+        int GetCurrentPly();
+        int GetEval(int);
+        int GetMove(int);
 
 };
 
