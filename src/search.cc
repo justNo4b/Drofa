@@ -585,7 +585,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         int tDepth = depth;
         // 6. EXTENTIONS
         //
-        if (AreWeInCheck && (LegalMoveCount < 2 + pvNode)){
+        // 6.0 InCheck extention
+        // Extend when the side to move is in check
+        if (AreWeInCheck){
           tDepth++;
         }
 
@@ -640,6 +642,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // if move is quiet, reduce a bit more (from Weiss)
           reduction += isQuiet;
+
+          //reduce more when side to move is in check
+          reduction += AreWeInCheck;
 
           // if we failed NULL, likely most of our Quiet moves are crap, so reduce them even more
           // qCount > 3 is actually seems to be optimal
