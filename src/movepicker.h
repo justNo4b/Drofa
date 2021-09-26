@@ -45,18 +45,6 @@ class MovePicker {
   MoveList *_moves;
 
   /**
-   * @brief Table mapping [victimValue][attackerValue] to an integer represnting move desirability
-   * according to MVV/LVA.
-   */
- int _mvvLvaTable[5][6] = {
-            [PAWN]    = {  5,  2,  4,  3,  1,  0 },
-            [ROOK]    = { 23, 20, 22, 21, 19, 18 },
-            [KNIGHT]  = { 11,  8, 10,  9,  7,  6 },
-            [BISHOP]  = { 17, 14, 16, 15, 13, 12 },
-            [QUEEN]   = { 29, 26, 28, 27, 25, 24}
-  };
-
-  /**
    * @brief Bonuses applied to specific move types.
    * @{
    */
