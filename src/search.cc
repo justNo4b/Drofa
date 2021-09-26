@@ -585,7 +585,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         int tDepth = depth;
         // 6. EXTENTIONS
         //
-        if (AreWeInCheck && !(LegalMoveCount > 2 + pvNode)){
+        if (AreWeInCheck && (LegalMoveCount < 2 + pvNode)){
           tDepth++;
         }
 
