@@ -585,6 +585,12 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         int tDepth = depth;
         // 6. EXTENTIONS
         //
+        // 6.0 InCheck extention
+        // Extend when the side to move is in check
+        if (AreWeInCheck){
+          tDepth++;
+        }
+
         // 6.1. Passed pawn push extention
         // In the late game  we fear that we may miss
         // some pawn promotions near the leafs of the search tree
@@ -637,6 +643,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // if move is quiet, reduce a bit more (from Weiss)
           reduction += isQuiet;
 
+          //reduce more when side to move is in check
+          reduction += AreWeInCheck;
+
           // if we failed NULL, likely most of our Quiet moves are crap, so reduce them even more
           // qCount > 3 is actually seems to be optimal
           reduction += isQuiet && qCount > 3 && failedNull;
@@ -680,10 +689,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // So for both of this cases we do limited window search.
         if (doLMR){
           if (score > alpha){
-            score = -_negaMax(movedBoard, &thisPV, tDepth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT(), false);
+            score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT(), false);
           }
         } else if (!pvNode || LegalMoveCount > 1){
-          score = -_negaMax(movedBoard, &thisPV, tDepth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT(), false);
+          score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT(), false);
         }
 
         // If we are in the PV
@@ -691,7 +700,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // or if score improved alpha during the current round of search.
         if  (pvNode) {
           if ((LegalMoveCount == 1) || (score > alpha && score < beta)){
-            score = -_negaMax(movedBoard, &thisPV, tDepth - 1 + AreWeInCheck, -beta, -alpha, ply + 1, false, move.getMoveINT(), false);
+            score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -beta, -alpha, ply + 1, false, move.getMoveINT(), false);
           }
         }
 
