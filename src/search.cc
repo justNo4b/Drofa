@@ -585,6 +585,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         int tDepth = depth;
         // 6. EXTENTIONS
         //
+        if (AreWeInCheck && !(LegalMoveCount > 2 + pvNode)){
+          tDepth++;
+        }
+
         // 6.1. Passed pawn push extention
         // In the late game  we fear that we may miss
         // some pawn promotions near the leafs of the search tree
@@ -680,10 +684,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // So for both of this cases we do limited window search.
         if (doLMR){
           if (score > alpha){
-            score = -_negaMax(movedBoard, &thisPV, tDepth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT(), false);
+            score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT(), false);
           }
         } else if (!pvNode || LegalMoveCount > 1){
-          score = -_negaMax(movedBoard, &thisPV, tDepth - 1 + AreWeInCheck, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT(), false);
+          score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -alpha - 1, -alpha, ply + 1, false, move.getMoveINT(), false);
         }
 
         // If we are in the PV
@@ -691,7 +695,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // or if score improved alpha during the current round of search.
         if  (pvNode) {
           if ((LegalMoveCount == 1) || (score > alpha && score < beta)){
-            score = -_negaMax(movedBoard, &thisPV, tDepth - 1 + AreWeInCheck, -beta, -alpha, ply + 1, false, move.getMoveINT(), false);
+            score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -beta, -alpha, ply + 1, false, move.getMoveINT(), false);
           }
         }
 
