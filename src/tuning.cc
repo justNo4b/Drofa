@@ -214,11 +214,11 @@ void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
 
 int simplifyPhaseCalculation(const Board &board){
 
-    int phase = Eval::detail::PHASE_WEIGHT_SUM;
+    int phase = PHASE_WEIGHT_SUM;
 
   for (auto pieceType : {ROOK, KNIGHT, BISHOP, QUEEN}) {
-    phase -= _popCount(board.getPieces(WHITE, pieceType)) * Eval::detail::PHASE_WEIGHTS[pieceType];
-    phase -= _popCount(board.getPieces(BLACK, pieceType)) * Eval::detail::PHASE_WEIGHTS[pieceType];
+    phase -= _popCount(board.getPieces(WHITE, pieceType)) * PHASE_WEIGHTS[pieceType];
+    phase -= _popCount(board.getPieces(BLACK, pieceType)) * PHASE_WEIGHTS[pieceType];
   }
 
   // Make sure phase is not negative
@@ -348,12 +348,21 @@ void InitCoefficients(featureCoeff coeff){
     }
 
     for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.PawnPsqtBlackIsQ[j][WHITE] - ft.PawnPsqtBlackIsQ[j][BLACK];
+    }
+
+    for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.PawnPsqtBlackIsOwn[j][WHITE] - ft.PawnPsqtBlackIsOwn[j][BLACK];
+    }
+
+    for (int j = 0; j < 64; j++){
         coeff[i++] = ft.RookPsqtBlack[j][WHITE] - ft.RookPsqtBlack[j][BLACK];
     }
 
     for (int j = 0; j < 64; j++){
         coeff[i++] = ft.BishopPsqtBlack[j][WHITE] - ft.BishopPsqtBlack[j][BLACK];
     }
+
     for (int j = 0; j < 64; j++){
         coeff[i++] = ft.KnightPsqtBlack[j][WHITE] - ft.KnightPsqtBlack[j][BLACK];
     }
