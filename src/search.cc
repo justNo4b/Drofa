@@ -533,7 +533,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   Move bestMove;
   int  LegalMoveCount = 0;
   int  qCount = 0;
-  int  aCount = 0;
   while (movePicker.hasNext()) {
 
     Move move = movePicker.getNext();
@@ -542,7 +541,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     }
     bool isQuiet = move.isQuiet();
     qCount += isQuiet;
-    aCount ++;
 
     if (alpha < WON_IN_X
         && LegalMoveCount > 1){
@@ -637,7 +635,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         if (doLMR){
 
           //Basic reduction is done according to the array
-          int reduction = _lmr_R_array[std::min(33, tDepth)][std::min(33, aCount)];
+          int reduction = _lmr_R_array[std::min(33, tDepth)][std::min(33, LegalMoveCount)];
 
           // Reduction tweaks
           // We generally want to guess if the move will not improve alpha and guess right to do no re-searches
