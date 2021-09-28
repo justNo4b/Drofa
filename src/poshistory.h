@@ -26,6 +26,7 @@ class Poshistory
         int GetCurrentPly();
         int GetEval(int);
         int GetMove(int);
+        int GetPly();
 
 };
 

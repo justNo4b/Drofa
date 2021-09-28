@@ -2,6 +2,7 @@
 #include "uci.h"
 #include "version.h"
 #include "eval.h"
+#include "poshistory.h"
 #include <iostream>
 #include <thread>
 
@@ -11,7 +12,9 @@ extern OrderingInfo * myOrdering;
 int myTHREADSCOUNT = 1;
 
 OrderingInfo  * cOrdering[MAX_THREADS];
+
 Search        * cSearch[MAX_THREADS];
+Poshistory    * cPosHist[MAX_THREADS];
 std::thread     cThread[MAX_THREADS];
 
 namespace {
@@ -19,6 +22,7 @@ Book book;
 std::shared_ptr<Search> search;
 Board board;
 Hist positionHistory = Hist();
+Poshistory *basepHist = new Poshistory();
 
 void loadBook() {
   std::ifstream bookFile(optionsMap["BookPath"].getValue());
@@ -103,6 +107,7 @@ void initOptions() {
 void uciNewGame() {
   board.setToStartPos();
   positionHistory = Hist();
+  Poshistory *basepHist = new Poshistory();
 }
 
 void setPosition(std::istringstream &is) {
@@ -132,8 +137,10 @@ void setPosition(std::istringstream &is) {
         board.doMove(move);
         if ((move.getPieceType() == PAWN) || (move.getFlags() & Move::CAPTURE) ){
           positionHistory = Hist();
+          basepHist->ZeroingTables();
         }
         positionHistory.Add(board.getZKey().getValue());
+        basepHist->AddNode(board.getZKey().getValue(), move.getMoveINT());
         break;
       }
     }
@@ -174,13 +181,15 @@ void go(std::istringstream &is) {
 
       // create new search and start
       cOrdering[i] = new OrderingInfo();
-      cSearch[i] = new Search(b, l, h, cOrdering[i], false);
+      cPosHist[i] = new Poshistory();
+      cSearch[i] = new Search(b, l, h, cOrdering[i], cPosHist[i], false);
       cThread[i] = std::thread(&Search::iterDeep, cSearch[i]);
     }
   }
 
   myOrdering->clearKillers();
-  search = std::make_shared<Search>(board, limits, positionHistory, myOrdering);
+  basepHist->RemoveLast();
+  search = std::make_shared<Search>(board, limits, positionHistory, myOrdering, basepHist);
 
   std::thread searchThread(&pickBestMove);
   searchThread.detach();

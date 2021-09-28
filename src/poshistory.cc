@@ -15,6 +15,7 @@ void Poshistory::ZeroingTables(){
 
 void Poshistory::AddNode(U64 posKey, int move){
     _hisKey[_head] = posKey;
+    _moves[_head]  = move;
     _head++;
     _ply++;
 }
@@ -42,9 +43,13 @@ bool Poshistory::IsRepetitionDraw(U64 currKey, int untilFifty){
 }
 
 int Poshistory::GetEval(int height){
-    return _statEval[_head - height];
+    return _statEval[_head + height];
 }
 
 int Poshistory::GetMove(int height){
-    return _moves[_head - height];
+    return _moves[_head + height];
+}
+
+int Poshistory::GetPly(){
+    return _ply;
 }

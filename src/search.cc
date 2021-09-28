@@ -2,6 +2,7 @@
 #include "search.h"
 #include "eval.h"
 #include "movepicker.h"
+#include "poshistory.h"
 #include <cstring>
 #include <thread>
 #include <algorithm>
@@ -43,8 +44,9 @@ void Search::init_LMR_array(){
 
 }
 
-Search::Search(const Board &board, Limits limits, Hist positionHistory, OrderingInfo *info, bool logUci) :
+Search::Search(const Board &board, Limits limits, Hist positionHistory, OrderingInfo *info, Poshistory *pHist, bool logUci) :
     _orderingInfo(*info),
+    _posHistory(*pHist),
     _limits(limits),
     _initialBoard(board),
     _logUci(logUci),
@@ -344,11 +346,10 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth, int ply
     return 0;
   }
 
-const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
-int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
-  MovePicker movePicker
-      (&_orderingInfo, &board, &legalMoves, hashMove, board.getActivePlayer(), 0, 0);
-
+  const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
+  int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
+  MovePicker movePicker(&_orderingInfo, &board, &legalMoves, hashMove, board.getActivePlayer(), 0, 0);
+  _posHistory.ZeroingPly();
   int currScore;
 
   Move bestMove;
@@ -358,6 +359,7 @@ int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
 
     Board movedBoard = board;
     movedBoard.doMove(move);
+    _posHistory.AddNode(board.getZKey().getValue(), move.getMoveINT());
     if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
         if (fullWindow) {
           currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, ply + 1, false, move.getMoveINT(), false);
@@ -384,6 +386,7 @@ int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
         }
 
     }
+    _posHistory.RemoveLast();
 
   }
 
@@ -506,9 +509,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           Board movedBoard = board;
           _posHist.Add(board.getZKey().getValue());
           movedBoard.doNool();
+          _posHistory.AddNode(board.getZKey().getValue(), 0);
           int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((statEVAL - beta) / 128, 4);
           int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, ply + 1, true, 0, false);
           _posHist.Remove();
+          _posHistory.RemoveLast();
           if (score >= beta){
             return beta;
           }
@@ -628,6 +633,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             }
 
         _posHist.Add(board.getZKey().getValue());
+        _posHistory.AddNode(board.getZKey().getValue(), move.getMoveINT());
 
         // 8. LATE MOVE REDUCTIONS
         // mix of ideas from Weiss code, own ones and what is written in the chessprogramming wiki
@@ -705,6 +711,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         }
 
         _posHist.Remove();
+        _posHistory.RemoveLast();
         // Beta cutoff
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet

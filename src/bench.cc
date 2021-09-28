@@ -2,6 +2,7 @@
 #include "board.h"
 #include "search.h"
 #include "move.h"
+#include "poshistory.h"
 #include <iostream>
 #include <memory>
 
@@ -18,14 +19,16 @@ void myBench(){
     Search::Limits limits;
     limits.depth = BENCH_SEARCH_DEPTH;
     Hist history = Hist();
+    Poshistory *pHist = new Poshistory();
     std::shared_ptr<Search> search;
 
     for (int i = 0; i < BENCH_POS_NUMBER; i++){
         int curNodes = 0;
         board = Board(BENCH_POSITION[i]);
-        search = std::make_shared<Search>(board, limits, history, myOrdering, false);
+        search = std::make_shared<Search>(board, limits, history, myOrdering, pHist, false);
         search->iterDeep();
         curNodes = search->getNodes();
+        pHist->ZeroingTables();
         nodes_total += curNodes;
         myHASH->HASH_Clear();
         myOrdering->clearAllHistory();
