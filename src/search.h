@@ -306,12 +306,9 @@ class Search {
    * @param  depth Plys remaining to search
    * @param  alpha Alpha value
    * @param  beta  Beta value
-   * @param  ply   ply value (distance from root)
-   * @param  doNool was last move a null one
-   * @param  int    int of the last move that was made
    * @return The score of the given board
    */
-  int _negaMax(const Board &, pV *myPV, int, int, int, int, bool, int, bool);
+  int _negaMax(const Board &, pV *myPV, int, int, int, bool);
 
   /**
    * @brief Performs a quiescence search
@@ -325,7 +322,7 @@ class Search {
    * @param  ply   ply value (distance from root)
    * @return The score of the given board
    */
-  int _qSearch(const Board &, int= -INF, int= INF, int = 0);
+  int _qSearch(const Board &, int= -INF, int= INF);
 
   /**
    * @brief Logs info about a search according to the UCI protocol.
