@@ -23,7 +23,6 @@ class Poshistory
         void ZeroingTables();
         void ZeroingPly();
 
-        int GetCurrentPly();
         int GetEval(int);
         int GetMove(int);
         int GetPly();

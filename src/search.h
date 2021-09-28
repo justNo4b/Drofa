@@ -160,14 +160,6 @@ class Search {
   Hist  _posHist;
 
   /**
-   * @brief Array of int, constitutes history of the static eval
-   *
-   * This is used for calculating "improving" paramenter
-   * during the search
-   */
-  int _sEvalArray[MAX_INT_PLY];
-
-  /**
    * @brief OrderingInfo object containing information about the current state
    * of this search
    */

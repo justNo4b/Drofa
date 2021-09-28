@@ -56,7 +56,6 @@ Search::Search(const Board &board, Limits limits, Hist positionHistory, Ordering
     _bestScore(0)
      {
 
-  std::memset(_sEvalArray, 0, sizeof(_sEvalArray));
   init_LMR_array();
   _wasThoughtProlonged = false;
   _posHist = positionHistory;
@@ -337,8 +336,6 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth, int ply
   MoveList legalMoves = movegen.getMoves();
   pV rootPV = pV();
 
-  _sEvalArray[ply] = board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer());
-
   // If no legal moves are available, just return, setting bestmove to a null move
   if (legalMoves.empty()) {
     _bestMove = Move();
@@ -350,6 +347,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth, int ply
   int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
   MovePicker movePicker(&_orderingInfo, &board, &legalMoves, hashMove, board.getActivePlayer(), 0, 0);
   _posHistory.ZeroingPly();
+  _posHistory.UpdateEval(board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer()));
   int currScore;
 
   Move bestMove;
@@ -469,16 +467,16 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // Do the Evaluation, unless we are in check or prev move was NULL
   // If last Move was Null, just negate prev eval and add 2x tempo bonus (10)
   if (AreWeInCheck) {
-    _sEvalArray[ply] = NOSCORE;
+    _posHistory.UpdateEval(NOSCORE);
   }else {
     statEVAL = Eval::evaluate(board, board.getActivePlayer());
-    _sEvalArray[ply] = statEVAL;
+    _posHistory.UpdateEval(statEVAL);
   }
 
   // Check if we are improving
   // The idea is if we are not improving in this line we probably can prune a bit more
   bool improving = false;
-  if (ply > 2) improving = !AreWeInCheck && statEVAL > _sEvalArray[ply - 2];
+  if (ply > 2) improving = !AreWeInCheck && statEVAL > _posHistory.GetEval(-2);
 
   // Check if we are doing pre-move pruning techniques
   // We do not do them InCheck, in pvNodes and when proving singularity
