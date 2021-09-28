@@ -614,6 +614,8 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     if (TRACK){
       int relSqv = color == WHITE ? _mir(square) : square;
       ft.PawnPsqtBlack[relSqv][color]++;
+      if (board.getPieces(getOppositeColor(color), QUEEN) != 0) ft.PawnPsqtBlackIsQ[relSqv][color]++;
+      if (board.getPieces(color, QUEEN) != 0) ft.PawnPsqtBlackIsOwn[relSqv][color]++;
     }
 
     // add bonuses if the pawn is passed
@@ -853,6 +855,16 @@ int Eval::evaluate(const Board &board, Color color) {
 
   // Piece square tables
   score += board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(otherColor);
+
+  // Get PSQT-pawns Adjustments
+  // 0 - own queen
+  if (board.getPieces(color, QUEEN) != 0){
+    score += board.getPSquareTable().getPawnAdjustment(color, 0) - board.getPSquareTable().getPawnAdjustment(otherColor, 1);
+  }
+
+  if (board.getPieces(otherColor, QUEEN) != 0){
+    score += board.getPSquareTable().getPawnAdjustment(color, 1) - board.getPSquareTable().getPawnAdjustment(otherColor, 0);
+  }
 
   // Create evalBits stuff
   evalBits eB = Eval::Setupbits(board);
