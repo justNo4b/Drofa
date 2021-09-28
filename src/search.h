@@ -81,7 +81,7 @@ class Search {
    * @param logUci If logUci is set, UCI info commands about the search will be printed
    * to standard output in real time.k
    */
-  Search(const Board &, Limits, Hist, OrderingInfo *, Poshistory *, bool= true);
+  Search(const Board &, Limits, OrderingInfo *, Poshistory *, bool= true);
 
   /**
    * @brief Performs an iterative deepening search within the constraints of the given limits.
@@ -151,13 +151,6 @@ class Search {
   const int REVF_MOVE_CONST = 150;
   const int RAZORING_MARGIN = 650;
   //
-
-  /**
-   * @brief Vector of ZKeys for each position that has occurred in the game
-   *
-   * This is used to detect threefold repetitions.
-   */
-  Hist  _posHist;
 
   /**
    * @brief OrderingInfo object containing information about the current state

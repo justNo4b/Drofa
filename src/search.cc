@@ -44,7 +44,7 @@ void Search::init_LMR_array(){
 
 }
 
-Search::Search(const Board &board, Limits limits, Hist positionHistory, OrderingInfo *info, Poshistory *pHist, bool logUci) :
+Search::Search(const Board &board, Limits limits, OrderingInfo *info, Poshistory *pHist, bool logUci) :
     _orderingInfo(*info),
     _posHistory(*pHist),
     _limits(limits),
@@ -58,7 +58,6 @@ Search::Search(const Board &board, Limits limits, Hist positionHistory, Ordering
 
   init_LMR_array();
   _wasThoughtProlonged = false;
-  _posHist = positionHistory;
   if (_limits.infinite) { // Infinite search
     _searchDepth = INF;
     _timeAllocated = INF;
@@ -320,15 +319,6 @@ inline void Search::_updateBeta(bool isQuiet, const Move move, Color color, int 
   }
 }
 
-inline bool Search::_isRepetitionDraw(U64 currKey, int untillFifty){
-  for (int i = _posHist.head - 2; (i >= 0 || i > _posHist.head - 2 - untillFifty); i-=2){
-    if (_posHist.hisKey[i] == currKey){
-      return true;
-    }
-  }
-  return false;
-}
-
 int Search::_rootMax(const Board &board, int alpha, int beta, int depth, int ply) {
   _nodes++;
 
@@ -421,7 +411,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   // Check for threefold repetition draws and 50 - move rule draw
   // cut pV out if we found draw
-  if (board.getHalfmoveClock() >= 100 || _isRepetitionDraw(board.getZKey().getValue(), board.getHalfmoveClock())) {
+  if (board.getHalfmoveClock() >= 100 || _posHistory.IsRepetitionDraw(board.getZKey().getValue(), board.getHalfmoveClock())) {
     up_pV->length = 0;
     return 0;
   }
@@ -507,12 +497,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   if (isPrune && depth >= 3 && pMove != 0 && statEVAL >= beta &&
       board.isThereMajorPiece()){
           Board movedBoard = board;
-          _posHist.Add(board.getZKey().getValue());
           movedBoard.doNool();
           _posHistory.AddNode(board.getZKey().getValue(), 0);
           int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((statEVAL - beta) / 128, 4);
           int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta + 1, false);
-          _posHist.Remove();
           _posHistory.RemoveLast();
           if (score >= beta){
             return beta;
@@ -632,7 +620,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               tDepth++;
             }
 
-        _posHist.Add(board.getZKey().getValue());
         _posHistory.AddNode(board.getZKey().getValue(), move.getMoveINT());
 
         // 8. LATE MOVE REDUCTIONS
@@ -710,7 +697,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           }
         }
 
-        _posHist.Remove();
         _posHistory.RemoveLast();
         // Beta cutoff
         if (score >= beta) {

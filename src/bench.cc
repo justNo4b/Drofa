@@ -18,14 +18,13 @@ void myBench(){
 
     Search::Limits limits;
     limits.depth = BENCH_SEARCH_DEPTH;
-    Hist history = Hist();
     Poshistory *pHist = new Poshistory();
     std::shared_ptr<Search> search;
 
     for (int i = 0; i < BENCH_POS_NUMBER; i++){
         int curNodes = 0;
         board = Board(BENCH_POSITION[i]);
-        search = std::make_shared<Search>(board, limits, history, myOrdering, pHist, false);
+        search = std::make_shared<Search>(board, limits, myOrdering, pHist, false);
         search->iterDeep();
         curNodes = search->getNodes();
         pHist->ZeroingTables();
