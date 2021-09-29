@@ -670,7 +670,6 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits * eB){
   int s = 0;
   Color otherColor = getOppositeColor(color);
-  U64 blocked = ZERO;
   U64 pieces, tmpPawns = ZERO;
   U64 AllOurAttacks = eB->AttackedSquares[color] | eB->AttackedByKing[color];
   U64 AllTheirAttacks = eB->AttackedSquares[otherColor] | eB->AttackedByKing[otherColor];
@@ -687,13 +686,11 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   // Do not forget to add pawns to BlockedBB for later use
   tmpPawns = otherColor == WHITE ? tmpPawns << 8 : tmpPawns >> 8;
   s += PAWN_BLOCKED * (_popCount(pieces & tmpPawns));
-  blocked |= (pieces & tmpPawns);
   if (TRACK) ft.PawnBlocked[color] += (_popCount(pieces & tmpPawns));
 
   // same stuff, but with passed pawns
   tmpPawns = otherColor == WHITE ? eB->Passers[otherColor] << 8 : eB->Passers[otherColor] >> 8;
   s += PASSER_BLOCKED * (_popCount(pieces & tmpPawns));
-  blocked |= (pieces & tmpPawns);
   if (TRACK) ft.PassersBlocked[color] += (_popCount(pieces & tmpPawns));
 
   // 2. Minors immediately behind our pawns - separate for passers and non-passers
@@ -707,6 +704,18 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   s += MINOR_BEHIND_PASSER * _popCount(eB->Passers[color] & pieces);
   if (TRACK) ft.MinorBehindPasser[color] += _popCount(eB->Passers[color] & pieces);
+
+  // Minor in front of own pawn - passer
+  pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
+  pieces = color == WHITE ? pieces >> 8 : pieces << 8;
+  tmpPawns = board.getPieces(color, PAWN) ^ eB->Passers[color];
+  
+  s += MINOR_BLOCK_OWN_PAWN * _popCount(tmpPawns & pieces);
+  if (TRACK) ft.MinorBlockOwn[color] += _popCount(tmpPawns & pieces);
+
+  s += MINOR_BLOCK_OWN_PASSER * _popCount(eB->Passers[color] & pieces);
+  if (TRACK) ft.MinorBlockOwnPassed[color] += _popCount(eB->Passers[color] & pieces);
+
 
   // Passer - piece evaluation
 
