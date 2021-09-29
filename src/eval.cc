@@ -540,6 +540,8 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
 
   // Mobility
   U64 attackBitBoard = board.getMobilityForSquare(KING, color, square, eB->EnemyPawnAttackMap[color]);
+  U64 allAroundBitBoard = board.getMobilityForSquare(KING, color, square, 0);
+
   s += KING_MOBILITY[_popCount(attackBitBoard)];
   if (TRACK) ft.KingMobility[_popCount(attackBitBoard)][color]++;
   if (TRACK){
@@ -560,6 +562,18 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   // See if a King is attacking an enemy unprotected pawn
   s += KING_ATTACK_PAWN * _popCount(attackBitBoard & enemyPawns);
   if (TRACK) ft.KingAttackPawn[color] += _popCount(attackBitBoard & enemyPawns);
+
+  // Adjust eval if attacked pawn is rammed
+  U64 enemyRammed = otherColor == WHITE ? (board.getPieces(color, PAWN) >> 8) & board.getPieces(otherColor, PAWN):
+                                          (board.getPieces(color, PAWN) << 8) & board.getPieces(otherColor, PAWN);
+  s += KING_ATTACK_RAMMED_PAWN * _popCount(attackBitBoard & enemyRammed);
+  if (TRACK) ft.KingAttackRammed[color] += _popCount(attackBitBoard & enemyRammed);                       
+
+
+  // See if king is attacking any pawn protected by other pawn
+  s += KING_ATTACK_PROTECTED_PAWN * _popCount(allAroundBitBoard & enemyPawns);
+  if (TRACK) ft.KingAttackProtected[color] +=_popCount(allAroundBitBoard & enemyPawns);
+
 
   if (((file & ourPawns) == 0) && ((file & enemyPawns) == 0)){
     s += KING_OPEN_FILE;
