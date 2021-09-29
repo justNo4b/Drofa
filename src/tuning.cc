@@ -348,6 +348,10 @@ void InitCoefficients(featureCoeff coeff){
     }
 
     for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.PawnPsqtBlackOppCastle[j][WHITE] - ft.PawnPsqtBlackOppCastle[j][BLACK];
+    }
+
+    for (int j = 0; j < 64; j++){
         coeff[i++] = ft.PawnPsqtBlackIsQ[j][WHITE] - ft.PawnPsqtBlackIsQ[j][BLACK];
     }
 

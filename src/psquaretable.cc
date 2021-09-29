@@ -4,7 +4,7 @@
 #include <algorithm>
 
 int PSquareTable::PIECE_VALUES[2][6][64];
-int PSquareTable::PAWN_ADJUSTMENTS[2][2][64];
+int PSquareTable::PAWN_ADJUSTMENTS[2][3][64];
 
 // это PSQT для чёрных.
 // для белых делается их mirror()
@@ -35,6 +35,9 @@ void PSquareTable::init() {
 
       PAWN_ADJUSTMENTS[BLACK][1][i] = Eval::PAWN_PSQT_BLACK_IS_ENEMY_QUEEN[i];
       PAWN_ADJUSTMENTS[WHITE][1][i] = Eval::PAWN_PSQT_BLACK_IS_ENEMY_QUEEN[_mir(i)];
+
+      PAWN_ADJUSTMENTS[BLACK][2][i] = Eval::PAWN_PSQT_BLACK_OPPCASTLES[i];
+      PAWN_ADJUSTMENTS[WHITE][2][i] = Eval::PAWN_PSQT_BLACK_OPPCASTLES[_mir(i)];
     }
 }
 
@@ -62,6 +65,7 @@ void PSquareTable::addPiece(Color color, PieceType pieceType, unsigned int squar
 
   _pawnScores[color][0] += PAWN_ADJUSTMENTS[color][0][square] * (pieceType == PAWN);
   _pawnScores[color][1] += PAWN_ADJUSTMENTS[color][1][square] * (pieceType == PAWN);
+  _pawnScores[color][2] += PAWN_ADJUSTMENTS[color][2][square] * (pieceType == PAWN);
 }
 
 void PSquareTable::removePiece(Color color, PieceType pieceType, unsigned int square) {
@@ -70,6 +74,7 @@ void PSquareTable::removePiece(Color color, PieceType pieceType, unsigned int sq
 
   _pawnScores[color][0] -= PAWN_ADJUSTMENTS[color][0][square] * (pieceType == PAWN);
   _pawnScores[color][1] -= PAWN_ADJUSTMENTS[color][1][square] * (pieceType == PAWN);
+  _pawnScores[color][2] -= PAWN_ADJUSTMENTS[color][2][square] * (pieceType == PAWN);
 }
 
 void PSquareTable::movePiece(Color color, PieceType pieceType, unsigned int fromSquare, unsigned int toSquare) {

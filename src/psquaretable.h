@@ -75,7 +75,7 @@ class PSquareTable {
    */
   static int PIECE_VALUES[2][6][64];
 
-  static int PAWN_ADJUSTMENTS[2][2][64];
+  static int PAWN_ADJUSTMENTS[2][3][64];
 
   /**
    * @brief Array indexed by [Color] of each color's piece square table score.
@@ -85,7 +85,7 @@ class PSquareTable {
   /**
    * @brief Holds an adjustments for a pawn PSQT
    */ 
-  int _pawnScores[2][2] = {0};
+  int _pawnScores[2][3] = {0};
 };
 
 #endif

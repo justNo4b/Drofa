@@ -146,6 +146,7 @@ evalBits Eval::Setupbits(const Board &board){
     eB.EnemyKingZone[!color] = detail::KINGZONE[color][_bitscanForward(king)];
   }
 
+  eB.EnemyCastleSide[0] = NoCastle, eB.EnemyCastleSide[1] = NoCastle;
   eB.RammedCount = _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN));
   eB.OutPostedLines[0] = 0, eB.OutPostedLines[1] = 0;
   eB.KingAttackers[0] = 0, eB.KingAttackers[1] = 0;
@@ -220,22 +221,24 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, evalBits * eB
     // а. Найти позицию короля
     // b. Для каждой выбранной позиции мы имеем некую маску и скор того, насколько она "безопасна"
 
-    // Упрощённо будем считать, что если нет ферзя у врага, то мы в безопасности.
-    if (!board.getPieces(getOppositeColor(color), QUEEN)){
-      if (TRACK) ft.KingLowDanger[color]++;
-      return KING_LOW_DANGER;
-    }
-    U64 pawnMap = board.getPieces(color, PAWN);
-
     //проверяем где наш король. Проверка по сути на то, куда сделали рокировку.
     //если король не рокирован-выгнан с рокировки, то король не в безопасности, начислить штраф
     //0 - kingSide; 1 - QueenSide
     CastleSide cSide = NoCastle;
     if (KSIDE_CASTLE[color] & board.getPieces(color, KING)){
       cSide = KingSide;
+      eB->EnemyCastleSide[getOppositeColor(color)] = KingSide;
     } else if (QSIDE_CASTLE[color] & board.getPieces(color, KING)){
       cSide = QueenSide;
+      eB->EnemyCastleSide[getOppositeColor(color)] = QueenSide;
     }
+
+    // Упрощённо будем считать, что если нет ферзя у врага, то мы в безопасности.
+    if (!board.getPieces(getOppositeColor(color), QUEEN)){
+      if (TRACK) ft.KingLowDanger[color]++;
+      return KING_LOW_DANGER;
+    }
+    U64 pawnMap = board.getPieces(color, PAWN);
 
     if (cSide == NoCastle){
       if (TRACK) ft.KingHighDanger[color]++;
@@ -617,6 +620,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       ft.PawnPsqtBlack[relSqv][color]++;
       if (board.getPieces(otherColor, QUEEN) != 0) ft.PawnPsqtBlackIsQ[relSqv][color]++;
       if (board.getPieces(color, QUEEN) != 0) ft.PawnPsqtBlackIsOwn[relSqv][color]++;
+      if (eB->EnemyCastleSide[WHITE] != eB->EnemyCastleSide[BLACK]) ft.PawnPsqtBlackOppCastle[relSqv][color]++;
     }
 
     // add bonuses if the pawn is passed
@@ -872,8 +876,15 @@ int Eval::evaluate(const Board &board, Color color) {
   // Create evalBits stuff
   evalBits eB = Eval::Setupbits(board);
 
+  score +=  kingShieldSafety(board, color, &eB)
+          - kingShieldSafety(board, otherColor, &eB);
+
   // Probe pawnHash, if not found, do full pawn evaluation
   score += probePawnStructure(board, color, &eB);
+
+  if (eB.EnemyCastleSide[WHITE] != eB.EnemyCastleSide[BLACK]){
+    score += board.getPSquareTable().getPawnAdjustment(color, 2) - board.getPSquareTable().getPawnAdjustment(otherColor, 2);
+  }
 
   // Evaluate pieces
   score +=  evaluateBISHOP(board, color, &eB) - evaluateBISHOP(board, otherColor, &eB)
@@ -885,9 +896,6 @@ int Eval::evaluate(const Board &board, Color color) {
   // Interactions between pieces and pawns
   score +=  PiecePawnInteraction(board, color, &eB)
           - PiecePawnInteraction(board, otherColor, &eB);
-
-  score +=  kingShieldSafety(board, color, &eB)
-          - kingShieldSafety(board, otherColor, &eB);
 
   // Transform obtained safety score into game score
   score +=  kingDanger(color, &eB)
