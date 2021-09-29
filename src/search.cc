@@ -580,7 +580,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
         int  moveHistory  = isQuiet ?
-                            _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) :
+                            (_orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) +
+                            _orderingInfo.getCountermoveHistory(pMove, move.getPieceType(), move.getTo())) / 2 :
                             _orderingInfo.getCaptureHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo());
         int tDepth = depth;
         // 6. EXTENTIONS
