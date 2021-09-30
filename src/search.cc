@@ -10,8 +10,6 @@
 #include <math.h>
 
 
-
-extern int g_TT_MO_hit;
 extern int myTHREADSCOUNT;
 extern OrderingInfo   * cOrdering[MAX_THREADS];
 extern Search         * cSearch[MAX_THREADS];
@@ -73,12 +71,6 @@ Search::Search(const Board &board, Limits limits, OrderingInfo *info, Poshistory
     _searchDepth = DEFAULT_SEARCH_DEPTH;
     _timeAllocated = INF;
   }
-
-
-  // Debug_evaluation_paste_below:
-  //  std::cout << "Castle_test_ " + std::to_string(k);
-  //  std::cout << "HASH_size " + std::to_string(myHASH.HASH_Size());
-  //  std::cout << std::endl;
 }
 
 void Search::iterDeep() {
@@ -208,7 +200,6 @@ void Search::_logUciInfo(const MoveList &pv, int depth, int bestScore, U64 nodes
   std::cout << "nps " + std::to_string((nodes / elapsed)* 1000)  + " ";
   std::cout << "time " + std::to_string(elapsed) + " ";
   std::cout << "pv " + pvString;
-  //std::cout << "MO_hits " + std::to_string(g_TT_MO_hit);
   std::cout << std::endl;
 }
 

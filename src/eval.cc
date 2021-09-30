@@ -598,12 +598,13 @@ inline int Eval::probePawnStructure(const Board & board, Color color, evalBits *
 
 inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   int s = 0;
+  Color otherColor = getOppositeColor(color);
 
   U64 pawns = board.getPieces(color, PAWN);
   U64 tmpPawns = pawns;
   // PawnSupported - Apply bonus for each pawn protected by allied pawn
-  s += PAWN_SUPPORTED * _popCount(pawns & eB->EnemyPawnAttackMap[getOppositeColor(color)]);
-  if (TRACK) ft.PawnSupported[color] += _popCount(pawns & eB->EnemyPawnAttackMap[getOppositeColor(color)]);
+  s += PAWN_SUPPORTED * _popCount(pawns & eB->EnemyPawnAttackMap[otherColor]);
+  if (TRACK) ft.PawnSupported[color] += _popCount(pawns & eB->EnemyPawnAttackMap[otherColor]);
 
   while (tmpPawns != ZERO) {
 
@@ -614,12 +615,12 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     if (TRACK){
       int relSqv = color == WHITE ? _mir(square) : square;
       ft.PawnPsqtBlack[relSqv][color]++;
-      if (board.getPieces(getOppositeColor(color), QUEEN) != 0) ft.PawnPsqtBlackIsQ[relSqv][color]++;
+      if (board.getPieces(otherColor, QUEEN) != 0) ft.PawnPsqtBlackIsQ[relSqv][color]++;
       if (board.getPieces(color, QUEEN) != 0) ft.PawnPsqtBlackIsOwn[relSqv][color]++;
     }
 
     // add bonuses if the pawn is passed
-    if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
+    if ((board.getPieces(otherColor, PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
       eB->Passers[color] = eB->Passers[color] | (ONE << square);
 
       s += PASSED_PAWN_RANKS[r] + PASSED_PAWN_FILES[pawnCol];
@@ -643,13 +644,15 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     }
 
     // add penalties for the doubled pawns
-    if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0){
+    if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0 && 
+        !((ONE << square) & eB->EnemyPawnAttackMap[color])){
       if (TRACK) ft.PawnDoubled[color]++;
       s += DOUBLED_PAWN_PENALTY;
     }
 
     // score a pawn if it is isolated
-    if (!(detail::NEIGHBOR_FILES[pawnCol] & pawns)){
+    if (!(detail::NEIGHBOR_FILES[pawnCol] & pawns) &&
+        !((ONE << square) & eB->EnemyPawnAttackMap[color])){
       if (TRACK) ft.PawnIsolated[color]++;
       s += ISOLATED_PAWN_PENALTY;
     }
@@ -667,7 +670,6 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits * eB){
   int s = 0;
   Color otherColor = getOppositeColor(color);
-  U64 blocked = ZERO;
   U64 pieces, tmpPawns = ZERO;
   U64 AllOurAttacks = eB->AttackedSquares[color] | eB->AttackedByKing[color];
   U64 AllTheirAttacks = eB->AttackedSquares[otherColor] | eB->AttackedByKing[otherColor];
@@ -684,13 +686,11 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   // Do not forget to add pawns to BlockedBB for later use
   tmpPawns = otherColor == WHITE ? tmpPawns << 8 : tmpPawns >> 8;
   s += PAWN_BLOCKED * (_popCount(pieces & tmpPawns));
-  blocked |= (pieces & tmpPawns);
   if (TRACK) ft.PawnBlocked[color] += (_popCount(pieces & tmpPawns));
 
   // same stuff, but with passed pawns
   tmpPawns = otherColor == WHITE ? eB->Passers[otherColor] << 8 : eB->Passers[otherColor] >> 8;
   s += PASSER_BLOCKED * (_popCount(pieces & tmpPawns));
-  blocked |= (pieces & tmpPawns);
   if (TRACK) ft.PassersBlocked[color] += (_popCount(pieces & tmpPawns));
 
   // 2. Minors immediately behind our pawns - separate for passers and non-passers
@@ -704,6 +704,18 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   s += MINOR_BEHIND_PASSER * _popCount(eB->Passers[color] & pieces);
   if (TRACK) ft.MinorBehindPasser[color] += _popCount(eB->Passers[color] & pieces);
+
+  // Minor in front of own pawn - passer
+  pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
+  pieces = color == WHITE ? pieces >> 8 : pieces << 8;
+  tmpPawns = board.getPieces(color, PAWN) ^ eB->Passers[color];
+  
+  s += MINOR_BLOCK_OWN_PAWN * _popCount(tmpPawns & pieces);
+  if (TRACK) ft.MinorBlockOwn[color] += _popCount(tmpPawns & pieces);
+
+  s += MINOR_BLOCK_OWN_PASSER * _popCount(eB->Passers[color] & pieces);
+  if (TRACK) ft.MinorBlockOwnPassed[color] += _popCount(eB->Passers[color] & pieces);
+
 
   // Passer - piece evaluation
 

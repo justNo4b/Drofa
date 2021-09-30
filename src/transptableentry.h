@@ -5,7 +5,7 @@
 
 /**
  * @brief Represent CuttOffState of the node saved in the transposition table.
- */ 
+ */
 enum CutOffState{
     NONE,
     EXACT,

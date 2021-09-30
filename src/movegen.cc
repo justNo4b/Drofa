@@ -14,7 +14,7 @@ MoveGen::MoveGen() {
 void MoveGen::setBoard(const Board &board, bool isCaptureGenerated) {
   _moves = MoveList();
   if (!isCaptureGenerated){
-     _genMoves(board); 
+     _genMoves(board);
   } else{
     _genCaptures(board);
   }
@@ -135,7 +135,7 @@ void MoveGen::_getWhitePromQonly(const Board &board){
     Move m = Move(to - 8, to, PAWN, Move::PROMOTION);
     m.setPromotionPieceType(QUEEN);
     _moves.push_back(m);
-  }  
+  }
 }
 
 void MoveGen::_genBlackPromQonly(const Board &board){

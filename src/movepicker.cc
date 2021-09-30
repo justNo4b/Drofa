@@ -2,9 +2,6 @@
 #include "eval.h"
 #include "defs.h"
 
-extern HASH myHASH;
-// Indexed by [victimValue][attackerValue]
-
 
 MovePicker::MovePicker(const OrderingInfo *orderingInfo, const Board *board, MoveList *moveList, int hMove, Color color, int ply, int pMove){
   _orderingInfo = orderingInfo;
