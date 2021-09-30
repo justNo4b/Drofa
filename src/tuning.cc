@@ -2,7 +2,6 @@
 #include "eval.h"
 #include "tuning.h"
 #include "board.h"
-#include "outposts.h"
 #include "tuningFeatures.h"
 #include <limits>
 #include <fstream>

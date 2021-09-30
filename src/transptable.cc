@@ -1,11 +1,10 @@
 #include "transptable.h"
 #include "transptableentry.h"
-#include <iostream>
 
 HASH * myHASH;
 
 HASH::HASH(){
-  
+
   double hashSize = 16; // когда-нить я сделаю аллокацию через UCI
   double p_Size = 6;
 
@@ -34,7 +33,7 @@ void  HASH::HASH_Initalize_MB(const int MB){
 
   // set new size
   double hashSize = MB;
-  TableSize = hashSize / (double) sizeof(HASH_Entry) *  0x100000; 
+  TableSize = hashSize / (double) sizeof(HASH_Entry) *  0x100000;
 
   // Initalize main hash table for transpositions
   TableSize = TableSize - 2;

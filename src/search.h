@@ -101,7 +101,7 @@ class Search {
   void stop();
 
   /**
-   *
+   * @brief get amount of nodes we spent searching
    */
   int getNodes();
 
@@ -137,10 +137,10 @@ class Search {
    */
   static const int MAX_SEARCH_DEPTH = 64;
 
-
-  //
-  int _selDepth = 0; // int that is showing maxDepth with extentions we reached in the search
-  //
+  /**
+   * @brief that is showing maxDepth with extentions we reached in the search
+   */
+  int _selDepth = 0;
 
   //search_constants
   //

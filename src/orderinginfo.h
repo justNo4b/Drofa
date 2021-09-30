@@ -142,11 +142,6 @@ class OrderingInfo {
   int _killer2[MAX_INT_PLY];
 
   /**
-   * @brief Current ply of search
-   */
-  int _ply;
-
-  /**
    * @brief Table of beta-cutoff history values indexed by [color][from_square][to_square]
    */
   int16_t _history[2][64][64];

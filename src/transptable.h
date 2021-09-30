@@ -1,10 +1,7 @@
 #ifndef TRANSPTABLE_H
 #define TRANSPTABLE_H
 
-#include "board.h"
-#include "zkey.h"
 #include "transptableentry.h"
-#include <unordered_map>
 
 /**
  * @brief A transposition table.
@@ -15,7 +12,7 @@
  */
 class HASH{
   public:
-  
+
   HASH();
 
   void        HASH_Clear();

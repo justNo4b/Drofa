@@ -29,7 +29,7 @@ class Move {
 
   /**
    * @brief Constructs a move from a single MOVE_INT
-   * 
+   *
    * @param cMove Complete Move integer
    */
   Move(int cMove);
@@ -57,7 +57,7 @@ class Move {
   /**
    * @brief return is move quiet or not
    */
-  bool isQuiet() const; 
+  bool isQuiet() const;
 
   /**
    * @brief Sets the specified flag on this move.
@@ -153,9 +153,9 @@ class Move {
   unsigned int getTo() const;
 
     /**
-   * @brief 
+   * @brief
    *
-   * @return 
+   * @return
    */
   bool isItPasserPush(const Board &board) const;
 
