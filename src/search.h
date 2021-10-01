@@ -278,6 +278,18 @@ class Search {
    */
   inline void _updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ply, int depth);
 
+  /**
+   * @brief update history for the moves that failed to produce a beta cut
+   *
+   * @param color           moving player
+   * @param failedQuiets    array of moves we want to uptade
+   * @param failedQuietsNum how many failed are there
+   * @param depth           depth we are on
+   */
+  inline void _failedMoveHistories(Color color, int pMove,  Move failedQuiets[], int failedQuietsNum, int depth);
+
+
+
   inline bool _isRepetitionDraw(U64, int);
 
   /**

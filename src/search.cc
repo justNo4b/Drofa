@@ -319,6 +319,13 @@ inline bool Search::_isRepetitionDraw(U64 currKey, int untillFifty){
   return false;
 }
 
+inline void Search::_failedMoveHistories(Color color, int pMove, Move failedQuiets[], int failedQuietsNum, int depth){
+  for (int i = 0; i < failedQuietsNum; i++){
+    _orderingInfo.decrementHistory(color, failedQuiets[i].getFrom(), failedQuiets[i].getTo(), depth);
+    _orderingInfo.decrementCounterHistory(pMove, failedQuiets[i].getPieceType(), failedQuiets[i].getTo(), depth);
+  }
+}
+
 int Search::_rootMax(const Board &board, int alpha, int beta, int depth, int ply) {
   _nodes++;
 
@@ -524,6 +531,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   Move bestMove;
   int  LegalMoveCount = 0;
   int  qCount = 0;
+  Move failedQuiets[64] = {0};
+  int  failedQuietsNum  = 0;
+
   while (movePicker.hasNext()) {
 
     Move move = movePicker.getNext();
@@ -700,6 +710,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
           _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, depth);
+          _failedMoveHistories(board.getActivePlayer(), pMove, failedQuiets, failedQuietsNum, depth);
           // Add a new tt entry for this node
           if (!_stop && !sing){
             myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
@@ -729,9 +740,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         }else{
           // Beta was not beaten and we dont improve alpha in this case we lower our search history values
-          if (isQuiet){
-            _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
-            _orderingInfo.decrementCounterHistory(pMove, move.getPieceType(), move.getTo(), depth);
+          if (isQuiet && failedQuietsNum < 64){
+            failedQuiets[failedQuietsNum] = move;
+            failedQuietsNum++;
           }else{
             _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), depth);
           }
