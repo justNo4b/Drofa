@@ -561,6 +561,15 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   s += KING_ATTACK_PAWN * _popCount(attackBitBoard & enemyPawns);
   if (TRACK) ft.KingAttackPawn[color] += _popCount(attackBitBoard & enemyPawns);
 
+  // See if a king is attacking enemy minor
+  U64 enemyMinors = board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP);
+  s += MINOR_ATTACKED_BY[KING] * _popCount(attackBitBoard & enemyMinors);
+  if (TRACK) ft.MinorAttackedBy[KING][color] += _popCount(attackBitBoard & enemyMinors);
+  
+  // See if a King is attacking enemy unprotected rook
+  s += ROOK_ATTACKED_BY[KING] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
+  if (TRACK) ft.RookAttackedBy[KING][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
+
   if (((file & ourPawns) == 0) && ((file & enemyPawns) == 0)){
     s += KING_OPEN_FILE;
     if (TRACK) ft.KingOpenFile[color]++;
