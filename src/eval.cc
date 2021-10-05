@@ -776,6 +776,16 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
             s += PASSED_PAWN_POS_ADVANCE[r];
             if (TRACK) ft.PassedPawnPosAdvance[r][color]++;
           }
+
+      // Evaluate distance between enemy knights and our passers
+      U64 enemyKnights = board.getPieces(otherColor, KNIGHT);
+      while (enemyKnights){
+        int knightSuqare = _popLsb(enemyKnights);
+        s += KNIGHT_PASSER_DISTANCE_ENEMY[Eval::detail::DISTANCE[square][knightSuqare] / 2];
+        if (TRACK){
+          ft.KnightEnemyPasser[Eval::detail::DISTANCE[square][knightSuqare] / 2][color]++;
+        }
+      }    
     }
 
 
