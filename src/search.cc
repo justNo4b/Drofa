@@ -618,6 +618,14 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               tDepth++;
             }
 
+        // unhashed capture extention
+        if(!isQuiet &&
+            !TTmove &&
+            move.getValue() > 0){
+              tDepth++;
+            }
+
+
         _posHist.Add(board.getZKey().getValue());
 
         // 8. LATE MOVE REDUCTIONS
