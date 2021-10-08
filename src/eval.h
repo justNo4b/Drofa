@@ -464,7 +464,7 @@ inline int kingDanger(Color, const evalBits *);
  * @brief Set value for a MATERIAL_VALUES_TUNABLE array
  * which is used for optuna tuning
  */
-void SetupTuning(int phase, PieceType piece, int value);
+void SetupTuning(int phase, int value);
 
 };
 

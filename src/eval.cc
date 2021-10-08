@@ -10,23 +10,8 @@
 extern HASH * myHASH;
 extern posFeatured ft;
 
-int MATERIAL_VALUES_TUNABLE[2][6] = {
-    [OPENING] = {
-        [PAWN] = 100,
-        [ROOK] = 465,
-        [KNIGHT] = 304,
-        [BISHOP] = 336,
-        [QUEEN] = 1190,
-        [KING] = 0
-    },
-    [ENDGAME] = {
-        [PAWN] = 86,
-        [ROOK] = 565,
-        [KNIGHT] = 328,
-        [BISHOP] = 357,
-        [QUEEN] = 995,
-        [KING] = 0
-    }
+int MATERIAL_VALUES_TUNABLE[12] = {
+  -50,35,-70,-20,0,100,150,200,24,50,26,62
 };
 
 U64 Eval::detail::FILES[8] = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
@@ -149,15 +134,15 @@ evalBits Eval::Setupbits(const Board &board){
   eB.RammedCount = _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN));
   eB.OutPostedLines[0] = 0, eB.OutPostedLines[1] = 0;
   eB.KingAttackers[0] = 0, eB.KingAttackers[1] = 0;
-  eB.KingAttackPower[0] = START_ATTACK_VALUE, eB.KingAttackPower[1] = START_ATTACK_VALUE;
+  eB.KingAttackPower[0] = MATERIAL_VALUES_TUNABLE[0], eB.KingAttackPower[1] = MATERIAL_VALUES_TUNABLE[0];
   eB.Passers[0] = 0, eB.Passers[1] = 0;
   eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
   eB.AttackedByKing[0] = 0, eB.AttackedByKing[1] = 0;
   return eB;
 }
 
-void Eval::SetupTuning(int phase, PieceType piece, int value){
-  MATERIAL_VALUES_TUNABLE [phase][piece] = value;
+void Eval::SetupTuning(int num, int value){
+  MATERIAL_VALUES_TUNABLE [num] = value;
 }
 
 int Eval::getMaterialValue(int phase, PieceType pieceType) {
@@ -295,7 +280,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
     if (kingAttack > 0){
       eB->KingAttackers[color]++;
-      eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[QUEEN];
+      eB->KingAttackPower[color] += kingAttack * MATERIAL_VALUES_TUNABLE[11];
     }
   }
 
@@ -346,7 +331,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
     if (kingAttack > 0){
       eB->KingAttackers[color]++;
-      eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[ROOK];
+      eB->KingAttackPower[color] += kingAttack * MATERIAL_VALUES_TUNABLE[8];
     }
 
     // See if a Rook is attacking an enemy unprotected pawn
@@ -433,7 +418,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       if (kingAttack > 0){
         eB->KingAttackers[color]++;
-        eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[BISHOP];
+        eB->KingAttackPower[color] += kingAttack * MATERIAL_VALUES_TUNABLE[10];
       }
 
       // See if a Bishop is attacking an enemy unprotected pawn
@@ -501,7 +486,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       if (kingAttack > 0){
         eB->KingAttackers[color]++;
-        eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[KNIGHT];
+        eB->KingAttackPower[color] += kingAttack * MATERIAL_VALUES_TUNABLE[9];
       }
 
       // See if a Knight is attacking an enemy unprotected pawn
@@ -644,7 +629,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     }
 
     // add penalties for the doubled pawns
-    if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0 && 
+    if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0 &&
         !((ONE << square) & eB->EnemyPawnAttackMap[color])){
       if (TRACK) ft.PawnDoubled[color]++;
       s += DOUBLED_PAWN_PENALTY;
@@ -709,7 +694,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
   pieces = color == WHITE ? pieces >> 8 : pieces << 8;
   tmpPawns = board.getPieces(color, PAWN) ^ eB->Passers[color];
-  
+
   s += MINOR_BLOCK_OWN_PAWN * _popCount(tmpPawns & pieces);
   if (TRACK) ft.MinorBlockOwn[color] += _popCount(tmpPawns & pieces);
 
@@ -792,8 +777,8 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   }
 
   int unContested = _popCount(eB->AttackedSquares[color] & eB->EnemyKingZone[color] & ~eB->AttackedSquares[otherColor]);
-  eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
-  if (board.getActivePlayer() == color) eB->KingAttackPower[color] += ATTACK_TEMPO;
+  eB->KingAttackPower[color] += MATERIAL_VALUES_TUNABLE[std::min(unContested, 5) + 2];
+  if (board.getActivePlayer() == color) eB->KingAttackPower[color] += MATERIAL_VALUES_TUNABLE[1];
 
   return s;
 }
