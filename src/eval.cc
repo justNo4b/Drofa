@@ -10,23 +10,8 @@
 extern HASH * myHASH;
 extern posFeatured ft;
 
-int MATERIAL_VALUES_TUNABLE[2][6] = {
-    [OPENING] = {
-        [PAWN] = 100,
-        [ROOK] = 465,
-        [KNIGHT] = 304,
-        [BISHOP] = 336,
-        [QUEEN] = 1190,
-        [KING] = 0
-    },
-    [ENDGAME] = {
-        [PAWN] = 86,
-        [ROOK] = 565,
-        [KNIGHT] = 328,
-        [BISHOP] = 357,
-        [QUEEN] = 995,
-        [KING] = 0
-    }
+int MATERIAL_VALUES_TUNABLE[4] = {
+  0, 0, 0, 0
 };
 
 U64 Eval::detail::FILES[8] = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
@@ -156,8 +141,8 @@ evalBits Eval::Setupbits(const Board &board){
   return eB;
 }
 
-void Eval::SetupTuning(int phase, PieceType piece, int value){
-  MATERIAL_VALUES_TUNABLE [phase][piece] = value;
+void Eval::SetupTuning(int phase, int value){
+  MATERIAL_VALUES_TUNABLE [phase] = value;
 }
 
 int Eval::getMaterialValue(int phase, PieceType pieceType) {
@@ -644,7 +629,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     }
 
     // add penalties for the doubled pawns
-    if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0 && 
+    if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0 &&
         !((ONE << square) & eB->EnemyPawnAttackMap[color])){
       if (TRACK) ft.PawnDoubled[color]++;
       s += DOUBLED_PAWN_PENALTY;
@@ -709,7 +694,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
   pieces = color == WHITE ? pieces >> 8 : pieces << 8;
   tmpPawns = board.getPieces(color, PAWN) ^ eB->Passers[color];
-  
+
   s += MINOR_BLOCK_OWN_PAWN * _popCount(tmpPawns & pieces);
   if (TRACK) ft.MinorBlockOwn[color] += _popCount(tmpPawns & pieces);
 
@@ -790,6 +775,24 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
 
   }
+
+  // Calculate space
+  // Grab pawns and do a rear-fill
+  // Do only when there are many pieces
+  int pieceCountTotal = _popCount(board.getAllPieces(color) ^ board.getPieces(color, PAWN) ^ board.getPieces(color, PAWN));
+  if (pieceCountTotal >= 10){
+    U64 spaceZone = board.getPieces(color, PAWN);
+    spaceZone |= color == WHITE ? spaceZone >> 8 : spaceZone << 8;
+    spaceZone |= color == WHITE ? spaceZone >> 16 : spaceZone << 16;
+    spaceZone |= color == WHITE ? spaceZone >> 32 : spaceZone << 32;
+    // see free safe squares: no enemy pieces, no enemy attacks, in ext center
+    // for each piece count use different score value
+    // max == 16 (16p, 14p, 12p, 10p)
+    spaceZone = spaceZone & ~(board.getAllPieces(otherColor) | eB->EnemyPawnAttackMap[color]) & EXTENDED_CENTER;
+    s += MATERIAL_VALUES_TUNABLE[(pieceCountTotal - 10) / 2] * _popCount(spaceZone);
+  }
+
+
 
   int unContested = _popCount(eB->AttackedSquares[color] & eB->EnemyKingZone[color] & ~eB->AttackedSquares[otherColor]);
   eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];

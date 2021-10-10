@@ -51,25 +51,19 @@ void changeThreadsNumber(){
   myTHREADSCOUNT = tNum;
 }
 
-#ifdef _TUNE_
 void loadCosts(){
+int value = 0;
 
-Eval::SetupTuning(OPENING, PAWN, atoi(optionsMap["vPawnOP"].getValue().c_str()));
-Eval::SetupTuning(ENDGAME, PAWN, atoi(optionsMap["vPawnEG"].getValue().c_str()));
+value = gS(atoi(optionsMap["sp0_op"].getValue().c_str()), atoi(optionsMap["sp0_eg"].getValue().c_str()));
+Eval::SetupTuning(0, value);
 
-Eval::SetupTuning(OPENING, KNIGHT, atoi(optionsMap["vKnightOP"].getValue().c_str()));
-Eval::SetupTuning(ENDGAME, KNIGHT, atoi(optionsMap["vKnightEG"].getValue().c_str()));
-
-Eval::SetupTuning(OPENING, BISHOP, atoi(optionsMap["vBishopOP"].getValue().c_str()));
-Eval::SetupTuning(ENDGAME, BISHOP, atoi(optionsMap["vBishopEG"].getValue().c_str()));
-
-Eval::SetupTuning(OPENING, ROOK, atoi(optionsMap["vRookOP"].getValue().c_str()));
-Eval::SetupTuning(ENDGAME, ROOK, atoi(optionsMap["vRookEG"].getValue().c_str()));
-
-Eval::SetupTuning(OPENING, QUEEN, atoi(optionsMap["vQueenOP"].getValue().c_str()));
-Eval::SetupTuning(ENDGAME, QUEEN, atoi(optionsMap["vQueenEG"].getValue().c_str()));
+value = gS(atoi(optionsMap["sp1_op"].getValue().c_str()), atoi(optionsMap["sp1_eg"].getValue().c_str()));
+Eval::SetupTuning(1, value);
+value = gS(atoi(optionsMap["sp2_op"].getValue().c_str()), atoi(optionsMap["sp2_eg"].getValue().c_str()));
+Eval::SetupTuning(2, value);
+value = gS(atoi(optionsMap["sp3_op"].getValue().c_str()), atoi(optionsMap["sp3_eg"].getValue().c_str()));
+Eval::SetupTuning(3, value);
 }
-#endif
 
 void initOptions() {
   optionsMap["OwnBook"] = Option(false);
@@ -85,18 +79,18 @@ void initOptions() {
   // to change different parameters via communocation
   // with the engine.
 
-#ifdef _TUNE_
-  optionsMap["vPawnOP"] =   Option(100, 25, 2048, &loadCosts);
-  optionsMap["vPawnEG"] =   Option(100, 25, 2048, &loadCosts);
-  optionsMap["vKnightOP"] = Option(300, 25, 2048, &loadCosts);
-  optionsMap["vKnightEG"] = Option(300, 25, 2048, &loadCosts);
-  optionsMap["vBishopOP"] = Option(315, 25, 2048, &loadCosts);
-  optionsMap["vBishopEG"] = Option(315, 25, 2048, &loadCosts);
-  optionsMap["vRookOP"] =   Option(500, 25, 2048, &loadCosts);
-  optionsMap["vRookEG"] =   Option(500, 25, 2048, &loadCosts);
-  optionsMap["vQueenOP"] =  Option(900, 25, 2048, &loadCosts);
-  optionsMap["vQueenEG"] =  Option(900, 25, 2048, &loadCosts);
-#endif
+  optionsMap["sp0_op"] =   Option(0, -25, 25, &loadCosts);
+  optionsMap["sp0_eg"] =   Option(0, -25, 25, &loadCosts);
+
+  optionsMap["sp1_op"] =   Option(0, -25, 25, &loadCosts);
+  optionsMap["sp1_eg"] =   Option(0, -25, 25, &loadCosts);
+
+  optionsMap["sp2_op"] =   Option(0, -25, 25, &loadCosts);
+  optionsMap["sp2_eg"] =   Option(0, -25, 25, &loadCosts);
+
+  optionsMap["sp3_op"] =   Option(0, -25, 25, &loadCosts);
+  optionsMap["sp4_eg"] =   Option(0, -25, 25, &loadCosts);
+
 
 }
 
