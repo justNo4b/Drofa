@@ -12,6 +12,7 @@
 
 extern int myTHREADSCOUNT;
 extern OrderingInfo   * cOrdering[MAX_THREADS];
+extern Poshistory     * cPosHist[MAX_THREADS];
 extern Search         * cSearch[MAX_THREADS];
 extern std::thread      cThread[MAX_THREADS];
 extern HASH           * myHASH;
@@ -153,7 +154,12 @@ void Search::iterDeep() {
       delete cOrdering[i];
       cOrdering[i] = nullptr;
     }
-}
+
+    for (int i = 1; i < myTHREADSCOUNT; i++){
+      delete cPosHist[i];
+      cPosHist[i] = nullptr;
+    }
+  }
 
 }
 

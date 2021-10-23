@@ -8,6 +8,7 @@
 
 extern HASH         * myHASH;
 extern OrderingInfo * myOrdering;
+extern Poshistory   * myPosHistory;
 
 int myTHREADSCOUNT = 1;
 
@@ -21,7 +22,6 @@ namespace {
 Book book;
 std::shared_ptr<Search> search;
 Board board;
-Poshistory *basepHist = new Poshistory();
 
 void loadBook() {
   std::ifstream bookFile(optionsMap["BookPath"].getValue());
@@ -105,13 +105,13 @@ void initOptions() {
 
 void uciNewGame() {
   board.setToStartPos();
-  Poshistory *basepHist = new Poshistory();
 }
 
 void setPosition(std::istringstream &is) {
   std::string token;
   is >> token;
 
+  myPosHistory->ZeroingTables();
   if (token == "startpos") {
     board.setToStartPos();
   } else {
@@ -134,9 +134,9 @@ void setPosition(std::istringstream &is) {
       if (move.getNotation() == token) {
         board.doMove(move);
         if ((move.getPieceType() == PAWN) || (move.getFlags() & Move::CAPTURE) ){
-          basepHist->ZeroingTables();
+          myPosHistory->ZeroingTables();
         }
-        basepHist->AddNode(board.getZKey().getValue(), move.getMoveINT());
+        myPosHistory->AddNode(board.getZKey().getValue(), move.getMoveINT());
         break;
       }
     }
@@ -176,20 +176,18 @@ void go(std::istringstream &is) {
 
       // create new search and start
       cOrdering[i] = new OrderingInfo();
-      cPosHist[i] = new Poshistory();
+      cPosHist[i] = myPosHistory;
       cSearch[i] = new Search(b, l, cOrdering[i], cPosHist[i], false);
       cThread[i] = std::thread(&Search::iterDeep, cSearch[i]);
     }
   }
 
   myOrdering->clearKillers();
-  basepHist->RemoveLast();
-  search = std::make_shared<Search>(board, limits, myOrdering, basepHist);
+  myPosHistory->RemoveLast();
+  search = std::make_shared<Search>(board, limits, myOrdering, myPosHistory);
 
   std::thread searchThread(&pickBestMove);
   searchThread.detach();
-
-
 }
 
 unsigned long long perft(const Board &board, int depth) {
