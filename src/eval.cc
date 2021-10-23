@@ -639,6 +639,13 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         if (TRACK) ft.PassedPassedDistance[abs(tPasCol - pawnCol)][color]++;
       }
 
+      U64 enemyPawns = board.getPieces(otherColor, PAWN);
+      while (enemyPawns){
+        int eSquare = _popLsb(enemyPawns);
+        s += PASSED_ENEMY_PAWN_DISTANCE[Eval::detail::DISTANCE[square][eSquare]];
+        if (TRACK) ft.PassedePawnDistance[Eval::detail::DISTANCE[square][eSquare]][color]++;
+      }
+
       // Add pawn to the passers list for further use
       eB->Passers[color] = eB->Passers[color] | (ONE << square);
     }
