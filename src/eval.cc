@@ -770,6 +770,13 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
     // For passers on the enemy side of the board, consider their advancing ability
     if (r >= 4){
+
+      // Rook rear support
+      if(detail::FORWARD_BITS[!color][square] & board.getPieces(color, ROOK)){
+        s += ROOK_REAR_SUPPORT;
+        if (TRACK) ft.RookRearSupport[color]++;
+      }
+
       // 3. Free passer evaluation
       // Add bonus for each passed pawn that has no piece blocking its advance
       // rank - based evaluation
@@ -781,8 +788,10 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
       // 4. Moving passer evaluation
       // Add bonus when passed pawn nex square is not attacked
       // and pawn can be advanced
-      if ((((ONE << (square + forward)) & pieces) == 0) &&
-          (((ONE << (square + forward)) & posAdvance) != 0)){
+      bool currAdvance = (((ONE << (square + forward)) & posAdvance) != 0) 
+                       || (detail::FORWARD_BITS[!color][square] & board.getPieces(color, ROOK));
+
+      if ((((ONE << (square + forward)) & pieces) == 0) && currAdvance){
             s += PASSED_PAWN_POS_ADVANCE[r];
             if (TRACK) ft.PassedPawnPosAdvance[r][color]++;
           }
