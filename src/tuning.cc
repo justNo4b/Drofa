@@ -248,6 +248,7 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.MinorBehindPasser[WHITE] - ft.MinorBehindPasser[BLACK];
     coeff[i++] = ft.MinorBlockOwn[WHITE] - ft.MinorBlockOwn[BLACK];
     coeff[i++] = ft.MinorBlockOwnPassed[WHITE] - ft.MinorBlockOwnPassed[BLACK];
+    coeff[i++] = ft.RookRearSupport[WHITE] - ft.RookRearSupport[BLACK];
     coeff[i++] = ft.KingAheadPasser[WHITE] - ft.KingAheadPasser[BLACK];
     coeff[i++] = ft.KingEqualPasser[WHITE] - ft.KingEqualPasser[BLACK];
     coeff[i++] = ft.KingBehindPasser[WHITE] - ft.KingBehindPasser[BLACK];
