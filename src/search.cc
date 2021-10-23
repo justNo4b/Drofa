@@ -618,6 +618,12 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               tDepth++;
             }
 
+        // 6.4 In non-TT nodes we already reduced, so for interesting moves
+        // we try to return this depth by extending
+        if (!TTmove && !doNool && !sing && moveHistory > 12000){
+              tDepth++;
+            }
+
         _posHist.Add(board.getZKey().getValue());
 
         // 8. LATE MOVE REDUCTIONS
