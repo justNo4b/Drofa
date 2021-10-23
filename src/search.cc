@@ -808,6 +808,11 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
     if (!(move.getFlags() & Move::PROMOTION) && standPat + move.getValue() + DELTA_MOVE_CONST < alpha)
       break;
 
+    // Use Koivisto qs Pruning
+    if (standPat + move.getValue() > beta + 200){
+      return beta;
+    }
+
     Board movedBoard = board;
     movedBoard.doMove(move);
       if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
