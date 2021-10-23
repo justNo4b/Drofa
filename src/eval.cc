@@ -781,8 +781,10 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
       // 4. Moving passer evaluation
       // Add bonus when passed pawn nex square is not attacked
       // and pawn can be advanced
-      if ((((ONE << (square + forward)) & pieces) == 0) &&
-          (((ONE << (square + forward)) & posAdvance) != 0)){
+      bool currAdvance = (((ONE << (square + forward)) & posAdvance) != 0) 
+                       || (detail::FORWARD_BITS[!color][square] & board.getPieces(color, ROOK));
+
+      if ((((ONE << (square + forward)) & pieces) == 0) && currAdvance){
             s += PASSED_PAWN_POS_ADVANCE[r];
             if (TRACK) ft.PassedPawnPosAdvance[r][color]++;
           }
