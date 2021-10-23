@@ -260,6 +260,10 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.PawnConnected[j][WHITE] - ft.PawnConnected[j][BLACK];
     }
 
+    for (int j = 0; j < 5; j++){
+        coeff[i++] = ft.PawnBackWard[j][WHITE] - ft.PawnBackWard[j][BLACK];
+    }
+
     for (int j = 0; j < 7; j++){
         coeff[i++] = ft.PassedPawnRank[j][WHITE] - ft.PassedPawnRank[j][BLACK];
     }

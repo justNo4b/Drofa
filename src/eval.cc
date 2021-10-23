@@ -610,6 +610,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
     int square = _popLsb(tmpPawns);
     int pawnCol = _col(square);
+    int forwardSQV = color == WHITE ? square + 8 : square - 8;
     int r = color == WHITE ? _row(square) : 7 - _row(square);
 
     if (TRACK){
@@ -655,7 +656,14 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         !((ONE << square) & eB->EnemyPawnAttackMap[color])){
       if (TRACK) ft.PawnIsolated[color]++;
       s += ISOLATED_PAWN_PENALTY;
-    }
+    }else // test is it is backward
+    if (((eB->EnemyPawnAttackMap[color] & (ONE << forwardSQV)) != 0) && 
+        ((detail::OUTPOST_MASK[getOppositeColor(color)][forwardSQV] & pawns) == 0) &&
+        !((ONE << square) & eB->EnemyPawnAttackMap[color])){
+          int r = color == WHITE ? _row(square) : 7 - _row(square);
+          if (TRACK) ft.PawnBackWard[r][color]++;
+          s += BACKWARD_PAWN_PENALTY[r];
+        }
 
     // test on if a pawn is connected
     if ((detail::CONNECTED_MASK[square] & pawns) != 0){
