@@ -81,7 +81,7 @@ class Search {
    * @param logUci If logUci is set, UCI info commands about the search will be printed
    * to standard output in real time.k
    */
-  Search(const Board &, Limits, OrderingInfo *, Poshistory *, bool= true);
+  Search(const Board &, Limits, OrderingInfo *, Poshistory, bool= true);
 
   /**
    * @brief Performs an iterative deepening search within the constraints of the given limits.
@@ -162,7 +162,7 @@ class Search {
    * @brief OrderingInfo object containing information about the current state
    * of this search
    */
-  Poshistory & _posHistory;
+  Poshistory _posHistory;
 
   /**
    * @brief Limits object representing limits imposed on this search.

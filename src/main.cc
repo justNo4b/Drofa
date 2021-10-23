@@ -9,7 +9,6 @@
 
 extern  HASH  * myHASH;
 OrderingInfo  * myOrdering;
-Poshistory    * myPosHistory;
 
 int main(int argCount, char* argValue[]) {
   Rays::init();
@@ -22,7 +21,6 @@ int main(int argCount, char* argValue[]) {
   myHASH->HASH_Initalize_MB(16);
 
   myOrdering    = new OrderingInfo();
-  myPosHistory  = new Poshistory();
 
   #ifdef _TUNE_
   TunerStart();
