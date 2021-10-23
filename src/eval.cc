@@ -450,7 +450,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
           s += BISHOP_PROT_OUTPOST_BLACK[relSqv];
           eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
           if (TRACK) ft.BishopOutProtBlack[relSqv][color]++;
-        } else if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) != ZERO){
+        } else if ((board.getPieces(getOppositeColor(color), PAWN) & (ONE << (square + (color == WHITE ? 8 : -8)))) != ZERO){
           s += BISHOP_OUTPOST_BLACK[relSqv];
           if (TRACK) ft.BishopOutBlack[relSqv][color]++;
         }
@@ -522,7 +522,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
           s += KNIGHT_PROT_OUTPOST_BLACK[relSqv];
           eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
           if (TRACK) ft.KnightOutProtBlack[relSqv][color]++;
-        } else if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) != ZERO){
+        } else if ((board.getPieces(getOppositeColor(color), PAWN) & (ONE << (square + (color == WHITE ? 8 : -8)))) != ZERO){
           s += KNIGHT_OUTPOST_BLACK[relSqv];
           if (TRACK) ft.KnightOutBlack[relSqv][color]++;
         }
@@ -644,7 +644,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     }
 
     // add penalties for the doubled pawns
-    if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0 && 
+    if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0 &&
         !((ONE << square) & eB->EnemyPawnAttackMap[color])){
       if (TRACK) ft.PawnDoubled[color]++;
       s += DOUBLED_PAWN_PENALTY;
@@ -709,7 +709,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
   pieces = color == WHITE ? pieces >> 8 : pieces << 8;
   tmpPawns = board.getPieces(color, PAWN) ^ eB->Passers[color];
-  
+
   s += MINOR_BLOCK_OWN_PAWN * _popCount(tmpPawns & pieces);
   if (TRACK) ft.MinorBlockOwn[color] += _popCount(tmpPawns & pieces);
 
