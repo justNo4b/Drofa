@@ -374,6 +374,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
 inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB){
   int s = 0;
 
+  bool isKingProtector = false;
   U64 pieces = board.getPieces(color, BISHOP);
   Color otherColor = getOppositeColor(color);
   U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
@@ -436,6 +437,10 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[BISHOP];
       }
 
+      // If Bishop is covering our own King, set a variable to
+      // adjust enemy attack power
+      if (attackBitBoard & eB->EnemyKingZone[otherColor]) isKingProtector = true;
+
       // See if a Bishop is attacking an enemy unprotected pawn
       s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
       if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
@@ -457,11 +462,14 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       }
     }
 
+  if (isKingProtector) eB->KingAttackPower[otherColor] += BISHOP_DEFENDER;
+
   return s;
 }
 
 inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB){
   int s = 0;
+  bool isKingProtector = false;
   U64 pieces = board.getPieces(color, KNIGHT);
   Color otherColor = getOppositeColor(color);
   U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
@@ -504,6 +512,10 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[KNIGHT];
       }
 
+      // If Bishop is covering our own King, set a variable to
+      // adjust enemy attack power
+      if (attackBitBoard & eB->EnemyKingZone[otherColor]) isKingProtector = true;
+
       // See if a Knight is attacking an enemy unprotected pawn
       s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
       if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
@@ -528,6 +540,9 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
         }
       }
     }
+
+  if (isKingProtector) eB->KingAttackPower[otherColor] += KNIGHT_DEFENDER;
+
   return s;
 }
 
@@ -644,7 +659,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     }
 
     // add penalties for the doubled pawns
-    if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0 && 
+    if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0 &&
         !((ONE << square) & eB->EnemyPawnAttackMap[color])){
       if (TRACK) ft.PawnDoubled[color]++;
       s += DOUBLED_PAWN_PENALTY;
@@ -709,7 +724,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
   pieces = color == WHITE ? pieces >> 8 : pieces << 8;
   tmpPawns = board.getPieces(color, PAWN) ^ eB->Passers[color];
-  
+
   s += MINOR_BLOCK_OWN_PAWN * _popCount(tmpPawns & pieces);
   if (TRACK) ft.MinorBlockOwn[color] += _popCount(tmpPawns & pieces);
 
