@@ -653,7 +653,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // reduce more/less based on the hitory
           reduction -= moveHistory / 8192;
-          reduction -= cmHistory  / 12288;
+          reduction -= cmHistory  / 8192;
 
           // reduce less when move is a Queen promotion
           reduction -= (move.getFlags() & Move::PROMOTION) && (move.getPromotionPieceType() == QUEEN);
