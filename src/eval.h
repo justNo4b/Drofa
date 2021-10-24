@@ -20,6 +20,7 @@ struct evalBits{
     int KingAttackers[2];
     int KingAttackPower[2];
     int EnemyKingSquare[2];
+    bool IsChecks[2];
 };
 
 enum CastleSide {
@@ -92,6 +93,7 @@ extern U64 KING_PAWN_MASKS[2][2][8];
   */
   const int START_ATTACK_VALUE = -50;
   const int ATTACK_TEMPO = 35;
+  const int NO_CHECKS = -35;
 
   const int UNCONTESTED_KING_ATTACK [6] = {
       -70, -20, 0, 100, 150, 200
