@@ -608,6 +608,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               int score = _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, ply, false, pMove, true);
               if (sBeta > score){
                 tDepth += 1 + failedNull;
+              }else if (!pvNode && score >= beta){
+                return beta;
               }
             }
 
