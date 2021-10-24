@@ -144,6 +144,7 @@ evalBits Eval::Setupbits(const Board &board){
   eB.Passers[0] = 0, eB.Passers[1] = 0;
   eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
   eB.AttackedByKing[0] = 0, eB.AttackedByKing[1] = 0;
+  eB.IsChecks[0] = false, eB.IsChecks[1] = false;
   return eB;
 }
 
