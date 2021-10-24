@@ -101,6 +101,10 @@ extern U64 KING_PAWN_MASKS[2][2][8];
         0, 24, 50, 26, 62, 0
   };
 
+  const int PIECE_CHECK_POWER[6] = {
+        0, 22, 16, 92, 34, 0
+  };
+
   const int COUNT_TO_POWER[8] = {0, 0, 51, 83, 102, 111, 122, 128};
   const int COUNT_TO_POWER_DIVISOR = 128;
   /**@}*/
