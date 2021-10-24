@@ -19,6 +19,7 @@ struct evalBits{
     int RammedCount;
     int KingAttackers[2];
     int KingAttackPower[2];
+    int EnemyKingSquare[2];
 };
 
 enum CastleSide {
@@ -98,6 +99,10 @@ extern U64 KING_PAWN_MASKS[2][2][8];
 
   const int PIECE_ATTACK_POWER[6] = {
         0, 24, 50, 26, 62, 0
+  };
+
+  const int PIECE_CHECK_POWER[6] = {
+        0, 22, 16, 92, 34, 0
   };
 
   const int COUNT_TO_POWER[8] = {0, 0, 51, 83, 102, 111, 122, 128};
@@ -464,7 +469,7 @@ inline int kingDanger(Color, const evalBits *);
  * @brief Set value for a MATERIAL_VALUES_TUNABLE array
  * which is used for optuna tuning
  */
-void SetupTuning(int phase, PieceType piece, int value);
+void SetupTuning(PieceType piece, int value);
 
 };
 
