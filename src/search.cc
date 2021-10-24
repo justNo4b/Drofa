@@ -619,6 +619,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               tDepth++;
             }
 
+        if(LegalMoveCount < 3 && !TTmove && failedNull && moveHistory > 12288){
+          tDepth++;
+        }
+
         _posHist.Add(board.getZKey().getValue());
 
         // 8. LATE MOVE REDUCTIONS
