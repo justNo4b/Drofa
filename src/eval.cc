@@ -430,7 +430,6 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       int kingChecks = _popCount(attackBitBoard & board.getAttacksForSquare(BISHOP, getOppositeColor(color), eB->EnemyKingSquare[color]));
       if (kingAttack > 0 || kingChecks > 0){
-        eB->IsChecks[color] = kingChecks > 0;
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[BISHOP];
         eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[BISHOP];
@@ -501,7 +500,6 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       int kingChecks = _popCount(attackBitBoard & board.getAttacksForSquare(KNIGHT, getOppositeColor(color), eB->EnemyKingSquare[color]));
       if (kingAttack > 0 || kingChecks > 0){
-        eB->IsChecks[color] = kingChecks > 0;
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[KNIGHT];
         eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[KNIGHT];
@@ -796,7 +794,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   int unContested = _popCount(eB->AttackedSquares[color] & eB->EnemyKingZone[color] & ~eB->AttackedSquares[otherColor]);
   eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
-  if (!eB->IsChecks[color]) eB->KingAttackPower[color] += NO_CHECKS;
+  if (!eB->IsChecks[color]) eB->KingAttackPower[color] += NO_MAJORS_CHECKS;
   if (board.getActivePlayer() == color) eB->KingAttackPower[color] += ATTACK_TEMPO;
 
   return s;
