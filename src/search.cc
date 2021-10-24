@@ -497,7 +497,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           Board movedBoard = board;
           _posHist.Add(board.getZKey().getValue());
           movedBoard.doNool();
-          int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((statEVAL - beta) / 128, 4);
+          int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((statEVAL - beta) / 128, (4 - improving));
           int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, ply + 1, true, 0, false);
           _posHist.Remove();
           if (score >= beta){
