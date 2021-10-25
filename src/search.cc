@@ -326,7 +326,8 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth, int ply
   MoveList legalMoves = movegen.getMoves();
   pV rootPV = pV();
 
-  _sEvalArray[ply] = board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer());
+  evalReport eResult = Eval::evaluate(board, board.getActivePlayer());
+  _sEvalArray[ply] = board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : eResult.eval;
 
   // If no legal moves are available, just return, setting bestmove to a null move
   if (legalMoves.empty()) {
@@ -454,10 +455,12 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // Statically evaluate our position
   // Do the Evaluation, unless we are in check or prev move was NULL
   // If last Move was Null, just negate prev eval and add 2x tempo bonus (10)
+
+  evalReport eResult = Eval::evaluate(board, board.getActivePlayer());
   if (AreWeInCheck) {
     _sEvalArray[ply] = NOSCORE;
   }else {
-    statEVAL = Eval::evaluate(board, board.getActivePlayer());
+    statEVAL = eResult.eval;
     _sEvalArray[ply] = statEVAL;
   }
 
@@ -776,7 +779,8 @@ int Search::_qSearch(const Board &board, int alpha, int beta, int ply) {
     return 0;
   }
 
-  int standPat = Eval::evaluate(board, board.getActivePlayer());
+  evalReport eResult = Eval::evaluate(board, board.getActivePlayer());
+  int standPat = eResult.eval;
 
   if (standPat >= beta) {
     return beta;

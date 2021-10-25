@@ -144,6 +144,7 @@ evalBits Eval::Setupbits(const Board &board){
   eB.Passers[0] = 0, eB.Passers[1] = 0;
   eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
   eB.AttackedByKing[0] = 0, eB.AttackedByKing[1] = 0;
+  eB.ThreatsCount[0] = 0, eB.ThreatsCount[1] = 0;
   return eB;
 }
 
@@ -848,13 +849,14 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
   return final_eval;
 }
 
-int Eval::evaluate(const Board &board, Color color) {
+evalReport Eval::evaluate(const Board &board, Color color) {
 
   int score = 0;
   Color otherColor = getOppositeColor(color);
+  evalReport result = evalReport();
 
   if (IsItDeadDraw(board, color)){
-    return 0;
+    return result;
   }
 
   if (TRACK){
@@ -914,7 +916,11 @@ int Eval::evaluate(const Board &board, Color color) {
   // Taper and Scale obtained score
   int final_eval = TaperAndScale(board, color, score);
 
-  return final_eval + TEMPO;
+  result.eval           = final_eval + TEMPO;
+  result.ourThreats     = eB.ThreatsCount[color];
+  result.enemyThreats   = eB.ThreatsCount[otherColor];
+
+  return result;
 }
 
 int Eval::evalTestSuite(const Board &board, Color color)

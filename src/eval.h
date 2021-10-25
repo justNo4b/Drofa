@@ -20,7 +20,18 @@ struct evalBits{
     int KingAttackers[2];
     int KingAttackPower[2];
     int EnemyKingSquare[2];
+    int ThreatsCount[2];
 };
+
+struct evalReport
+{
+  int eval;
+  int ourThreats;
+  int enemyThreats;
+
+  evalReport() : eval(0), ourThreats(0), enemyThreats(0) {}
+};
+
 
 enum CastleSide {
     KingSide,
@@ -387,7 +398,7 @@ void init();
  * @param color Color to evaluate advantage of
  * @return Advantage of the given color in centipawns
  */
-int evaluate(const Board &, Color);
+evalReport evaluate(const Board &, Color);
 
 /**
  * @brief Basically template function for testing various eval features.
