@@ -489,7 +489,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
   // Threat pruning
-  if (isPrune && depth == 1 && statEVAL > beta + 50 && eResult.enemyThreats == 0){
+  if (isPrune && depth == 1 && statEVAL > beta + 50 && eResult.enemyThreats == 0 && eResult.ourThreats > 0){
     return beta;
   }
 
