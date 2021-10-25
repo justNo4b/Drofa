@@ -260,6 +260,8 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
   // Apply penalty for each Queen attacked by enemy pawn
   s += HANGING_PIECE[QUEEN] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
   if (TRACK) ft.HangingPiece[QUEEN][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
+  // if any knights are hanging, increase enemy threats
+  eB->ThreatsCount[getOppositeColor(color)] += _popCount(pieces & eB->EnemyPawnAttackMap[color]);
 
   while (pieces) {
     int square = _popLsb(pieces);
@@ -305,6 +307,8 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
   // Apply penalty for each Rook attacked by enemy pawn
   s += HANGING_PIECE[ROOK] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
   if (TRACK) ft.HangingPiece[ROOK][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
+  // if any rooks are hanging, increase enemy threats
+  eB->ThreatsCount[otherColor] += _popCount(pieces & eB->EnemyPawnAttackMap[color]);
 
   while (pieces) {
     int square = _popLsb(pieces);
@@ -334,6 +338,8 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     // Rook Attack Queen
     s += QUEEN_ATTACKED_BY[ROOK] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
     if (TRACK) ft.QueenAttackedBy[ROOK][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+    // for a strong threat, increase our threats
+    eB->ThreatsCount[color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
 
     // If Rook attacking squares near enemy king
     // Adjust our kind Danger code
@@ -387,6 +393,8 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
   // Apply a penalty for each Bishop attacked by enemy pawn
   s += HANGING_PIECE[BISHOP] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
   if (TRACK) ft.HangingPiece[BISHOP][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
+  // if any bishops are hanging, increase enemy threats
+  eB->ThreatsCount[otherColor] += _popCount(pieces & eB->EnemyPawnAttackMap[color]);
 
     while (pieces) {
 
@@ -405,6 +413,12 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       // Save our attacks for further use
       eB->AttackedSquares[color] |= attackBitBoard;
 
+      // Bonus for bishop having central squares in mobility
+      // it would mean they are not attacked by enemy pawn
+      // or contain our own piece
+      s += BISHOP_CENTER_CONTROL * _popCount(attackBitBoard & CENTER);
+      if (TRACK) ft.BishopCenterControl[color] +=  _popCount(attackBitBoard & CENTER);
+
       // BishopAttackMinor
       U64 BishopAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
       s += MINOR_ATTACKED_BY[BISHOP] * _popCount(BishopAttackMinor);
@@ -413,16 +427,14 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       //BishopAttackRook
       s += ROOK_ATTACKED_BY[BISHOP] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
       if (TRACK) ft.RookAttackedBy[BISHOP][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
-
-      // Bonus for bishop having central squares in mobility
-      // it would mean they are not attacked by enemy pawn
-      // or contain our own piece
-      s += BISHOP_CENTER_CONTROL * _popCount(attackBitBoard & CENTER);
-      if (TRACK) ft.BishopCenterControl[color] +=  _popCount(attackBitBoard & CENTER);
+      // for a strong threat, increase our threats
+      eB->ThreatsCount[color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
 
       // Bishop Attack Queen
       s += QUEEN_ATTACKED_BY[BISHOP] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
       if (TRACK) ft.QueenAttackedBy[BISHOP][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+      // for a strong threat, increase our threats
+      eB->ThreatsCount[color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
 
       // If Bishop attacking squares near enemy king
       // Adjust our kind Danger code
@@ -465,8 +477,10 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
   U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
 
   // Apply penalty for each Knight attacked by opponents pawn
-  s += HANGING_PIECE[KNIGHT] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
+  s += HANGING_PIECE[KNIGHT] * _popCount(pieces & eB->EnemyPawnAttackMap[color]);
   if (TRACK) ft.HangingPiece[KNIGHT][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
+  // if any knights are hanging, increase enemy threats
+  eB->ThreatsCount[otherColor] += _popCount(pieces & eB->EnemyPawnAttackMap[color]);
 
     while (pieces) {
 
@@ -492,6 +506,18 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       //RookAttackRook
       s += ROOK_ATTACKED_BY[KNIGHT] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
       if (TRACK) ft.RookAttackedBy[KNIGHT][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
+      // for a strong threat, increase our threats
+      eB->ThreatsCount[color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
+
+      // See if a Knight is attacking an enemy unprotected pawn
+      s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
+      if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
+
+      // Knight Attack Queen
+      s += QUEEN_ATTACKED_BY[KNIGHT] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+      if (TRACK) ft.QueenAttackedBy[KNIGHT][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+      // for a strong threat, increase our threats
+      eB->ThreatsCount[color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
 
 
       // If Knight attacking squares near enemy king
@@ -503,14 +529,6 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[KNIGHT];
         eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[KNIGHT];
       }
-
-      // See if a Knight is attacking an enemy unprotected pawn
-      s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
-      if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
-
-      // Bishop Attack Queen
-      s += QUEEN_ATTACKED_BY[KNIGHT] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
-      if (TRACK) ft.QueenAttackedBy[KNIGHT][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
 
       // OUTPOSTED KNIGHT
       // We use separed PSQT for protected and unprotected outposts

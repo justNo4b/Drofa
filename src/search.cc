@@ -488,6 +488,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       return statEVAL - REVF_MOVE_CONST * depth + 100 * improving;
   }
 
+  // Threat pruning
+  if (isPrune && statEVAL - 30 * improving >= beta && eResult.enemyThreats == 0){
+    return beta;
+  }
+
   // 3. NULL MOVE
   // If we are doing so well, that giving opponent 2 moves wont improve his position
   // we can safely prune this position.
