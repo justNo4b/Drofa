@@ -106,6 +106,16 @@ U64 Board::getMobilityForSquare(PieceType pieceType, Color color, int square, U6
   return attacks;
 }
 
+U64 Board::getPotentialRookPinners(Color color, int square) const{
+  U64 rookTypes = getPieces(getOppositeColor(color), ROOK) | getPieces(getOppositeColor(color), QUEEN);
+  return Attacks::getSlidingAttacks(ROOK, square, _occupied ^ getAllPieces(color)) &  rookTypes;
+}
+
+U64 Board::getPotentialBishopPinners(Color color, int square) const{
+  U64 bishopTypes = getPieces(getOppositeColor(color), BISHOP) | getPieces(getOppositeColor(color), QUEEN);
+  return Attacks::getSlidingAttacks(BISHOP, square, _occupied ^ getAllPieces(color)) &  bishopTypes;
+}
+
 Color Board::getInactivePlayer() const {
   return _activePlayer == WHITE ? BLACK : WHITE;
 }

@@ -46,6 +46,7 @@ extern U64 NEIGHBOR_FILES[8];
 extern U64 OUTPOST_MASK[2][64];
 extern U64 OUTPOST_PROTECTION[2][64];
 extern U64 KINGZONE[2][64];
+extern U64 IN_BETWEEN[64][64];
 extern U64 PAWN_DUOS [64];
 extern U64 DISTANCE[64][64];
 extern U64 FORWARD_BITS[2][64];
@@ -92,6 +93,7 @@ extern U64 KING_PAWN_MASKS[2][2][8];
   */
   const int START_ATTACK_VALUE = -50;
   const int ATTACK_TEMPO = 35;
+  const int PINNED_PIECES = 50;
 
   const int UNCONTESTED_KING_ATTACK [6] = {
       -70, -20, 0, 100, 150, 200

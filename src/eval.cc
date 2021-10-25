@@ -36,6 +36,7 @@ U64 Eval::detail::OUTPOST_MASK[2][64];
 U64 Eval::detail::CONNECTED_MASK[64];
 U64 Eval::detail::OUTPOST_PROTECTION[2][64];
 U64 Eval::detail::KINGZONE[2][64];
+U64 Eval::detail::IN_BETWEEN[64][64];
 U64 Eval::detail::FORWARD_BITS[2][64];
 U64 Eval::detail::KING_PAWN_MASKS[2][2][8] = {
         [WHITE] = {
@@ -93,6 +94,13 @@ void Eval::init() {
 
     for (int i =0; i < 64; i++){
       detail::DISTANCE[square][i] = std::max(abs(_col(square) - _col(i)), abs(_row(square) - _row(i)));
+      if (Attacks::getSlidingAttacks(BISHOP, square, 0) & (ONE << i)){
+        detail::IN_BETWEEN[square][i] = (Attacks::getSlidingAttacks(BISHOP, square, ONE << i) & Attacks::getSlidingAttacks(BISHOP, i, ONE << square));
+      }else if (Attacks::getSlidingAttacks(ROOK, square, 0) & (ONE << i)){
+        detail::IN_BETWEEN[square][i] =  (Attacks::getSlidingAttacks(ROOK, square, ONE << i) & Attacks::getSlidingAttacks(ROOK, i, ONE << square));
+      }else{
+        detail::IN_BETWEEN[square][i] = 0;
+      }
     }
 
     for (auto color : { WHITE, BLACK }) {
@@ -545,6 +553,33 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
       int relSqv = color == WHITE ? _mir(square) : square;
       ft.KingPsqtBlack[relSqv][color]++;
   }
+
+  // Detect pinned pieces
+  U64 bPinners = board.getPotentialBishopPinners(color, square);
+  U64 rPinners = board.getPotentialRookPinners(color, square);
+  U64 pinbTargets = board.getAllPieces(color) ^ (board.getPieces(color, PAWN) | board.getPieces(color, BISHOP));
+  U64 pinrTargets = board.getAllPieces(color) ^ (board.getPieces(color, PAWN) | board.getPieces(color, ROOK));
+
+
+  int pinnedCount = 0;
+  while (bPinners){
+    int pinnerSquare = _popLsb(bPinners);
+    if ((_popCount(detail::IN_BETWEEN[pinnerSquare][square] & pinbTargets) == 1) &&
+        (_popCount(detail::IN_BETWEEN[pinnerSquare][square] & board.getAllPieces(color)) == 1)){
+              pinnedCount++;
+        }
+  }
+
+  while (rPinners){
+    int pinnerSquare = _popLsb(rPinners);
+    if ((_popCount(detail::IN_BETWEEN[pinnerSquare][square] & pinrTargets) == 1) &&
+        (_popCount(detail::IN_BETWEEN[pinnerSquare][square] & board.getAllPieces(color)) == 1)){
+              pinnedCount++;
+        }
+  }
+
+  // enemy pinning X of our pieces
+  eB->KingAttackPower[otherColor] += PINNED_PIECES * pinnedCount;
 
   // Save our attacks for further use
   eB->AttackedByKing[color] |= attackBitBoard;
