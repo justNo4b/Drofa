@@ -489,8 +489,12 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
   // Threat pruning
-  if (isPrune && statEVAL - 30 * improving >= beta && eResult.enemyThreats == 0){
+  if (isPrune && depth == 1 && statEVAL - 30 * improving >= beta && eResult.enemyThreats == 0){
     return beta;
+  }
+  if (eResult.ourThreats > 1){
+    std::cout << eResult.ourThreats << std::endl;
+    std::cout << board.getStringRep() << std::endl;
   }
 
   // 3. NULL MOVE
