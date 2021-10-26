@@ -476,8 +476,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // 1. RAZORING
   // In the very leaf nodes (d == 1) with stat eval << beta we can assume that no
   // Quiet move can beat it and drop to the QSearch immidiately
-  if (isPrune && depth == 1 && (statEVAL + RAZORING_MARGIN < beta)){
-        return _qSearch(board, alpha, beta, ply + 1);
+  if (isPrune && depth == 1 && (statEVAL + RAZORING_MARGIN < alpha)){
+        return (eResult.ourThreats > 0) ? _qSearch(board, alpha, beta, ply + 1) : alpha;
       }
 
   // 2. REVERSE FUTILITY
@@ -487,12 +487,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   if (isPrune && depth < 6 && ((statEVAL - REVF_MOVE_CONST * depth + 100 * improving) >= beta)){
       return statEVAL - REVF_MOVE_CONST * depth + 100 * improving;
   }
-
-  // Threat pruning
-  if (isPrune && depth == 1 && statEVAL > beta + 50 && eResult.enemyThreats == 0){
-    return beta;
-  }
-
 
   // 3. NULL MOVE
   // If we are doing so well, that giving opponent 2 moves wont improve his position
