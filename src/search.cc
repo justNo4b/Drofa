@@ -488,7 +488,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       return statEVAL - REVF_MOVE_CONST * depth + 100 * improving;
   }
 
-  if (isPrune && depth == 1 && statEVAL > beta + 50 && eResult.enemyThreats == 0){
+  if (isPrune && depth == 1 && statEVAL > beta + 50 && eResult.ourThreats > 0){
     return beta;
   }
 
