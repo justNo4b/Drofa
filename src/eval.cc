@@ -288,6 +288,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     // Adjust our kind Danger code
     int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
     int kingChecks = _popCount(attackBitBoard & board.getAttacksForSquare(QUEEN, getOppositeColor(color), eB->EnemyKingSquare[color]));
+    eB->ThreatsCount[color] += kingChecks;
     if (kingAttack > 0 || kingChecks > 0){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[QUEEN];
@@ -345,6 +346,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     // Adjust our kind Danger code
     int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
     int kingChecks = _popCount(attackBitBoard & board.getAttacksForSquare(ROOK, getOppositeColor(color), eB->EnemyKingSquare[color]));
+    eB->ThreatsCount[color] += kingChecks;
     if (kingAttack > 0 || kingChecks > 0){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[ROOK];
@@ -440,6 +442,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       int kingChecks = _popCount(attackBitBoard & board.getAttacksForSquare(BISHOP, getOppositeColor(color), eB->EnemyKingSquare[color]));
+      eB->ThreatsCount[color] += kingChecks;
       if (kingAttack > 0 || kingChecks > 0){
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[BISHOP];
@@ -524,6 +527,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       int kingChecks = _popCount(attackBitBoard & board.getAttacksForSquare(KNIGHT, getOppositeColor(color), eB->EnemyKingSquare[color]));
+      eB->ThreatsCount[color] += kingChecks;
       if (kingAttack > 0 || kingChecks > 0){
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[KNIGHT];
