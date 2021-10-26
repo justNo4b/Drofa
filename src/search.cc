@@ -576,7 +576,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             && !(move.getFlags() & Move::PROMOTION)
             && !isQuiet
             && !AreWeInCheck
-            && statEVAL + board.Calculate_SEE(move) - 200 > beta){
+            && statEVAL + board.Calculate_SEE(move) - 150 > beta){
               return beta;
         }
 
