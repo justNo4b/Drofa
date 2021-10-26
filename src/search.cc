@@ -2,6 +2,7 @@
 #include "search.h"
 #include "eval.h"
 #include "movepicker.h"
+#include "searchdata.h"
 #include <cstring>
 #include <thread>
 #include <algorithm>

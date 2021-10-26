@@ -2,6 +2,7 @@
 #include "uci.h"
 #include "version.h"
 #include "eval.h"
+#include "searchdata.h"
 #include <iostream>
 #include <thread>
 

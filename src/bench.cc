@@ -1,5 +1,5 @@
 #include "bench.h"
-#include "board.h"
+#include "searchdata.h"
 #include "search.h"
 #include "move.h"
 #include <iostream>

@@ -1,7 +1,7 @@
 #ifndef SEARCH_H
 #define SEARCH_H
 
-#include "board.h"
+#include "searchdata.h"
 #include "defs.h"
 #include "movegen.h"
 #include "transptable.h"
