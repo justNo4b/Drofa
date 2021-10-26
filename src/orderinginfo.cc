@@ -94,7 +94,7 @@ int OrderingInfo::getCountermoveHistory(int pMove, PieceType pType, int to) cons
 }
 
 int OrderingInfo::getFollowmoveHistory(int ppMove, PieceType pType, int to) const{
-  return _counterMoveHistory[(ppMove & 0x7)][((ppMove >> 15) & 0x3f)][pType][to];
+  return _followMoveHistory[(ppMove & 0x7)][((ppMove >> 15) & 0x3f)][pType][to];
 }
 
 void OrderingInfo::updateKillers(int ply, Move move) {
