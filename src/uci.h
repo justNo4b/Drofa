@@ -1,7 +1,7 @@
 #ifndef UCI_H
 #define UCI_H
 
-#include "board.h"
+#include "searchdata.h"
 #include "move.h"
 #include "search.h"
 #include "option.h"
