@@ -532,6 +532,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     }
     bool isQuiet = move.isQuiet();
     qCount += isQuiet;
+    int  moveHistory  = isQuiet ?
+                        _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) :
+                        _orderingInfo.getCaptureHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo());
+    int cmHistory     = isQuiet ? _orderingInfo.getCountermoveHistory(pMove, move.getPieceType(), move.getTo()) : 0;
 
     if (alpha < WON_IN_X
         && LegalMoveCount > 1){
@@ -560,7 +564,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           && isQuiet
           && board.Calculate_SEE(move) < -51 * depth) continue;
 
-      if (depth == 1 && isQuiet && move.getValue() < -2048 ){
+      if (depth == 1 && isQuiet && cmHistory < -2048){
         continue;
       }
     }
@@ -574,10 +578,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         int score;
 
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
-        int  moveHistory  = isQuiet ?
-                            _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) :
-                            _orderingInfo.getCaptureHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo());
-        int cmHistory     = isQuiet ? _orderingInfo.getCountermoveHistory(pMove, move.getPieceType(), move.getTo()) : 0;
         int tDepth = depth;
         // 6. EXTENTIONS
         //
