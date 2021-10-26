@@ -11,8 +11,11 @@ struct SEARCH_Data
 
     SEARCH_Data() : statEval {0}, moves {0}, ply(0) {};
 
-    void AddData(int m, int e){
+    void AddEval(int e){
         statEval[ply] = e;
+    };
+
+    void AddMove(int m){
         moves[ply] = m;
         ply++;
     };
@@ -39,6 +42,13 @@ struct Hist{
       head--;
     };
 };
+
+  struct pV {
+    int     pVmoves [MAX_INT_PLY];
+    uint8_t length;
+
+    pV () : pVmoves {0}, length(0) {};
+  };
 
 
 #endif
