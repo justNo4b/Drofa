@@ -410,9 +410,12 @@ PieceType Board::getPieceAtSquare(Color color, int squareIndex) const {
   else if (square & _pieces[color][BISHOP]) piece = BISHOP;
   else if (square & _pieces[color][KING]) piece = KING;
   else if (square & _pieces[color][QUEEN]) piece = QUEEN;
-  else
-    fatal((color == WHITE ? std::string("White") : std::string("Black")) +
+  else{
+        std::cout << getStringRep() << std::endl;
+        fatal((color == WHITE ? std::string("White") : std::string("Black")) +
         " piece at square " + std::to_string(squareIndex) + " does not exist");
+  }
+
 
   return piece;
 }

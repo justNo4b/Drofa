@@ -561,25 +561,35 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   U64 pinrTargets = board.getAllPieces(color) ^ (board.getPieces(color, PAWN) | board.getPieces(color, ROOK));
 
 
-  int pinnedCount = 0;
   while (bPinners){
     int pinnerSquare = _popLsb(bPinners);
-    if ((_popCount(detail::IN_BETWEEN[pinnerSquare][square] & pinbTargets) == 1) &&
+    PieceType pinner = board.getPieceAtSquare(otherColor, pinnerSquare);
+    U64 pinned = detail::IN_BETWEEN[pinnerSquare][square] & pinbTargets;
+    if ((_popCount(pinned) == 1) &&
         (_popCount(detail::IN_BETWEEN[pinnerSquare][square] & board.getAllPieces(color)) == 1)){
-              pinnedCount++;
+          int pinnedSqv = _bitscanForward(pinned);
+          PieceType pinned = board.getPieceAtSquare(color, pinnedSqv);
+          s += pinner == BISHOP ? PINNED_BY_BISHOP[pinned] : PINNED_BY_QUEEN[pinned];
+          if (TRACK){
+            if (pinner == BISHOP) ft.PinnedByBishop[pinned][color] ++; else ft.PinnedByQueen[pinned][color]++;
+          }
         }
   }
 
   while (rPinners){
     int pinnerSquare = _popLsb(rPinners);
-    if ((_popCount(detail::IN_BETWEEN[pinnerSquare][square] & pinrTargets) == 1) &&
+    PieceType pinner = board.getPieceAtSquare(otherColor, pinnerSquare);
+    U64 pinned = detail::IN_BETWEEN[pinnerSquare][square] & pinrTargets;
+    if ((_popCount(pinned) == 1) &&
         (_popCount(detail::IN_BETWEEN[pinnerSquare][square] & board.getAllPieces(color)) == 1)){
-              pinnedCount++;
+          int pinnedSqv = _bitscanForward(pinned);
+          PieceType pinned = board.getPieceAtSquare(color, pinnedSqv);
+          s += pinner == ROOK ? PINNED_BY_ROOK[pinned] : PINNED_BY_QUEEN[pinned];
+          if (TRACK){
+            if (pinner == ROOK) ft.PinnedByRook[pinned][color] ++; else ft.PinnedByQueen[pinned][color]++;
+          }
         }
   }
-
-  // enemy pinning X of our pieces
-  eB->KingAttackPower[otherColor] += PINNED_PIECES * pinnedCount;
 
   // Save our attacks for further use
   eB->AttackedByKing[color] |= attackBitBoard;

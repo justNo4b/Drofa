@@ -324,6 +324,18 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.KingShieldQS[j][WHITE] - ft.KingShieldQS[j][BLACK];
     }
 
+    for (int j = 0; j < 5; j++){
+        coeff[i++] = ft.PinnedByBishop[j][WHITE] - ft.PinnedByBishop[j][BLACK];
+    }
+
+    for (int j = 0; j < 5; j++){
+        coeff[i++] = ft.PinnedByRook[j][WHITE] - ft.PinnedByRook[j][BLACK];
+    }
+    
+    for (int j = 0; j < 5; j++){
+        coeff[i++] = ft.PinnedByQueen[j][WHITE] - ft.PinnedByQueen[j][BLACK];
+    }
+
     for (int j = 0; j < 14; j++){
         coeff[i++] = ft.BishopMobility[j][WHITE] - ft.BishopMobility[j][BLACK];
     }

@@ -54,6 +54,9 @@ struct posFeatured{
     int MinorAttackedBy[4][2];
     int RookAttackedBy[4][2];
     int QueenAttackedBy[4][2];
+    int PinnedByBishop[5][2];
+    int PinnedByRook[5][2];
+    int PinnedByQueen[5][2];
     //Array - Safety Shields
     int KingShieldKS[8][2];
     int KingShieldQS[8][2];
@@ -109,7 +112,7 @@ struct tEntry {
   const std::string TUNING_DATA        = "d8FENS_WrongResults_mixed.epd";
   const int         TUNING_POS_COUNT   = 35821985; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 971;
+  const int         TUNING_TERMS_COUNT = 986;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
   const int         TUNIGN_PRINT       = 25;
