@@ -524,6 +524,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   Move bestMove;
   int  LegalMoveCount = 0;
   int  qCount = 0;
+  bool isNullTried = !pvNode && statEVAL >= beta;
   while (movePicker.hasNext()) {
 
     Move move = movePicker.getNext();
@@ -559,6 +560,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       if (depth <= 10
           && isQuiet
           && board.Calculate_SEE(move) < -51 * depth) continue;
+
     }
 
     Board movedBoard = board;
@@ -568,6 +570,15 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
         LegalMoveCount++;
         int score;
+
+        if (depth == 1
+            && move.getValue() > 0
+            && !(move.getFlags() & Move::PROMOTION)
+            && !isQuiet
+            && !AreWeInCheck
+            && statEVAL + board.Calculate_SEE(move) - 200 > beta){
+              return beta;
+        }
 
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
         int  moveHistory  = isQuiet ?
@@ -579,6 +590,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         //
         // 6.0 InCheck extention
         // Extend when the side to move is in check
+
         if (AreWeInCheck){
           tDepth++;
         }
@@ -607,7 +619,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               Board sBoard = board;
               int score = _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, ply, false, pMove, true);
               if (sBeta > score){
-                tDepth += 1 + failedNull;
+                tDepth += 1 + isNullTried;
               }
             }
 
