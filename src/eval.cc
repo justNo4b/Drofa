@@ -283,12 +283,15 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
 
     // If Queen attacking squares near enemy king
     // Adjust our kind Danger code
-    int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
-    int kingChecks = _popCount(attackBitBoard & board.getAttacksForSquare(QUEEN, getOppositeColor(color), eB->EnemyKingSquare[color]));
+    int kingAttack    = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
+    U64 checks        = attackBitBoard & board.getAttacksForSquare(ROOK, getOppositeColor(color), eB->EnemyKingSquare[color]);
+    int kingChecks    = _popCount(checks);
+    int inFaceChecks  = _popCount(checks & board.getAttacksForSquare(KING, getOppositeColor(color), eB->EnemyKingSquare[color]));
     if (kingAttack > 0 || kingChecks > 0){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[QUEEN];
       eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[QUEEN];
+      eB->KingAttackPower[color] += inFaceChecks * IN_FACE_CHECK_QUEEN;
     }
   }
 
@@ -334,19 +337,23 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     s += QUEEN_ATTACKED_BY[ROOK] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
     if (TRACK) ft.QueenAttackedBy[ROOK][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
 
+    // See if a Rook is attacking an enemy unprotected pawn
+    s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
+    if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
+
     // If Rook attacking squares near enemy king
     // Adjust our kind Danger code
-    int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
-    int kingChecks = _popCount(attackBitBoard & board.getAttacksForSquare(ROOK, getOppositeColor(color), eB->EnemyKingSquare[color]));
+    int kingAttack    = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
+    U64 checks        = attackBitBoard & board.getAttacksForSquare(ROOK, getOppositeColor(color), eB->EnemyKingSquare[color]);
+    int kingChecks    = _popCount(checks);
+    int inFaceChecks  = _popCount(checks & board.getAttacksForSquare(KING, getOppositeColor(color), eB->EnemyKingSquare[color]));
     if (kingAttack > 0 || kingChecks > 0){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[ROOK];
       eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[ROOK];
+      eB->KingAttackPower[color] += inFaceChecks * IN_FACE_CHECK_ROOK;
     }
 
-    // See if a Rook is attacking an enemy unprotected pawn
-    s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
-    if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
 
     // Open/semiopen file detection
     // we differentiate between open/semiopen based on
