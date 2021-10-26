@@ -524,7 +524,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   Move bestMove;
   int  LegalMoveCount = 0;
   int  qCount = 0;
-  bool isNullTried = !pvNode && statEVAL >= beta;
   while (movePicker.hasNext()) {
 
     Move move = movePicker.getNext();
@@ -609,7 +608,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               Board sBoard = board;
               int score = _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, ply, false, pMove, true);
               if (sBeta > score){
-                tDepth += 1 + isNullTried;
+                tDepth += 1 + (statEVAL >= beta);
               }
             }
 
