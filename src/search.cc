@@ -402,6 +402,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   int statEVAL = 0;
   Move hashedMove = Move(0);
   pV   thisPV = pV();
+  bool ispMoveQuiet = !(((pMove >> 21) & 0x7f) & 0x63);
 
   // Check if we are out of time
   if (_stop || _checkLimits()) {
@@ -740,7 +741,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // Beta was not beaten and we dont improve alpha in this case we lower our search history values
           if (isQuiet){
             _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), (depth + (statEVAL < alpha)));
-            _orderingInfo.decrementCounterHistory(pMove, move.getPieceType(), move.getTo(), (depth + (statEVAL < alpha)));
+            _orderingInfo.decrementCounterHistory(pMove, move.getPieceType(), move.getTo(), (depth + (statEVAL < alpha) - !ispMoveQuiet));
           }else{
             _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), (depth + (statEVAL < alpha)));
           }
