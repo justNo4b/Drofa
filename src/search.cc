@@ -820,6 +820,11 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
     Board movedBoard = board;
     movedBoard.doMove(move);
       if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
+          // Use Koivisto qs Pruning
+          // when the move is legal
+          if (standPat + move.getValue() - 200 > beta){
+            return beta;
+          }
 
           int score = -_qSearch(movedBoard, -beta, -alpha);
 
