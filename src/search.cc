@@ -669,8 +669,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                             move == _orderingInfo.getKiller1(ply) ||  move == _orderingInfo.getKiller2(ply));
 
           // We finished reduction tweaking, calculate final depth and search
-          // Avoid reduction being less than 0
-          reduction = std::max(-1 - failedNull, reduction);
+          // Idea from SF - LMR extensions
+          // Allow reductions to be negative, allowing extending moves
+          int minReduction = 0;
+          minReduction += (depth > 8) ? -1 : 0;
+          reduction = std::max(minReduction, reduction);
           //Avoid to reduce so much that we go to QSearch right away
           int fDepth = std::max(1, tDepth - 1 - reduction);
 
