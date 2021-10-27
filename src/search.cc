@@ -743,6 +743,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           if (isQuiet){
             _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), (depth + (statEVAL < alpha)));
             _orderingInfo.decrementCounterHistory(pMove, move.getPieceType(), move.getTo(), (depth + (statEVAL < alpha)));
+            _orderingInfo.decrementFollowHistory(ppMove, move.getPieceType(), move.getTo(), (depth + (statEVAL < alpha)));
           }else{
             _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), (depth + (statEVAL < alpha)));
           }
