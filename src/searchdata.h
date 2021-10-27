@@ -7,16 +7,18 @@ struct SEARCH_Data
 {
     int statEval[MAX_INT_PLY];
     int moves   [MAX_INT_PLY];
+    int dExtend [MAX_INT_PLY];
     int8_t ply;
 
-    SEARCH_Data() : statEval {0}, moves {0}, ply(0) {};
+    SEARCH_Data() : statEval {0}, moves {0}, dExtend{0}, ply(0) {};
 
     void AddEval(int e){
         statEval[ply] = e;
     };
 
-    void AddMove(int m){
+    void AddMove(int m, int e){
         moves[ply] = m;
+        dExtend[ply] = dExtend[ply] + e;
         ply++;
     };
 

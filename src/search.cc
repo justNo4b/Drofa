@@ -349,7 +349,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
 
     Board movedBoard = board;
     movedBoard.doMove(move);
-    _sStack.AddMove(move.getMoveINT());
+    _sStack.AddMove(move.getMoveINT(), 0);
     if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
         if (fullWindow) {
           currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, false);
@@ -499,7 +499,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       board.isThereMajorPiece()){
           Board movedBoard = board;
           _posHist.Add(board.getZKey().getValue());
-          _sStack.AddMove(0);
+          _sStack.AddMove(0, 0);
           movedBoard.doNool();
           int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((statEVAL - beta) / 128, 4);
           int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, false);
@@ -595,7 +595,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // passers that are near the middle of the board
         // Extend more if null move failed
         if (depth <= 8 && board.isEndGamePosition() && move.isItPasserPush(board)){
-              tDepth += 1 + failedNull;
+              tDepth += 1 + (failedNull && _sStack.dExtend[ply] <= 6);
             }
 
         // 6.2 Singular move extention
@@ -612,7 +612,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               Board sBoard = board;
               int score = _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, true);
               if (sBeta > score){
-                tDepth += 1 + failedNull;
+                tDepth += 1 + (failedNull && _sStack.dExtend[ply] <= 6);
               }
             }
 
@@ -625,7 +625,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             }
 
         _posHist.Add(board.getZKey().getValue());
-        _sStack.AddMove(move.getMoveINT());
+        _sStack.AddMove(move.getMoveINT(), (tDepth > depth + 1));
 
         // 8. LATE MOVE REDUCTIONS
         // mix of ideas from Weiss code, own ones and what is written in the chessprogramming wiki
