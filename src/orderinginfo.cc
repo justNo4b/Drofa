@@ -18,6 +18,11 @@ void OrderingInfo::clearKillers(){
   std::memset(_killer2, 0, sizeof(_killer2));
 }
 
+void OrderingInfo::clearChildrenKillers(int ply){
+  _killer1[ply + 2] = 0;
+  _killer2[ply + 2] = 0;
+}
+
 void OrderingInfo::updateCounterMove(Color color, int counteredMove, int counterMove){
   int pType = counteredMove & 0x7;
   int to = (counteredMove >> 15) & 0x3f;

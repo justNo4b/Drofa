@@ -470,6 +470,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   bool improving = false;
   if (ply > 2) improving = !AreWeInCheck && statEVAL > _sStack.statEval[ply - 2];
 
+  // Clear Killers for the children node
+  _orderingInfo.clearChildrenKillers(ply);
+
   // Check if we are doing pre-move pruning techniques
   // We do not do them InCheck, in pvNodes and when proving singularity
   bool isPrune = !pvNode && !AreWeInCheck && !sing;
