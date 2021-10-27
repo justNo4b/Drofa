@@ -595,7 +595,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // passers that are near the middle of the board
         // Extend more if null move failed
         if (depth <= 8 && board.isEndGamePosition() && move.isItPasserPush(board)){
-              tDepth += 1 + (failedNull && _sStack.dExtend[ply] <= 6);
+              tDepth += 1 + (failedNull && _sStack.dExtend[ply] <= 5);
             }
 
         // 6.2 Singular move extention
@@ -612,7 +612,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               Board sBoard = board;
               int score = _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, true);
               if (sBeta > score){
-                tDepth += 1 + (failedNull && _sStack.dExtend[ply] <= 6);
+                tDepth += 1 + (failedNull && _sStack.dExtend[ply] <= 5);
               }
             }
 
