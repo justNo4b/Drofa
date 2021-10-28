@@ -24,9 +24,14 @@ class OrderingInfo {
   void clearAllHistory();
 
   /**
-   * @brief clear killers and counters
+   * @brief clear killers
    */
   void clearKillers();
+
+  /**
+   * @brief clear killers and counters
+   */
+  void clearChildrenKillers(int);
 
   /**
    * @brief Increment the history heuristic value of the board for
@@ -140,11 +145,6 @@ class OrderingInfo {
    * @brief Array of second killer moves by ply
    */
   int _killer2[MAX_INT_PLY];
-
-  /**
-   * @brief Current ply of search
-   */
-  int _ply;
 
   /**
    * @brief Table of beta-cutoff history values indexed by [color][from_square][to_square]

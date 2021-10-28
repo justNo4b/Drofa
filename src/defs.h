@@ -18,7 +18,7 @@
 typedef unsigned long long U64;
 
 
-#define MIN_HASH    (   16)
+#define MIN_HASH    (    8)
 #define MAX_HASH    (65536)
 #define MIN_THREADS (    1)
 #define MAX_THREADS (  172)
@@ -136,6 +136,18 @@ enum PieceType {
   BISHOP,
   QUEEN,
   KING
+};
+
+const int PHASE_WEIGHT_SUM = 24;
+const int MAX_PHASE = 256;
+
+const int PHASE_WEIGHTS[6] = {
+    [PAWN] = 0,
+    [ROOK] = 2,
+    [KNIGHT] = 1,
+    [BISHOP] = 1,
+    [QUEEN] = 4,
+    [KING] = 0
 };
 
 /**

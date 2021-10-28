@@ -9,22 +9,6 @@
 
 class Move;
 
-struct Hist{
-    U64         hisKey[MAX_GAME_PLY];
-    uint16_t    head;
-
-    Hist() : hisKey {0}, head(0)  {};
-    void Add(U64 key){
-      hisKey[head] = key;
-      head++;
-    };
-
-    void Remove(){
-      head--;
-    };
-};
-
-
 /**
  * @brief Represents a chess board.
  *
@@ -314,7 +298,12 @@ class Board {
   /**
    * @brief Estimates potential scoreGain of the given move
    */
-  int Calculate_MoveGain(const Move move, int phase) const;
+  int Calculate_MoveGain(const Move move) const;
+
+  /**
+   * @brief  get fully calculated phase value of the board
+   */
+  int getPhase() const;
 
  private:
   /**
@@ -344,6 +333,9 @@ class Board {
    * @brief Array of Piece costs used for SEE
    */
   int _SEE_cost[6] = {100, 500, 300, 300, 1000, 10000};
+
+
+  int _phase;
 
   /**
    * @brief Array indexed by [color][piecetype] of piece bitboards

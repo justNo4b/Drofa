@@ -2,7 +2,6 @@
 #include "eval.h"
 #include "tuning.h"
 #include "board.h"
-#include "outposts.h"
 #include "tuningFeatures.h"
 #include <limits>
 #include <fstream>
@@ -214,11 +213,11 @@ void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
 
 int simplifyPhaseCalculation(const Board &board){
 
-    int phase = Eval::detail::PHASE_WEIGHT_SUM;
+    int phase = PHASE_WEIGHT_SUM;
 
   for (auto pieceType : {ROOK, KNIGHT, BISHOP, QUEEN}) {
-    phase -= _popCount(board.getPieces(WHITE, pieceType)) * Eval::detail::PHASE_WEIGHTS[pieceType];
-    phase -= _popCount(board.getPieces(BLACK, pieceType)) * Eval::detail::PHASE_WEIGHTS[pieceType];
+    phase -= _popCount(board.getPieces(WHITE, pieceType)) * PHASE_WEIGHTS[pieceType];
+    phase -= _popCount(board.getPieces(BLACK, pieceType)) * PHASE_WEIGHTS[pieceType];
   }
 
   // Make sure phase is not negative
@@ -234,11 +233,6 @@ void InitCoefficients(featureCoeff coeff){
     // Insert features here
     // Basicall we calculate if feature difference, so we dont hold it if it is 0
     // and to take less space to hold it in general
-    coeff[i++] = ft.PawnValue[WHITE] - ft.PawnValue[BLACK];
-    coeff[i++] = ft.RookValue[WHITE] - ft.RookValue[BLACK];
-    coeff[i++] = ft.KnightValue[WHITE] - ft.KnightValue[BLACK];
-    coeff[i++] = ft.BishopValue[WHITE] - ft.BishopValue[BLACK];
-    coeff[i++] = ft.QueenValue[WHITE] - ft.QueenValue[BLACK];
     coeff[i++] = ft.KingHighDanger[WHITE] - ft.KingHighDanger[BLACK];
     coeff[i++] = ft.KingMedDanger[WHITE] - ft.KingMedDanger[BLACK];
     coeff[i++] = ft.KingLowDanger[WHITE] - ft.KingLowDanger[BLACK];
@@ -252,6 +246,8 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.BishopCenterControl[WHITE] - ft.BishopCenterControl[BLACK];
     coeff[i++] = ft.MinorBehindPawn[WHITE] - ft.MinorBehindPawn[BLACK];
     coeff[i++] = ft.MinorBehindPasser[WHITE] - ft.MinorBehindPasser[BLACK];
+    coeff[i++] = ft.MinorBlockOwn[WHITE] - ft.MinorBlockOwn[BLACK];
+    coeff[i++] = ft.MinorBlockOwnPassed[WHITE] - ft.MinorBlockOwnPassed[BLACK];
     coeff[i++] = ft.KingAheadPasser[WHITE] - ft.KingAheadPasser[BLACK];
     coeff[i++] = ft.KingEqualPasser[WHITE] - ft.KingEqualPasser[BLACK];
     coeff[i++] = ft.KingBehindPasser[WHITE] - ft.KingBehindPasser[BLACK];
@@ -264,7 +260,7 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.PawnConnected[j][WHITE] - ft.PawnConnected[j][BLACK];
     }
 
-    for (int j = 0; j < 8; j++){
+    for (int j = 0; j < 7; j++){
         coeff[i++] = ft.PassedPawnRank[j][WHITE] - ft.PassedPawnRank[j][BLACK];
     }
 
@@ -284,12 +280,16 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.PassedPassedDistance[j][WHITE] - ft.PassedPassedDistance[j][BLACK];
     }
 
-    for (int j = 0; j < 9; j++){
+    for (int j = 0; j < 8; j++){
         coeff[i++] = ft.KingFriendlyPasser[j][WHITE] - ft.KingFriendlyPasser[j][BLACK];
     }
 
-    for (int j = 0; j < 9; j++){
+    for (int j = 0; j < 8; j++){
         coeff[i++] = ft.KingEnemyPasser[j][WHITE] - ft.KingEnemyPasser[j][BLACK];
+    }
+    
+    for (int j = 0; j < 4; j++){
+        coeff[i++] = ft.KnightEnemyPasser[j][WHITE] - ft.KnightEnemyPasser[j][BLACK];
     }
 
     for (int j = 0; j < 2; j++){
@@ -304,12 +304,16 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.HangingPiece[j][WHITE] - ft.HangingPiece[j][BLACK];
     }
 
-    for (int j = 0; j < 5; j++){
+    for (int j = 0; j < 4; j++){
         coeff[i++] = ft.MinorAttackedBy[j][WHITE] - ft.MinorAttackedBy[j][BLACK];
     }
 
-    for (int j = 0; j < 5; j++){
+    for (int j = 0; j < 4; j++){
         coeff[i++] = ft.RookAttackedBy[j][WHITE] - ft.RookAttackedBy[j][BLACK];
+    }
+
+    for (int j = 0; j < 4; j++){
+        coeff[i++] = ft.QueenAttackedBy[j][WHITE] - ft.QueenAttackedBy[j][BLACK];
     }
 
     for (int j = 0; j < 8; j++){
@@ -349,12 +353,21 @@ void InitCoefficients(featureCoeff coeff){
     }
 
     for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.PawnPsqtBlackIsQ[j][WHITE] - ft.PawnPsqtBlackIsQ[j][BLACK];
+    }
+
+    for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.PawnPsqtBlackIsOwn[j][WHITE] - ft.PawnPsqtBlackIsOwn[j][BLACK];
+    }
+
+    for (int j = 0; j < 64; j++){
         coeff[i++] = ft.RookPsqtBlack[j][WHITE] - ft.RookPsqtBlack[j][BLACK];
     }
 
     for (int j = 0; j < 64; j++){
         coeff[i++] = ft.BishopPsqtBlack[j][WHITE] - ft.BishopPsqtBlack[j][BLACK];
     }
+
     for (int j = 0; j < 64; j++){
         coeff[i++] = ft.KnightPsqtBlack[j][WHITE] - ft.KnightPsqtBlack[j][BLACK];
     }
@@ -379,6 +392,9 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.BishopOutBlack[j][WHITE] - ft.BishopOutBlack[j][BLACK];
     }
 
+    for (int j = 0; j < 5; j++){
+        coeff[i++] = ft.MaterialValue[j][WHITE] - ft.MaterialValue[j][BLACK];
+    }
 
 
 

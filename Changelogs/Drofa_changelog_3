@@ -1,5 +1,5 @@
-Drofa changelog: Drofa 2.0 -> Drofa 3.0
-
+                  Drofa 2.0.0 -> Drofa 3.0.0 log
+////////////////////////////////////////////////////////////////////
 1. Fixed occasional writing illegal moves in the TT
 ------------------------------------------------------------
 Score of Drofa_dev vs Drofa_master: 1707 - 1466 - 1755  [0.524] 4928
@@ -81,7 +81,7 @@ Score of Drofa_dev vs Drofa_2.0.9: 3086 - 2922 - 3992  [0.508] 10000
 Elo difference: 5.70 +/- 5.28
 Finished match
 ------------------------------------------------------------
-12. Decrease open/semiopen bonus is there is enemy protected 
+12. Decrease open/semiopen bonus is there is enemy protected
 outpost on the line
 ------------------------------------------------------------
 Score of Drofa_dev vs Drofa_2.0.9: 9586 - 9362 - 11052  [0.504] 30000
@@ -191,7 +191,7 @@ Elo difference: -3.20 +/- 4.27
 SPRT: llr -0.733, lbound -2.94, ubound 2.94
 Finished match
 -----------------------------------------------------------------
-25. Fixed Queen mobility bug, fixed mobility-related warnings 
+25. Fixed Queen mobility bug, fixed mobility-related warnings
 -----------------------------------------------------------------
 Score of Drofa_dev vs Drofa_2.1.8: 1506 - 1522 - 1972  [0.498] 5000
 Elo difference: -1.11 +/- 7.48
@@ -268,14 +268,14 @@ Finished match
 ------------------------------------------------------------------
 32. AdaGrad Tuner implemented. Fixed bug in the PassedPawn calculations
 for black. Tuned values (500 iterations): Material, Bishop terms,
-Pawn terms. 
+Pawn terms.
 ------------------------------------------------------------------
 Score of Drofa_dev vs Drofa_2.2.2: 372 - 235 - 317  [0.574] 924
 Elo difference: 51.90 +/- 18.24
 SPRT: llr 2.95, lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
 ------------------------------------------------------------------
-33. King Passer Distance and RookOpen/Semiopen tuned 
+33. King Passer Distance and RookOpen/Semiopen tuned
 ------------------------------------------------------------------
 Score of Drofa_dev vs Drofa_2.2.3: 452 - 322 - 489  [0.551] 1263
 Elo difference: 35.89 +/- 15.02
@@ -333,7 +333,7 @@ Elo difference: 7.7 +/- 6.3, LOS: 99.1 %, DrawRatio: 43.9 %
 SPRT: llr 2.96 (100.4%), lbound -2.94, ubound 2.94 - H1 was accepted
 Finished match
 ------------------------------------------------------------------
-39. Bell-shaped timeman 
+39. Bell-shaped timeman
 ------------------------------------------------------------------
 STC:
 Score of Drofa_dev vs Drofa_2.2.9: 610 - 489 - 899  [0.530] 1998
@@ -405,7 +405,7 @@ SPRT  | 10.0+0.10s Threads=1 Hash=16MB
 LLR   | 3.03 (-2.94, 2.94) [0.00, 5.00]
 Games | N: 21366 W: 6241 L: 5968 D: 9157
 ------------------------------------------------------------------
-45. If king is on a distance = 1 from own passer, eval if its 
+45. If king is on a distance = 1 from own passer, eval if its
 in front, equal or in the back
 ------------------------------------------------------------------
 ELO   | 4.68 +- 3.71 (95%)
@@ -433,7 +433,7 @@ LLR   | -2.94 (-2.94, 2.94) [0.00, 5.00]
 Games | N: 3646 W: 986 L: 1108 D: 1552
 -----------------------------------------> version up to 2.2.17
 ------------------------------------------------------------------
-47. Bishop Center Control evaluation 
+47. Bishop Center Control evaluation
 ------------------------------------------------------------------
 ELO   | 7.42 +- 5.35 (95%)
 SPRT  | 10.0+0.10s Threads=1 Hash=16MB
@@ -519,7 +519,7 @@ Finished match
 
 
 
- 
+
 
 
 

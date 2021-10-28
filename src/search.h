@@ -1,7 +1,7 @@
 #ifndef SEARCH_H
 #define SEARCH_H
 
-#include "board.h"
+#include "searchdata.h"
 #include "defs.h"
 #include "movegen.h"
 #include "transptable.h"
@@ -63,13 +63,6 @@ class Search {
     int increment[2];
   };
 
-  struct pV {
-    int     pVmoves [MAX_INT_PLY];
-    uint8_t length;
-
-    pV () : pVmoves {0}, length(0) {};
-  };
-
   /**
    * @brief Constructs a new Search for the given board.
    *
@@ -93,6 +86,10 @@ class Search {
    */
   Move getBestMove();
 
+  /**
+   * @brief Returns the score of the best move
+   * @return Score of the best move from previous iteration
+   */
   int getBestScore();
 
   /**
@@ -101,7 +98,7 @@ class Search {
   void stop();
 
   /**
-   *
+   * @brief get amount of nodes we spent searching
    */
   int getNodes();
 
@@ -137,10 +134,10 @@ class Search {
    */
   static const int MAX_SEARCH_DEPTH = 64;
 
-
-  //
-  int _selDepth = 0; // int that is showing maxDepth with extentions we reached in the search
-  //
+  /**
+   * @brief that is showing maxDepth with extentions we reached in the search
+   */
+  int _selDepth = 0;
 
   //search_constants
   //
@@ -152,19 +149,13 @@ class Search {
   //
 
   /**
-   * @brief Vector of ZKeys for each position that has occurred in the game
+   * @brief Structure of ZKeys for each position that has occurred in the game
    *
    * This is used to detect threefold repetitions.
    */
   Hist  _posHist;
 
-  /**
-   * @brief Array of int, constitutes history of the static eval
-   *
-   * This is used for calculating "improving" paramenter
-   * during the search
-   */
-  int _sEvalArray[MAX_INT_PLY];
+  SEARCH_Data _sStack;
 
   /**
    * @brief OrderingInfo object containing information about the current state
@@ -289,7 +280,7 @@ class Search {
    * @param board Board to search through
    * @param depth Depth to search to
    */
-  int _rootMax(const Board &, int, int, int, int);
+  int _rootMax(const Board &, int, int, int);
 
   /**
    * @brief Non root negamax function, should only be called by _rootMax()
@@ -299,12 +290,10 @@ class Search {
    * @param  depth Plys remaining to search
    * @param  alpha Alpha value
    * @param  beta  Beta value
-   * @param  ply   ply value (distance from root)
-   * @param  doNool was last move a null one
-   * @param  int    int of the last move that was made
+   * @param  isSing is this a singular re- search
    * @return The score of the given board
    */
-  int _negaMax(const Board &, pV *myPV, int, int, int, int, bool, int, bool);
+  int _negaMax(const Board &, pV *myPV, int, int, int, bool);
 
   /**
    * @brief Performs a quiescence search
@@ -315,10 +304,9 @@ class Search {
    * @param  board Board to perform a quiescence search on
    * @param  alpha Alpha value
    * @param  beta  Beta value
-   * @param  ply   ply value (distance from root)
    * @return The score of the given board
    */
-  int _qSearch(const Board &, int= -INF, int= INF, int = 0);
+  int _qSearch(const Board &, int= -INF, int= INF);
 
   /**
    * @brief Logs info about a search according to the UCI protocol.
