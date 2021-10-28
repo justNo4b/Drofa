@@ -912,6 +912,13 @@ int Eval::evaluate(const Board &board, Color color) {
           - kingDanger(otherColor, &eB);
 
   // Taper and Scale obtained score
+
+  // Use lazyly tuned winnability adj
+  int egScore  = egS(score);
+  int win_sign = egScore > 0 ? 1 : -1;
+  int winable = LAZY_TCEC_HACK;
+  score += gS(0, win_sign * std::max((int)egS(winable), -1 * std::abs(egScore)));
+
   int final_eval = TaperAndScale(board, color, score);
 
   return final_eval + TEMPO;
