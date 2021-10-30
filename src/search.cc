@@ -658,7 +658,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           reduction -= improving;
 
           // reduce less when a move is giving check
-          reduction -= giveCheck;
+          reduction -= giveCheck && isQuiet;
 
           // reduce more/less based on the hitory
           reduction -= moveHistory / 8192;
