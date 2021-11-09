@@ -50,6 +50,8 @@ const int LOST_SCORE = -30000;
 const int NOSCORE = 32666;
 const int WON_IN_X = 30000 - 50;
 const int MAX_GAME_PLY = 2048;
+const int MAX_SEARCH_DEPTH = 64;
+const int DEFAULT_SEARCH_DEPTH = 15;
 
 /**
  * @enum SquareIndex
