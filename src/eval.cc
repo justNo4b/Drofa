@@ -442,7 +442,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       // Unprotected outposts are only considered outposts
       // if there is pawn in front spawn of outposted piece
       if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
-        int relSqv = color == WHITE ? _mir(square) : square;
+        int relSqv = color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square];
         if (detail::OUTPOST_PROTECTION[color][square] & board.getPieces(color, PAWN)){
           s += BISHOP_PROT_OUTPOST_BLACK[relSqv];
           eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
@@ -516,7 +516,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       // Unprotected outposts are only considered outposts
       // if there is pawn in front spawn of outposted piece
       if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
-        int relSqv = color == WHITE ? _mir(square) : square;
+        int relSqv = color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square];
         if (detail::OUTPOST_PROTECTION[color][square] & board.getPieces(color, PAWN)){
           s += KNIGHT_PROT_OUTPOST_BLACK[relSqv];
           eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];

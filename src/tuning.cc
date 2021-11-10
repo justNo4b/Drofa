@@ -376,19 +376,19 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.QueenPsqtBlack[j][WHITE] - ft.QueenPsqtBlack[j][BLACK];
     }
 
-    for (int j = 0; j < 64; j++){
+    for (int j = 0; j < 32; j++){
         coeff[i++] = ft.KnightOutProtBlack[j][WHITE] - ft.KnightOutProtBlack[j][BLACK];
     }
 
-    for (int j = 0; j < 64; j++){
+    for (int j = 0; j < 32; j++){
         coeff[i++] = ft.BishopOutProtBlack[j][WHITE] - ft.BishopOutProtBlack[j][BLACK];
     }
 
-    for (int j = 0; j < 64; j++){
+    for (int j = 0; j < 32; j++){
         coeff[i++] = ft.KnightOutBlack[j][WHITE] - ft.KnightOutBlack[j][BLACK];
     }
 
-    for (int j = 0; j < 64; j++){
+    for (int j = 0; j < 32; j++){
         coeff[i++] = ft.BishopOutBlack[j][WHITE] - ft.BishopOutBlack[j][BLACK];
     }
 
