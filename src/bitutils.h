@@ -110,6 +110,15 @@ inline int _row(int square) {
 inline int _col(int square) {
   return square % 8;
 }
+/**
+ * @brief Returns distance from edge of the given square.
+ *
+ * @param square A square in little endian rank file mapping form
+ * @return The zero indexed row of the squares
+ */
+inline int _relrow(int square){
+  return std::min(square % 8, 7 - (square % 8));
+}
 
 inline int _mir(int square){
   return square ^ 56;

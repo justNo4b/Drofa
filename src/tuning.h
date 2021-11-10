@@ -41,7 +41,7 @@ struct posFeatured{
     //Array features
     int PawnConnected[7][2];
     int PassedPawnRank[7][2];
-    int PassedPawnFile[8][2];
+    int PassedPawnFile[4][2];
     int PassedPawnFree[7][2];
     int PassedPawnPosAdvance[7][2];
     int PassedPassedDistance[8][2];
@@ -109,7 +109,7 @@ struct tEntry {
   const std::string TUNING_DATA        = "d8FENS_WrongResults_mixed.epd";
   const int         TUNING_POS_COUNT   = 35821985; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 971;
+  const int         TUNING_TERMS_COUNT = 967;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
   const int         TUNIGN_PRINT       = 25;

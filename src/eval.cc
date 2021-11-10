@@ -609,6 +609,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
     int square = _popLsb(tmpPawns);
     int pawnCol = _col(square);
+    int pawnEdist = _relrow(square);
     int r = color == WHITE ? _row(square) : 7 - _row(square);
 
     if (TRACK){
@@ -622,7 +623,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     if ((board.getPieces(otherColor, PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
       eB->Passers[color] = eB->Passers[color] | (ONE << square);
 
-      s += PASSED_PAWN_RANKS[r] + PASSED_PAWN_FILES[pawnCol];
+      s += PASSED_PAWN_RANKS[r] + PASSED_PAWN_FILES[pawnEdist];
       if (TRACK){
         ft.PassedPawnRank[r][color]++;
         ft.PassedPawnFile[pawnCol][color]++;
