@@ -68,10 +68,10 @@ struct posFeatured{
     int PawnPsqtBlackIsQ[64][2];
     int PawnPsqtBlackIsOwn[64][2];
     int PawnPsqtBlack[64][2];
-    int RookPsqtBlack[64][2];
-    int BishopPsqtBlack[64][2];
-    int KnightPsqtBlack[64][2];
-    int QueenPsqtBlack[64][2];
+    int RookPsqtBlack[32][2];
+    int BishopPsqtBlack[32][2];
+    int KnightPsqtBlack[32][2];
+    int QueenPsqtBlack[32][2];
     //Array features - PSQT-like
     int KnightOutProtBlack[32][2];
     int BishopOutProtBlack[32][2];
@@ -109,7 +109,7 @@ struct tEntry {
   const std::string TUNING_DATA        = "d8FENS_WrongResults_mixed.epd";
   const int         TUNING_POS_COUNT   = 35821985; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 843;
+  const int         TUNING_TERMS_COUNT = 715;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
   const int         TUNIGN_PRINT       = 25;

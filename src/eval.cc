@@ -264,7 +264,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     int square = _popLsb(pieces);
 
     if (TRACK){
-      int relSqv = color == WHITE ? _mir(square) : square;
+      int relSqv = color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square];
       ft.QueenPsqtBlack[relSqv][color]++;
     }
 
@@ -308,7 +308,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
   while (pieces) {
     int square = _popLsb(pieces);
     if (TRACK){
-      int relSqv = color == WHITE ? _mir(square) : square;
+        int relSqv = color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square];
       ft.RookPsqtBlack[relSqv][color]++;
     }
 
@@ -391,7 +391,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
 
       int square = _popLsb(pieces);
       if (TRACK){
-        int relSqv = color == WHITE ? _mir(square) : square;
+        int relSqv = color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square];
         ft.BishopPsqtBlack[relSqv][color]++;
       }
 
@@ -471,7 +471,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
 
       int square = _popLsb(pieces);
       if (TRACK){
-        int relSqv = color == WHITE ? _mir(square) : square;
+        int relSqv = color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square];
         ft.KnightPsqtBlack[relSqv][color]++;
       }
 

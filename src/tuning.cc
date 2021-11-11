@@ -360,19 +360,19 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.PawnPsqtBlackIsOwn[j][WHITE] - ft.PawnPsqtBlackIsOwn[j][BLACK];
     }
 
-    for (int j = 0; j < 64; j++){
+    for (int j = 0; j < 32; j++){
         coeff[i++] = ft.RookPsqtBlack[j][WHITE] - ft.RookPsqtBlack[j][BLACK];
     }
 
-    for (int j = 0; j < 64; j++){
+    for (int j = 0; j < 32; j++){
         coeff[i++] = ft.BishopPsqtBlack[j][WHITE] - ft.BishopPsqtBlack[j][BLACK];
     }
 
-    for (int j = 0; j < 64; j++){
+    for (int j = 0; j < 32; j++){
         coeff[i++] = ft.KnightPsqtBlack[j][WHITE] - ft.KnightPsqtBlack[j][BLACK];
     }
 
-    for (int j = 0; j < 64; j++){
+    for (int j = 0; j < 32; j++){
         coeff[i++] = ft.QueenPsqtBlack[j][WHITE] - ft.QueenPsqtBlack[j][BLACK];
     }
 
