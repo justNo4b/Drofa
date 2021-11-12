@@ -469,6 +469,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   bool improving = false;
   if (ply > 2) improving = !AreWeInCheck && statEVAL > _sStack.statEval[ply - 2];
 
+  // Clear Killers for the children node
+  _orderingInfo.clearChildrenKillers(ply);
+
   // Check if we are doing pre-move pruning techniques
   // We do not do them InCheck, in pvNodes and when proving singularity
   bool isPrune = !pvNode && !AreWeInCheck && !sing;
@@ -669,8 +672,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                             move == _orderingInfo.getKiller1(ply) ||  move == _orderingInfo.getKiller2(ply));
 
           // We finished reduction tweaking, calculate final depth and search
-          // Avoid reduction being less than 0
-          reduction = std::max(0, reduction);
+          // Idea from SF - > allow extending if our reductions are very negative
+          int minReduction = 0;
+          minReduction += (!isQuiet && LegalMoveCount <= 6) ? -2 : -1;
+
+          reduction = std::max(minReduction, reduction);
           //Avoid to reduce so much that we go to QSearch right away
           int fDepth = std::max(1, tDepth - 1 - reduction);
 
@@ -739,10 +745,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         }else{
           // Beta was not beaten and we dont improve alpha in this case we lower our search history values
           if (isQuiet){
-            _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), (depth + (statEVAL < alpha)));
-            _orderingInfo.decrementCounterHistory(pMove, move.getPieceType(), move.getTo(), (depth + (statEVAL < alpha)));
+            _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
+            _orderingInfo.decrementCounterHistory(pMove, move.getPieceType(), move.getTo(), depth);
           }else{
-            _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), (depth + (statEVAL < alpha)));
+            _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), depth);
           }
         }
       }
