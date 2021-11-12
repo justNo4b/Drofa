@@ -593,7 +593,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // We finished reduction tweaking, calculate final depth and search
           // Idea from SF - > allow extending if our reductions are very negative
-          reduction = std::max(-1, reduction);
+          int minReduction = 0;
+          minReduction += (!isQuiet && LegalMoveCount <= 6) ? -2 : -1;
+
+          reduction = std::max(minReduction, reduction);
           //Avoid to reduce so much that we go to QSearch right away
           int fDepth = std::max(1, tDepth - 1 - reduction);
 
