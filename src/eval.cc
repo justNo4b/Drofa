@@ -126,18 +126,24 @@ void Eval::init() {
 
 evalBits Eval::Setupbits(const Board &board){
   evalBits eB;
-
+  U64 doubleAttacked[2] = {0};
   for (auto color : { WHITE, BLACK }) {
     U64 pBB = board.getPieces(color, PAWN);
     eB.EnemyPawnAttackMap[!color] = color == WHITE ? ((pBB << 9) & ~FILE_A) | ((pBB << 7) & ~FILE_H)
                                                    : ((pBB >> 9) & ~FILE_H) | ((pBB >> 7) & ~FILE_A);
+
+    doubleAttacked[color] =  color == WHITE ? ((pBB << 9) & ~FILE_A) & ((pBB << 7) & ~FILE_H)
+                                            : ((pBB >> 9) & ~FILE_H) & ((pBB >> 7) & ~FILE_A);
 
     U64 king = board.getPieces(color, KING);
     eB.EnemyKingZone[!color] = detail::KINGZONE[color][_bitscanForward(king)];
     eB.EnemyKingSquare[!color] = _bitscanForward(king);
   }
 
-  eB.RammedCount = _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN));
+  eB.RammedCount =  _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN)) +
+                   (_popCount((board.getPieces(BLACK, PAWN) >> 8) & doubleAttacked[WHITE]) +
+                    _popCount((board.getPieces(WHITE, PAWN) << 8) & doubleAttacked[BLACK]) / 2);
+
   eB.OutPostedLines[0] = 0, eB.OutPostedLines[1] = 0;
   eB.KingAttackers[0] = 0, eB.KingAttackers[1] = 0;
   eB.KingAttackPower[0] = START_ATTACK_VALUE, eB.KingAttackPower[1] = START_ATTACK_VALUE;
