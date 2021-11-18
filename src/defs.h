@@ -114,6 +114,9 @@ const U64 WHITE_SQUARES = 0x55AA55AA55AA55AA;
  */
 const U64 CENTER         = (ONE << e4) | (ONE << e5) | (ONE << d4) | (ONE << d5);
 const U64 FIGHTING_AREA  = RANK_3 | RANK_4 | RANK_5 | RANK_6;
+const U64 KING_SIDE      = FILE_E | FILE_F | FILE_G | FILE_H;
+const U64 QUEEN_SIDE     = FILE_A | FILE_B | FILE_C | FILE_D;
+
 const U64 PASSER_ZONE [2] = { (RANK_5 | RANK_6),
                               (RANK_3 | RANK_4) };
 const U64 ENEMY_SIDE [2]  = { (RANK_5 | RANK_6 | RANK_7 | RANK_8),
