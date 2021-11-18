@@ -400,6 +400,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   int pMove = _sStack.moves[ply - 1];
   int alphaOrig = alpha;
   int statEVAL = 0;
+  int hupDepth = depth;
   Move hashedMove = Move(0);
   pV   thisPV = pV();
 
@@ -437,7 +438,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         return alpha;
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
-        _updateBeta(quietTT, hashedMove, board.getActivePlayer(), pMove, ply, depth);
+        _updateBeta(quietTT, hashedMove, board.getActivePlayer(), pMove, ply, hupDepth);
         return beta;
       }
     }
@@ -715,7 +716,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // Beta cutoff
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
-          _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + (statEVAL < alpha)));
+          _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (hupDepth + (statEVAL < alpha)));
           // Add a new tt entry for this node
           if (!_stop && !sing){
             myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
@@ -746,10 +747,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         }else{
           // Beta was not beaten and we dont improve alpha in this case we lower our search history values
           if (isQuiet){
-            _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
-            _orderingInfo.decrementCounterHistory(pMove, move.getPieceType(), move.getTo(), depth);
+            _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), hupDepth);
+            _orderingInfo.decrementCounterHistory(pMove, move.getPieceType(), move.getTo(), hupDepth);
           }else{
-            _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), depth);
+            _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), hupDepth);
           }
         }
       }
