@@ -17,7 +17,7 @@ MovePicker::MovePicker(const OrderingInfo *orderingInfo, const Board *board, Mov
 void MovePicker::_scoreMoves(const Board *board) {
   int Killer1 = _orderingInfo->getKiller1(_ply);
   int Killer2 = _orderingInfo->getKiller2(_ply);
-  int Counter = _orderingInfo->getCounterMoveINT(_color, _pMove);
+  int Counter = 0;
 
   for (auto &move : *_moves) {
     int moveINT = move.getMoveINT();
