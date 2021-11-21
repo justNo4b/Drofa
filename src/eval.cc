@@ -808,7 +808,7 @@ inline int Eval::kingDanger(Color color, const evalBits * eB){
   return gS(std::max(0, attackScore), 0);
 }
 
-inline int Eval::TaperAndScale(const Board &board, Color color, int score){
+inline int Eval::TaperAndScale(const Board &board, Color color, evalBits * eB, int score){
 
   // Calculation of the phase value
   Color otherColor  = getOppositeColor(color);
@@ -849,6 +849,15 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
           final_eval = final_eval * BOTH_SCALE_KNIGHT_OCB / BOTH_SCALE_NORMAL;
           if (TRACK) ft.Scale = BOTH_SCALE_KNIGHT_OCB;
         }
+  }
+
+  // scale evaluation down for extremely closed positions (7 and 8 rammed)
+  if (eB->RammedCount == 7){
+    final_eval = final_eval * BOTH_SCALE_CLOSED_7 / BOTH_SCALE_NORMAL;
+    if (TRACK) ft.Scale = BOTH_SCALE_CLOSED_7;
+  }else if (eB->RammedCount == 8){
+    final_eval = final_eval * BOTH_SCALE_CLOSED_8 / BOTH_SCALE_NORMAL;
+    if (TRACK) ft.Scale = BOTH_SCALE_CLOSED_8;
   }
 
   return final_eval;
@@ -918,7 +927,7 @@ int Eval::evaluate(const Board &board, Color color) {
           - kingDanger(otherColor, &eB);
 
   // Taper and Scale obtained score
-  int final_eval = TaperAndScale(board, color, score);
+  int final_eval = TaperAndScale(board, color, &eB, score);
 
   return final_eval + TEMPO;
 }
