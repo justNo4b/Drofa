@@ -84,7 +84,7 @@ extern U64 KING_PAWN_MASKS[2][2][8];
   const int BOTH_SCALE_OCB = 2;
   const int BOTH_SCALE_ROOK_OCB = 3;
   const int BOTH_SCALE_KNIGHT_OCB = 3;
-  const int BOTH_SCALE_CLOSED_7 = 2;
+  const int BOTH_SCALE_CLOSED_7 = 3;
   const int BOTH_SCALE_CLOSED_8 = 1;
   /**@}*/
 
