@@ -801,7 +801,9 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   if (board.getActivePlayer() == color) eB->KingAttackPower[color] += ATTACK_TEMPO;
 
-  U64 side = (board.getPieces(color, KING) & KING_SIDE) != 0 ? KING_SIDE : QUEEN_SIDE;
+  U64 side = (board.getPieces(color, KING) & KING_SIDE) != 0  ? KING_SIDE :
+             (board.getPieces(color, KING) & QUEEN_SIDE) != 0 ? QUEEN_SIDE : CENTER_LINES;
+
   eB->KingAttackPower[color] += (_popCount(AllTheirAttacks & side) - _popCount(AllOurAttacks & side)) * FLANK_MOBILITY_MULTYPLIER;
 
   return s;
