@@ -491,6 +491,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
     Board movedBoard = board;
     movedBoard.doMove(move);
+    myHASH->HASH_Prefetch(movedBoard.getZKey().getValue());
     bool doLMR = false;
 
       if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
