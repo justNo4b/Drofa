@@ -150,6 +150,8 @@ evalBits Eval::Setupbits(const Board &board){
   eB.Passers[0] = 0, eB.Passers[1] = 0;
   eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
   eB.AttackedByKing[0] = 0, eB.AttackedByKing[1] = 0;
+
+  eB.CanCheckEnemy[0] = false, eB.CanCheckEnemy[1] = false;
   return eB;
 }
 
@@ -295,6 +297,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[QUEEN];
       eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[QUEEN];
+      if (kingChecks > 0) eB->CanCheckEnemy[color] = true;
     }
   }
 
@@ -348,6 +351,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[ROOK];
       eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[ROOK];
+      if (kingChecks > 0) eB->CanCheckEnemy[color] = true;
     }
 
     // See if a Rook is attacking an enemy unprotected pawn
@@ -437,6 +441,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[BISHOP];
         eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[BISHOP];
+        if (kingChecks > 0) eB->CanCheckEnemy[color] = true;
       }
 
       // See if a Bishop is attacking an enemy unprotected pawn
@@ -507,6 +512,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[KNIGHT];
         eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[KNIGHT];
+        if (kingChecks > 0) eB->CanCheckEnemy[color] = true;
       }
 
       // See if a Knight is attacking an enemy unprotected pawn
@@ -798,7 +804,11 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   int unContested = _popCount(eB->AttackedSquares[color] & eB->EnemyKingZone[color] & ~eB->AttackedSquares[otherColor]);
   eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
-  if (board.getActivePlayer() == color) eB->KingAttackPower[color] += ATTACK_TEMPO;
+  if (board.getActivePlayer() == color){
+    eB->KingAttackPower[color] += ATTACK_TEMPO;
+    if (eB->CanCheckEnemy) eB->KingAttackPower[color] += ATTACK_TEMPO_CAN_CHECK;
+  }
+
 
   return s;
 }
