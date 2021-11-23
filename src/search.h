@@ -267,7 +267,7 @@ class Search {
    * @param ply   search ply
    * @param depth search depth
    */
-  inline void _updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ply, int depth);
+  inline void _updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ppMove, int ply, int depth);
 
   inline bool _isRepetitionDraw(U64, int);
 
