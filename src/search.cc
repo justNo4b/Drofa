@@ -399,7 +399,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   int score;
   int ply = _sStack.ply;
   int pMove  = _sStack.moves[ply - 1];
-  int ppMove = ply > 1 ? _sStack.moves[ply - 2] : 0;
+  int ppMove = _sStack.moves[ply - 2];
   int alphaOrig = alpha;
   int statEVAL = 0;
   Move hashedMove = Move(0);
@@ -585,6 +585,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                             _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) :
                             _orderingInfo.getCaptureHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo());
         int cmHistory     = isQuiet ? _orderingInfo.getCountermoveHistory(pMove, move.getPieceType(), move.getTo()) : 0;
+        int fmHistory     = isQuiet ? _orderingInfo.getFollowHistory(ppMove, move.getPieceType(), move.getTo()) : 0;
         int tDepth = depth;
         // 6. EXTENTIONS
         //
@@ -666,6 +667,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // reduce more/less based on the hitory
           reduction -= moveHistory / 8192;
           reduction -= cmHistory  / 12288;
+          reduction -= fmHistory / 12288;
 
           // reduce less when move is a Queen promotion
           reduction -= (move.getFlags() & Move::PROMOTION) && (move.getPromotionPieceType() == QUEEN);
