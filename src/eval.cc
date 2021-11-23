@@ -441,7 +441,6 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[BISHOP];
         eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[BISHOP];
-        if (kingChecks > 0) eB->CanCheckEnemy[color] = true;
       }
 
       // See if a Bishop is attacking an enemy unprotected pawn
@@ -806,6 +805,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
   if (board.getActivePlayer() == color){
     eB->KingAttackPower[color] += ATTACK_TEMPO;
+    // If this is our time to move and we can check with a Major piece or Knight, add bonus
     if (eB->CanCheckEnemy) eB->KingAttackPower[color] += ATTACK_TEMPO_CAN_CHECK;
   }
 
