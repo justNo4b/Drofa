@@ -44,7 +44,7 @@ void MovePicker::_scoreMoves(const Board *board) {
     } else { // Quiet
       move.setValue(_orderingInfo->getHistory(_color, move.getFrom(), move.getTo()) +
                     _orderingInfo->getCountermoveHistory(_pMove, move.getPieceType(), move.getTo()) +
-                    _orderingInfo->getFollowHistory(_ppMove, move.getPieceType(), move.getTo()));
+                    (_orderingInfo->getFollowHistory(_ppMove, move.getPieceType(), move.getTo()) / 2 ));
     }
   }
 }
