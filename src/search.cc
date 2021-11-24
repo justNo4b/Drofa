@@ -729,6 +729,14 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           }
 
           return beta;
+        }else{
+          // Beta was not beaten and we dont improve alpha in this case we lower our search history values
+          if (isQuiet){
+            _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
+            _orderingInfo.decrementCounterHistory(pMove, move.getPieceType(), move.getTo(), depth);
+          }else{
+            _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), depth);
+          }
         }
 
         // Check if alpha raised (new best move)
@@ -743,14 +751,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             std::memcpy(up_pV->pVmoves + 1, thisPV.pVmoves, sizeof(int) * thisPV.length);
           }
 
-        }else{
-          // Beta was not beaten and we dont improve alpha in this case we lower our search history values
-          if (isQuiet){
-            _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
-            _orderingInfo.decrementCounterHistory(pMove, move.getPieceType(), move.getTo(), depth);
-          }else{
-            _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), depth);
-          }
         }
       }
 
