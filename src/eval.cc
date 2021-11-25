@@ -555,6 +555,10 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   // Save our attacks for further use
   eB->AttackedByKing[color] |= attackBitBoard;
 
+
+  U64 kPseudoMob = board.getMobilityForSquare(QUEEN, color, square, 0) & ~KING_SAFE_LINE[color];
+  eB->KingAttackPower[otherColor] += (_popCount(kPseudoMob) - 3) * 5;
+
   // See if our king is on the Openish-files
   // Test for Open - SemiOpenToUs - SemiOpenToEnemy
   // General idea is from SF HCE

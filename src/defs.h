@@ -122,6 +122,7 @@ const U64 KSIDE_CASTLE [2] = { ((ONE << g1) | (ONE << h1) | (ONE << g2) | (ONE <
                                ((ONE << g8) | (ONE << h8) | (ONE << g7) | (ONE << h7)) };
 const U64 QSIDE_CASTLE [2] = { ((ONE << a1) | (ONE << b1) | (ONE << c1) | (ONE << a2) | (ONE << b2)),
                                ((ONE << a8) | (ONE << b8) | (ONE << c8) | (ONE << a7) | (ONE << b7)) };
+const U64 KING_SAFE_LINE[2] = {FILE_A, FILE_H};
 /**@}*/
 
 /** @brief Positive infinity to be used during search (eg. as a return value for winning) */
