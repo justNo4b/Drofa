@@ -628,6 +628,12 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               tDepth++;
             }
 
+        if (LegalMoveCount != 1 &&
+            LegalMoveCount <= 2 + pvNode &&
+            moveHistory + cmHistory >= 20480){
+              tDepth++;
+            }
+
         _posHist.Add(board.getZKey().getValue());
         _sStack.AddMove(move.getMoveINT());
 
