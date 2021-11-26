@@ -630,7 +630,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         if (LegalMoveCount != 1 &&
             LegalMoveCount <= 2 + pvNode &&
-            moveHistory + cmHistory >= 20480){
+            ((moveHistory + cmHistory) / 10240) + !isQuiet >= 2){
               tDepth++;
             }
 
