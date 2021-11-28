@@ -851,7 +851,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
           if (score >= beta) {
             if (!_stop){
-              myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, 0, 0);
+              myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, 0, MAX_PLY);
             }
             return beta;
           }
