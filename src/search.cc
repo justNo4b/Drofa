@@ -417,6 +417,17 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     return 0;
   }
 
+  // Check our InCheck status
+  AreWeInCheck = board.colorIsInCheck(board.getActivePlayer());
+
+  // Go into the QSearch if depth is 0 and we are not in check
+  // Cut out pV and update our seldepth before dropping into qSearch
+  if ((depth <= 0 && !AreWeInCheck) || ply >= MAX_PLY) {
+    _selDepth = std::max(ply, _selDepth);
+    up_pV->length = 0;
+    return _qSearch(board, alpha, beta);
+  }
+
   // Check transposition table cache
   // If TT is causing a cuttoff, we update move ordering stuff
   const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
@@ -441,17 +452,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         return beta;
       }
     }
-  }
-
-  // Check our InCheck status
-  AreWeInCheck = board.colorIsInCheck(board.getActivePlayer());
-
-  // Go into the QSearch if depth is 0 and we are not in check
-  // Cut out pV and update our seldepth before dropping into qSearch
-  if ((depth <= 0 && !AreWeInCheck) || ply >= MAX_PLY) {
-    _selDepth = std::max(ply, _selDepth);
-    up_pV->length = 0;
-    return _qSearch(board, alpha, beta);
   }
 
   // Statically evaluate our position
@@ -790,6 +790,25 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
     return 0;
   }
 
+  Move hashedMove;
+  const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
+  if (probedHASHentry.Flag != NONE){
+    hashedMove = Move(probedHASHentry.move);
+      int hashScore = probedHASHentry.score;
+
+      if (probedHASHentry.Flag == EXACT){
+        return hashScore;
+      }
+      if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){
+        return alpha;
+      }
+      if (probedHASHentry.Flag == BETA && hashScore >= beta){
+        return beta;
+      }
+
+  }
+
+
   int standPat = Eval::evaluate(board, board.getActivePlayer());
 
   if (standPat >= beta) {
@@ -803,7 +822,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   MoveGen movegen(board, true);
   MoveList legalMoves = movegen.getMoves();
   MovePicker movePicker
-      (&_orderingInfo, &board, &legalMoves, 0, board.getActivePlayer(), MAX_PLY, 0);
+      (&_orderingInfo, &board, &legalMoves, hashedMove.getMoveINT(), board.getActivePlayer(), MAX_PLY, 0);
 
   // If node is quiet, just return eval
   if (!movePicker.hasNext()) {
@@ -831,6 +850,9 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
           int score = -_qSearch(movedBoard, -beta, -alpha);
 
           if (score >= beta) {
+            if (!_stop){
+              myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, 0, 0);
+            }
             return beta;
           }
           if (score > alpha) {
