@@ -607,13 +607,11 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
   U64 pawns = board.getPieces(color, PAWN);
   U64 tmpPawns = pawns;
-  // PawnSupported - Apply bonus for each pawn protected by allied pawn
-  s += PAWN_SUPPORTED * _popCount(pawns & eB->EnemyPawnAttackMap[otherColor]);
-  if (TRACK) ft.PawnSupported[color] += _popCount(pawns & eB->EnemyPawnAttackMap[otherColor]);
 
   while (tmpPawns != ZERO) {
 
     int square = _popLsb(tmpPawns);
+    int relSqv = color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square];
     int pawnCol = _col(square);
     int r = color == WHITE ? _row(square) : 7 - _row(square);
 
@@ -664,8 +662,13 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
     // test on if a pawn is connected
     if ((detail::CONNECTED_MASK[square] & pawns) != 0){
-      if (TRACK) ft.PawnConnected[r][color]++;
-      s += PAWN_CONNECTED[r];
+      if (TRACK) ft.PawnConnected[relSqv][color]++;
+      s += PAWN_CONNECTED[relSqv];
+    }
+
+    if ((ONE << square) & eB->EnemyPawnAttackMap[otherColor]){
+      if (TRACK) ft.PawnSupported[relSqv][color]++;
+      s += PAWN_SUPPORTED[relSqv];
     }
   }
 
