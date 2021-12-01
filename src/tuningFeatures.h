@@ -5,7 +5,7 @@
 #include "eval.h"
 #include "outposts.h"
 
-#define BIG_FEATURE_NUMBER (57)
+#define BIG_FEATURE_NUMBER (59)
 
 enum TuningType{
     ALL,
@@ -34,7 +34,9 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("BISHOP_PAIR_BONUS", false, &Eval::BISHOP_PAIR_BONUS, 1, 1, ALL),
     tFeature("PAWN_SUPPORTED", false, &Eval::PAWN_SUPPORTED, 1, 1, ALL),
     tFeature("DOUBLED_PAWN_PENALTY", false, &Eval::DOUBLED_PAWN_PENALTY, 1, 1, ALL),
+    tFeature("DOUBLED_CAN_BE_TRADED", false, &Eval::DOUBLED_CAN_BE_TRADED, 1, 1, ALL),
     tFeature("ISOLATED_PAWN_PENALTY", false, &Eval::ISOLATED_PAWN_PENALTY, 1, 1, ALL),
+    tFeature("ISOLATED_CAN_BE_TRADED", false, &Eval::ISOLATED_CAN_BE_TRADED, 1, 1, ALL),
     tFeature("PAWN_BLOCKED", false, &Eval::PAWN_BLOCKED, 1, 1, ALL),
     tFeature("PASSER_BLOCKED", false, &Eval::PASSER_BLOCKED, 1, 1, ALL),
     tFeature("BISHOP_RAMMED_PENALTY", false, &Eval::BISHOP_RAMMED_PENALTY, 1, 1, ALL),
