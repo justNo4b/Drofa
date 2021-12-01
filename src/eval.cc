@@ -606,6 +606,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   Color otherColor = getOppositeColor(color);
 
   U64 pawns = board.getPieces(color, PAWN);
+  U64 otherPawns = board.getPieces(otherColor, PAWN);
   U64 tmpPawns = pawns;
 
   while (tmpPawns != ZERO) {
@@ -623,7 +624,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     }
 
     // add bonuses if the pawn is passed
-    if ((board.getPieces(otherColor, PAWN) & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
+    if ((otherPawns & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
       eB->Passers[color] = eB->Passers[color] | (ONE << square);
 
       s += PASSED_PAWN_RANKS[r] + PASSED_PAWN_FILES[pawnCol];
@@ -644,7 +645,25 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
       // Add pawn to the passers list for further use
       eB->Passers[color] = eB->Passers[color] | (ONE << square);
+    } else{
+      // check if the pawn is a candidate passer
+      // 1) we can just push this pawn and it will become passed
+      // 2) we can push it itno trading into all becoming passed
+      int forwardSqv = color == WHITE ? square + 8 : square - 8;
+      U64 canSupport = detail::OUTPOST_PROTECTION[color][forwardSqv] & pawns;
+      U64 canEnemies = detail::OUTPOST_PROTECTION[otherColor][forwardSqv] & otherPawns;
+      if ((otherPawns & (ONE << forwardSqv)) == ZERO){
+        if (((otherPawns & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO) || 
+            ((_popCount(canSupport) >= _popCount(canEnemies)) && 
+            (((otherPawns & ~canEnemies) & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO))){
+          s += CANDIDATE_PASSED_PAWN[r];
+          if (TRACK) ft.CandidatePasser[r][color]++;
+        }         
+      }
+     
     }
+
+
 
     // add penalties for the doubled pawns
     if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0 &&
