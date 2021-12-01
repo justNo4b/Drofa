@@ -287,6 +287,10 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.KnightEnemyPasser[j][WHITE] - ft.KnightEnemyPasser[j][BLACK];
     }
 
+    for (int j = 0; j < 7; j++){
+        coeff[i++] = ft.CandidatePasser[j][WHITE] - ft.CandidatePasser[j][BLACK];
+    }
+    
     for (int j = 0; j < 2; j++){
         coeff[i++] = ft.RookOpenFile[j][WHITE] - ft.RookOpenFile[j][BLACK];
     }

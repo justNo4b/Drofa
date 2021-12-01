@@ -46,6 +46,8 @@ struct posFeatured{
     int KingFriendlyPasser[8][2];
     int KingEnemyPasser[8][2];
     int KnightEnemyPasser[4][2];
+    int CandidatePasser[7][2];
+    //
     int RookOpenFile[2][2];
     int RookHalfFile[2][2];
     int HangingPiece[5][2];
@@ -110,7 +112,7 @@ struct tEntry {
   const std::string TUNING_DATA        = "d8FENS_WrongResults_mixed.epd";
   const int         TUNING_POS_COUNT   = 35821985; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 899;
+  const int         TUNING_TERMS_COUNT = 906;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
   const int         TUNIGN_PRINT       = 25;
