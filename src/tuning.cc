@@ -280,11 +280,23 @@ void InitCoefficients(featureCoeff coeff){
     }
 
     for (int j = 0; j < 8; j++){
+        coeff[i++] = ft.KingFriendlyPasserNotemp[j][WHITE] - ft.KingFriendlyPasserNotemp[j][BLACK];
+    }
+
+    for (int j = 0; j < 8; j++){
         coeff[i++] = ft.KingEnemyPasser[j][WHITE] - ft.KingEnemyPasser[j][BLACK];
+    }
+
+    for (int j = 0; j < 8; j++){
+        coeff[i++] = ft.KingEnemyPasserNotemp[j][WHITE] - ft.KingEnemyPasserNotemp[j][BLACK];
     }
     
     for (int j = 0; j < 4; j++){
         coeff[i++] = ft.KnightEnemyPasser[j][WHITE] - ft.KnightEnemyPasser[j][BLACK];
+    }
+
+    for (int j = 0; j < 4; j++){
+        coeff[i++] = ft.KnightEnemyPasserNotemp[j][WHITE] - ft.KnightEnemyPasserNotemp[j][BLACK];
     }
 
     for (int j = 0; j < 7; j++){

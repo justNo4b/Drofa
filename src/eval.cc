@@ -760,11 +760,24 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
 
     // Evaluate Distance between both kings and current passer
-    s += KING_PASSER_DISTANCE_FRIENDLY[Eval::detail::DISTANCE[square][ourKingSquare]];
-    s += KING_PASSER_DISTANCE_ENEMY[Eval::detail::DISTANCE[square][enemyKingSquare]];
+    // Differentiate between tempo-and nontempo side
+    s += board.getActivePlayer() == color ?
+        KING_PASSER_DISTANCE_FRIENDLY[Eval::detail::DISTANCE[square][ourKingSquare]] :
+        KING_PASSER_DISTANCE_FRIENDLY_NOTEMPO[Eval::detail::DISTANCE[square][ourKingSquare]];
+
+    s += board.getActivePlayer() == color ?
+        KING_PASSER_DISTANCE_ENEMY[Eval::detail::DISTANCE[square][enemyKingSquare]] :
+        KING_PASSER_DISTANCE_ENEMY_NOTEMPO[Eval::detail::DISTANCE[square][enemyKingSquare]];
+
     if (TRACK){
-      ft.KingFriendlyPasser[Eval::detail::DISTANCE[square][ourKingSquare]][color]++;
-      ft.KingEnemyPasser[Eval::detail::DISTANCE[square][enemyKingSquare]][color]++;
+      if (board.getActivePlayer() == color){
+        ft.KingFriendlyPasser[Eval::detail::DISTANCE[square][ourKingSquare]][color]++;
+        ft.KingEnemyPasser[Eval::detail::DISTANCE[square][enemyKingSquare]][color]++;        
+      }else{
+        ft.KingFriendlyPasserNotemp[Eval::detail::DISTANCE[square][ourKingSquare]][color]++;
+        ft.KingEnemyPasserNotemp[Eval::detail::DISTANCE[square][enemyKingSquare]][color]++; 
+      }
+
     }
 
 
@@ -789,9 +802,13 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
     U64 enemyKnights = board.getPieces(otherColor, KNIGHT);
     while (enemyKnights){
         int knightSuqare = _popLsb(enemyKnights);
-        s += KNIGHT_PASSER_DISTANCE_ENEMY[Eval::detail::DISTANCE[square][knightSuqare] / 2];
+        s += board.getActivePlayer() == color ?
+            KNIGHT_PASSER_DISTANCE_ENEMY[Eval::detail::DISTANCE[square][knightSuqare] / 2] :
+            KNIGHT_PASSER_DISTANCE_ENEMY_NOTEMPO[Eval::detail::DISTANCE[square][knightSuqare] / 2];
+
         if (TRACK){
-          ft.KnightEnemyPasser[Eval::detail::DISTANCE[square][knightSuqare] / 2][color]++;
+          if (board.getActivePlayer() == color) ft.KnightEnemyPasser[Eval::detail::DISTANCE[square][knightSuqare] / 2][color]++; 
+          else ft.KnightEnemyPasserNotemp[Eval::detail::DISTANCE[square][knightSuqare] / 2][color]++;
         }
     }
 
