@@ -658,6 +658,9 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
             (((otherPawns & ~canEnemies) & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO))){
           s += CANDIDATE_PASSED_PAWN[r];
           if (TRACK) ft.CandidatePasser[r][color]++;
+          // Add it to the passers list, as it is in the fowardSQV
+          eB->Passers[color] = eB->Passers[color] | (ONE << forwardSqv);
+
         }         
       }
      
