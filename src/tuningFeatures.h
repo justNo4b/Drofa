@@ -5,7 +5,7 @@
 #include "eval.h"
 #include "outposts.h"
 
-#define BIG_FEATURE_NUMBER (57)
+#define BIG_FEATURE_NUMBER (58)
 
 enum TuningType{
     ALL,
@@ -32,7 +32,6 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("KING_MED_DANGER", false, &Eval::KING_MED_DANGER, 1, 1, ALL),
     tFeature("KING_LOW_DANGER", false, &Eval::KING_LOW_DANGER, 1, 1, ALL),
     tFeature("BISHOP_PAIR_BONUS", false, &Eval::BISHOP_PAIR_BONUS, 1, 1, ALL),
-    tFeature("PAWN_SUPPORTED", false, &Eval::PAWN_SUPPORTED, 1, 1, ALL),
     tFeature("DOUBLED_PAWN_PENALTY", false, &Eval::DOUBLED_PAWN_PENALTY, 1, 1, ALL),
     tFeature("ISOLATED_PAWN_PENALTY", false, &Eval::ISOLATED_PAWN_PENALTY, 1, 1, ALL),
     tFeature("PAWN_BLOCKED", false, &Eval::PAWN_BLOCKED, 1, 1, ALL),
@@ -50,7 +49,6 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("KING_OWN_SEMI_FILE", false, &Eval::KING_OWN_SEMI_FILE, 1, 1, ALL),
     tFeature("KING_ENEMY_SEMI_LINE", false, &Eval::KING_ENEMY_SEMI_LINE, 1, 1, ALL),
     tFeature("KING_ATTACK_PAWN", false, &Eval::KING_ATTACK_PAWN, 1, 1, ALL),
-    tFeature("PAWN_CONNECTED", true, Eval::PAWN_CONNECTED, 7, 4, ALL),
     tFeature("PASSED_PAWN_RANKS", true, Eval::PASSED_PAWN_RANKS, 7, 4, ALL),
     tFeature("PASSED_PAWN_FILES", true, Eval::PASSED_PAWN_FILES, 8, 4, ALL),
     tFeature("PASSED_PAWN_FREE", true, Eval::PASSED_PAWN_FREE, 7, 4, ALL),
@@ -59,6 +57,7 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("KING_PASSER_DISTANCE_FRIENDLY", true, Eval::KING_PASSER_DISTANCE_FRIENDLY, 8, 4, ALL),
     tFeature("KING_PASSER_DISTANCE_ENEMY", true, Eval::KING_PASSER_DISTANCE_ENEMY, 8, 4, ALL),
     tFeature("KNIGHT_PASSER_DISTANCE_ENEMY", true, Eval::KNIGHT_PASSER_DISTANCE_ENEMY, 4, 10, ALL),
+    tFeature("CANDIDATE_PASSED_PAWN", true, Eval::CANDIDATE_PASSED_PAWN, 7, 4, ALL),
     tFeature("ROOK_OPEN_FILE_BONUS", true, Eval::ROOK_OPEN_FILE_BONUS, 2, 10, ALL),
     tFeature("ROOK_SEMI_FILE_BONUS", true, Eval::ROOK_SEMI_FILE_BONUS, 2, 10, ALL),
     tFeature("HANGING_PIECE", true, Eval::HANGING_PIECE, 5, 10, ALL),
@@ -84,6 +83,8 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("BISHOP_PROT_OUTPOST_BLACK", true, BISHOP_PROT_OUTPOST_BLACK, 32, 4, ALL),
     tFeature("KNIGHT_OUTPOST_BLACK", true, KNIGHT_OUTPOST_BLACK, 32, 4, ALL),
     tFeature("BISHOP_OUTPOST_BLACK", true, BISHOP_OUTPOST_BLACK, 32, 4, ALL),
+    tFeature("PAWN_CONNECTED", true, PAWN_CONNECTED, 32, 4, ALL),
+    tFeature("PAWN_SUPPORTED", true, PAWN_SUPPORTED, 32, 4, ALL),
     tFeature("MATERIAL_VALUES", true, Eval::MATERIAL_VALUES, 5, 10, ALL),
 };
 
