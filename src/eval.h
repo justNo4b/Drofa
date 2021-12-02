@@ -15,6 +15,7 @@ struct evalBits{
     U64 EnemyKingZone[2];
     U64 Passers[2];
     U64 AttackedSquares[2];
+    U64 AttackedByQueen[2];
     U64 AttackedByKing[2];
     int RammedCount;
     int KingAttackers[2];
@@ -94,7 +95,7 @@ extern U64 KING_PAWN_MASKS[2][2][8];
   const int ATTACK_TEMPO = 35;
 
   const int UNCONTESTED_KING_ATTACK [6] = {
-      -70, -20, 0, 100, 150, 200
+      -120, -39, 25, 75, 148, 200
   };
 
   const int PIECE_ATTACK_POWER[6] = {

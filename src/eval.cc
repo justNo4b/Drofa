@@ -149,6 +149,7 @@ evalBits Eval::Setupbits(const Board &board){
   eB.KingAttackPower[0] = START_ATTACK_VALUE, eB.KingAttackPower[1] = START_ATTACK_VALUE;
   eB.Passers[0] = 0, eB.Passers[1] = 0;
   eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
+  eB.AttackedByQueen[0] = 0, eB.AttackedByQueen[1] = 0;
   eB.AttackedByKing[0] = 0, eB.AttackedByKing[1] = 0;
   return eB;
 }
@@ -281,7 +282,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     if (TRACK) ft.QueenMobility[_popCount(attackBitBoard)][color]++;
 
     // Save our attacks for further use
-    eB->AttackedSquares[color] |= attackBitBoard;
+    eB->AttackedByQueen[color] |= attackBitBoard;
 
     // See if a Queen is attacking an enemy unprotected pawn
     s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
@@ -698,8 +699,8 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   int s = 0;
   Color otherColor = getOppositeColor(color);
   U64 pieces, tmpPawns = ZERO;
-  U64 AllOurAttacks = eB->AttackedSquares[color] | eB->AttackedByKing[color];
-  U64 AllTheirAttacks = eB->AttackedSquares[otherColor] | eB->AttackedByKing[otherColor];
+  U64 AllOurAttacks = eB->AttackedSquares[color] | eB->AttackedByKing[color] | eB->AttackedByQueen[color];
+  U64 AllTheirAttacks = eB->AttackedSquares[otherColor] | eB->AttackedByKing[otherColor] | eB->AttackedByQueen[otherColor];
 
   // 1. Blocked pawns - separate for passers and non-passers
 
@@ -818,8 +819,9 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   }
 
-  int unContested = _popCount(eB->AttackedSquares[color] & eB->EnemyKingZone[color] & ~eB->AttackedSquares[otherColor]);
+  int unContested = _popCount((eB->AttackedSquares[color] | eB->AttackedByQueen[color]) & eB->EnemyKingZone[color] & ~eB->AttackedSquares[otherColor]);
   eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
+
   if (board.getActivePlayer() == color) eB->KingAttackPower[color] += ATTACK_TEMPO;
 
   return s;
