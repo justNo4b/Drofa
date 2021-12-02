@@ -828,7 +828,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   // Additionally award safe inface check with our Queen
   U64 enemyKingFace =  Attacks::getNonSlidingAttacks(KING, eB->EnemyKingSquare[color], color);
-  U64 safeFaceCheck = eB->AttackedByQueen[color] & enemyKingFace & (eB->AttackedSquares[color] | eB->EnemyPawnAttackMap[otherColor]);
+  U64 safeFaceCheck = eB->AttackedByQueen[color] & enemyKingFace & eB->AttackedSquares[color];
   eB->KingAttackPower[color] += QUEEN_SAFE_FACE_CHECK * _popCount(safeFaceCheck & ~defendedSquares);
 
   // Generally if it is our turn, our attack is stronger, so apply a bonus
