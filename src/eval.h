@@ -95,7 +95,7 @@ extern U64 KING_PAWN_MASKS[2][2][8];
   const int ATTACK_TEMPO = 35;
 
   const int UNCONTESTED_KING_ATTACK [6] = {
-      -120, -39, 25, 75, 148, 200
+      -111, -75, 6, 60, 104, 244
   };
 
   const int PIECE_ATTACK_POWER[6] = {
