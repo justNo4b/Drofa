@@ -82,7 +82,7 @@ void OrderingInfo::incrementFollowHistory(int ppMove, PieceType pType, int to, i
 
 void OrderingInfo::decrementFollowHistory(int ppMove, PieceType pType, int to, int depth){
   int16_t current = _followMoveHistory[(ppMove & 0x7)][((ppMove >> 15) & 0x3f)][pType][to];
-  int16_t bonus   = -1 * depth * depth;
+  int16_t bonus   = -1 * depth * (depth - 1);
   _followMoveHistory[(ppMove & 0x7)][((ppMove >> 15) & 0x3f)][pType][to] += 32 * bonus - current * abs(bonus) / 512;
 }
 
