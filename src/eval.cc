@@ -654,14 +654,14 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       U64 canSupport = detail::OUTPOST_PROTECTION[color][forwardSqv] & pawns;
       U64 canEnemies = detail::OUTPOST_PROTECTION[otherColor][forwardSqv] & otherPawns;
       if ((otherPawns & (ONE << forwardSqv)) == ZERO){
-        if (((otherPawns & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO) || 
-            ((_popCount(canSupport) >= _popCount(canEnemies)) && 
+        if (((otherPawns & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO) ||
+            ((_popCount(canSupport) >= _popCount(canEnemies)) &&
             (((otherPawns & ~canEnemies) & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO))){
           s += CANDIDATE_PASSED_PAWN[r];
           if (TRACK) ft.CandidatePasser[r][color]++;
-        }         
+        }
       }
-     
+
     }
 
 
@@ -819,9 +819,19 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   }
 
-  int unContested = _popCount((eB->AttackedSquares[color] | eB->AttackedByQueen[color]) & eB->EnemyKingZone[color] & ~eB->AttackedSquares[otherColor]);
+  // Uncontested attacked squares - squares that we attack around the king while
+  // opponent has no defence (except the king)
+  U64 defendedSquares = eB->AttackedSquares[otherColor] | eB->AttackedByQueen[otherColor];
+  int unContested = _popCount((eB->AttackedSquares[color] | eB->AttackedByQueen[color]) & eB->EnemyKingZone[color] & ~defendedSquares);
+
   eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
 
+  // Additionally award safe inface check with our Queen
+  U64 enemyKingFace =  Attacks::getNonSlidingAttacks(KING, eB->EnemyKingSquare[color], color);
+  U64 safeFaceCheck = eB->AttackedByQueen[color] & enemyKingFace & (eB->AttackedSquares[color] | eB->EnemyPawnAttackMap[otherColor]);
+  eB->KingAttackPower[color] += QUEEN_SAFE_FACE_CHECK * _popCount(safeFaceCheck & ~defendedSquares);
+
+  // Generally if it is our turn, our attack is stronger, so apply a bonus
   if (board.getActivePlayer() == color) eB->KingAttackPower[color] += ATTACK_TEMPO;
 
   return s;
