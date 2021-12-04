@@ -127,18 +127,36 @@ void Eval::init() {
 evalBits Eval::Setupbits(const Board &board){
   evalBits eB;
   U64 doubleAttacked[2] = {0};
+  U64 pawnFrontSpans[2] = {0};
+  U64 attFrontSpawn[2]  = {0};
   for (auto color : { WHITE, BLACK }) {
     U64 pBB = board.getPieces(color, PAWN);
+
     eB.EnemyPawnAttackMap[!color] = color == WHITE ? ((pBB << 9) & ~FILE_A) | ((pBB << 7) & ~FILE_H)
                                                    : ((pBB >> 9) & ~FILE_H) | ((pBB >> 7) & ~FILE_A);
 
+    attFrontSpawn[color] = eB.EnemyPawnAttackMap[!color] | (color == WHITE ? eB.EnemyPawnAttackMap[!color] << 8 : eB.EnemyPawnAttackMap[!color] >> 8);
+    attFrontSpawn[color] |= color == WHITE ? attFrontSpawn[color] << 16 : attFrontSpawn[color] >> 16;
+    attFrontSpawn[color] |= color == WHITE ? attFrontSpawn[color] << 32 : attFrontSpawn[color] >> 32;
+
     doubleAttacked[color] =  color == WHITE ? ((pBB << 9) & ~FILE_A) & ((pBB << 7) & ~FILE_H)
                                             : ((pBB >> 9) & ~FILE_H) & ((pBB >> 7) & ~FILE_A);
+
+    pawnFrontSpans[color]  = pBB | (color == WHITE ? pBB << 8 : pBB >> 8);
+    pawnFrontSpans[color] |= color == WHITE ?  pawnFrontSpans[color] << 16 :  pawnFrontSpans[color] >> 16;
+    pawnFrontSpans[color] |= color == WHITE ?  pawnFrontSpans[color] << 32 :  pawnFrontSpans[color] >> 32;  
+
 
     U64 king = board.getPieces(color, KING);
     eB.EnemyKingZone[!color] = detail::KINGZONE[color][_bitscanForward(king)];
     eB.EnemyKingSquare[!color] = _bitscanForward(king);
   }
+
+  eB.PossibleGenOutposts[WHITE] = pawnFrontSpans[BLACK] & ~attFrontSpawn[BLACK];
+  eB.PossibleProtOutposts[WHITE] = ~attFrontSpawn[BLACK] & eB.EnemyPawnAttackMap[BLACK];
+
+  eB.PossibleGenOutposts[BLACK] = pawnFrontSpans[WHITE] & ~attFrontSpawn[WHITE];
+  eB.PossibleProtOutposts[BLACK] = ~attFrontSpawn[WHITE] & eB.EnemyPawnAttackMap[WHITE];
 
   eB.RammedCount =  _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN)) +
                    (_popCount((board.getPieces(BLACK, PAWN) >> 8) & doubleAttacked[WHITE]) +
@@ -444,19 +462,23 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
 
       // OUTPOSTED BISHOP
+      // See if bishop can jump into the good protected outpost
+      s += BISHOP_POS_PROUTPOST_JUMP * _popCount(DECENT_BISHOP_PROT_OUTPOST[color] & eB->PossibleProtOutposts[color] & attackBitBoard);
+      if (TRACK) ft.BishopProtOutJump[color] += _popCount(DECENT_BISHOP_PROT_OUTPOST[color] & eB->PossibleProtOutposts[color] & attackBitBoard);
+      // See if bishop can jump itno the general Outpost
+      s += BISHOP_POS_GENOUTPOST_JUMP * _popCount(DECENT_BISHOP_GEN_OUTPOST & (eB->PossibleGenOutposts[color] & ~eB->PossibleProtOutposts[color]) & attackBitBoard);
+      if (TRACK) ft.BishopGenOutJump[color] += _popCount(DECENT_BISHOP_GEN_OUTPOST & (eB->PossibleGenOutposts[color] & ~eB->PossibleProtOutposts[color]) & attackBitBoard);
+
       // We use separed PSQT for protected and unprotected outposts
       // Unprotected outposts are only considered outposts
       // if there is pawn in front spawn of outposted piece
-      if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
-        int relSqv = color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square];
-        if (detail::OUTPOST_PROTECTION[color][square] & board.getPieces(color, PAWN)){
-          s += BISHOP_PROT_OUTPOST_BLACK[relSqv];
-          eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
-          if (TRACK) ft.BishopOutProtBlack[relSqv][color]++;
-        } else if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) != ZERO){
-          s += BISHOP_OUTPOST_BLACK[relSqv];
-          if (TRACK) ft.BishopOutBlack[relSqv][color]++;
-        }
+      if (eB->PossibleProtOutposts[color] & (ONE << square)){
+        s += BISHOP_PROT_OUTPOST_BLACK[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]];
+        eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
+        if (TRACK) ft.BishopOutProtBlack[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]][color]++;
+      } else if (eB->PossibleGenOutposts[color] & (ONE << square)){
+        s += BISHOP_OUTPOST_BLACK[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]];
+        if (TRACK) ft.BishopOutBlack[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]][color]++;
       }
     }
 
@@ -476,6 +498,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
     while (pieces) {
 
       int square = _popLsb(pieces);
+      
       if (TRACK){
         int relSqv = color == WHITE ? _mir(square) : square;
         ft.KnightPsqtBlack[relSqv][color]++;
@@ -518,19 +541,28 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       if (TRACK) ft.QueenAttackedBy[KNIGHT][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
 
       // OUTPOSTED KNIGHT
+      // See if a Knight can jump into the protected outpost
+      // Only outposts with decently good score is counted here
+      s += KNIGHT_POS_PROUTPOST_JUMP * _popCount(DECENT_KNIGHT_PROT_OUTPOST[color] & eB->PossibleProtOutposts[color] & attackBitBoard);
+      if (TRACK) ft.KnightProtOutJump[color] += _popCount(DECENT_KNIGHT_PROT_OUTPOST[color] & eB->PossibleProtOutposts[color] & attackBitBoard);
+      // See if a knigth can jump into the general outpost
+      s += KNIGHT_POS_GENOUTPOST_JUMP * _popCount(DECENT_KNIGHT_GEN_OUTPOST[color] & 
+                                                  (eB->PossibleGenOutposts[color] & ~eB->PossibleProtOutposts[color]) & attackBitBoard);
+
+      if (TRACK) ft.KnightGenOutJump[color] += _popCount(DECENT_KNIGHT_GEN_OUTPOST[color] & 
+                                                         (eB->PossibleGenOutposts[color] & ~eB->PossibleProtOutposts[color]) & attackBitBoard);
+
       // We use separed PSQT for protected and unprotected outposts
       // Unprotected outposts are only considered outposts
       // if there is pawn in front spawn of outposted piece
-      if ((board.getPieces(getOppositeColor(color), PAWN) & detail::OUTPOST_MASK[color][square]) == ZERO){
-        int relSqv = color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square];
-        if (detail::OUTPOST_PROTECTION[color][square] & board.getPieces(color, PAWN)){
-          s += KNIGHT_PROT_OUTPOST_BLACK[relSqv];
-          eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
-          if (TRACK) ft.KnightOutProtBlack[relSqv][color]++;
-        } else if ((board.getPieces(getOppositeColor(color), PAWN) & detail::PASSED_PAWN_MASKS[color][square]) != ZERO){
-          s += KNIGHT_OUTPOST_BLACK[relSqv];
-          if (TRACK) ft.KnightOutBlack[relSqv][color]++;
-        }
+
+      if (eB->PossibleProtOutposts[color] & (ONE << square)){
+        s += KNIGHT_PROT_OUTPOST_BLACK[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]];
+        eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
+        if (TRACK) ft.KnightOutProtBlack[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]][color]++;
+      } else if (eB->PossibleGenOutposts[color] & (ONE << square)){
+        s += KNIGHT_OUTPOST_BLACK[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]];
+        if (TRACK) ft.KnightOutBlack[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]][color]++;
       }
     }
   return s;
