@@ -860,7 +860,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
     int r = color == WHITE ? _row(square) : 7 - _row(square);
 
     //Sqv of candidates is the forward sqV, so to not need to shift forward
-    if (r >= 3){
+    if (r >= 4){
       // Free to move candidate passer
       if ((((ONE << square) & pieces) == 0) && 
           (((ONE << square) & posAdvance) != ZERO)){
