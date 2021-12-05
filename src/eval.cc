@@ -857,17 +857,8 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   tmpPawns = eB->CandidatePassers[color];
   while(tmpPawns){
     int square = _popLsb(tmpPawns);
-    int r = color == WHITE ? _row(square) : 7 - _row(square);
-
-    //Sqv of candidates is the forward sqV, so to not need to shift forward
-    if (r >= 4){
-      // Free to move candidate passer
-      if ((((ONE << square) & pieces) == 0) && 
-          (((ONE << square) & posAdvance) != ZERO)){
-        s += CANDIDATE_MOVING_PAWN[r];
-        if (TRACK) ft.CandidateMoving[r][color]++;
-      }
-    }
+    s += CANDIDATE_ENEMY_KING_DISTANCE[Eval::detail::DISTANCE[square][enemyKingSquare]];
+    if (TRACK) ft.CandidateEnemyDistance[Eval::detail::DISTANCE[square][enemyKingSquare]][color]++;
   }
 
 

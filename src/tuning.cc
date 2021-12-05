@@ -295,8 +295,8 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.CandidatePasser[j][WHITE] - ft.CandidatePasser[j][BLACK];
     }
     
-    for (int j = 0; j < 7; j++){
-        coeff[i++] = ft.CandidateMoving[j][WHITE] - ft.CandidateMoving[j][BLACK];
+    for (int j = 0; j < 8; j++){
+        coeff[i++] = ft.CandidateEnemyDistance[j][WHITE] - ft.CandidateEnemyDistance[j][BLACK];
     }
 
     for (int j = 0; j < 2; j++){
