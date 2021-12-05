@@ -396,7 +396,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
   U64 pieces = board.getPieces(color, BISHOP);
   Color otherColor = getOppositeColor(color);
   U64 addToMobAlways   = board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK) | 
-                         (eB->PossibleProtOutposts[!color] & (board.getPieces(otherColor, BISHOP | board.getPieces(otherColor, KNIGHT))));
+                         (eB->PossibleProtOutposts[!color] & (board.getPieces(otherColor, BISHOP) | board.getPieces(otherColor, KNIGHT)));
   U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~addToMobAlways;
 
   // Bishop pair
@@ -492,7 +492,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
   U64 pieces = board.getPieces(color, KNIGHT);
   Color otherColor = getOppositeColor(color);
   U64 addToMobAlways   = board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK) | 
-                         (eB->PossibleProtOutposts[!color] & (board.getPieces(otherColor, BISHOP | board.getPieces(otherColor, KNIGHT))));
+                         (eB->PossibleProtOutposts[!color] & (board.getPieces(otherColor, BISHOP) | board.getPieces(otherColor, KNIGHT)));
   U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~addToMobAlways;
 
   // Apply penalty for each Knight attacked by opponents pawn
