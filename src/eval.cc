@@ -85,6 +85,7 @@ U64 Eval::detail::KING_PAWN_MASKS[2][2][8] = {
     };
 
 
+
 void Eval::init() {
   // Initialize passed pawn masks
   for (int square = 0; square < 64; square++) {
@@ -150,6 +151,12 @@ evalBits Eval::Setupbits(const Board &board){
     U64 king = board.getPieces(color, KING);
     eB.EnemyKingZone[!color] = detail::KINGZONE[color][_bitscanForward(king)];
     eB.EnemyKingSquare[!color] = _bitscanForward(king);
+
+    eB.RammedMap[color] = color == BLACK ? (board.getPieces(BLACK, PAWN) >> 8 & board.getPieces(WHITE, PAWN))
+                                         : (board.getPieces(WHITE, PAWN) << 8 & board.getPieces(BLACK, PAWN));
+    eB.RammedMap[color] |= color == BLACK ? ((board.getPieces(BLACK, PAWN) >> 8) & doubleAttacked[WHITE])
+                                          : ((board.getPieces(WHITE, PAWN) << 8) & doubleAttacked[BLACK]);
+
   }
 
   eB.PossibleGenOutposts[WHITE] = pawnFrontSpans[BLACK] & ~attFrontSpawn[BLACK];
@@ -384,6 +391,9 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     else if ((file & board.getPieces(color, PAWN)) == 0){
       s += ROOK_SEMI_FILE_BONUS[((file & eB->OutPostedLines[otherColor]) != 0)];
       if (TRACK) ft.RookHalfFile[((file & eB->OutPostedLines[otherColor]) != 0)][color]++;
+    }else if ((file & eB->RammedMap[color]) != 0){
+      s += ROOK_RAMMED_FILE[(((ONE << square) & ENEMY_SIDE[color]) == 0)];
+      if (TRACK) ft.RookRammedFile[(((ONE << square) & ENEMY_SIDE[color]) == 0)][color]++;
     }
   }
 
