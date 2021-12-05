@@ -395,7 +395,9 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
 
   U64 pieces = board.getPieces(color, BISHOP);
   Color otherColor = getOppositeColor(color);
-  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
+  U64 outpostedMinors  = eB->PossibleProtOutposts[!color] & (board.getPieces(otherColor, BISHOP) | board.getPieces(otherColor, KNIGHT));
+  U64 addToMobAlways   = board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK) | outpostedMinors;
+  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~addToMobAlways;
 
   // Bishop pair
   if (_popCount(pieces) > 1){
@@ -429,9 +431,16 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       eB->AttackedSquares[color] |= attackBitBoard;
 
       // BishopAttackMinor
-      U64 BishopAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
+      U64 BishopAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard & ~outpostedMinors;
       s += MINOR_ATTACKED_BY[BISHOP] * _popCount(BishopAttackMinor);
       if (TRACK) ft.MinorAttackedBy[BISHOP][color] += _popCount(BishopAttackMinor);
+
+      // Bishop Attack outPosted pieces
+      s += BISHOP_ATT_OUTPOSTED_BISHOP * _popCount(attackBitBoard & outpostedMinors & board.getPieces(otherColor, BISHOP));
+      if (TRACK) ft.BishopAttOutBishop[color] += _popCount(attackBitBoard & outpostedMinors & board.getPieces(otherColor, BISHOP));
+
+      s += BISHOP_ATT_OUTPOSTED_KNIGHT * _popCount(attackBitBoard & outpostedMinors & board.getPieces(otherColor, KNIGHT));
+      if (TRACK) ft.BishopAttOutKnight[color] += _popCount(attackBitBoard & outpostedMinors & board.getPieces(otherColor, KNIGHT));
 
       //BishopAttackRook
       s += ROOK_ATTACKED_BY[BISHOP] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
@@ -489,7 +498,9 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
   int s = 0;
   U64 pieces = board.getPieces(color, KNIGHT);
   Color otherColor = getOppositeColor(color);
-  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
+  U64 outpostedMinors  = eB->PossibleProtOutposts[!color] & (board.getPieces(otherColor, BISHOP) | board.getPieces(otherColor, KNIGHT));
+  U64 addToMobAlways   = board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK) | outpostedMinors;
+  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~addToMobAlways;
 
   // Apply penalty for each Knight attacked by opponents pawn
   s += HANGING_PIECE[KNIGHT] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
@@ -513,9 +524,16 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       eB->AttackedSquares[color] |= attackBitBoard;
 
       // KnightAttackMinor
-      U64 KnightAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
+      U64 KnightAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard & ~outpostedMinors;
       s += MINOR_ATTACKED_BY[KNIGHT] * _popCount(KnightAttackMinor);
       if (TRACK) ft.MinorAttackedBy[KNIGHT][color] += _popCount(KnightAttackMinor);
+
+      // Knight Attack outPosted pieces
+      s += KNIGHT_ATT_OUTPOSTED_BISHOP * _popCount(attackBitBoard & outpostedMinors & board.getPieces(otherColor, BISHOP));
+      if (TRACK) ft.KnightAttOutBishop[color] += _popCount(attackBitBoard & outpostedMinors & board.getPieces(otherColor, BISHOP));
+
+      s += KNIGHT_ATT_OUTPOSTED_KNIGHT * _popCount(attackBitBoard & outpostedMinors & board.getPieces(otherColor, KNIGHT));
+      if (TRACK) ft.KnightAttOutKnight[color] += _popCount(attackBitBoard & outpostedMinors & board.getPieces(otherColor, KNIGHT));
 
       //RookAttackRook
       s += ROOK_ATTACKED_BY[KNIGHT] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
