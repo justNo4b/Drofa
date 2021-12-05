@@ -43,11 +43,13 @@ struct pawn_HASH_Entry
     U64 posKey;
     U64 wPassers;
     U64 bPassers;
+    U64 wCandidates;
+    U64 bCandidates;
     int score;
 
-    pawn_HASH_Entry() : posKey(0), wPassers(0), bPassers(0), score(0) {}
-    pawn_HASH_Entry( U64 key, U64 wP, U64 bP, int sc ) :
-        posKey(key), wPassers(wP), bPassers(bP), score(sc) {}
+    pawn_HASH_Entry() : posKey(0), wPassers(0), bPassers(0), wCandidates(0), bCandidates(0), score(0) {}
+    pawn_HASH_Entry( U64 key, U64 wP, U64 bP, U64 wC, U64 bC, int sc ) :
+        posKey(key), wPassers(wP), bPassers(bP), wCandidates(wC), bCandidates(bC), score(sc) {}
 };
 
 

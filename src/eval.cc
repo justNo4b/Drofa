@@ -166,6 +166,7 @@ evalBits Eval::Setupbits(const Board &board){
   eB.KingAttackers[0] = 0, eB.KingAttackers[1] = 0;
   eB.KingAttackPower[0] = START_ATTACK_VALUE, eB.KingAttackPower[1] = START_ATTACK_VALUE;
   eB.Passers[0] = 0, eB.Passers[1] = 0;
+  eB.CandidatePassers[0] = 0, eB.CandidatePassers[1] = 0;
   eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
   eB.AttackedByKing[0] = 0, eB.AttackedByKing[1] = 0;
   return eB;
@@ -618,6 +619,8 @@ inline int Eval::probePawnStructure(const Board & board, Color color, evalBits *
   if (pENTRY.posKey != 0){
     eB->Passers[WHITE] = pENTRY.wPassers;
     eB->Passers[BLACK] = pENTRY.bPassers;
+    eB->CandidatePassers[WHITE] = pENTRY.wCandidates;
+    eB->CandidatePassers[BLACK] = pENTRY.bCandidates;
 
     return color == WHITE ? pENTRY.score : -pENTRY.score;
   }
@@ -625,7 +628,9 @@ inline int Eval::probePawnStructure(const Board & board, Color color, evalBits *
   #endif
   {
     pScore += evaluatePAWNS(board, WHITE, eB) - evaluatePAWNS(board, BLACK, eB);
-    myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB->Passers[WHITE], eB->Passers[BLACK], pScore);
+    myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB->Passers[WHITE], eB->Passers[BLACK],
+                         eB->CandidatePassers[WHITE], eB->CandidatePassers[BLACK], pScore);
+                         
     return color == WHITE ? pScore : -pScore;
   }
 }
@@ -687,6 +692,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
             (((otherPawns & ~canEnemies) & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO))){
           s += CANDIDATE_PASSED_PAWN[r];
           if (TRACK) ft.CandidatePasser[r][color]++;
+          eB->CandidatePassers[color] = eB->CandidatePassers[color] | (ONE << forwardSqv);
         }         
       }
      
@@ -846,6 +852,24 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
 
   }
+
+  // Candidate Passer evaluation
+  tmpPawns = eB->CandidatePassers[color];
+  while(tmpPawns){
+    int square = _popLsb(tmpPawns);
+    int r = color == WHITE ? _row(square) : 7 - _row(square);
+
+    //Sqv of candidates is the forward sqV, so to not need to shift forward
+    if (r >= 3){
+      // Free to move candidate passer
+      if ((((ONE << square) & pieces) == 0) && 
+          (((ONE << square) & posAdvance) != ZERO)){
+        s += CANDIDATE_MOVING_PAWN[r];
+        if (TRACK) ft.CandidateMoving[r][color]++;
+      }
+    }
+  }
+
 
   int unContested = _popCount(eB->AttackedSquares[color] & eB->EnemyKingZone[color] & ~eB->AttackedSquares[otherColor]);
   eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
