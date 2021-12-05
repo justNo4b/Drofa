@@ -24,6 +24,7 @@ struct posFeatured{
     int PawnIsolated[2];
     int PawnBlocked[2];
     int PassersBlocked[2];
+    int RookRammedFile[2];
     int BishopRammed[2];
     int BishopCenterControl[2];
     int BishopProtOutJump[2];
@@ -116,7 +117,7 @@ struct tEntry {
   const std::string TUNING_DATA        = "d8FENS_WrongResults_mixed.epd";
   const int         TUNING_POS_COUNT   = 35821985; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 910;
+  const int         TUNING_TERMS_COUNT = 911;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
   const int         TUNIGN_PRINT       = 25;
