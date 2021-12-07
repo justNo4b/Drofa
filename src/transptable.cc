@@ -71,6 +71,10 @@ HASH_Entry  HASH::HASH_Get(U64 posKey){
   return HASH_Entry();
 }
 
+void HASH::HASH_Prefetch(U64 posKey){
+  __builtin_prefetch(&hashTable[posKey % TableSize]);
+}
+
 U64 HASH::pHASH_Size(){
   return pTableSize;
 }

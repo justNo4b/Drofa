@@ -24,9 +24,14 @@ class OrderingInfo {
   void clearAllHistory();
 
   /**
-   * @brief clear killers and counters
+   * @brief clear killers
    */
   void clearKillers();
+
+  /**
+   * @brief clear killers and counters
+   */
+  void clearChildrenKillers(int);
 
   /**
    * @brief Increment the history heuristic value of the board for

@@ -66,6 +66,17 @@ enum SquareIndex {
   a8, b8, c8, d8, e8, f8, g8, h8
 };
 
+const int REFLECTED_SQUARE[64] = {
+   0,  1,  2,  3,  3,  2,  1,  0,
+   4,  5,  6,  7,  7,  6,  5,  4,
+   8,  9, 10, 11, 11, 10,  9,  8,
+  12, 13, 14, 15, 15, 14, 13, 12,
+  16, 17, 18, 19, 19, 18, 17, 16,
+  20, 21, 22, 23, 23, 22, 21, 20,
+  24, 25, 26, 27, 27, 26, 25, 24,
+  28, 29, 30, 31, 31, 30, 29, 28
+};
+
 /**
  * @brief An empty bitboard. (ie. the number 0)
  */
@@ -101,8 +112,10 @@ const U64 WHITE_SQUARES = 0x55AA55AA55AA55AA;
 /**
  * @name Other helpfull bitboards
  */
-const U64 CENTER         = (ONE << e4) | (ONE << e5) | (ONE << d4) | (ONE << d5);
-const U64 FIGHTING_AREA  = RANK_3 | RANK_4 | RANK_5 | RANK_6;
+const U64 CENTER            = (ONE << e4) | (ONE << e5) | (ONE << d4) | (ONE << d5);
+const U64 FIGHTING_AREA     = RANK_3 | RANK_4 | RANK_5 | RANK_6;
+const U64 SIDE_FILES        = FILE_A | FILE_H;
+const U64 EXT_MIDDLE_FILES  = FILE_C | FILE_D | FILE_E | FILE_F;
 const U64 PASSER_ZONE [2] = { (RANK_5 | RANK_6),
                               (RANK_3 | RANK_4) };
 const U64 ENEMY_SIDE [2]  = { (RANK_5 | RANK_6 | RANK_7 | RANK_8),
@@ -111,6 +124,17 @@ const U64 KSIDE_CASTLE [2] = { ((ONE << g1) | (ONE << h1) | (ONE << g2) | (ONE <
                                ((ONE << g8) | (ONE << h8) | (ONE << g7) | (ONE << h7)) };
 const U64 QSIDE_CASTLE [2] = { ((ONE << a1) | (ONE << b1) | (ONE << c1) | (ONE << a2) | (ONE << b2)),
                                ((ONE << a8) | (ONE << b8) | (ONE << c8) | (ONE << a7) | (ONE << b7)) };
+
+const U64 DECENT_BISHOP_PROT_OUTPOST[2] = { (RANK_3 | RANK_4 | RANK_5 | RANK_6 | RANK_7) & ~SIDE_FILES,
+                                            (RANK_2 | RANK_3 | RANK_4 | RANK_5 | RANK_6) & ~SIDE_FILES };
+
+const U64 DECENT_KNIGHT_PROT_OUTPOST[2] = {(RANK_4 | RANK_5 | RANK_6),
+                                           (RANK_3 | RANK_4 | RANK_5) };
+
+const U64 DECENT_BISHOP_GEN_OUTPOST  = { RANK_3 | RANK_4 | RANK_5 | RANK_6 };
+
+const U64 DECENT_KNIGHT_GEN_OUTPOST[2] = { (((RANK_4 | RANK_5) & EXT_MIDDLE_FILES) | (ONE << b5) | (ONE << g5)),
+                                           (((RANK_4 | RANK_5) & EXT_MIDDLE_FILES) | (ONE << b4) | (ONE << g4)) };
 /**@}*/
 
 /** @brief Positive infinity to be used during search (eg. as a return value for winning) */
