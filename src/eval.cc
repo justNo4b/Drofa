@@ -152,7 +152,7 @@ evalBits Eval::Setupbits(const Board &board){
 
     pawnFrontSpans[color]  = pBB | (color == WHITE ? pBB << 8 : pBB >> 8);
     pawnFrontSpans[color] |= color == WHITE ?  pawnFrontSpans[color] << 16 :  pawnFrontSpans[color] >> 16;
-    pawnFrontSpans[color] |= color == WHITE ?  pawnFrontSpans[color] << 32 :  pawnFrontSpans[color] >> 32;  
+    pawnFrontSpans[color] |= color == WHITE ?  pawnFrontSpans[color] << 32 :  pawnFrontSpans[color] >> 32;
 
 
     U64 king = board.getPieces(color, KING);
@@ -176,6 +176,7 @@ evalBits Eval::Setupbits(const Board &board){
   eB.Passers[0] = 0, eB.Passers[1] = 0;
   eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
   eB.AttackedByKing[0] = 0, eB.AttackedByKing[1] = 0;
+  eB.PinnedPieces[0] = 0, eB.PinnedPieces[1] = 0;
   return eB;
 }
 
@@ -307,7 +308,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     if (TRACK) ft.QueenMobility[_popCount(attackBitBoard)][color]++;
 
     // Save our attacks for further use
-    eB->AttackedSquares[color] |= attackBitBoard;
+    if (((ONE << square) & eB->PinnedPieces[color]) == 0) eB->AttackedSquares[color] |= attackBitBoard;
 
     // See if a Queen is attacking an enemy unprotected pawn
     s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
@@ -351,7 +352,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     if (TRACK) ft.RookMobility[_popCount(attackBitBoard)][color]++;
 
     // Save our attacks for further use
-    eB->AttackedSquares[color] |= attackBitBoard;
+    if (((ONE << square) & eB->PinnedPieces[color]) == 0) eB->AttackedSquares[color] |= attackBitBoard;
 
     // RookAttackMinor
     U64 RookAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
@@ -434,7 +435,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       if (TRACK) ft.BishopMobility[_popCount(attackBitBoard)][color]++;
 
       // Save our attacks for further use
-      eB->AttackedSquares[color] |= attackBitBoard;
+      if (((ONE << square) & eB->PinnedPieces[color]) == 0) eB->AttackedSquares[color] |= attackBitBoard;
 
       // BishopAttackMinor
       U64 BishopAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
@@ -506,7 +507,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
     while (pieces) {
 
       int square = _popLsb(pieces);
-      
+
       if (TRACK){
         int relSqv = color == WHITE ? _mir(square) : square;
         ft.KnightPsqtBlack[relSqv][color]++;
@@ -518,7 +519,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       if (TRACK) ft.KnigthMobility[_popCount(attackBitBoard)][color]++;
 
       // Save our attacks for further use
-      eB->AttackedSquares[color] |= attackBitBoard;
+      if (((ONE << square) & eB->PinnedPieces[color]) == 0) eB->AttackedSquares[color] |= attackBitBoard;
 
       // KnightAttackMinor
       U64 KnightAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
@@ -601,7 +602,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
     int pinnerSquare = _popLsb(bPinners);
     if ((_popCount(detail::IN_BETWEEN[pinnerSquare][square] & pinbTargets) == 1) &&
         (_popCount(detail::IN_BETWEEN[pinnerSquare][square] & board.getAllPieces(color)) == 1)){
-              pinnedCount++;
+              eB->PinnedPieces[color] |= detail::IN_BETWEEN[pinnerSquare][square] & board.getAllPieces(color);
         }
   }
 
@@ -609,12 +610,9 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
     int pinnerSquare = _popLsb(rPinners);
     if ((_popCount(detail::IN_BETWEEN[pinnerSquare][square] & pinrTargets) == 1) &&
         (_popCount(detail::IN_BETWEEN[pinnerSquare][square] & board.getAllPieces(color)) == 1)){
-              pinnedCount++;
+              eB->PinnedPieces[color] |= detail::IN_BETWEEN[pinnerSquare][square] & board.getAllPieces(color);
         }
   }
-
-  // enemy pinning X of our pieces
-  eB->KingAttackPower[otherColor] += PINNED_PIECES * pinnedCount;
 
   // Save our attacks for further use
   eB->AttackedByKing[color] |= attackBitBoard;
@@ -717,14 +715,14 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       U64 canSupport = detail::OUTPOST_PROTECTION[color][forwardSqv] & pawns;
       U64 canEnemies = detail::OUTPOST_PROTECTION[otherColor][forwardSqv] & otherPawns;
       if ((otherPawns & (ONE << forwardSqv)) == ZERO){
-        if (((otherPawns & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO) || 
-            ((_popCount(canSupport) >= _popCount(canEnemies)) && 
+        if (((otherPawns & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO) ||
+            ((_popCount(canSupport) >= _popCount(canEnemies)) &&
             (((otherPawns & ~canEnemies) & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO))){
           s += CANDIDATE_PASSED_PAWN[r];
           if (TRACK) ft.CandidatePasser[r][color]++;
-        }         
+        }
       }
-     
+
     }
 
 
@@ -986,11 +984,11 @@ int Eval::evaluate(const Board &board, Color color) {
   score += probePawnStructure(board, color, &eB);
 
   // Evaluate pieces
-  score +=  evaluateBISHOP(board, color, &eB) - evaluateBISHOP(board, otherColor, &eB)
+  score +=  evaluateKING  (board, color, &eB) - evaluateKING  (board, otherColor, &eB)
+          + evaluateBISHOP(board, color, &eB) - evaluateBISHOP(board, otherColor, &eB)
           + evaluateKNIGHT(board, color, &eB) - evaluateKNIGHT(board, otherColor, &eB)
           + evaluateROOK  (board, color, &eB) - evaluateROOK  (board, otherColor, &eB)
-          + evaluateQUEEN (board, color, &eB) - evaluateQUEEN (board, otherColor, &eB)
-          + evaluateKING  (board, color, &eB)  - evaluateKING  (board, otherColor, &eB);
+          + evaluateQUEEN (board, color, &eB) - evaluateQUEEN (board, otherColor, &eB);
 
   // Interactions between pieces and pawns
   score +=  PiecePawnInteraction(board, color, &eB)
