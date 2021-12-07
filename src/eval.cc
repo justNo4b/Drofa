@@ -395,6 +395,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
 
   U64 pieces = board.getPieces(color, BISHOP);
   Color otherColor = getOppositeColor(color);
+  U64 weakPawns = board.getPieces(otherColor, PAWN) & ~eB->EnemyPawnAttackMap[color];
   U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
 
   // Bishop pair
@@ -437,15 +438,20 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       s += ROOK_ATTACKED_BY[BISHOP] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
       if (TRACK) ft.RookAttackedBy[BISHOP][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
 
+      // Bishop Attack Queen
+      s += QUEEN_ATTACKED_BY[BISHOP] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+      if (TRACK) ft.QueenAttackedBy[BISHOP][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+
       // Bonus for bishop having central squares in mobility
       // it would mean they are not attacked by enemy pawn
       // or contain our own piece
       s += BISHOP_CENTER_CONTROL * _popCount(attackBitBoard & CENTER);
       if (TRACK) ft.BishopCenterControl[color] +=  _popCount(attackBitBoard & CENTER);
 
-      // Bishop Attack Queen
-      s += QUEEN_ATTACKED_BY[BISHOP] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
-      if (TRACK) ft.QueenAttackedBy[BISHOP][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+      //Bishop and weak pawns for an enemy
+      U64 sqvColor = ((ONE << square) & WHITE_SQUARES) != 0 ? WHITE_SQUARES : BLACK_SQUARES; 
+      s += BISHOP_WEAK_PAWNS[std::min(4, _popCount(weakPawns & sqvColor))];
+      if (TRACK) ft.BishopWeakPawns[std::min(4, _popCount(weakPawns & sqvColor))][color]++;
 
       // If Bishop attacking squares near enemy king
       // Adjust our kind Danger code
