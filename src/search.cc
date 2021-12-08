@@ -39,7 +39,7 @@ void Search::init_LMR_array(){
     _lmp_Array[i][0][0] = (int) ((3 + pow( i, 2) * 2) / 2);
     _lmp_Array[i][0][1] = (int) (3 + pow( i, 2) * 2);
     _lmp_Array[i][1][0] = (int) (3 + pow( i, 2) * 2);
-    _lmp_Array[i][1][1] = (int) (3 + pow( i, 2) * 3);
+    _lmp_Array[i][1][1] = (int) (3 + pow( i, 2) * 2.5);
   }
 
 }
