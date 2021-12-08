@@ -263,7 +263,7 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.PassedPawnRank[j][WHITE] - ft.PassedPawnRank[j][BLACK];
     }
 
-    for (int j = 0; j < 8; j++){
+    for (int j = 0; j < 4; j++){
         coeff[i++] = ft.PassedPawnFile[j][WHITE] - ft.PassedPawnFile[j][BLACK];
     }
 
@@ -295,7 +295,7 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.CandidatePasser[j][WHITE] - ft.CandidatePasser[j][BLACK];
     }
 
-    for (int j = 0; j < 8; j++){
+    for (int j = 0; j < 4; j++){
         coeff[i++] = ft.CandidatePasserFile[j][WHITE] - ft.CandidatePasserFile[j][BLACK];
     }
     

@@ -643,6 +643,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     int square = _popLsb(tmpPawns);
     int relSqv = color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square];
     int pawnCol = _col(square);
+    int edgeDistance = _endgedist(square);
     int r = color == WHITE ? _row(square) : 7 - _row(square);
 
     if (TRACK){
@@ -656,10 +657,10 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     if ((otherPawns & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
       eB->Passers[color] = eB->Passers[color] | (ONE << square);
 
-      s += PASSED_PAWN_RANKS[r] + PASSED_PAWN_FILES[pawnCol];
+      s += PASSED_PAWN_RANKS[r] + PASSED_PAWN_FILES[edgeDistance];
       if (TRACK){
         ft.PassedPawnRank[r][color]++;
-        ft.PassedPawnFile[pawnCol][color]++;
+        ft.PassedPawnFile[edgeDistance][color]++;
       }
       // if the pawn is passed evaluate how far
       // is it from other passers (_col-wise)
@@ -685,9 +686,9 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         if (((otherPawns & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO) || 
             ((_popCount(canSupport) >= _popCount(canEnemies)) && 
             (((otherPawns & ~canEnemies) & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO))){
-          s += CANDIDATE_PASSED_PAWN[r] + CANDIDATE_PASSED_PAWN_FILES[pawnCol];
+          s += CANDIDATE_PASSED_PAWN[r] + CANDIDATE_PASSED_PAWN_FILES[edgeDistance];
           if (TRACK) ft.CandidatePasser[r][color]++;
-          if (TRACK) ft.CandidatePasserFile[pawnCol][color]++;
+          if (TRACK) ft.CandidatePasserFile[edgeDistance][color]++;
         }         
       }
      
