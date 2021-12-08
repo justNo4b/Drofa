@@ -685,8 +685,9 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         if (((otherPawns & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO) || 
             ((_popCount(canSupport) >= _popCount(canEnemies)) && 
             (((otherPawns & ~canEnemies) & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO))){
-          s += CANDIDATE_PASSED_PAWN[r];
+          s += CANDIDATE_PASSED_PAWN[r] + CANDIDATE_PASSED_PAWN_FILES[pawnCol];
           if (TRACK) ft.CandidatePasser[r][color]++;
+          if (TRACK) ft.CandidatePasserFile[pawnCol][color]++;
         }         
       }
      
