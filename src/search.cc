@@ -456,7 +456,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   // Statically evaluate our position
   // Do the Evaluation, unless we are in check or prev move was NULL
-  // If last Move was Null, just negate prev eval and add 2x tempo bonus (10)
   if (AreWeInCheck) {
     _sStack.AddEval(NOSCORE);
   }else {
