@@ -3,6 +3,6 @@
 
 #define VER_MAJ 3
 #define VER_MIN 2
-#define VER_PATCH 18
+#define VER_PATCH 19
 
 #endif
