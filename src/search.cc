@@ -460,7 +460,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   if (AreWeInCheck) {
     _sStack.AddEval(NOSCORE);
   }else {
-    statEVAL = sing ? _sStack.statEval[ply] : statEVAL = Eval::evaluate(board, board.getActivePlayer());
+    statEVAL = sing ? _sStack.statEval[ply] : Eval::evaluate(board, board.getActivePlayer());
     _sStack.AddEval(statEVAL);
   }
 
