@@ -634,6 +634,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // 8. LATE MOVE REDUCTIONS
         // mix of ideas from Weiss code, own ones and what is written in the chessprogramming wiki
         doLMR = tDepth > 2 && LegalMoveCount > 2 + pvNode;
+        int fDepth  = tDepth - 1;
         if (doLMR){
 
           //Basic reduction is done according to the array
@@ -679,7 +680,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           reduction = std::max(minReduction, reduction);
           //Avoid to reduce so much that we go to QSearch right away
-          int fDepth = std::max(1, tDepth - 1 - reduction);
+          fDepth = std::max(1, tDepth - 1 - reduction);
 
           //Search with reduced depth around alpha in assumtion
           // that alpha would not be beaten here
@@ -746,10 +747,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         }else{
           // Beta was not beaten and we dont improve alpha in this case we lower our search history values
           if (isQuiet){
-            _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), tDepth);
-            _orderingInfo.decrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), tDepth);
+            _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), fDepth);
+            _orderingInfo.decrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), fDepth);
           }else{
-            _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), tDepth);
+            _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), fDepth);
           }
         }
       }
