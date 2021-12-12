@@ -745,13 +745,16 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         }else{
           // Beta was not beaten and we dont improve alpha in this case we lower our search history values
-          int dBonus = depth - (statEVAL < alpha);
-          if (isQuiet){
-            _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), dBonus);
-            _orderingInfo.decrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), dBonus);
-          }else{
-            _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), dBonus);
+          int dPenalty = std::max(1, depth - (statEVAL < alpha));
+          if (dPenalty > 1){
+            if (isQuiet){
+              _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), dPenalty);
+              _orderingInfo.decrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), dPenalty);
+            }else{
+              _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), dPenalty);
+           }
           }
+
         }
       }
 
