@@ -645,6 +645,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // if move is quiet, reduce a bit more (from Weiss)
           reduction += isQuiet;
 
+          // reduce more when proving singularity
+          reduction += sing;
+
           //reduce more when side to move is in check
           reduction += AreWeInCheck;
 
