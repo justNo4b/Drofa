@@ -443,6 +443,12 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       s += BISHOP_CENTER_CONTROL * _popCount(attackBitBoard & CENTER);
       if (TRACK) ft.BishopCenterControl[color] +=  _popCount(attackBitBoard & CENTER);
 
+      // Idea inspired from SF HCE, not sure though that it is 100% same
+      U64 forwardScans = color == WHITE ?  Rays::getRay(Rays::NORTH_WEST, square) |  Rays::getRay(Rays::NORTH_EAST, square) :
+                                           Rays::getRay(Rays::SOUTH_WEST, square) |  Rays::getRay(Rays::SOUTH_EAST, square) ;
+      s += BISHOP_FORWARD_PAWNS_SCAN * _popCount(forwardScans & eB->EnemyPawnAttackMap[color] & board.getPieces(otherColor, PAWN));  
+      if (TRACK) ft.BishopScanPawns[color] += _popCount(forwardScans & eB->EnemyPawnAttackMap[color] & board.getPieces(otherColor, PAWN));                                    
+
       // Bishop Attack Queen
       s += QUEEN_ATTACKED_BY[BISHOP] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
       if (TRACK) ft.QueenAttackedBy[BISHOP][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
