@@ -126,9 +126,16 @@ void Eval::init() {
 
 evalBits Eval::Setupbits(const Board &board){
   evalBits eB;
+  // Initiate some helpfull spans
   U64 doubleAttacked[2] = {0};
   U64 pawnFrontSpans[2] = {0};
   U64 attFrontSpawn[2]  = {0};
+  U64 fullFills[2]      = {0};
+  // Initiate open files
+  fullFills[WHITE] = _fillForward(WHITE, board.getPieces(WHITE, PAWN)) | _fillBackward(WHITE, board.getPieces(WHITE, PAWN));
+  fullFills[BLACK] = _fillForward(BLACK, board.getPieces(BLACK, PAWN)) | _fillBackward(BLACK, board.getPieces(BLACK, PAWN));
+  eB.OpenFiles = ~fullFills[WHITE] & ~fullFills[BLACK];
+
   for (auto color : { WHITE, BLACK }) {
     U64 pBB = board.getPieces(color, PAWN);
 
@@ -144,14 +151,18 @@ evalBits Eval::Setupbits(const Board &board){
     U64 king = board.getPieces(color, KING);
     eB.EnemyKingZone[!color] = detail::KINGZONE[color][_bitscanForward(king)];
     eB.EnemyKingSquare[!color] = _bitscanForward(king);
+
+    eB.SemiOpenFiles[color] = (~fullFills[color]) ^ eB.OpenFiles;
   }
 
+  // Initiate possible protected and generic outposts
   eB.PossibleGenOutposts[WHITE] = pawnFrontSpans[BLACK] & ~attFrontSpawn[BLACK];
   eB.PossibleProtOutposts[WHITE] = ~attFrontSpawn[BLACK] & eB.EnemyPawnAttackMap[BLACK];
-
   eB.PossibleGenOutposts[BLACK] = pawnFrontSpans[WHITE] & ~attFrontSpawn[WHITE];
   eB.PossibleProtOutposts[BLACK] = ~attFrontSpawn[WHITE] & eB.EnemyPawnAttackMap[WHITE];
 
+  // Calculate rammed pawns
+  // We count pawns that cannot move realistically (2x attack against forward square) as blocked
   eB.RammedCount =  _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN)) +
                    (_popCount((board.getPieces(BLACK, PAWN) >> 8) & doubleAttacked[WHITE]) +
                     _popCount((board.getPieces(WHITE, PAWN) << 8) & doubleAttacked[BLACK]) / 2);

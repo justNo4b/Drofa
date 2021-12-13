@@ -18,6 +18,8 @@ struct evalBits{
     U64 Passers[2];
     U64 AttackedSquares[2];
     U64 AttackedByKing[2];
+    U64 SemiOpenFiles[2];
+    U64 OpenFiles;
     int RammedCount;
     int KingAttackers[2];
     int KingAttackPower[2];

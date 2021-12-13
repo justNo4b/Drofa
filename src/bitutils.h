@@ -128,7 +128,7 @@ inline U64 _fillForward(Color color, U64 bb){
   return bb;
 }
 
-inline U64 _fillBacksard(Color color, U64 bb){
+inline U64 _fillBackward(Color color, U64 bb){
   bb |= (color == WHITE ? bb >> 8  : bb << 8);
   bb |= (color == WHITE ? bb >> 16 : bb << 16);
   bb |= (color == WHITE ? bb >> 32 : bb << 32);
