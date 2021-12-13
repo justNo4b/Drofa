@@ -227,6 +227,10 @@ const int ROOK_SEMI_FILE_BONUS[2] = {
            gS(14,-1), gS(23,9),
 };
 
+const int ROOK_GOOD_FILE_JUMP[2] = {
+            gS(0,0), gS(0,0),
+};
+
 /**
  * @brief indexed by [pieceType]
  * Evaluate OUR pieces attacked by an enemy pawn

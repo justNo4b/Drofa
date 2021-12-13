@@ -380,6 +380,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     // Open/semiopen file detection
     // we differentiate between open/semiopen based on
     // if there are enemys protected outpost here
+    // if Rook isnt on open or semiopen, see if it can jump on such a line
     U64 file = detail::FILES[_col(square)];
     if ( ((file & board.getPieces(color, PAWN)) == 0)
       && ((file & board.getPieces(otherColor, PAWN)) == 0)){
@@ -389,6 +390,13 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     else if ((file & board.getPieces(color, PAWN)) == 0){
       s += ROOK_SEMI_FILE_BONUS[((file & eB->OutPostedLines[otherColor]) != 0)];
       if (TRACK) ft.RookHalfFile[((file & eB->OutPostedLines[otherColor]) != 0)][color]++;
+    }else{
+      // 0 - jumping on open line
+      s += ROOK_GOOD_FILE_JUMP[0] * _popCount(eB->OpenFiles & attackBitBoard & ~board.getAllPieces(color));
+      if (TRACK) ft.RookGoodJump[0][color] += _popCount(eB->OpenFiles & attackBitBoard & ~board.getAllPieces(color));
+      // 1 - jumping on semiopen line
+      s += ROOK_GOOD_FILE_JUMP[1] * _popCount(eB->SemiOpenFiles[color] & attackBitBoard & ~board.getAllPieces(color));
+      if (TRACK) ft.RookGoodJump[1][color] += _popCount(eB->SemiOpenFiles[color] & attackBitBoard & ~board.getAllPieces(color));
     }
   }
 
