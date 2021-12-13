@@ -7,6 +7,8 @@
 #ifndef BITUTILS_H
 #define BITUTILS_H
 
+#include "defs.h"
+
 /**
  * @brief Sets the LSB of the given bitboard to 0 and returns its index.
  *
@@ -117,6 +119,28 @@ inline int _endgedist(int square){
 
 inline int _mir(int square){
   return square ^ 56;
+}
+
+inline U64 _fillForward(Color color, U64 bb){
+  bb |= (color == WHITE ? bb << 8  : bb >> 8);
+  bb |= (color == WHITE ? bb << 16 : bb >> 16);
+  bb |= (color == WHITE ? bb << 32 : bb >> 32);
+  return bb;
+}
+
+inline U64 _fillBacksard(Color color, U64 bb){
+  bb |= (color == WHITE ? bb >> 8  : bb << 8);
+  bb |= (color == WHITE ? bb >> 16 : bb << 16);
+  bb |= (color == WHITE ? bb >> 32 : bb << 32);
+  return bb;
+}
+
+inline U64 _shiftForward(Color color, U64 bb){
+  return color == WHITE ? bb << 8  : bb >> 8;
+}
+
+inline U64 _shiftBackward(Color color, U64 bb){
+  return color == WHITE ? bb >> 8  : bb << 8;
 }
 
 #endif

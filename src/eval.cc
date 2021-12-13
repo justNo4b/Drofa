@@ -135,17 +135,11 @@ evalBits Eval::Setupbits(const Board &board){
     eB.EnemyPawnAttackMap[!color] = color == WHITE ? ((pBB << 9) & ~FILE_A) | ((pBB << 7) & ~FILE_H)
                                                    : ((pBB >> 9) & ~FILE_H) | ((pBB >> 7) & ~FILE_A);
 
-    attFrontSpawn[color] = eB.EnemyPawnAttackMap[!color] | (color == WHITE ? eB.EnemyPawnAttackMap[!color] << 8 : eB.EnemyPawnAttackMap[!color] >> 8);
-    attFrontSpawn[color] |= color == WHITE ? attFrontSpawn[color] << 16 : attFrontSpawn[color] >> 16;
-    attFrontSpawn[color] |= color == WHITE ? attFrontSpawn[color] << 32 : attFrontSpawn[color] >> 32;
-
     doubleAttacked[color] =  color == WHITE ? ((pBB << 9) & ~FILE_A) & ((pBB << 7) & ~FILE_H)
                                             : ((pBB >> 9) & ~FILE_H) & ((pBB >> 7) & ~FILE_A);
 
-    pawnFrontSpans[color]  = pBB | (color == WHITE ? pBB << 8 : pBB >> 8);
-    pawnFrontSpans[color] |= color == WHITE ?  pawnFrontSpans[color] << 16 :  pawnFrontSpans[color] >> 16;
-    pawnFrontSpans[color] |= color == WHITE ?  pawnFrontSpans[color] << 32 :  pawnFrontSpans[color] >> 32;  
-
+    pawnFrontSpans[color]  = _fillForward(color, pBB);
+    attFrontSpawn[color] = _fillForward(color, eB.EnemyPawnAttackMap[!color]);
 
     U64 king = board.getPieces(color, KING);
     eB.EnemyKingZone[!color] = detail::KINGZONE[color][_bitscanForward(king)];
@@ -498,7 +492,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
     while (pieces) {
 
       int square = _popLsb(pieces);
-      
+
       if (TRACK){
         int relSqv = color == WHITE ? _mir(square) : square;
         ft.KnightPsqtBlack[relSqv][color]++;
@@ -683,15 +677,15 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       U64 canSupport = detail::OUTPOST_PROTECTION[color][forwardSqv] & pawns;
       U64 canEnemies = detail::OUTPOST_PROTECTION[otherColor][forwardSqv] & otherPawns;
       if ((otherPawns & (ONE << forwardSqv)) == ZERO){
-        if (((otherPawns & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO) || 
-            ((_popCount(canSupport) >= _popCount(canEnemies)) && 
+        if (((otherPawns & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO) ||
+            ((_popCount(canSupport) >= _popCount(canEnemies)) &&
             (((otherPawns & ~canEnemies) & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO))){
           s += CANDIDATE_PASSED_PAWN[r] + CANDIDATE_PASSED_PAWN_FILES[edgeDistance];
           if (TRACK) ft.CandidatePasser[r][color]++;
           if (TRACK) ft.CandidatePasserFile[edgeDistance][color]++;
-        }         
+        }
       }
-     
+
     }
 
 
@@ -741,13 +735,12 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   tmpPawns = board.getPieces(otherColor, PAWN) ^ eB->Passers[otherColor];
 
   // Shift stuff, give evaluation
-  // Do not forget to add pawns to BlockedBB for later use
-  tmpPawns = otherColor == WHITE ? tmpPawns << 8 : tmpPawns >> 8;
+  tmpPawns = _shiftForward(otherColor, tmpPawns);
   s += PAWN_BLOCKED * (_popCount(pieces & tmpPawns));
   if (TRACK) ft.PawnBlocked[color] += (_popCount(pieces & tmpPawns));
 
   // same stuff, but with passed pawns
-  tmpPawns = otherColor == WHITE ? eB->Passers[otherColor] << 8 : eB->Passers[otherColor] >> 8;
+  tmpPawns = _shiftForward(otherColor, eB->Passers[otherColor]);
   s += PASSER_BLOCKED * (_popCount(pieces & tmpPawns));
   if (TRACK) ft.PassersBlocked[color] += (_popCount(pieces & tmpPawns));
 
@@ -755,7 +748,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   // Get minor pieces, shift them, and see if our pawn is & with them
   // Same as above, separate for passers and non-passers
   pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
-  pieces = color == WHITE ? pieces << 8 : pieces >> 8;
+  pieces = _shiftForward(color, pieces);
   tmpPawns = board.getPieces(color, PAWN) ^ eB->Passers[color];
   s += MINOR_BEHIND_PAWN * _popCount(tmpPawns & pieces);
   if (TRACK) ft.MinorBehindPawn[color] += _popCount(tmpPawns & pieces);
@@ -765,7 +758,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   // Minor in front of own pawn - passer
   pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
-  pieces = color == WHITE ? pieces >> 8 : pieces << 8;
+  pieces = _shiftBackward(color, pieces);
   tmpPawns = board.getPieces(color, PAWN) ^ eB->Passers[color];
 
   s += MINOR_BLOCK_OWN_PAWN * _popCount(tmpPawns & pieces);
