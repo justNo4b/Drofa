@@ -144,7 +144,7 @@ evalBits Eval::Setupbits(const Board &board){
 
     pawnFrontSpans[color]  = pBB | (color == WHITE ? pBB << 8 : pBB >> 8);
     pawnFrontSpans[color] |= color == WHITE ?  pawnFrontSpans[color] << 16 :  pawnFrontSpans[color] >> 16;
-    pawnFrontSpans[color] |= color == WHITE ?  pawnFrontSpans[color] << 32 :  pawnFrontSpans[color] >> 32;  
+    pawnFrontSpans[color] |= color == WHITE ?  pawnFrontSpans[color] << 32 :  pawnFrontSpans[color] >> 32;
 
 
     U64 king = board.getPieces(color, KING);
@@ -498,7 +498,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
     while (pieces) {
 
       int square = _popLsb(pieces);
-      
+
       if (TRACK){
         int relSqv = color == WHITE ? _mir(square) : square;
         ft.KnightPsqtBlack[relSqv][color]++;
@@ -683,15 +683,15 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       U64 canSupport = detail::OUTPOST_PROTECTION[color][forwardSqv] & pawns;
       U64 canEnemies = detail::OUTPOST_PROTECTION[otherColor][forwardSqv] & otherPawns;
       if ((otherPawns & (ONE << forwardSqv)) == ZERO){
-        if (((otherPawns & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO) || 
-            ((_popCount(canSupport) >= _popCount(canEnemies)) && 
+        if (((otherPawns & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO) ||
+            ((_popCount(canSupport) >= _popCount(canEnemies)) &&
             (((otherPawns & ~canEnemies) & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO))){
           s += CANDIDATE_PASSED_PAWN[r] + CANDIDATE_PASSED_PAWN_FILES[edgeDistance];
           if (TRACK) ft.CandidatePasser[r][color]++;
           if (TRACK) ft.CandidatePasserFile[edgeDistance][color]++;
-        }         
+        }
       }
-     
+
     }
 
 
@@ -852,6 +852,8 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   int unContested = _popCount(eB->AttackedSquares[color] & eB->EnemyKingZone[color] & ~eB->AttackedSquares[otherColor]);
   eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
   if (board.getActivePlayer() == color) eB->KingAttackPower[color] += ATTACK_TEMPO;
+  if (eB->KingAttackers[color] == 4) eB->KingAttackPower[color] += FOUR_ATTACKERS;
+  if (eB->KingAttackers[color] >= 5) eB->KingAttackPower[color] += FIVE_PLUS_ATTACKERS;
 
   return s;
 }
