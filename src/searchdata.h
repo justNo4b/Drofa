@@ -24,6 +24,9 @@ struct SEARCH_Data
         ply--;
     };
 
+    void ClearUpperMove(){
+      moves[ply + 1] = 0;
+    }
 };
 
 

@@ -498,6 +498,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // and when last move was also null
   // Drofa also track status of the Null move failure
   bool failedNull = false;
+  _sStack.ClearUpperMove();
   if (isPrune && depth >= 3 && pMove != 0 && statEVAL >= beta &&
       board.isThereMajorPiece()){
           Board movedBoard = board;
@@ -513,7 +514,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           }
           failedNull = true;
   }
-
+  Move nullCounter = Move(_sStack.moves[ply + 1]);
   // 4. UN_HASHED REDUCTION
   // We reduce depth by 1 if the position we currently analysing isnt hashed.
   // Based on talkchess discussion, replaces Internal iterative deepening.
@@ -654,6 +655,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // Reduce more for late quiets if TTmove exists and it is non-Quiet move
           reduction += isQuiet && !quietTT && TTmove;
+
+          // reduce more when null counter exists and we evade it
+          reduction += (nullCounter.getMoveINT() != 0) && nullCounter.getTo() == move.getFrom();
 
           // if we are improving, reduce a bit less (from Weiss)
           reduction -= improving;
