@@ -144,7 +144,7 @@ evalBits Eval::Setupbits(const Board &board){
 
     pawnFrontSpans[color]  = pBB | (color == WHITE ? pBB << 8 : pBB >> 8);
     pawnFrontSpans[color] |= color == WHITE ?  pawnFrontSpans[color] << 16 :  pawnFrontSpans[color] >> 16;
-    pawnFrontSpans[color] |= color == WHITE ?  pawnFrontSpans[color] << 32 :  pawnFrontSpans[color] >> 32;  
+    pawnFrontSpans[color] |= color == WHITE ?  pawnFrontSpans[color] << 32 :  pawnFrontSpans[color] >> 32;
 
 
     U64 king = board.getPieces(color, KING);
@@ -235,9 +235,11 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, evalBits * eB
     // а. Найти позицию короля
     // b. Для каждой выбранной позиции мы имеем некую маску и скор того, насколько она "безопасна"
 
+    Color otherColor = getOppositeColor(color);
     // Упрощённо будем считать, что если нет ферзя у врага, то мы в безопасности.
     if (!board.getPieces(getOppositeColor(color), QUEEN)){
       if (TRACK) ft.KingLowDanger[color]++;
+      eB->KingAttackPower[otherColor] += opS(KING_LOW_DANGER);
       return KING_LOW_DANGER;
     }
     U64 pawnMap = board.getPieces(color, PAWN);
@@ -254,6 +256,7 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, evalBits * eB
 
     if (cSide == NoCastle){
       if (TRACK) ft.KingHighDanger[color]++;
+      eB->KingAttackPower[otherColor] += opS(KING_HIGH_DANGER);
       return KING_HIGH_DANGER;
     }
     // Cycle through all masks, if one of them is true,
@@ -264,6 +267,7 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, evalBits * eB
                   if (cSide == KingSide)  ft.KingShieldKS[i][color]++;
                   if (cSide == QueenSide) ft.KingShieldQS[i][color]++;
                 }
+                eB->KingAttackPower[otherColor]+= cSide == KingSide ? opS( KING_PAWN_SHIELD_KS[i]) : opS(KING_PAWN_SHIELD_QS[i]);
                 return cSide == KingSide ? KING_PAWN_SHIELD_KS[i] : KING_PAWN_SHIELD_QS[i];
             }
     }
@@ -498,7 +502,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
     while (pieces) {
 
       int square = _popLsb(pieces);
-      
+
       if (TRACK){
         int relSqv = color == WHITE ? _mir(square) : square;
         ft.KnightPsqtBlack[relSqv][color]++;
@@ -683,15 +687,15 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       U64 canSupport = detail::OUTPOST_PROTECTION[color][forwardSqv] & pawns;
       U64 canEnemies = detail::OUTPOST_PROTECTION[otherColor][forwardSqv] & otherPawns;
       if ((otherPawns & (ONE << forwardSqv)) == ZERO){
-        if (((otherPawns & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO) || 
-            ((_popCount(canSupport) >= _popCount(canEnemies)) && 
+        if (((otherPawns & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO) ||
+            ((_popCount(canSupport) >= _popCount(canEnemies)) &&
             (((otherPawns & ~canEnemies) & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO))){
           s += CANDIDATE_PASSED_PAWN[r] + CANDIDATE_PASSED_PAWN_FILES[edgeDistance];
           if (TRACK) ft.CandidatePasser[r][color]++;
           if (TRACK) ft.CandidatePasserFile[edgeDistance][color]++;
-        }         
+        }
       }
-     
+
     }
 
 
