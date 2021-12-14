@@ -611,6 +611,14 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
     if (TRACK) ft.KingSemiEnemyFile[color]++;
   }
 
+  // See if on kingfile as well as on nearbys 
+  // there is no pawns at all
+  if (((file | detail::NEIGHBOR_FILES[_col(square)]) & (ourPawns | enemyPawns)) == 0){
+      s += KING_NO_PAWNS_NEARBY_FILES;
+      if (TRACK) ft.KingNoPawnsNearby[color]++;
+  }
+
+
   return s;
 }
 
