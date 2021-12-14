@@ -239,7 +239,7 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, evalBits * eB
     // Упрощённо будем считать, что если нет ферзя у врага, то мы в безопасности.
     if (!board.getPieces(getOppositeColor(color), QUEEN)){
       if (TRACK) ft.KingLowDanger[color]++;
-      eB->KingAttackPower[otherColor] += -1 * opS(KING_LOW_DANGER);
+      eB->KingAttackPower[otherColor] += -2 * opS(KING_LOW_DANGER);
       return KING_LOW_DANGER;
     }
     U64 pawnMap = board.getPieces(color, PAWN);
@@ -256,7 +256,7 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, evalBits * eB
 
     if (cSide == NoCastle){
       if (TRACK) ft.KingHighDanger[color]++;
-      eB->KingAttackPower[otherColor] += (-1 * opS(KING_HIGH_DANGER));
+      eB->KingAttackPower[otherColor] += (-2 * opS(KING_HIGH_DANGER));
       return KING_HIGH_DANGER;
     }
     // Cycle through all masks, if one of them is true,
@@ -267,7 +267,7 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, evalBits * eB
                   if (cSide == KingSide)  ft.KingShieldKS[i][color]++;
                   if (cSide == QueenSide) ft.KingShieldQS[i][color]++;
                 }
-                eB->KingAttackPower[otherColor] += cSide == KingSide ? (-1 * opS( KING_PAWN_SHIELD_KS[i])) : (-1 * opS(KING_PAWN_SHIELD_QS[i]));
+                eB->KingAttackPower[otherColor] += cSide == KingSide ? (-2 * opS( KING_PAWN_SHIELD_KS[i])) : (-2 * opS(KING_PAWN_SHIELD_QS[i]));
                 return cSide == KingSide ? KING_PAWN_SHIELD_KS[i] : KING_PAWN_SHIELD_QS[i];
             }
     }
@@ -275,7 +275,7 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, evalBits * eB
       // если не одна из масок не прошла, то король в опасности.
       // вернуть штраф к нашей позиции
       if (TRACK) ft.KingMedDanger[color]++;
-      eB->KingAttackPower[otherColor] += (-1 * opS(KING_MED_DANGER));
+      eB->KingAttackPower[otherColor] += (-2 * opS(KING_MED_DANGER));
       return KING_MED_DANGER;
 
 }
