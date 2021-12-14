@@ -526,11 +526,24 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       s += ROOK_ATTACKED_BY[KNIGHT] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
       if (TRACK) ft.RookAttackedBy[KNIGHT][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
 
+      // See if our Knight can fork King + Major on the next move
+      U64 knightKingChecks = attackBitBoard & board.getAttacksForSquare(KNIGHT, getOppositeColor(color), eB->EnemyKingSquare[color]);
+      int kingChecks = _popCount(knightKingChecks);
+      while (knightKingChecks){
+        int checkFrom = _popLsb(knightKingChecks);
+        U64 checkTargets = Attacks::getNonSlidingAttacks(KNIGHT, checkFrom, WHITE);
+
+        s += KNIGHT_POS_KQ_FORK * _popCount(checkTargets & board.getPieces(otherColor, QUEEN));
+        if (TRACK) ft.KnightKQFork[color] += _popCount(checkTargets & board.getPieces(otherColor, QUEEN));
+
+        s += KNIGHT_POS_KR_FORK * _popCount(checkTargets & board.getPieces(otherColor, ROOK));
+        if (TRACK)ft.KnightKRFork[color] += _popCount(checkTargets & board.getPieces(otherColor, ROOK));
+      }
 
       // If Knight attacking squares near enemy king
       // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
-      int kingChecks = _popCount(attackBitBoard & board.getAttacksForSquare(KNIGHT, getOppositeColor(color), eB->EnemyKingSquare[color]));
+
       if (kingAttack > 0 || kingChecks > 0){
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[KNIGHT];
