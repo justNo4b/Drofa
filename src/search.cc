@@ -659,7 +659,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // Reduce more when side-to-move was behind prior to NMP on the previous NMP try
           // Basically copy-pasted Koivisto idea
-          reduction += move.getValue() < 150000 && nmpTree && board.getActivePlayer() == behindColor;
+          reduction += move.getValue() <= 200000 && nmpTree && board.getActivePlayer() == behindColor;
 
           // if we are improving, reduce a bit less (from Weiss)
           reduction -= improving;
