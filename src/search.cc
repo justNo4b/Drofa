@@ -630,6 +630,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               tDepth++;
             }
 
+        if (!nmpTree || board.getActivePlayer() != behindColor){
+          tDepth = std::min(depth + 1, tDepth);
+        }
+
         _posHist.Add(board.getZKey().getValue());
         _sStack.AddMove(move.getMoveINT());
 
