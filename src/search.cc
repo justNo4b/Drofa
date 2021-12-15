@@ -395,6 +395,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   bool pvNode = alpha != beta - 1;
   bool TTmove = false;
   bool quietTT = false;
+  bool nmpTree = _sStack.nmpTree;
   int score;
   int ply = _sStack.ply;
   int pMove = _sStack.moves[ply - 1];
@@ -402,6 +403,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   int statEVAL = 0;
   Move hashedMove = Move(0);
   pV   thisPV = pV();
+  Color behindColor = _sStack.sideBehind;
 
   // Check if we are out of time
   if (_stop || _checkLimits()) {
@@ -502,12 +504,12 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       board.isThereMajorPiece()){
           Board movedBoard = board;
           _posHist.Add(board.getZKey().getValue());
-          _sStack.AddMove(0);
+          _sStack.AddNullMove(getOppositeColor(board.getActivePlayer()));
           movedBoard.doNool();
           int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((statEVAL - beta) / 128, 4);
           int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, false);
           _posHist.Remove();
-          _sStack.Remove();
+          _sStack.RemoveNull(behindColor, nmpTree);
           if (score >= beta){
             return beta;
           }
@@ -654,6 +656,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // Reduce more for late quiets if TTmove exists and it is non-Quiet move
           reduction += isQuiet && !quietTT && TTmove;
+
+          // Reduce more when side-to-move was behind prior to NMP on the previous NMP try
+          // Basically copy-pasted Koivisto idea
+          reduction += nmpTree && board.getActivePlayer() == behindColor;
 
           // if we are improving, reduce a bit less (from Weiss)
           reduction -= improving;
