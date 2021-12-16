@@ -489,8 +489,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // The idea is so if we are very far ahead of beta at low
   // depth, we can just return estimated eval (eval - margin),
   // because beta probably will be beaten
-  if (isPrune && depth < 6 && ((statEVAL - REVF_MOVE_CONST * depth + 100 * improving) >= beta)){
-      return statEVAL - REVF_MOVE_CONST * depth + 100 * improving;
+  if (isPrune && depth < 6 && ((statEVAL - REVF_MOVE_CONST * (depth - improving)) >= beta)){
+      return beta;
   }
 
   // 3. NULL MOVE
