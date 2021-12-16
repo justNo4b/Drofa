@@ -534,6 +534,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   Move bestMove;
   int  LegalMoveCount = 0;
   int  qCount = 0;
+  bool skipQ  = false;
   while (movePicker.hasNext()) {
 
     Move move = movePicker.getNext();
@@ -549,7 +550,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       // 5. LATE MOVE PRUNING
       // If we made many quiet moves in the position already
       // we suppose other moves wont improve our situation
-      if (qCount > _lmp_Array[depth][(improving || pvNode)]) break;
+      if (qCount > _lmp_Array[depth][(improving || pvNode)]) skipQ = true;
+      if (skipQ && isQuiet) continue;
 
       // 6. EXTENDED FUTILITY PRUNING
       // We try to pune a move, if depth is low (1 or 2)
