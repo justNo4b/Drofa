@@ -544,7 +544,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     qCount += isQuiet;
 
     if (alpha < WON_IN_X
-        && LegalMoveCount > 1){
+        && LegalMoveCount >= 1){
 
       // 5. LATE MOVE PRUNING
       // If we made many quiet moves in the position already
