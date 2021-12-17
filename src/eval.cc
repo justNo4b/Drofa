@@ -527,6 +527,12 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       if (TRACK) ft.RookAttackedBy[KNIGHT][color] += _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
 
 
+      // Bonus for knight having central squares in mobility
+      // it would mean they are not attacked by enemy pawn
+      // or contain our own piece
+      s += KNIGHT_CENTER_CONTROL * _popCount(attackBitBoard & CENTER);
+      if (TRACK) ft.KnightCenterControl[color] +=  _popCount(attackBitBoard & CENTER);
+
       // If Knight attacking squares near enemy king
       // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
