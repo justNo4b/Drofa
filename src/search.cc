@@ -352,10 +352,10 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
     _sStack.AddMove(move.getMoveINT());
     if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
         if (fullWindow) {
-          currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, false);
+          currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, false, false);
         } else {
-          currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -alpha - 1, -alpha,  false);
-          if (currScore > alpha) currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, false);
+          currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -alpha - 1, -alpha,  false, true);
+          if (currScore > alpha) currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, false, false);
         }
 
         if (_stop || _checkLimits()) {
@@ -388,7 +388,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
   return alpha;
 }
 
-int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int beta, bool sing) {
+int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int beta, bool sing, bool cutNode) {
 
   _nodes++;
   bool AreWeInCheck;
@@ -507,7 +507,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           _sStack.AddNullMove(getOppositeColor(board.getActivePlayer()));
           movedBoard.doNool();
           int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((statEVAL - beta) / 128, 4);
-          int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, false);
+          int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, false, false);
           _posHist.Remove();
           _sStack.RemoveNull(behindColor, nmpTree);
           if (score >= beta){
@@ -616,7 +616,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               int sDepth = depth / 2;
               int sBeta = probedHASHentry.score - depth * 2;
               Board sBoard = board;
-              int score = _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, true);
+              int score = _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, true, cutNode);
               if (sBeta > score){
                 tDepth += 1 + failedNull;
               }
@@ -661,6 +661,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // Basically copy-pasted Koivisto idea
           reduction += isQuiet && nmpTree && board.getActivePlayer() == behindColor;
 
+          reduction += cutNode;
+
           // if we are improving, reduce a bit less (from Weiss)
           reduction -= improving;
 
@@ -689,7 +691,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           //Search with reduced depth around alpha in assumtion
           // that alpha would not be beaten here
-          score = -_negaMax(movedBoard, &thisPV, fDepth, -alpha - 1 , -alpha, false);
+          score = -_negaMax(movedBoard, &thisPV, fDepth, -alpha - 1 , -alpha, false, true);
         }
 
         // Code here is restructured based on Weiss
@@ -701,10 +703,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // So for both of this cases we do limited window search.
         if (doLMR){
           if (score > alpha){
-            score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -alpha - 1, -alpha, false);
+            score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -alpha - 1, -alpha, false, !cutNode);
           }
         } else if (!pvNode || LegalMoveCount > 1){
-          score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -alpha - 1, -alpha, false);
+          score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -alpha - 1, -alpha, false, !cutNode);
         }
 
         // If we are in the PV
@@ -712,7 +714,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // or if score improved alpha during the current round of search.
         if  (pvNode) {
           if ((LegalMoveCount == 1) || (score > alpha && score < beta)){
-            score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -beta, -alpha, false);
+            score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -beta, -alpha, false, false);
           }
         }
 
