@@ -667,6 +667,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // reduce less when a move is giving check
           reduction -= giveCheck;
 
+          // reduce less for good captures in the non-nmp-trees if no TT avaliable
+          reduction -= !isQuiet && !TTmove && !nmpTree && move.getValue() > 0;
+
           // reduce more/less based on the hitory
           reduction -= moveHistory / 8192;
           reduction -= cmHistory  / 12288;
