@@ -545,6 +545,13 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       s += QUEEN_ATTACKED_BY[KNIGHT] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
       if (TRACK) ft.QueenAttackedBy[KNIGHT][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
 
+      // Knight-King-Distance
+      s += KNIGHT_KING_DISTANCE_FRIENDLY[detail::DISTANCE[square][eB->EnemyKingSquare[otherColor]] / 2];
+      if (TRACK) ft.KnightOwnKing[detail::DISTANCE[square][eB->EnemyKingSquare[otherColor]] / 2][color]++;
+
+      s += KNIGHT_KING_DISTANCE_ENEMY[detail::DISTANCE[square][eB->EnemyKingSquare[color]] / 2];
+      if (TRACK) ft.KnightEnemyKing[detail::DISTANCE[square][eB->EnemyKingSquare[color]] / 2][color]++;
+
       // OUTPOSTED KNIGHT
       // See if a Knight can jump into the protected outpost
       // Only outposts with decently good score is counted here
