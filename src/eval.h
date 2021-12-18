@@ -113,6 +113,8 @@ extern U64 KING_PAWN_MASKS[2][2][8];
 
 const int TEMPO = 10;
 
+const int WINNABLE_BASE = gS(0, -90);
+
 const int KING_HIGH_DANGER = gS(-50,-65);
 
 const int KING_MED_DANGER = gS(-24,-40);
@@ -463,6 +465,8 @@ inline bool IsItDeadDraw (const Board &, Color);
  * 3. Threats by pawn push
  */
 inline int PiecePawnInteraction(const Board &, Color, evalBits *);
+
+inline int EvaluateWinnability(const Board &, Color, int);
 
 /**
  * @brief Taper evaluation between Opening and Endgame and scale it

@@ -861,6 +861,18 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   return s;
 }
 
+inline int Eval::EvaluateWinnability(const Board &board, Color color, int score){
+  int s = 0;
+  int egs = egS(score);
+  int wMultyplier = egs > 0 ? -1 :
+                    egs < 0 ?  1 : 0;
+
+  int winnability = WINNABLE_BASE;
+
+  s = wMultyplier * std::max(-abs(egs), (int)egS(winnability));
+  return gS(0, s);
+}
+
 inline int Eval::kingDanger(Color color, const evalBits * eB){
   int attackScore = eB->KingAttackPower[color] * COUNT_TO_POWER[std::min(7, eB->KingAttackers[color])] / COUNT_TO_POWER_DIVISOR;
   return gS(std::max(0, attackScore), 0);
@@ -974,6 +986,8 @@ int Eval::evaluate(const Board &board, Color color) {
   // Transform obtained safety score into game score
   score +=  kingDanger(color, &eB)
           - kingDanger(otherColor, &eB);
+
+  score += EvaluateWinnability(board, color, score);
 
   // Taper and Scale obtained score
   int final_eval = TaperAndScale(board, color, score);
