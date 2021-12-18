@@ -689,6 +689,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           reduction = std::max(minReduction, reduction);
           //Avoid to reduce so much that we go to QSearch right away
           int fDepth = std::max(1, tDepth - 1 - reduction);
+          if (fDepth >= depth) doLMR = false;
 
           //Search with reduced depth around alpha in assumtion
           // that alpha would not be beaten here
