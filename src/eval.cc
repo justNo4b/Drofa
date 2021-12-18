@@ -6,6 +6,7 @@
 #include "eval.h"
 #include "transptable.h"
 #include "tuning.h"
+#include <cstring>
 
 extern HASH * myHASH;
 extern posFeatured ft;
@@ -167,7 +168,7 @@ evalBits Eval::Setupbits(const Board &board){
   eB.KingAttackPower[0] = START_ATTACK_VALUE, eB.KingAttackPower[1] = START_ATTACK_VALUE;
   eB.Passers[0] = 0, eB.Passers[1] = 0;
   eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
-  eB.AttackedByKing[0] = 0, eB.AttackedByKing[1] = 0;
+  std::memset(eB.AttackedByPieces, 0, sizeof(eB.AttackedByPieces));
   return eB;
 }
 
@@ -305,6 +306,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
 
     // Save our attacks for further use
     eB->AttackedSquares[color] |= attackBitBoard;
+    eB->AttackedByPieces[color][QUEEN] |= attackBitBoard;
 
     // See if a Queen is attacking an enemy unprotected pawn
     s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
@@ -349,6 +351,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
 
     // Save our attacks for further use
     eB->AttackedSquares[color] |= attackBitBoard;
+    eB->AttackedByPieces[color][ROOK] |= attackBitBoard;
 
     // RookAttackMinor
     U64 RookAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
@@ -432,6 +435,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
 
       // Save our attacks for further use
       eB->AttackedSquares[color] |= attackBitBoard;
+      eB->AttackedByPieces[color][BISHOP] |= attackBitBoard;
 
       // BishopAttackMinor
       U64 BishopAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
@@ -516,6 +520,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
 
       // Save our attacks for further use
       eB->AttackedSquares[color] |= attackBitBoard;
+      eB->AttackedByPieces[color][KNIGHT] |= attackBitBoard;
 
       // KnightAttackMinor
       U64 KnightAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
@@ -587,7 +592,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   }
 
   // Save our attacks for further use
-  eB->AttackedByKing[color] |= attackBitBoard;
+  eB->AttackedByPieces[color][KING] |= attackBitBoard;
 
   // See if our king is on the Openish-files
   // Test for Open - SemiOpenToUs - SemiOpenToEnemy
@@ -730,12 +735,43 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   return s;
 }
 
+inline int Eval::PiecePieceInteraction(const Board & board, Color color, evalBits * eB){
+
+  int s = 0;
+  Color otherColor = getOppositeColor(color);
+
+  // Evaluate possible knight check that also attacks another piece
+  // Count only safe checks
+  U64 knightKingChecks = eB->AttackedByPieces[color][KNIGHT]
+                       & board.getAttacksForSquare(KNIGHT, otherColor, eB->EnemyKingSquare[color])
+                       & ~eB->AttackedSquares[otherColor];
+
+  while (knightKingChecks){
+    int checkFrom = _popLsb(knightKingChecks);
+    U64 checkTargets = Attacks::getNonSlidingAttacks(KNIGHT, checkFrom, WHITE);
+
+    s += KNIGHT_KING_FORK_POS[QUEEN] * _popCount(checkTargets & board.getPieces(otherColor, QUEEN));
+    if (TRACK) ft.KnightKingForkPossible[QUEEN][color] += _popCount(checkTargets & board.getPieces(otherColor, QUEEN));
+
+    s += KNIGHT_KING_FORK_POS[ROOK] * _popCount(checkTargets & board.getPieces(otherColor, ROOK));
+    if (TRACK)ft.KnightKingForkPossible[ROOK][color] += _popCount(checkTargets & board.getPieces(otherColor, ROOK));
+
+    s += KNIGHT_KING_FORK_POS[BISHOP] * _popCount(checkTargets & board.getPieces(otherColor, BISHOP));
+    if (TRACK)ft.KnightKingForkPossible[BISHOP][color] += _popCount(checkTargets & board.getPieces(otherColor, BISHOP));
+
+    s += KNIGHT_KING_FORK_POS[PAWN] * _popCount(checkTargets & board.getPieces(otherColor, PAWN) & ~eB->EnemyPawnAttackMap[color]);
+    if (TRACK)ft.KnightKingForkPossible[PAWN][color] += _popCount(checkTargets & board.getPieces(otherColor, PAWN) & ~eB->EnemyPawnAttackMap[color]);
+  }
+
+  return s;
+};
+
 inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits * eB){
   int s = 0;
   Color otherColor = getOppositeColor(color);
   U64 pieces, tmpPawns = ZERO;
-  U64 AllOurAttacks = eB->AttackedSquares[color] | eB->AttackedByKing[color];
-  U64 AllTheirAttacks = eB->AttackedSquares[otherColor] | eB->AttackedByKing[otherColor];
+  U64 AllOurAttacks = eB->AttackedSquares[color] | eB->AttackedByPieces[color][KING];
+  U64 AllTheirAttacks = eB->AttackedSquares[otherColor] | eB->AttackedByPieces[otherColor][KING];
 
   // 1. Blocked pawns - separate for passers and non-passers
 
@@ -967,6 +1003,10 @@ int Eval::evaluate(const Board &board, Color color) {
   // Interactions between pieces and pawns
   score +=  PiecePawnInteraction(board, color, &eB)
           - PiecePawnInteraction(board, otherColor, &eB);
+
+  // Interactions between pieces and pieces
+  score +=  PiecePieceInteraction(board, color, &eB)
+          - PiecePieceInteraction(board, otherColor, &eB);
 
   score +=  kingShieldSafety(board, color, &eB)
           - kingShieldSafety(board, otherColor, &eB);

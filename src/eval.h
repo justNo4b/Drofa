@@ -17,7 +17,7 @@ struct evalBits{
     U64 EnemyKingZone[2];
     U64 Passers[2];
     U64 AttackedSquares[2];
-    U64 AttackedByKing[2];
+    U64 AttackedByPieces[2][6];
     int RammedCount;
     int KingAttackers[2];
     int KingAttackPower[2];
@@ -232,6 +232,10 @@ const int ROOK_SEMI_FILE_BONUS[2] = {
  */
 const int HANGING_PIECE[5] = {
            gS(0,18), gS(-66,-41), gS(-50,-47), gS(-54,-66), gS(-49,-30),
+};
+
+const int KNIGHT_KING_FORK_POS[5] = {
+          gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0)
 };
 
 const int MINOR_ATTACKED_BY[4] = {
@@ -463,6 +467,7 @@ inline bool IsItDeadDraw (const Board &, Color);
  * 3. Threats by pawn push
  */
 inline int PiecePawnInteraction(const Board &, Color, evalBits *);
+inline int PiecePieceInteraction(const Board &, Color, evalBits *);
 
 /**
  * @brief Taper evaluation between Opening and Endgame and scale it
