@@ -864,8 +864,8 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 inline int Eval::EvaluateWinnability(const Board &board, Color color, int score){
   int s = 0;
   int egs = egS(score);
-  int wMultyplier = egs > 0 ? -1 :
-                    egs < 0 ?  1 : 0;
+  int wMultyplier = egs > 0 ?   1 :
+                    egs < 0 ?  -1 : 0;
 
   int winnability = WINNABLE_BASE;
 
