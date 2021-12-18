@@ -37,6 +37,7 @@ U64 Eval::detail::CONNECTED_MASK[64];
 U64 Eval::detail::OUTPOST_PROTECTION[2][64];
 U64 Eval::detail::KINGZONE[2][64];
 U64 Eval::detail::FORWARD_BITS[2][64];
+U64 Eval::detail::TWO_AROUND[64];
 U64 Eval::detail::KING_PAWN_MASKS[2][2][8] = {
         [WHITE] = {
           [0] = {
@@ -112,6 +113,10 @@ void Eval::init() {
       U64 kingAttack = Attacks::getNonSlidingAttacks(KING, square, WHITE);
       detail::KINGZONE[color][square] = color == WHITE ? sqv | kingAttack | (kingAttack << 8)
                                                        : sqv | kingAttack | (kingAttack >> 8);
+      detail::TWO_AROUND[square] = kingAttack 
+                                 | (kingAttack << 8) | (kingAttack >> 8) 
+                                 | ((kingAttack >> 1) & ~FILE_H) | ((kingAttack << 1) & ~FILE_A);
+
       // When king is on the side files (A and H) include
       // squares on the C and F files to the kingzone
       if (_col(square) == 0){
@@ -560,11 +565,15 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
 
       if (eB->PossibleProtOutposts[color] & (ONE << square)){
         s += KNIGHT_PROT_OUTPOST_BLACK[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]];
+        s += KNIGHT_PROT_OUTPOST_ADJ * _popCount(board.getAllPieces(otherColor) & detail::TWO_AROUND[square]);
         eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
         if (TRACK) ft.KnightOutProtBlack[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]][color]++;
+        if (TRACK) ft.KnightProtOutAdj[color] += _popCount(board.getAllPieces(otherColor) & detail::TWO_AROUND[square]);
       } else if (eB->PossibleGenOutposts[color] & (ONE << square)){
         s += KNIGHT_OUTPOST_BLACK[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]];
+        s += KNIGHT_GEN_OUTPOST_ADJ * _popCount(board.getAllPieces(otherColor) & detail::TWO_AROUND[square]);
         if (TRACK) ft.KnightOutBlack[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]][color]++;
+        if (TRACK) ft.KnightGenOutAdj[color] += _popCount(board.getAllPieces(otherColor) & detail::TWO_AROUND[square]);
       }
     }
   return s;
