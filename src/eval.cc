@@ -294,7 +294,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
 
     if (TRACK){
       int relSqv = color == WHITE ? _mir(square) : square;
-      ft.QueenPsqtBlack[relSqv][color]++;
+      if (_col(eB->EnemyKingSquare[getOppositeColor(color)]) > 3) ft.QueenPsqtBlackKs[relSqv][color]++; else ft.QueenPsqtBlackQs[relSqv][color]++;
     }
 
     // Mobility calculations
@@ -338,7 +338,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     int square = _popLsb(pieces);
     if (TRACK){
       int relSqv = color == WHITE ? _mir(square) : square;
-      ft.RookPsqtBlack[relSqv][color]++;
+      if (_col(eB->EnemyKingSquare[getOppositeColor(color)]) > 3) ft.RookPsqtBlackKs[relSqv][color]++; else ft.RookPsqtBlackQs[relSqv][color]++;
     }
 
     // Mobility
@@ -421,7 +421,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       int square = _popLsb(pieces);
       if (TRACK){
         int relSqv = color == WHITE ? _mir(square) : square;
-        ft.BishopPsqtBlack[relSqv][color]++;
+        if (_col(eB->EnemyKingSquare[getOppositeColor(color)]) > 3) ft.BishopPsqtBlackKs[relSqv][color]++; else ft.BishopPsqtBlackQs[relSqv][color]++;
       }
 
       // Mobility
@@ -506,7 +506,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
 
       if (TRACK){
         int relSqv = color == WHITE ? _mir(square) : square;
-        ft.KnightPsqtBlack[relSqv][color]++;
+        if (_col(eB->EnemyKingSquare[getOppositeColor(color)]) > 3) ft.KnightPsqtBlackKs[relSqv][color]++; else ft.KnightPsqtBlackQs[relSqv][color]++;
       }
 
       // Mobility
@@ -937,9 +937,12 @@ int Eval::evaluate(const Board &board, Color color) {
     ft.MaterialValue[QUEEN][color]+= _popCount(board.getPieces(color, QUEEN));
     ft.MaterialValue[QUEEN][otherColor]+= _popCount(board.getPieces(otherColor, QUEEN));
   }
+  // Create evalBits stuff
+  evalBits eB = Eval::Setupbits(board);
 
   // Piece square tables
-  score += board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(otherColor);
+  score += board.getPSquareTable().getScore(color, (_col(eB.EnemyKingSquare[otherColor]) <= 3))
+         - board.getPSquareTable().getScore(otherColor, (_col(eB.EnemyKingSquare[color]) <= 3));
 
   // Get PSQT-pawns Adjustments
   // 0 - own queen
@@ -951,8 +954,7 @@ int Eval::evaluate(const Board &board, Color color) {
     score += board.getPSquareTable().getPawnAdjustment(color, 1) - board.getPSquareTable().getPawnAdjustment(otherColor, 0);
   }
 
-  // Create evalBits stuff
-  evalBits eB = Eval::Setupbits(board);
+
 
   // Probe pawnHash, if not found, do full pawn evaluation
   score += probePawnStructure(board, color, &eB);

@@ -5,7 +5,7 @@
 #include "eval.h"
 #include "outposts.h"
 
-#define BIG_FEATURE_NUMBER (63)
+#define BIG_FEATURE_NUMBER (67)
 
 enum TuningType{
     ALL,
@@ -80,10 +80,16 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("PAWN_PSQT_BLACK", true, Eval::PAWN_PSQT_BLACK, 64, 8, ALL),
     tFeature("PAWN_PSQT_BLACK_IS_ENEMY_QUEEN", true, Eval::PAWN_PSQT_BLACK_IS_ENEMY_QUEEN, 64, 8, ALL),
     tFeature("PAWN_PSQT_BLACK_IS_OWN_QUEEN", true, Eval::PAWN_PSQT_BLACK_IS_OWN_QUEEN, 64, 8, ALL),
-    tFeature("ROOK_PSQT_BLACK", true, Eval::ROOK_PSQT_BLACK, 64, 8, ALL),
-    tFeature("BISHOP_PSQT_BLACK", true, Eval::BISHOP_PSQT_BLACK, 64, 8, ALL),
-    tFeature("KNIGHT_PSQT_BLACK", true, Eval::KNIGHT_PSQT_BLACK, 64, 8, ALL),
-    tFeature("QUEEN_PSQT_BLACK", true, Eval::QUEEN_PSQT_BLACK, 64, 8, ALL),
+    tFeature("ROOK_PSQT_BLACK_KS", true, Eval::ROOK_PSQT_BLACK_KS, 64, 8, ALL),
+    tFeature("BISHOP_PSQT_BLACK_KS", true, Eval::BISHOP_PSQT_BLACK_KS, 64, 8, ALL),
+    tFeature("KNIGHT_PSQT_BLACK_KS", true, Eval::KNIGHT_PSQT_BLACK_KS, 64, 8, ALL),
+    tFeature("QUEEN_PSQT_BLACK_KS", true, Eval::QUEEN_PSQT_BLACK_KS, 64, 8, ALL),
+
+    tFeature("ROOK_PSQT_BLACK_QS", true, Eval::ROOK_PSQT_BLACK_QS, 64, 8, ALL),
+    tFeature("BISHOP_PSQT_BLACK_QS", true, Eval::BISHOP_PSQT_BLACK_QS, 64, 8, ALL),
+    tFeature("KNIGHT_PSQT_BLACK_QS", true, Eval::KNIGHT_PSQT_BLACK_QS, 64, 8, ALL),
+    tFeature("QUEEN_PSQT_BLACK_QS", true, Eval::QUEEN_PSQT_BLACK_QS, 64, 8, ALL),
+
     tFeature("KNIGHT_PROT_OUTPOST_BLACK", true, KNIGHT_PROT_OUTPOST_BLACK, 32, 4, ALL),
     tFeature("BISHOP_PROT_OUTPOST_BLACK", true, BISHOP_PROT_OUTPOST_BLACK, 32, 4, ALL),
     tFeature("KNIGHT_OUTPOST_BLACK", true, KNIGHT_OUTPOST_BLACK, 32, 4, ALL),

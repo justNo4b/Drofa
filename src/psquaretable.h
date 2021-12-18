@@ -62,25 +62,25 @@ class PSquareTable {
    * @param  color Color to get score for
    * @return The piece square table score for the given player
    */
-  int getScore(Color);
+  int getScore(Color, bool);
 
   int getPawnAdjustment(Color, int);
 
-  int getPsqtValue(Color, PieceType, int);
+  int getPsqtValue(Color, PieceType, int, bool);
 
  private:
   /**
    * @brief Array indexed by [Color][PieceType][SquareIndex] of square values for each  piece,
    * square and color.
    */
-  static int PIECE_VALUES[2][6][64];
+  static int PIECE_VALUES[2][2][6][64];
 
   static int PAWN_ADJUSTMENTS[2][2][64];
 
   /**
    * @brief Array indexed by [Color] of each color's piece square table score.
    */
-  int _scores[2] = {0};
+  int _scores[2][2] = {0};
 
   /**
    * @brief Holds an adjustments for a pawn PSQT

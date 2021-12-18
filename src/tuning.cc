@@ -368,20 +368,40 @@ void InitCoefficients(featureCoeff coeff){
     }
 
     for (int j = 0; j < 64; j++){
-        coeff[i++] = ft.RookPsqtBlack[j][WHITE] - ft.RookPsqtBlack[j][BLACK];
+        coeff[i++] = ft.RookPsqtBlackKs[j][WHITE] - ft.RookPsqtBlackKs[j][BLACK];
     }
 
     for (int j = 0; j < 64; j++){
-        coeff[i++] = ft.BishopPsqtBlack[j][WHITE] - ft.BishopPsqtBlack[j][BLACK];
+        coeff[i++] = ft.BishopPsqtBlackKs[j][WHITE] - ft.BishopPsqtBlackKs[j][BLACK];
     }
 
     for (int j = 0; j < 64; j++){
-        coeff[i++] = ft.KnightPsqtBlack[j][WHITE] - ft.KnightPsqtBlack[j][BLACK];
+        coeff[i++] = ft.KnightPsqtBlackKs[j][WHITE] - ft.KnightPsqtBlackKs[j][BLACK];
     }
 
     for (int j = 0; j < 64; j++){
-        coeff[i++] = ft.QueenPsqtBlack[j][WHITE] - ft.QueenPsqtBlack[j][BLACK];
+        coeff[i++] = ft.QueenPsqtBlackKs[j][WHITE] - ft.QueenPsqtBlackKs[j][BLACK];
     }
+
+
+
+    for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.RookPsqtBlackQs[j][WHITE] - ft.RookPsqtBlackQs[j][BLACK];
+    }
+
+    for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.BishopPsqtBlackQs[j][WHITE] - ft.BishopPsqtBlackQs[j][BLACK];
+    }
+
+    for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.KnightPsqtBlackQs[j][WHITE] - ft.KnightPsqtBlackQs[j][BLACK];
+    }
+
+    for (int j = 0; j < 64; j++){
+        coeff[i++] = ft.QueenPsqtBlackQs[j][WHITE] - ft.QueenPsqtBlackQs[j][BLACK];
+    }
+
+
 
     for (int j = 0; j < 32; j++){
         coeff[i++] = ft.KnightOutProtBlack[j][WHITE] - ft.KnightOutProtBlack[j][BLACK];

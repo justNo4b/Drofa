@@ -580,11 +580,14 @@ int  Board:: Calculate_SEE(const Move move) const{
 int Board::Calculate_MoveGain(const Move move) const {
   Color color  = getActivePlayer();
   bool isQuiet = move.isQuiet();
+  bool isKingQSide = (_col(_bitscanForward(getPieces(color, KING))) <= 3);
   int  phase   = getPhase();
+
 
   int to   = color == WHITE ? _mir(move.getTo()) : move.getTo();
   int from = color == WHITE ? _mir(move.getFrom()) : move.getFrom();
   int gain = isQuiet ? 0 : Eval::MATERIAL_VALUES[move.getCapturedPieceType()];
+
 
   switch (move.getPieceType())
   {
@@ -593,20 +596,20 @@ int Board::Calculate_MoveGain(const Move move) const {
     gain += Eval::PAWN_PSQT_BLACK[to];
     break;
   case ROOK:
-    gain -= Eval::ROOK_PSQT_BLACK[from];
-    gain += Eval::ROOK_PSQT_BLACK[to];
+    gain -= isKingQSide ? Eval::ROOK_PSQT_BLACK_QS[from] : Eval::ROOK_PSQT_BLACK_KS[from];
+    gain += isKingQSide ? Eval::ROOK_PSQT_BLACK_QS[to] : Eval::ROOK_PSQT_BLACK_KS[to];
     break;
   case KNIGHT:
-    gain -= Eval::KNIGHT_PSQT_BLACK[from];
-    gain += Eval::KNIGHT_PSQT_BLACK[to];
+    gain -= isKingQSide ? Eval::KNIGHT_PSQT_BLACK_QS[from] : Eval::KNIGHT_PSQT_BLACK_KS[from];
+    gain += isKingQSide ? Eval::KNIGHT_PSQT_BLACK_QS[to] : Eval::KNIGHT_PSQT_BLACK_KS[to];
     break;
   case BISHOP:
-    gain -= Eval::BISHOP_PSQT_BLACK[from];
-    gain += Eval::BISHOP_PSQT_BLACK[to];
+    gain -= isKingQSide ? Eval::BISHOP_PSQT_BLACK_QS[from] : Eval::BISHOP_PSQT_BLACK_KS[from];
+    gain += isKingQSide ? Eval::BISHOP_PSQT_BLACK_QS[to] : Eval::BISHOP_PSQT_BLACK_KS[to];
     break;
   case QUEEN:
-    gain -= Eval::QUEEN_PSQT_BLACK[from];
-    gain += Eval::QUEEN_PSQT_BLACK[to];
+    gain -= isKingQSide ? Eval::QUEEN_PSQT_BLACK_QS[from] : Eval::QUEEN_PSQT_BLACK_KS[from];
+    gain += isKingQSide ? Eval::QUEEN_PSQT_BLACK_QS[to] : Eval::QUEEN_PSQT_BLACK_KS[to];
     break;
   case KING:
     gain -= Eval::KING_PSQT_BLACK[from];
