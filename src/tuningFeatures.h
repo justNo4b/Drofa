@@ -5,7 +5,7 @@
 #include "eval.h"
 #include "outposts.h"
 
-#define BIG_FEATURE_NUMBER (63)
+#define BIG_FEATURE_NUMBER (65)
 
 enum TuningType{
     ALL,
@@ -42,6 +42,8 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("BISHOP_POS_GENOUTPOST_JUMP", false, &Eval::BISHOP_POS_GENOUTPOST_JUMP, 1, 1, ALL),
     tFeature("KNIGHT_POS_PROUTPOST_JUMP", false, &Eval::KNIGHT_POS_PROUTPOST_JUMP, 1, 1, ALL),
     tFeature("KNIGHT_POS_GENOUTPOST_JUMP", false, &Eval::KNIGHT_POS_GENOUTPOST_JUMP, 1, 1, ALL),
+    tFeature("KNIGHT_PROT_OUTPOST_ADJ", false, &Eval::KNIGHT_PROT_OUTPOST_ADJ, 1, 1, ALL),
+    tFeature("KNIGHT_GEN_OUTPOST_ADJ", false, &Eval::KNIGHT_GEN_OUTPOST_ADJ, 1, 1, ALL),
     tFeature("MINOR_BEHIND_PAWN", false, &Eval::MINOR_BEHIND_PAWN, 1, 1, ALL),
     tFeature("MINOR_BEHIND_PASSER", false, &Eval::MINOR_BEHIND_PASSER, 1, 1, ALL),
     tFeature("MINOR_BLOCK_OWN_PAWN", false, &Eval::MINOR_BLOCK_OWN_PAWN, 1, 1, ALL),

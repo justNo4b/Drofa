@@ -37,6 +37,7 @@ U64 Eval::detail::CONNECTED_MASK[64];
 U64 Eval::detail::OUTPOST_PROTECTION[2][64];
 U64 Eval::detail::KINGZONE[2][64];
 U64 Eval::detail::FORWARD_BITS[2][64];
+U64 Eval::detail::TWO_AROUND[64];
 U64 Eval::detail::KING_PAWN_MASKS[2][2][8] = {
         [WHITE] = {
           [0] = {
@@ -112,6 +113,10 @@ void Eval::init() {
       U64 kingAttack = Attacks::getNonSlidingAttacks(KING, square, WHITE);
       detail::KINGZONE[color][square] = color == WHITE ? sqv | kingAttack | (kingAttack << 8)
                                                        : sqv | kingAttack | (kingAttack >> 8);
+      detail::TWO_AROUND[square] = kingAttack 
+                                 | (kingAttack << 8) | (kingAttack >> 8) 
+                                 | ((kingAttack >> 1) & ~FILE_H) | ((kingAttack << 1) & ~FILE_A);
+
       // When king is on the side files (A and H) include
       // squares on the C and F files to the kingzone
       if (_col(square) == 0){
@@ -536,6 +541,13 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[KNIGHT];
         eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[KNIGHT];
       }
+
+      // Adjust Knight value based on nearby enemy pieces and pawns
+      s += KNIGHT_PROT_OUTPOST_ADJ * _popCount((board.getAllPieces(otherColor) ^ board.getPieces(otherColor, PAWN)) & detail::TWO_AROUND[square]);
+      if (TRACK) ft.KnightProtOutAdj[color] += _popCount((board.getAllPieces(otherColor) ^ board.getPieces(otherColor, PAWN)) & detail::TWO_AROUND[square]);
+
+      s += KNIGHT_GEN_OUTPOST_ADJ * _popCount(board.getPieces(otherColor, PAWN) & detail::TWO_AROUND[square]);
+      if (TRACK) ft.KnightGenOutAdj[color] += _popCount(board.getPieces(otherColor, PAWN) & detail::TWO_AROUND[square]);
 
       // See if a Knight is attacking an enemy unprotected pawn
       s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
