@@ -132,10 +132,10 @@ evalBits Eval::Setupbits(const Board &board){
   for (auto color : { WHITE, BLACK }) {
     U64 pBB = board.getPieces(color, PAWN);
 
-    eB.EnemyPawnAttackMap[!color] = color == WHITE ? ((pBB << 9) & ~FILE_A) | ((pBB << 7) & ~FILE_H)
-                                                   : ((pBB >> 9) & ~FILE_H) | ((pBB >> 7) & ~FILE_A);
+    eB.SquaresAttackedBy[color][PAWN] = color == WHITE ? ((pBB << 9) & ~FILE_A) | ((pBB << 7) & ~FILE_H)
+                                                       : ((pBB >> 9) & ~FILE_H) | ((pBB >> 7) & ~FILE_A);
 
-    attFrontSpawn[color] = eB.EnemyPawnAttackMap[!color] | (color == WHITE ? eB.EnemyPawnAttackMap[!color] << 8 : eB.EnemyPawnAttackMap[!color] >> 8);
+    attFrontSpawn[color] = eB.SquaresAttackedBy[color][PAWN] | (color == WHITE ? eB.SquaresAttackedBy[color][PAWN] << 8 : eB.SquaresAttackedBy[color][PAWN] >> 8);
     attFrontSpawn[color] |= color == WHITE ? attFrontSpawn[color] << 16 : attFrontSpawn[color] >> 16;
     attFrontSpawn[color] |= color == WHITE ? attFrontSpawn[color] << 32 : attFrontSpawn[color] >> 32;
 
@@ -153,10 +153,10 @@ evalBits Eval::Setupbits(const Board &board){
   }
 
   eB.PossibleGenOutposts[WHITE] = pawnFrontSpans[BLACK] & ~attFrontSpawn[BLACK];
-  eB.PossibleProtOutposts[WHITE] = ~attFrontSpawn[BLACK] & eB.EnemyPawnAttackMap[BLACK];
+  eB.PossibleProtOutposts[WHITE] = ~attFrontSpawn[BLACK] & eB.SquaresAttackedBy[BLACK][PAWN];
 
   eB.PossibleGenOutposts[BLACK] = pawnFrontSpans[WHITE] & ~attFrontSpawn[WHITE];
-  eB.PossibleProtOutposts[BLACK] = ~attFrontSpawn[WHITE] & eB.EnemyPawnAttackMap[WHITE];
+  eB.PossibleProtOutposts[BLACK] = ~attFrontSpawn[WHITE] & eB.SquaresAttackedBy[WHITE][PAWN];
 
   eB.RammedCount =  _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN)) +
                    (_popCount((board.getPieces(BLACK, PAWN) >> 8) & doubleAttacked[WHITE]) +
@@ -165,8 +165,6 @@ evalBits Eval::Setupbits(const Board &board){
   eB.KingAttackers[0] = 0, eB.KingAttackers[1] = 0;
   eB.KingAttackPower[0] = START_ATTACK_VALUE, eB.KingAttackPower[1] = START_ATTACK_VALUE;
   eB.Passers[0] = 0, eB.Passers[1] = 0;
-  eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
-  eB.AttackedByKing[0] = 0, eB.AttackedByKing[1] = 0;
   return eB;
 }
 
@@ -282,11 +280,12 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, evalBits * eB
 inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
   int s = 0;
 
+  Color otherColor = getOppositeColor(color);
   U64 pieces = board.getPieces(color, QUEEN);
 
   // Apply penalty for each Queen attacked by enemy pawn
-  s += HANGING_PIECE[QUEEN] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
-  if (TRACK) ft.HangingPiece[QUEEN][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
+  s += HANGING_PIECE[QUEEN] * (_popCount(pieces & eB->SquaresAttackedBy[otherColor][PAWN]));
+  if (TRACK) ft.HangingPiece[QUEEN][color] += (_popCount(pieces & eB->SquaresAttackedBy[otherColor][PAWN]));
 
   while (pieces) {
     int square = _popLsb(pieces);
@@ -298,21 +297,21 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
 
     // Mobility calculations
     // Note: Queen NOT using scanning mobility
-    U64 attackBitBoard = board.getMobilityForSquare(QUEEN, color, square, eB->EnemyPawnAttackMap[color]);
+    U64 attackBitBoard = board.getMobilityForSquare(QUEEN, color, square, eB->SquaresAttackedBy[otherColor][PAWN]);
     s += QUEEN_MOBILITY[_popCount(attackBitBoard)];
     if (TRACK) ft.QueenMobility[_popCount(attackBitBoard)][color]++;
 
     // Save our attacks for further use
-    eB->AttackedSquares[color] |= attackBitBoard;
+    eB->SquaresAttackedBy[color][QUEEN] |= attackBitBoard;
 
     // See if a Queen is attacking an enemy unprotected pawn
-    s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
-    if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
+    s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(otherColor, PAWN));
+    if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(otherColor, PAWN));
 
     // If Queen attacking squares near enemy king
     // Adjust our kind Danger code
     int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
-    int kingChecks = _popCount(attackBitBoard & board.getAttacksForSquare(QUEEN, getOppositeColor(color), eB->EnemyKingSquare[color]));
+    int kingChecks = _popCount(attackBitBoard & board.getAttacksForSquare(QUEEN, otherColor, eB->EnemyKingSquare[color]));
     if (kingAttack > 0 || kingChecks > 0){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[QUEEN];
@@ -327,11 +326,11 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
   int s = 0;
   Color otherColor = getOppositeColor(color);
   U64 pieces = board.getPieces(color, ROOK);
-  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~board.getPieces(otherColor, QUEEN);
+  U64 mobZoneAdjusted  = eB->SquaresAttackedBy[otherColor][PAWN] & ~board.getPieces(otherColor, QUEEN);
 
   // Apply penalty for each Rook attacked by enemy pawn
-  s += HANGING_PIECE[ROOK] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
-  if (TRACK) ft.HangingPiece[ROOK][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
+  s += HANGING_PIECE[ROOK] * (_popCount(pieces & eB->SquaresAttackedBy[otherColor][PAWN]));
+  if (TRACK) ft.HangingPiece[ROOK][color] += (_popCount(pieces & eB->SquaresAttackedBy[otherColor][PAWN]));
 
   while (pieces) {
     int square = _popLsb(pieces);
@@ -347,7 +346,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     if (TRACK) ft.RookMobility[_popCount(attackBitBoard)][color]++;
 
     // Save our attacks for further use
-    eB->AttackedSquares[color] |= attackBitBoard;
+    eB->SquaresAttackedBy[color][ROOK] |= attackBitBoard;
 
     // RookAttackMinor
     U64 RookAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
@@ -401,7 +400,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
 
   U64 pieces = board.getPieces(color, BISHOP);
   Color otherColor = getOppositeColor(color);
-  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
+  U64 mobZoneAdjusted  = eB->SquaresAttackedBy[otherColor][PAWN] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
 
   // Bishop pair
   if (_popCount(pieces) > 1){
@@ -414,8 +413,8 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
   if (TRACK) ft.BishopRammed[color] += eB->RammedCount * _popCount(pieces);
 
   // Apply a penalty for each Bishop attacked by enemy pawn
-  s += HANGING_PIECE[BISHOP] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
-  if (TRACK) ft.HangingPiece[BISHOP][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
+  s += HANGING_PIECE[BISHOP] * (_popCount(pieces & eB->SquaresAttackedBy[otherColor][PAWN]));
+  if (TRACK) ft.HangingPiece[BISHOP][color] += (_popCount(pieces & eB->SquaresAttackedBy[otherColor][PAWN]));
 
     while (pieces) {
 
@@ -432,7 +431,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       if (TRACK) ft.BishopMobility[_popCount(attackBitBoard)][color]++;
 
       // Save our attacks for further use
-      eB->AttackedSquares[color] |= attackBitBoard;
+      eB->SquaresAttackedBy[color][BISHOP] |= attackBitBoard;
 
       // BishopAttackMinor
       U64 BishopAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
@@ -494,11 +493,11 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
   int s = 0;
   U64 pieces = board.getPieces(color, KNIGHT);
   Color otherColor = getOppositeColor(color);
-  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
+  U64 mobZoneAdjusted  = eB->SquaresAttackedBy[otherColor][PAWN] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
 
   // Apply penalty for each Knight attacked by opponents pawn
-  s += HANGING_PIECE[KNIGHT] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
-  if (TRACK) ft.HangingPiece[KNIGHT][color] += (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
+  s += HANGING_PIECE[KNIGHT] * (_popCount(pieces & eB->SquaresAttackedBy[otherColor][PAWN]));
+  if (TRACK) ft.HangingPiece[KNIGHT][color] += (_popCount(pieces & eB->SquaresAttackedBy[otherColor][PAWN]));
 
     while (pieces) {
 
@@ -515,7 +514,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       if (TRACK) ft.KnigthMobility[_popCount(attackBitBoard)][color]++;
 
       // Save our attacks for further use
-      eB->AttackedSquares[color] |= attackBitBoard;
+      eB->SquaresAttackedBy[color][KNIGHT] |= attackBitBoard;
 
       // KnightAttackMinor
       U64 KnightAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
@@ -577,7 +576,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   Color otherColor = getOppositeColor(color);
 
   // Mobility
-  U64 attackBitBoard = board.getMobilityForSquare(KING, color, square, eB->EnemyPawnAttackMap[color]);
+  U64 attackBitBoard = board.getMobilityForSquare(KING, color, square, eB->SquaresAttackedBy[otherColor][PAWN]);
   s += KING_MOBILITY[_popCount(attackBitBoard)];
   if (TRACK) ft.KingMobility[_popCount(attackBitBoard)][color]++;
   if (TRACK){
@@ -586,7 +585,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   }
 
   // Save our attacks for further use
-  eB->AttackedByKing[color] |= attackBitBoard;
+  eB->SquaresAttackedBy[color][KING] |= attackBitBoard;
 
   // See if our king is on the Openish-files
   // Test for Open - SemiOpenToUs - SemiOpenToEnemy
@@ -702,14 +701,14 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
     // add penalties for the doubled pawns
     if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0 &&
-        !((ONE << square) & eB->EnemyPawnAttackMap[color])){
+        !((ONE << square) & eB->SquaresAttackedBy[otherColor][PAWN])){
       if (TRACK) ft.PawnDoubled[color]++;
       s += DOUBLED_PAWN_PENALTY;
     }
 
     // score a pawn if it is isolated
     if (!(detail::NEIGHBOR_FILES[pawnCol] & pawns) &&
-        !((ONE << square) & eB->EnemyPawnAttackMap[color])){
+        !((ONE << square) & eB->SquaresAttackedBy[otherColor][PAWN])){
       if (TRACK) ft.PawnIsolated[color]++;
       s += ISOLATED_PAWN_PENALTY;
     }
@@ -720,7 +719,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       s += PAWN_CONNECTED[relSqv];
     }
 
-    if ((ONE << square) & eB->EnemyPawnAttackMap[otherColor]){
+    if ((ONE << square) & eB->SquaresAttackedBy[otherColor][PAWN]){
       if (TRACK) ft.PawnSupported[relSqv][color]++;
       s += PAWN_SUPPORTED[relSqv];
     }
@@ -733,8 +732,16 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   int s = 0;
   Color otherColor = getOppositeColor(color);
   U64 pieces, tmpPawns = ZERO;
-  U64 AllOurAttacks = eB->AttackedSquares[color] | eB->AttackedByKing[color];
-  U64 AllTheirAttacks = eB->AttackedSquares[otherColor] | eB->AttackedByKing[otherColor];
+
+  U64 AllOurPiecesAttack = eB->SquaresAttackedBy[color][KNIGHT] | eB->SquaresAttackedBy[color][BISHOP]
+                         | eB->SquaresAttackedBy[color][QUEEN]  | eB->SquaresAttackedBy[color][ROOK];
+
+  U64 AllOurAttacks = AllOurPiecesAttack | eB->SquaresAttackedBy[color][KING];
+
+  U64 AllTheirPiecesAttack = eB->SquaresAttackedBy[otherColor][KNIGHT] | eB->SquaresAttackedBy[otherColor][BISHOP]
+                           | eB->SquaresAttackedBy[otherColor][QUEEN]  | eB->SquaresAttackedBy[otherColor][ROOK];
+
+  U64 AllTheirAttacks = AllTheirPiecesAttack | eB->SquaresAttackedBy[otherColor][KING];
 
   // 1. Blocked pawns - separate for passers and non-passers
 
@@ -853,7 +860,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   }
 
-  int unContested = _popCount(eB->AttackedSquares[color] & eB->EnemyKingZone[color] & ~eB->AttackedSquares[otherColor]);
+  int unContested = _popCount(AllOurPiecesAttack & eB->EnemyKingZone[color] & ~AllTheirPiecesAttack);
   eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
   if (board.getActivePlayer() == color) eB->KingAttackPower[color] += ATTACK_TEMPO;
 
