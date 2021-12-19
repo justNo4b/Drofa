@@ -153,10 +153,10 @@ evalBits Eval::Setupbits(const Board &board){
   }
 
   eB.PossibleGenOutposts[WHITE] = pawnFrontSpans[BLACK] & ~attFrontSpawn[BLACK];
-  eB.PossibleProtOutposts[WHITE] = ~attFrontSpawn[BLACK] & eB.SquaresAttackedBy[BLACK][PAWN];
+  eB.PossibleProtOutposts[WHITE] = ~attFrontSpawn[BLACK] & eB.SquaresAttackedBy[WHITE][PAWN];
 
   eB.PossibleGenOutposts[BLACK] = pawnFrontSpans[WHITE] & ~attFrontSpawn[WHITE];
-  eB.PossibleProtOutposts[BLACK] = ~attFrontSpawn[WHITE] & eB.SquaresAttackedBy[WHITE][PAWN];
+  eB.PossibleProtOutposts[BLACK] = ~attFrontSpawn[WHITE] & eB.SquaresAttackedBy[BLACK][PAWN];
 
   eB.RammedCount =  _popCount((board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN)) +
                    (_popCount((board.getPieces(BLACK, PAWN) >> 8) & doubleAttacked[WHITE]) +
@@ -719,7 +719,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       s += PAWN_CONNECTED[relSqv];
     }
 
-    if ((ONE << square) & eB->SquaresAttackedBy[otherColor][PAWN]){
+    if ((ONE << square) & eB->SquaresAttackedBy[color][PAWN]){
       if (TRACK) ft.PawnSupported[relSqv][color]++;
       s += PAWN_SUPPORTED[relSqv];
     }
