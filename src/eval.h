@@ -149,6 +149,8 @@ const int MINOR_BLOCK_OWN_PAWN = gS(-8,-1);
 
 const int MINOR_BLOCK_OWN_PASSER = gS(0,-5);
 
+const int ROOK_CAN_GO_SEVENTH = gS(0,0);
+
 const int KING_AHEAD_PASSER = gS(-11,14);
 
 const int KING_EQUAL_PASSER = gS(12,7);
@@ -232,10 +234,6 @@ const int ROOK_SEMI_FILE_BONUS[2] = {
  */
 const int HANGING_PIECE[5] = {
            gS(0,18), gS(-66,-41), gS(-50,-47), gS(-54,-66), gS(-49,-30),
-};
-
-const int KNIGHT_KING_FORK_POS[5] = {
-          gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0)
 };
 
 const int MINOR_ATTACKED_BY[4] = {

@@ -251,6 +251,7 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.MinorBehindPasser[WHITE] - ft.MinorBehindPasser[BLACK];
     coeff[i++] = ft.MinorBlockOwn[WHITE] - ft.MinorBlockOwn[BLACK];
     coeff[i++] = ft.MinorBlockOwnPassed[WHITE] - ft.MinorBlockOwnPassed[BLACK];
+    coeff[i++] = ft.RookCanGoSeventh[WHITE] - ft.RookCanGoSeventh[BLACK];
     coeff[i++] = ft.KingAheadPasser[WHITE] - ft.KingAheadPasser[BLACK];
     coeff[i++] = ft.KingEqualPasser[WHITE] - ft.KingEqualPasser[BLACK];
     coeff[i++] = ft.KingBehindPasser[WHITE] - ft.KingBehindPasser[BLACK];
@@ -309,10 +310,6 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 5; j++){
         coeff[i++] = ft.HangingPiece[j][WHITE] - ft.HangingPiece[j][BLACK];
-    }
-
-    for (int j = 0; j < 5; j++){
-        coeff[i++] = ft.KnightKingForkPossible[j][WHITE] - ft.KnightKingForkPossible[j][BLACK];
     }
 
     for (int j = 0; j < 4; j++){
