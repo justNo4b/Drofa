@@ -162,7 +162,6 @@ evalBits Eval::Setupbits(const Board &board){
                    (_popCount((board.getPieces(BLACK, PAWN) >> 8) & doubleAttacked[WHITE]) +
                     _popCount((board.getPieces(WHITE, PAWN) << 8) & doubleAttacked[BLACK]) / 2);
 
-  eB.OutPostedLines[0] = 0, eB.OutPostedLines[1] = 0;
   eB.KingAttackers[0] = 0, eB.KingAttackers[1] = 0;
   eB.KingAttackPower[0] = START_ATTACK_VALUE, eB.KingAttackPower[1] = START_ATTACK_VALUE;
   eB.Passers[0] = 0, eB.Passers[1] = 0;
@@ -381,14 +380,16 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     // we differentiate between open/semiopen based on
     // if there are enemys protected outpost here
     U64 file = detail::FILES[_col(square)];
+    U64 outPostedPieces = eB->PossibleProtOutposts[otherColor] & (board.getPieces(otherColor, BISHOP) | board.getPieces(otherColor, KNIGHT));
+
     if ( ((file & board.getPieces(color, PAWN)) == 0)
       && ((file & board.getPieces(otherColor, PAWN)) == 0)){
-      s += ROOK_OPEN_FILE_BONUS[((file & eB->OutPostedLines[otherColor]) != 0)];
-      if (TRACK) ft.RookOpenFile[((file & eB->OutPostedLines[otherColor]) != 0)][color]++;
+      s += ROOK_OPEN_FILE_BONUS[((file & outPostedPieces) != 0)];
+      if (TRACK) ft.RookOpenFile[((file & outPostedPieces) != 0)][color]++;
     }
     else if ((file & board.getPieces(color, PAWN)) == 0){
-      s += ROOK_SEMI_FILE_BONUS[((file & eB->OutPostedLines[otherColor]) != 0)];
-      if (TRACK) ft.RookHalfFile[((file & eB->OutPostedLines[otherColor]) != 0)][color]++;
+      s += ROOK_SEMI_FILE_BONUS[((file & outPostedPieces) != 0)];
+      if (TRACK) ft.RookHalfFile[((file & outPostedPieces) != 0)][color]++;
     }
   }
 
@@ -479,7 +480,6 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       // if there is pawn in front spawn of outposted piece
       if (eB->PossibleProtOutposts[color] & (ONE << square)){
         s += BISHOP_PROT_OUTPOST_BLACK[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]];
-        eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
         if (TRACK) ft.BishopOutProtBlack[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]][color]++;
       } else if (eB->PossibleGenOutposts[color] & (ONE << square)){
         s += BISHOP_OUTPOST_BLACK[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]];
@@ -560,7 +560,6 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
 
       if (eB->PossibleProtOutposts[color] & (ONE << square)){
         s += KNIGHT_PROT_OUTPOST_BLACK[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]];
-        eB->OutPostedLines[color] = eB->OutPostedLines[color] | detail::FILES[_col(square)];
         if (TRACK) ft.KnightOutProtBlack[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]][color]++;
       } else if (eB->PossibleGenOutposts[color] & (ONE << square)){
         s += KNIGHT_OUTPOST_BLACK[color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square]];

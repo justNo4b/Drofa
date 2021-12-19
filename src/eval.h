@@ -11,7 +11,6 @@
 
 struct evalBits{
     U64 EnemyPawnAttackMap[2];
-    U64 OutPostedLines[2];
     U64 PossibleProtOutposts[2];
     U64 PossibleGenOutposts[2];
     U64 EnemyKingZone[2];
