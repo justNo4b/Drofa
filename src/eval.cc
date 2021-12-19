@@ -168,7 +168,6 @@ evalBits Eval::Setupbits(const Board &board){
   eB.KingAttackPower[0] = START_ATTACK_VALUE, eB.KingAttackPower[1] = START_ATTACK_VALUE;
   eB.Passers[0] = 0, eB.Passers[1] = 0;
   eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
-  std::memset(eB.AttackedByPieces, 0, sizeof(eB.AttackedByPieces));
   return eB;
 }
 
@@ -306,7 +305,6 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
 
     // Save our attacks for further use
     eB->AttackedSquares[color] |= attackBitBoard;
-    eB->AttackedByPieces[color][QUEEN] |= attackBitBoard;
 
     // See if a Queen is attacking an enemy unprotected pawn
     s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
@@ -435,7 +433,6 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
 
       // Save our attacks for further use
       eB->AttackedSquares[color] |= attackBitBoard;
-      eB->AttackedByPieces[color][BISHOP] |= attackBitBoard;
 
       // BishopAttackMinor
       U64 BishopAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
@@ -520,7 +517,6 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
 
       // Save our attacks for further use
       eB->AttackedSquares[color] |= attackBitBoard;
-      eB->AttackedByPieces[color][KNIGHT] |= attackBitBoard;
 
       // KnightAttackMinor
       U64 KnightAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
