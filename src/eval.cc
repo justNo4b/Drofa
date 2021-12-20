@@ -10,13 +10,8 @@
 extern HASH * myHASH;
 extern posFeatured ft;
 
-int MATERIAL_VALUES_TUNABLE[6] = {
-        [PAWN] = 0,
-        [ROOK] = 0,
-        [KNIGHT] = 0,
-        [BISHOP] = 0,
-        [QUEEN] = 0,
-        [KING] = 0
+int MATERIAL_VALUES_TUNABLE[2][5] = {
+    {0,22,16,92,34}, {0,0,0,0,0}
 };
 
 U64 Eval::detail::FILES[8] = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
@@ -168,8 +163,8 @@ evalBits Eval::Setupbits(const Board &board){
   return eB;
 }
 
-void Eval::SetupTuning(PieceType piece, int value){
-  MATERIAL_VALUES_TUNABLE [piece] = value;
+void Eval::SetupTuning(int st, PieceType piece, int value){
+  MATERIAL_VALUES_TUNABLE [st][piece] = value;
 }
 
 int Eval::getMaterialValue(int phase, PieceType pieceType) {
@@ -315,7 +310,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     if (kingAttack > 0 || kingChecks > 0){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[QUEEN];
-      eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[QUEEN];
+      eB->KingAttackPower[color] += kingChecks * MATERIAL_VALUES_TUNABLE[0][QUEEN];
     }
   }
 
@@ -368,7 +363,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     if (kingAttack > 0 || kingChecks > 0){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[ROOK];
-      eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[ROOK];
+      eB->KingAttackPower[color] += kingChecks * MATERIAL_VALUES_TUNABLE[0][ROOK];
     }
 
     // See if a Rook is attacking an enemy unprotected pawn
@@ -459,7 +454,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       if (kingAttack > 0 || kingChecks > 0){
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[BISHOP];
-        eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[BISHOP];
+        eB->KingAttackPower[color] += kingChecks * MATERIAL_VALUES_TUNABLE[0][BISHOP];
       }
 
       // See if a Bishop is attacking an enemy unprotected pawn
@@ -533,7 +528,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       if (kingAttack > 0 || kingChecks > 0){
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[KNIGHT];
-        eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[KNIGHT];
+        eB->KingAttackPower[color] += kingChecks * MATERIAL_VALUES_TUNABLE[0][KNIGHT];
       }
 
       // See if a Knight is attacking an enemy unprotected pawn
@@ -893,7 +888,7 @@ inline int Eval::PiecePieceInteraction(const Board &board, Color color, evalBits
       safeCheckPossible |= eB->SquaresAttackedBy[color][pt] & allOther & ~AllTheirPiecesAttack &
                            board.getAttacksForSquare(KING, otherColor, enemyKingSquare);
     }
-    eB->KingAttackPower[color] += _popCount(safeCheckPossible) * SAFE_CHECK_POWER[pt];
+    eB->KingAttackPower[color] += _popCount(safeCheckPossible) * MATERIAL_VALUES_TUNABLE[1][pt];
   }
 
   return s;
@@ -1005,6 +1000,9 @@ int Eval::evaluate(const Board &board, Color color) {
   // Interactions between pieces and pawns
   score +=  PiecePawnInteraction(board, color, &eB)
           - PiecePawnInteraction(board, otherColor, &eB);
+
+  score +=  PiecePieceInteraction(board, color, &eB)
+          - PiecePieceInteraction(board, otherColor, &eB);
 
   score +=  kingShieldSafety(board, color, &eB)
           - kingShieldSafety(board, otherColor, &eB);

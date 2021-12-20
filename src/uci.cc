@@ -52,16 +52,20 @@ void changeThreadsNumber(){
   myTHREADSCOUNT = tNum;
 }
 
-#ifdef _TUNE_
+
 void loadCosts(){
 
-Eval::SetupTuning(KNIGHT, atoi(optionsMap["cKnight"].getValue().c_str()));
-Eval::SetupTuning(BISHOP, atoi(optionsMap["cBishop"].getValue().c_str()));
+Eval::SetupTuning(0, KNIGHT, atoi(optionsMap["cgKnight"].getValue().c_str()));
+Eval::SetupTuning(0, BISHOP, atoi(optionsMap["cgBishop"].getValue().c_str()));
+Eval::SetupTuning(0, ROOK, atoi(optionsMap["cgRook"].getValue().c_str()));
+Eval::SetupTuning(0, QUEEN, atoi(optionsMap["cgQueen"].getValue().c_str()));
 
-Eval::SetupTuning(ROOK, atoi(optionsMap["cRook"].getValue().c_str()));
-Eval::SetupTuning(QUEEN, atoi(optionsMap["cQueen"].getValue().c_str()));
+Eval::SetupTuning(1, KNIGHT, atoi(optionsMap["cgKnight"].getValue().c_str()));
+Eval::SetupTuning(1, BISHOP, atoi(optionsMap["cgBishop"].getValue().c_str()));
+Eval::SetupTuning(1, ROOK, atoi(optionsMap["cgRook"].getValue().c_str()));
+Eval::SetupTuning(1, QUEEN, atoi(optionsMap["cgQueen"].getValue().c_str()));
 }
-#endif
+
 
 void initOptions() {
   optionsMap["OwnBook"] = Option(false);
@@ -77,12 +81,15 @@ void initOptions() {
   // to change different parameters via communocation
   // with the engine.
 
-#ifdef _TUNE_
-  optionsMap["cKnight"] =   Option(0, 0, 150, &loadCosts);
-  optionsMap["cBishop"] =   Option(0, 0, 150, &loadCosts);
-  optionsMap["cRook"] =     Option(0, 0, 150, &loadCosts);
-  optionsMap["cQueen"] =    Option(0, 0, 150, &loadCosts);
-#endif
+  optionsMap["cgKnight"] =   Option(22, 0, 150, &loadCosts);
+  optionsMap["cgBishop"] =   Option(16, 0, 150, &loadCosts);
+  optionsMap["cgRook"] =     Option(92, 0, 150, &loadCosts);
+  optionsMap["cgQueen"] =    Option(34, 0, 150, &loadCosts);
+
+  optionsMap["csKnight"] =   Option(0, 0, 150, &loadCosts);
+  optionsMap["csBishop"] =   Option(0, 0, 150, &loadCosts);
+  optionsMap["csRook"] =     Option(0, 0, 150, &loadCosts);
+  optionsMap["csQueen"] =    Option(0, 0, 150, &loadCosts);
 
 
 }
