@@ -104,6 +104,10 @@ extern U64 KING_PAWN_MASKS[2][2][8];
         0, 22, 16, 92, 34, 0
   };
 
+  const int SAFE_CHECK_POWER[6] = {
+        0, 22, 16, 92, 34
+  };
+
   const int COUNT_TO_POWER[8] = {0, 0, 51, 83, 102, 111, 122, 128};
   const int COUNT_TO_POWER_DIVISOR = 128;
   /**@}*/
@@ -460,7 +464,7 @@ inline bool IsItDeadDraw (const Board &, Color);
  * 3. Threats by pawn push
  */
 inline int PiecePawnInteraction(const Board &, Color, evalBits *);
-
+inline int PiecePieceInteraction(const Board &, Color, evalBits *);
 /**
  * @brief Taper evaluation between Opening and Endgame and scale it
  * if there is some specific endgame position

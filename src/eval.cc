@@ -867,6 +867,38 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   return s;
 }
 
+inline int Eval::PiecePieceInteraction(const Board &board, Color color, evalBits * eB){
+
+  int s = 0;
+  Color otherColor = getOppositeColor(color);
+  // 1. Evaluate ability of our side to give an opponent safe checks
+  // It is kinda double work, cause we already evaluated general checks,
+  // but we need general checks to get # of attackers
+  int enemyKingSquare = _bitscanForward(board.getPieces(otherColor, KING));
+  U64 AllOurPiecesAttack = eB->SquaresAttackedBy[color][KNIGHT] | eB->SquaresAttackedBy[color][BISHOP]
+                         | eB->SquaresAttackedBy[color][QUEEN]  | eB->SquaresAttackedBy[color][ROOK];
+
+  U64 AllTheirPiecesAttack = eB->SquaresAttackedBy[otherColor][KNIGHT] | eB->SquaresAttackedBy[otherColor][BISHOP]
+                           | eB->SquaresAttackedBy[otherColor][QUEEN]  | eB->SquaresAttackedBy[otherColor][ROOK];
+
+  U64 AllTheirAttacks = AllTheirPiecesAttack | eB->SquaresAttackedBy[otherColor][KING];
+
+  for (auto pt : { ROOK, KNIGHT, BISHOP, QUEEN }){
+    U64 potentialChecks = board.getAttacksForSquare(pt, otherColor, enemyKingSquare) & eB->SquaresAttackedBy[color][pt];
+    U64 safeCheckPossible =  potentialChecks & ~AllTheirAttacks;
+    // For Q and R calculate in face checks. For them we have to have double-attack vs sq
+    if (pt == ROOK || pt == QUEEN){
+      U64 allOther = eB->SquaresAttackedBy[color][KNIGHT] | eB->SquaresAttackedBy[color][BISHOP] |
+                     (pt == ROOK ? eB->SquaresAttackedBy[color][QUEEN] : eB->SquaresAttackedBy[color][ROOK]);
+      safeCheckPossible |= eB->SquaresAttackedBy[color][pt] & allOther & ~AllTheirPiecesAttack &
+                           board.getAttacksForSquare(KING, otherColor, enemyKingSquare);
+    }
+    eB->KingAttackPower[color] += _popCount(safeCheckPossible) * SAFE_CHECK_POWER[pt];
+  }
+
+  return s;
+}
+
 inline int Eval::kingDanger(Color color, const evalBits * eB){
   int attackScore = eB->KingAttackPower[color] * COUNT_TO_POWER[std::min(7, eB->KingAttackers[color])] / COUNT_TO_POWER_DIVISOR;
   return gS(std::max(0, attackScore), 0);
