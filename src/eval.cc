@@ -315,7 +315,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     if (kingAttack > 0 || kingChecksCount > 0){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[QUEEN];
-      eB->KingAttackPower[color] += (kingChecks - KingFaceChecksCount) * PIECE_CHECK_POWER[QUEEN];
+      eB->KingAttackPower[color] += (kingChecksCount - KingFaceChecksCount) * PIECE_CHECK_POWER[QUEEN];
       eB->KingAttackPower[color] += KingFaceChecksCount * 50;
     }
 
