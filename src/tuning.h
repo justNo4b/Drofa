@@ -56,6 +56,7 @@ struct posFeatured{
     int RookOpenFile[2][2];
     int RookHalfFile[2][2];
     int HangingPiece[5][2];
+    int KnightKingForkPossible[5][2];
     int MinorAttackedBy[4][2];
     int RookAttackedBy[4][2];
     int QueenAttackedBy[4][2];

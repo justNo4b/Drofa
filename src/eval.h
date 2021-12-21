@@ -231,6 +231,10 @@ const int HANGING_PIECE[5] = {
            gS(0,18), gS(-66,-41), gS(-50,-47), gS(-54,-66), gS(-49,-30),
 };
 
+const int KNIGHT_KING_FORK_POS[5] = {
+           gS(6,13), gS(17,11), gS(0,0), gS(7,10), gS(2,0),
+};
+
 const int MINOR_ATTACKED_BY[4] = {
            gS(0,0), gS(17,33), gS(15,35), gS(15,31),
 };
@@ -460,6 +464,7 @@ inline bool IsItDeadDraw (const Board &, Color);
  * 3. Threats by pawn push
  */
 inline int PiecePawnInteraction(const Board &, Color, evalBits *);
+inline int PiecePieceInteraction(const Board &, Color, evalBits *);
 
 /**
  * @brief Taper evaluation between Opening and Endgame and scale it

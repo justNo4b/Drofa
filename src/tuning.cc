@@ -311,6 +311,10 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.HangingPiece[j][WHITE] - ft.HangingPiece[j][BLACK];
     }
 
+    for (int j = 0; j < 5; j++){
+        coeff[i++] = ft.KnightKingForkPossible[j][WHITE] - ft.KnightKingForkPossible[j][BLACK];
+    }
+
     for (int j = 0; j < 4; j++){
         coeff[i++] = ft.MinorAttackedBy[j][WHITE] - ft.MinorAttackedBy[j][BLACK];
     }
