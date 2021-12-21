@@ -581,10 +581,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         int score;
 
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
-        int  moveHistory  = isQuiet ?
-                            _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) :
-                            _orderingInfo.getCaptureHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo());
-        int cmHistory     = isQuiet ? _orderingInfo.getCountermoveHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo()) : 0;
         int tDepth = depth;
         // 6. EXTENTIONS
         //
@@ -630,6 +626,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               tDepth++;
             }
 
+        int  moveHistory  = isQuiet ?
+                            _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) :
+                            _orderingInfo.getCaptureHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo());
+        int cmHistory     = isQuiet ? _orderingInfo.getCountermoveHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo()) : 0;
         _posHist.Add(board.getZKey().getValue());
         _sStack.AddMove(move.getMoveINT());
 
