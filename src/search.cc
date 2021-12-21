@@ -767,8 +767,12 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
   // Check for checkmate and stalemate
+  // LOST_SCORE = checkmate, 0 = stalemate (draw)
+  // If it is the only legal move (singular search and LMC = 0) return alpha
   if (LegalMoveCount == 0) {
-    score = AreWeInCheck ? LOST_SCORE + ply : 0; // LOST_SCORE = checkmate, 0 = stalemate (draw)
+    score = sing ? alpha :
+            AreWeInCheck ? LOST_SCORE + ply :
+            0;
     up_pV->length = 0;
     return score;
   }
