@@ -390,6 +390,9 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     else if ((file & board.getPieces(color, PAWN)) == 0){
       s += ROOK_SEMI_FILE_BONUS[((file & outPostedPieces) != 0)];
       if (TRACK) ft.RookHalfFile[((file & outPostedPieces) != 0)][color]++;
+    }else if ((file & board.getPieces(color, PAWN) & eB->EnemyPawnAttackMap[color]) != 0){
+      s += ROOK_TENSION_LINE;
+      if (TRACK) ft.RookTensionLine[color]++;
     }
   }
 
