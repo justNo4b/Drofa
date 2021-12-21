@@ -311,7 +311,8 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
     U64 kingChecks = attackBitBoard & board.getAttacksForSquare(QUEEN, getOppositeColor(color), eB->EnemyKingSquare[color]);
     int kingChecksCount = _popCount(kingChecks);
-    int KingFaceChecksCount = _popCount(kingChecks & board.getAttacksForSquare(KING, getOppositeColor(color), eB->EnemyKingSquare[color]) & eB->AttackedSquares[color]);
+    int KingFaceChecksCount = (!_isEdgeSquare(eB->EnemyKingSquare[color])) ? 0
+                            : _popCount(kingChecks & board.getAttacksForSquare(KING, getOppositeColor(color), eB->EnemyKingSquare[color]) & eB->AttackedSquares[color]);
     if (kingAttack > 0 || kingChecksCount > 0){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[QUEEN];

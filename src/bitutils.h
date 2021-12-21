@@ -119,4 +119,9 @@ inline int _mir(int square){
   return square ^ 56;
 }
 
+inline bool _isEdgeSquare(int square){
+  return (_col(square) == 0) || (_col(square) == 7) ||
+         (_row(square) == 0) || (_row(square) == 7);
+}
+
 #endif
