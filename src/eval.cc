@@ -331,6 +331,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
   Color otherColor = getOppositeColor(color);
   U64 pieces = board.getPieces(color, ROOK);
   U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~board.getPieces(otherColor, QUEEN);
+  U64 rammedPawns = (board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN);
 
   // Apply penalty for each Rook attacked by enemy pawn
   s += HANGING_PIECE[ROOK] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
@@ -393,6 +394,12 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     else if ((file & board.getPieces(color, PAWN)) == 0){
       s += ROOK_SEMI_FILE_BONUS[((file & outPostedPieces) != 0)];
       if (TRACK) ft.RookHalfFile[((file & outPostedPieces) != 0)][color]++;
+    }else if ((file & board.getPieces(color, PAWN) & eB->EnemyPawnAttackMap[color]) != 0){
+      s += ROOK_LINE_TENSION;
+      if (TRACK) ft.RookTensionLine[color]++;
+    }else if ((file & rammedPawns) != 0){
+      s += ROOK_RAMMED_LINE;
+      if (TRACK) ft.RookRammedLine[color]++;
     }
   }
 
