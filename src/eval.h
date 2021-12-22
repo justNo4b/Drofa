@@ -238,6 +238,10 @@ const int HANGING_PIECE[5] = {
            gS(0,19), gS(-67,-40), gS(-51,-46), gS(-54,-66), gS(-49,-31),
 };
 
+const int KNIGHT_CHECKING_FORK[5] = {
+          gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0),
+};
+
 const int MINOR_ATTACKED_BY[4] = {
            gS(0,0), gS(16,34), gS(15,36), gS(15,31),
 };
