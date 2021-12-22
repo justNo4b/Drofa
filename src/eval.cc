@@ -369,11 +369,15 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     // If Rook attacking squares near enemy king
     // Adjust our kind Danger code
     int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
-    int kingChecks = _popCount(attackBitBoard & board.getAttacksForSquare(ROOK, getOppositeColor(color), eB->EnemyKingSquare[color]));
-    if (kingAttack > 0 || kingChecks > 0){
+    U64 kingChecks = attackBitBoard & board.getAttacksForSquare(ROOK, getOppositeColor(color), eB->EnemyKingSquare[color]);
+    int kingChecksCount = _popCount(kingChecks);
+    int KingFaceChecksCount = _popCount(kingChecks & board.getAttacksForSquare(KING, getOppositeColor(color), eB->EnemyKingSquare[color]) & eB->AttackedSquares[color]);
+
+    if (kingAttack > 0 || kingChecksCount > 0){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[ROOK];
-      eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[ROOK];
+      eB->KingAttackPower[color] += (kingChecksCount -  KingFaceChecksCount) * PIECE_CHECK_POWER[ROOK];
+      eB->KingAttackPower[color] += KingFaceChecksCount * ROOK_FACE_CHECK;
     }
 
     // See if a Rook is attacking an enemy unprotected pawn
