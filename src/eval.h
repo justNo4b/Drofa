@@ -99,11 +99,11 @@ extern U64 KING_PAWN_MASKS[2][2][8];
   };
 
   const int PIECE_ATTACK_POWER[6] = {
-        0, 24, 50, 26, 62, 0
+        0, 24, 50, 26, 47, 0
   };
 
   const int PIECE_CHECK_POWER[6] = {
-        0, 22, 16, 92, 34, 0
+        0, 22, 16, 92, 26, 0
   };
 
   const int COUNT_TO_POWER[8] = {0, 0, 51, 83, 102, 111, 122, 128};
@@ -214,7 +214,7 @@ const int CANDIDATE_PASSED_PAWN[7] = {
 
 const int CANDIDATE_PASSED_PAWN_FILES[4] = {
            gS(10,13), gS(-1,7), gS(0,0), gS(-6,-3),
-};  
+};
 
 /**
  * @brief Bonuses given to a player for each rook on an Open and SemiOpen file

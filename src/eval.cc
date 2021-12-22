@@ -302,9 +302,6 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     s += QUEEN_MOBILITY[_popCount(attackBitBoard)];
     if (TRACK) ft.QueenMobility[_popCount(attackBitBoard)][color]++;
 
-    // Save our attacks for further use
-    eB->AttackedSquares[color] |= attackBitBoard;
-
     // See if a Queen is attacking an enemy unprotected pawn
     s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
     if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
@@ -312,12 +309,18 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     // If Queen attacking squares near enemy king
     // Adjust our kind Danger code
     int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
-    int kingChecks = _popCount(attackBitBoard & board.getAttacksForSquare(QUEEN, getOppositeColor(color), eB->EnemyKingSquare[color]));
-    if (kingAttack > 0 || kingChecks > 0){
+    U64 kingChecks = attackBitBoard & board.getAttacksForSquare(QUEEN, getOppositeColor(color), eB->EnemyKingSquare[color]);
+    int kingChecksCount = _popCount(kingChecks);
+    int KingFaceChecksCount = _popCount(kingChecks & board.getAttacksForSquare(KING, getOppositeColor(color), eB->EnemyKingSquare[color]) & eB->AttackedSquares[color]);
+    if (kingAttack > 0 || kingChecksCount > 0){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[QUEEN];
-      eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[QUEEN];
+      eB->KingAttackPower[color] += (kingChecksCount - KingFaceChecksCount) * PIECE_CHECK_POWER[QUEEN];
+      eB->KingAttackPower[color] += KingFaceChecksCount * 80;
     }
+
+    // Save our attacks for further use
+    eB->AttackedSquares[color] |= attackBitBoard;
   }
 
   return s;
