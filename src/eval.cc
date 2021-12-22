@@ -316,7 +316,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[QUEEN];
       eB->KingAttackPower[color] += (kingChecksCount - KingFaceChecksCount) * PIECE_CHECK_POWER[QUEEN];
-      eB->KingAttackPower[color] += KingFaceChecksCount * QUEEN_FACE_CHECK;
+      eB->KingAttackPower[color] += KingFaceChecksCount * QUEEN_FACE_CHECK[board.getActivePlayer() == color];
     }
 
     // Save our attacks for further use
