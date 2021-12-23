@@ -5,7 +5,7 @@
 #include "eval.h"
 #include "outposts.h"
 
-#define BIG_FEATURE_NUMBER (65)
+#define BIG_FEATURE_NUMBER (66)
 
 enum TuningType{
     ALL,
@@ -48,6 +48,7 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("MINOR_BLOCK_OWN_PASSER", false, &Eval::MINOR_BLOCK_OWN_PASSER, 1, 1, ALL),
     tFeature("ROOK_LINE_TENSION", false, &Eval::ROOK_LINE_TENSION, 1, 1, ALL),
     tFeature("ROOK_RAMMED_LINE", false, &Eval::ROOK_RAMMED_LINE, 1, 1, ALL),
+    tFeature("ROOK_RESTRICT_KING", false, &Eval::ROOK_RESTRICT_KING, 1, 1, ALL),
     tFeature("KING_AHEAD_PASSER", false, &Eval::KING_AHEAD_PASSER, 1, 1, ALL),
     tFeature("KING_EQUAL_PASSER", false, &Eval::KING_EQUAL_PASSER, 1, 1, ALL),
     tFeature("KING_BEHIND_PASSER", false, &Eval::KING_BEHIND_PASSER, 1, 1, ALL),

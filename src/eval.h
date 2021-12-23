@@ -153,6 +153,8 @@ const int ROOK_LINE_TENSION = gS(20,-2);
 
 const int ROOK_RAMMED_LINE = gS(-7,-8);
 
+const int ROOK_RESTRICT_KING = gS(0,0);
+
 const int KING_AHEAD_PASSER = gS(-11,14);
 
 const int KING_EQUAL_PASSER = gS(12,8);

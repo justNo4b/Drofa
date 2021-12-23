@@ -380,6 +380,14 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
     if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
 
+    // Evaluate rook restricting enemy king
+    if (((ONE << square) & SEMI_SIDE_RANKS) &&
+        ((ONE << eB->EnemyKingSquare[color]) & SIDE_RANKS) &&
+        (kingAttack > 0)){
+          s += ROOK_RESTRICT_KING;
+          if (TRACK) ft.RookRestrictKing[color]++;
+        }
+
     // Open/semiopen file detection
     // we differentiate between open/semiopen based on
     // if there are enemys protected outpost here

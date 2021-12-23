@@ -116,6 +116,9 @@ const U64 CENTER            = (ONE << e4) | (ONE << e5) | (ONE << d4) | (ONE << 
 const U64 FIGHTING_AREA     = RANK_3 | RANK_4 | RANK_5 | RANK_6;
 const U64 SIDE_FILES        = FILE_A | FILE_H;
 const U64 EXT_MIDDLE_FILES  = FILE_C | FILE_D | FILE_E | FILE_F;
+const U64 SIDE_RANKS        = RANK_1 | RANK_8;
+const U64 SEMI_SIDE_RANKS   = RANK_2 | RANK_7;
+
 const U64 PASSER_ZONE [2] = { (RANK_5 | RANK_6),
                               (RANK_3 | RANK_4) };
 const U64 ENEMY_SIDE [2]  = { (RANK_5 | RANK_6 | RANK_7 | RANK_8),
