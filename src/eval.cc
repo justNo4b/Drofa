@@ -609,6 +609,22 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   s += KING_ATTACK_PAWN * _popCount(attackBitBoard & enemyPawns);
   if (TRACK) ft.KingAttackPawn[color] += _popCount(attackBitBoard & enemyPawns);
 
+  // If King if on a back rank and cant move from it, 
+  // Apply a penalty
+  if (_row(square) == 0 || _row(square) == 7){
+    int rel_forward = _row(square) == 0 ? 8 : -8;
+    // No need to check for special cases (A and H files) as in is handled in the attackBitBoard
+    U64 leavingSquares = (ONE << (square + rel_forward)) |
+                         (ONE << (square + rel_forward - 1)) | 
+                         (ONE << (square + rel_forward + 1));
+
+    if ((attackBitBoard & leavingSquares & ~eB->AttackedSquares[otherColor]) == 0){
+      s += KING_CANT_MOVE_FROM_BACK;
+      if (TRACK) ft.KingCantLeaveBack[color]++;
+    }                     
+  }
+
+
   if (((file & ourPawns) == 0) && ((file & enemyPawns) == 0)){
     s += KING_OPEN_FILE;
     if (TRACK) ft.KingOpenFile[color]++;
