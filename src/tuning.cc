@@ -255,6 +255,8 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.MinorBehindPasser[WHITE] - ft.MinorBehindPasser[BLACK];
     coeff[i++] = ft.MinorBlockOwn[WHITE] - ft.MinorBlockOwn[BLACK];
     coeff[i++] = ft.MinorBlockOwnPassed[WHITE] - ft.MinorBlockOwnPassed[BLACK];
+    coeff[i++] = ft.RookTensionLine[WHITE] - ft.RookTensionLine[BLACK];
+    coeff[i++] = ft.RookRammedLine[WHITE] - ft.RookRammedLine[BLACK];
     coeff[i++] = ft.KingAheadPasser[WHITE] - ft.KingAheadPasser[BLACK];
     coeff[i++] = ft.KingEqualPasser[WHITE] - ft.KingEqualPasser[BLACK];
     coeff[i++] = ft.KingBehindPasser[WHITE] - ft.KingBehindPasser[BLACK];
@@ -267,7 +269,7 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.PassedPawnRank[j][WHITE] - ft.PassedPawnRank[j][BLACK];
     }
 
-    for (int j = 0; j < 8; j++){
+    for (int j = 0; j < 4; j++){
         coeff[i++] = ft.PassedPawnFile[j][WHITE] - ft.PassedPawnFile[j][BLACK];
     }
 
@@ -297,6 +299,10 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 7; j++){
         coeff[i++] = ft.CandidatePasser[j][WHITE] - ft.CandidatePasser[j][BLACK];
+    }
+
+    for (int j = 0; j < 4; j++){
+        coeff[i++] = ft.CandidatePasserFile[j][WHITE] - ft.CandidatePasserFile[j][BLACK];
     }
     
     for (int j = 0; j < 2; j++){

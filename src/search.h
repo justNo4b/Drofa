@@ -293,7 +293,7 @@ class Search {
    * @param  isSing is this a singular re- search
    * @return The score of the given board
    */
-  int _negaMax(const Board &, pV *myPV, int, int, int, bool);
+  int _negaMax(const Board &, pV *myPV, int, int, int, bool, bool);
 
   /**
    * @brief Performs a quiescence search

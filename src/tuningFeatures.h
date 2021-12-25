@@ -5,7 +5,11 @@
 #include "eval.h"
 #include "outposts.h"
 
+<<<<<<< HEAD
 #define BIG_FEATURE_NUMBER (66)
+=======
+#define BIG_FEATURE_NUMBER (65)
+>>>>>>> 161e40f1915786ff5af7659010557924ed267bfb
 
 enum TuningType{
     ALL,
@@ -50,6 +54,8 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("MINOR_BEHIND_PASSER", false, &Eval::MINOR_BEHIND_PASSER, 1, 1, ALL),
     tFeature("MINOR_BLOCK_OWN_PAWN", false, &Eval::MINOR_BLOCK_OWN_PAWN, 1, 1, ALL),
     tFeature("MINOR_BLOCK_OWN_PASSER", false, &Eval::MINOR_BLOCK_OWN_PASSER, 1, 1, ALL),
+    tFeature("ROOK_LINE_TENSION", false, &Eval::ROOK_LINE_TENSION, 1, 1, ALL),
+    tFeature("ROOK_RAMMED_LINE", false, &Eval::ROOK_RAMMED_LINE, 1, 1, ALL),
     tFeature("KING_AHEAD_PASSER", false, &Eval::KING_AHEAD_PASSER, 1, 1, ALL),
     tFeature("KING_EQUAL_PASSER", false, &Eval::KING_EQUAL_PASSER, 1, 1, ALL),
     tFeature("KING_BEHIND_PASSER", false, &Eval::KING_BEHIND_PASSER, 1, 1, ALL),
@@ -58,7 +64,7 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("KING_ENEMY_SEMI_LINE", false, &Eval::KING_ENEMY_SEMI_LINE, 1, 1, ALL),
     tFeature("KING_ATTACK_PAWN", false, &Eval::KING_ATTACK_PAWN, 1, 1, ALL),
     tFeature("PASSED_PAWN_RANKS", true, Eval::PASSED_PAWN_RANKS, 7, 4, ALL),
-    tFeature("PASSED_PAWN_FILES", true, Eval::PASSED_PAWN_FILES, 8, 4, ALL),
+    tFeature("PASSED_PAWN_FILES", true, Eval::PASSED_PAWN_FILES, 4, 10, ALL),
     tFeature("PASSED_PAWN_FREE", true, Eval::PASSED_PAWN_FREE, 7, 4, ALL),
     tFeature("PASSED_PAWN_POS_ADVANCE", true, Eval::PASSED_PAWN_POS_ADVANCE, 7, 4, ALL),
     tFeature("PASSED_PASSED_DISTANCE", true, Eval::PASSED_PASSED_DISTANCE, 8, 4, ALL),
@@ -66,6 +72,7 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("KING_PASSER_DISTANCE_ENEMY", true, Eval::KING_PASSER_DISTANCE_ENEMY, 8, 4, ALL),
     tFeature("KNIGHT_PASSER_DISTANCE_ENEMY", true, Eval::KNIGHT_PASSER_DISTANCE_ENEMY, 4, 10, ALL),
     tFeature("CANDIDATE_PASSED_PAWN", true, Eval::CANDIDATE_PASSED_PAWN, 7, 4, ALL),
+    tFeature("CANDIDATE_PASSED_PAWN_FILES", true, Eval::CANDIDATE_PASSED_PAWN_FILES, 4, 10, ALL),
     tFeature("ROOK_OPEN_FILE_BONUS", true, Eval::ROOK_OPEN_FILE_BONUS, 2, 10, ALL),
     tFeature("ROOK_SEMI_FILE_BONUS", true, Eval::ROOK_SEMI_FILE_BONUS, 2, 10, ALL),
     tFeature("HANGING_PIECE", true, Eval::HANGING_PIECE, 5, 10, ALL),
