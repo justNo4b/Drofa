@@ -30,6 +30,7 @@ struct posFeatured{
     int BishopGenOutJump[2];
     int KnightProtOutJump[2];
     int KnightGenOutJump[2];
+    int KnightForkTempo[2];
     int MinorBehindPawn[2];
     int MinorBehindPasser[2];
     int MinorBlockOwn[2];
@@ -120,7 +121,7 @@ struct tEntry {
   const std::string TUNING_DATA        = "d8FENS_WrongResults_mixed.epd";
   const int         TUNING_POS_COUNT   = 35821985; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 917;
+  const int         TUNING_TERMS_COUNT = 918;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
   const int         TUNIGN_PRINT       = 25;

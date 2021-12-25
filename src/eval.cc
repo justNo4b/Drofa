@@ -565,6 +565,9 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
 
           s += KNIGHT_CHECKING_FORK[PAWN] * _popCount(checkTargets & board.getPieces(otherColor, PAWN) & ~eB->EnemyPawnAttackMap[color]);
           if (TRACK) ft.KnightCheckingFork[PAWN][color] += _popCount(checkTargets & board.getPieces(otherColor, PAWN) & ~eB->EnemyPawnAttackMap[color]);
+
+          s += KNIGHT_FORK_TEMPO * (color == board.getActivePlayer());
+          if (TRACK) ft.KnightForkTempo[color] += (color == board.getActivePlayer());
         }
       }
 
