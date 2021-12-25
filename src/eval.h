@@ -44,6 +44,7 @@ extern U64 FILES[8];
  */
 extern U64 CONNECTED_MASK[64];
 extern U64 NEIGHBOR_FILES[8];
+extern U64 TWO_PLUS_FILES[8];
 extern U64 OUTPOST_MASK[2][64];
 extern U64 OUTPOST_PROTECTION[2][64];
 extern U64 KINGZONE[2][64];
@@ -166,6 +167,8 @@ const int KING_OWN_SEMI_FILE = gS(-23,14);
 const int KING_ENEMY_SEMI_LINE = gS(-17,8);
 
 const int KING_ATTACK_PAWN = gS(18,46);
+
+const int KING_PAWNLESS_FLANG = gS(0,0);
 
 /**
  * @brief Various array terms, related to the evaluation of the pawns
