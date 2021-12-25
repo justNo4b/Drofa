@@ -381,9 +381,10 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
 
     // Evaluate rook restricting enemy king
+    // Check for back-rank and than for side-file
     if (((ONE << square) & SEMI_SIDE_RANKS) &&
         ((ONE << eB->EnemyKingSquare[color]) & SIDE_RANKS) &&
-        (kingAttack > 0) &&
+        (kingAttack >= 2) &&
         (std::abs(_row(square) - _row( eB->EnemyKingSquare[color])) == 1)){
           s += ROOK_RESTRICT_KING;
           if (TRACK) ft.RookRestrictKing[color]++;
