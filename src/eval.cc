@@ -383,7 +383,8 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     // Evaluate rook restricting enemy king
     if (((ONE << square) & SEMI_SIDE_RANKS) &&
         ((ONE << eB->EnemyKingSquare[color]) & SIDE_RANKS) &&
-        (kingAttack > 0)){
+        (kingAttack > 0) &&
+        (std::abs(_row(square) - _row( eB->EnemyKingSquare[color])) == 1)){
           s += ROOK_RESTRICT_KING;
           if (TRACK) ft.RookRestrictKing[color]++;
         }
