@@ -677,6 +677,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     int pawnCol = _col(square);
     int edgeDistance = _endgedist(square);
     int r = color == WHITE ? _row(square) : 7 - _row(square);
+    bool isDoubled = false;
 
     if (TRACK){
       int relSqv = color == WHITE ? _mir(square) : square;
@@ -733,13 +734,16 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         !((ONE << square) & eB->EnemyPawnAttackMap[color])){
       if (TRACK) ft.PawnDoubled[color]++;
       s += DOUBLED_PAWN_PENALTY;
+      isDoubled = true;
     }
 
     // score a pawn if it is isolated
     if (!(detail::NEIGHBOR_FILES[pawnCol] & pawns) &&
         !((ONE << square) & eB->EnemyPawnAttackMap[color])){
-      if (TRACK) ft.PawnIsolated[color]++;
       s += ISOLATED_PAWN_PENALTY;
+      s += DOUBLE_AND_ISOLATED * isDoubled;
+      if (TRACK) ft.PawnIsolated[color]++;
+      if (TRACK) ft.DoubleAndIsolated[color] += isDoubled;
     }
 
     // test on if a pawn is connected
