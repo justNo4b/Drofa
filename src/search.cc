@@ -373,6 +373,10 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
           // memcpy - (куда, откуда, длина)
           std::memcpy(_ourPV.pVmoves + 1, rootPV.pVmoves, sizeof(int) * rootPV.length);
           // Break if we've found a checkmate
+          if (currScore >= beta){
+            _sStack.Remove();
+            return beta;
+          }
         }
 
     }
