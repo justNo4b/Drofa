@@ -374,6 +374,9 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
           std::memcpy(_ourPV.pVmoves + 1, rootPV.pVmoves, sizeof(int) * rootPV.length);
           // Break if we've found a checkmate
           if (currScore >= beta){
+            myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), BETA, beta, depth, 0);
+            _bestMove = bestMove;
+            _bestScore = alpha;
             _sStack.Remove();
             return beta;
           }
