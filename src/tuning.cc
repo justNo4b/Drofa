@@ -260,6 +260,7 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.KingSemiOwnFile[WHITE] - ft.KingSemiOwnFile[BLACK];
     coeff[i++] = ft.KingSemiEnemyFile[WHITE] - ft.KingSemiEnemyFile[BLACK];
     coeff[i++] = ft.KingAttackPawn[WHITE] - ft.KingAttackPawn[BLACK];
+    coeff[i++] = ft.KingPawnless[WHITE] - ft.KingPawnless[BLACK];
 
     for (int j = 0; j < 7; j++){
         coeff[i++] = ft.PassedPawnRank[j][WHITE] - ft.PassedPawnRank[j][BLACK];
@@ -288,7 +289,7 @@ void InitCoefficients(featureCoeff coeff){
     for (int j = 0; j < 8; j++){
         coeff[i++] = ft.KingEnemyPasser[j][WHITE] - ft.KingEnemyPasser[j][BLACK];
     }
-    
+
     for (int j = 0; j < 4; j++){
         coeff[i++] = ft.KnightEnemyPasser[j][WHITE] - ft.KnightEnemyPasser[j][BLACK];
     }
@@ -300,7 +301,7 @@ void InitCoefficients(featureCoeff coeff){
     for (int j = 0; j < 4; j++){
         coeff[i++] = ft.CandidatePasserFile[j][WHITE] - ft.CandidatePasserFile[j][BLACK];
     }
-    
+
     for (int j = 0; j < 2; j++){
         coeff[i++] = ft.RookOpenFile[j][WHITE] - ft.RookOpenFile[j][BLACK];
     }

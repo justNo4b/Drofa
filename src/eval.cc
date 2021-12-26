@@ -21,7 +21,7 @@ int MATERIAL_VALUES_TUNABLE[6] = {
 
 U64 Eval::detail::FILES[8] = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
 U64 Eval::detail::DISTANCE[64][64];
-U64 Eval::detail::NEIGHBOR_FILES[8]{
+U64 Eval::detail::NEIGHBOR_FILES[8] = {
     FILE_B,
     FILE_A | FILE_C,
     FILE_B | FILE_D,
@@ -31,6 +31,17 @@ U64 Eval::detail::NEIGHBOR_FILES[8]{
     FILE_F | FILE_H,
     FILE_G
 };
+U64 Eval::detail::TWO_PLUS_FILES[8] = {
+    FILE_A | FILE_B | FILE_C,
+    FILE_A | FILE_B | FILE_C | FILE_D,
+    FILE_A | FILE_B | FILE_C | FILE_D | FILE_E,
+    FILE_B | FILE_C | FILE_D | FILE_E | FILE_F,
+    FILE_C | FILE_D | FILE_E | FILE_F | FILE_G,
+    FILE_D | FILE_E | FILE_F | FILE_G | FILE_H,
+    FILE_E | FILE_F | FILE_G | FILE_H,
+    FILE_F | FILE_G | FILE_H,
+};
+
 U64 Eval::detail::PASSED_PAWN_MASKS[2][64];
 U64 Eval::detail::OUTPOST_MASK[2][64];
 U64 Eval::detail::CONNECTED_MASK[64];
@@ -618,6 +629,13 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   } else if ((file & enemyPawns) == 0){
     s += KING_ENEMY_SEMI_LINE;
     if (TRACK) ft.KingSemiEnemyFile[color]++;
+  }
+
+  // Evaluate if King is on pawnless flang
+  // Inspired by Eth code
+  if ((detail::TWO_PLUS_FILES[_col(square)] & (ourPawns | enemyPawns)) == 0){
+    s += KING_PAWNLESS_FLANG;
+    if (TRACK) ft.KingPawnless[color]++;
   }
 
   return s;
