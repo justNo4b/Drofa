@@ -733,6 +733,10 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         !((ONE << square) & eB->EnemyPawnAttackMap[color])){
       if (TRACK) ft.PawnDoubled[color]++;
       s += DOUBLED_PAWN_PENALTY;
+      if ((detail::FORWARD_BITS[color][square] & otherPawns) == 0){
+        s += UNOPPOSED_DOUBLED;
+        if (TRACK) ft.DoubledUnopposed[color]++;
+      }
     }
 
     // score a pawn if it is isolated
@@ -740,6 +744,10 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         !((ONE << square) & eB->EnemyPawnAttackMap[color])){
       if (TRACK) ft.PawnIsolated[color]++;
       s += ISOLATED_PAWN_PENALTY;
+      if ((detail::FORWARD_BITS[color][square] & otherPawns) == 0){
+        s += UNOPPOSED_ISOLATED;
+        if (TRACK) ft.IsolatedUnopposed[color]++;
+      }
     }
 
     // test on if a pawn is connected
