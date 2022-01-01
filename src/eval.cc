@@ -673,6 +673,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   while (tmpPawns != ZERO) {
 
     int square = _popLsb(tmpPawns);
+    int forwardSqv = color == WHITE ? square + 8 : square - 8;
     int relSqv = color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square];
     int pawnCol = _col(square);
     int edgeDistance = _endgedist(square);
@@ -711,7 +712,6 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       // check if the pawn is a candidate passer
       // 1) we can just push this pawn and it will become passed
       // 2) we can push it itno trading into all becoming passed
-      int forwardSqv = color == WHITE ? square + 8 : square - 8;
       U64 canSupport = detail::OUTPOST_PROTECTION[color][forwardSqv] & pawns;
       U64 canEnemies = detail::OUTPOST_PROTECTION[otherColor][forwardSqv] & otherPawns;
       if ((otherPawns & (ONE << forwardSqv)) == ZERO){
@@ -740,6 +740,15 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         !((ONE << square) & eB->EnemyPawnAttackMap[color])){
       if (TRACK) ft.PawnIsolated[color]++;
       s += ISOLATED_PAWN_PENALTY;
+    } // if pawn is not isolated check if it is backwards
+    else if (!((ONE << square) & eB->EnemyPawnAttackMap[color]) &&
+             !(detail::PASSED_PAWN_MASKS[otherColor][square] & pawns) &&
+             !(detail::CONNECTED_MASK[square] & pawns) &&
+             ((ONE << forwardSqv) & eB->EnemyPawnAttackMap[color])){
+
+      if (TRACK) ft.BackwardPawn[r][color]++;
+      s += BACKWARD_PAWN[r];         
+
     }
 
     // test on if a pawn is connected
@@ -748,6 +757,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       s += PAWN_CONNECTED[relSqv];
     }
 
+    // test if the pawn is supported by other friendly pawn
     if ((ONE << square) & eB->EnemyPawnAttackMap[otherColor]){
       if (TRACK) ft.PawnSupported[relSqv][color]++;
       s += PAWN_SUPPORTED[relSqv];
