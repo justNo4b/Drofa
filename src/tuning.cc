@@ -245,8 +245,12 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.BishopCenterControl[WHITE] - ft.BishopCenterControl[BLACK];
     coeff[i++] = ft.BishopProtOutJump[WHITE] - ft.BishopProtOutJump[BLACK];
     coeff[i++] = ft.BishopGenOutJump[WHITE] - ft.BishopGenOutJump[BLACK];
+    coeff[i++] = ft.BishopAttOutKnight[WHITE] - ft.BishopAttOutKnight[BLACK];
+    coeff[i++] = ft.BishopAttOutBishop[WHITE] - ft.BishopAttOutBishop[BLACK];
     coeff[i++] = ft.KnightProtOutJump[WHITE] - ft.KnightProtOutJump[BLACK];
     coeff[i++] = ft.KnightGenOutJump[WHITE] - ft.KnightGenOutJump[BLACK];
+    coeff[i++] = ft.KnightAttOutKnight[WHITE] - ft.KnightAttOutKnight[BLACK];
+    coeff[i++] = ft.KnightAttOutBishop[WHITE] - ft.KnightAttOutBishop[BLACK];
     coeff[i++] = ft.MinorBehindPawn[WHITE] - ft.MinorBehindPawn[BLACK];
     coeff[i++] = ft.MinorBehindPasser[WHITE] - ft.MinorBehindPasser[BLACK];
     coeff[i++] = ft.MinorBlockOwn[WHITE] - ft.MinorBlockOwn[BLACK];
