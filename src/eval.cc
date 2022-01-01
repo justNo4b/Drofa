@@ -745,7 +745,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
              !(detail::PASSED_PAWN_MASKS[otherColor][square] & pawns) &&
              !(detail::CONNECTED_MASK[square] & pawns) &&
              ((ONE << forwardSqv) & eB->EnemyPawnAttackMap[color]) &&
-             !((ONE << forwardSqv) & otherPawns)){
+             !(detail::FORWARD_BITS[color][square] & otherPawns)){
 
       if (TRACK) ft.BackwardPawn[r][color]++;
       s += BACKWARD_PAWN[r];   
