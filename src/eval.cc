@@ -931,21 +931,21 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
     U64 bothRooks   = board.getPieces(color, ROOK) | board.getPieces(otherColor, ROOK);
     U64 bothKnights = board.getPieces(color, KNIGHT) | board.getPieces(otherColor, KNIGHT);
 
+    int almostNoAdvantage = absAdvantage > 150 ? 8 : 0;
+
     if (!bothQueens && !bothRooks && !bothKnights){
-          int ocbScale = absAdvantage > 150 ? BOTH_SCALE_OCB_STD :
-                         BOTH_SCALE_OCB_BIG;
-          final_eval = final_eval * ocbScale / BOTH_SCALE_NORMAL;
-          if (TRACK) ft.Scale = ocbScale;
+          final_eval = final_eval * (BOTH_SCALE_OCB_STD - almostNoAdvantage) / BOTH_SCALE_NORMAL;
+          if (TRACK) ft.Scale = (BOTH_SCALE_OCB_STD - almostNoAdvantage);
         } else if (
         !bothQueens && !bothKnights &&
         _popCount(board.getPieces(color, ROOK)) == 1 && _popCount(board.getPieces(otherColor, ROOK)) == 1){
-          final_eval = final_eval * BOTH_SCALE_ROOK_OCB / BOTH_SCALE_NORMAL;
-          if (TRACK) ft.Scale = BOTH_SCALE_ROOK_OCB;
+          final_eval = final_eval * (BOTH_SCALE_ROOK_OCB - almostNoAdvantage) / BOTH_SCALE_NORMAL;
+          if (TRACK) ft.Scale = (BOTH_SCALE_ROOK_OCB - almostNoAdvantage);
         } else if (
         !bothQueens && !bothRooks &&
         _popCount(board.getPieces(color, KNIGHT)) == 1 && _popCount(board.getPieces(otherColor, KNIGHT)) == 1){
-          final_eval = final_eval * BOTH_SCALE_KNIGHT_OCB / BOTH_SCALE_NORMAL;
-          if (TRACK) ft.Scale = BOTH_SCALE_KNIGHT_OCB;
+          final_eval = final_eval * (BOTH_SCALE_KNIGHT_OCB - almostNoAdvantage) / BOTH_SCALE_NORMAL;
+          if (TRACK) ft.Scale = (BOTH_SCALE_KNIGHT_OCB - almostNoAdvantage);
         }
   }
 
