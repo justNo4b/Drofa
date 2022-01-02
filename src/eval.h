@@ -477,6 +477,14 @@ inline bool IsItDeadDraw (const Board &, Color);
 inline int PiecePawnInteraction(const Board &, Color, evalBits *);
 
 /**
+ * @brief Evaluate how likely is this position to be a winning
+ * endgame and reduce the score if this is not likely to be winnable
+ *
+ * @return score adjustment
+ */
+inline int WinnableEndgame(const Board &, Color, evalBits *, int);
+
+/**
  * @brief Taper evaluation between Opening and Endgame and scale it
  * if there is some specific endgame position
  */

@@ -748,7 +748,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
              !((ONE << forwardSqv) & otherPawns)){
 
       if (TRACK) ft.BackwardPawn[r][color]++;
-      s += BACKWARD_PAWN[r];   
+      s += BACKWARD_PAWN[r];
     }
 
     // test on if a pawn is connected
@@ -901,6 +901,10 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 inline int Eval::kingDanger(Color color, const evalBits * eB){
   int attackScore = eB->KingAttackPower[color] * COUNT_TO_POWER[std::min(7, eB->KingAttackers[color])] / COUNT_TO_POWER_DIVISOR;
   return gS(std::max(0, attackScore), 0);
+}
+
+inline int Eval::WinnableEndgame(const Board & board, Color color, evalBits * eB, int score){
+
 }
 
 inline int Eval::TaperAndScale(const Board &board, Color color, int score){
