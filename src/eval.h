@@ -83,7 +83,7 @@ extern U64 KING_PAWN_MASKS[2][2][8];
   const int EG_SCALE_PAWN    = 8;
 
   const int BOTH_SCALE_NORMAL = 32;
-  const int BOTH_SCALE_OCB_BIG = 8;
+  const int BOTH_SCALE_OCB_BIG = 4;
   const int BOTH_SCALE_OCB_STD = 16;
   const int BOTH_SCALE_OCB_SMALL = 24;
   const int BOTH_SCALE_ROOK_OCB = 24;
