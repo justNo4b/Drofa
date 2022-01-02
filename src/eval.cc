@@ -748,7 +748,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
              !((ONE << forwardSqv) & otherPawns)){
 
       if (TRACK) ft.BackwardPawn[r][color]++;
-      s += BACKWARD_PAWN[r];   
+      s += BACKWARD_PAWN[r];
     }
 
     // test on if a pawn is connected
@@ -912,6 +912,7 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
   // adjust EG eval based on pawns left
   int StrongPawn = egS(score) > 0 ? _popCount(board.getPieces(color, PAWN)) : _popCount(board.getPieces(otherColor, PAWN));
   int Scale = std::min(EG_SCALE_NORMAL, EG_SCALE_MINIMAL + EG_SCALE_PAWN * StrongPawn);
+  int absAdvantage = abs(egS(score));
 
 
   // Interpolate between opening/endgame scores depending on the phase
@@ -931,8 +932,11 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
     U64 bothKnights = board.getPieces(color, KNIGHT) | board.getPieces(otherColor, KNIGHT);
 
     if (!bothQueens && !bothRooks && !bothKnights){
-          final_eval = final_eval * BOTH_SCALE_OCB / BOTH_SCALE_NORMAL;
-          if (TRACK) ft.Scale = BOTH_SCALE_OCB;
+          int ocbScale = absAdvantage > 2 * egS(Eval::MATERIAL_VALUES[PAWN]) ? BOTH_SCALE_OCB_SMALL :
+                         absAdvantage > 1 * egS(Eval::MATERIAL_VALUES[PAWN]) ? BOTH_SCALE_OCB_STD :
+                         BOTH_SCALE_OCB_BIG;
+          final_eval = final_eval * ocbScale / BOTH_SCALE_NORMAL;
+          if (TRACK) ft.Scale = ocbScale;
         } else if (
         !bothQueens && !bothKnights &&
         _popCount(board.getPieces(color, ROOK)) == 1 && _popCount(board.getPieces(otherColor, ROOK)) == 1){
