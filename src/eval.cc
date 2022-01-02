@@ -932,8 +932,7 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
     U64 bothKnights = board.getPieces(color, KNIGHT) | board.getPieces(otherColor, KNIGHT);
 
     if (!bothQueens && !bothRooks && !bothKnights){
-          int ocbScale = absAdvantage > 3 * egS(Eval::MATERIAL_VALUES[PAWN]) ? BOTH_SCALE_OCB_SMALL :
-                         absAdvantage > 2 * egS(Eval::MATERIAL_VALUES[PAWN]) ? BOTH_SCALE_OCB_STD :
+          int ocbScale = absAdvantage > 1 * egS(Eval::MATERIAL_VALUES[PAWN]) ? BOTH_SCALE_OCB_STD :
                          BOTH_SCALE_OCB_BIG;
           final_eval = final_eval * ocbScale / BOTH_SCALE_NORMAL;
           if (TRACK) ft.Scale = ocbScale;
