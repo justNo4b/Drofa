@@ -482,7 +482,7 @@ inline int PiecePawnInteraction(const Board &, Color, evalBits *);
  *
  * @return score adjustment
  */
-inline int WinnableEndgame(const Board &, Color, evalBits *, int);
+inline int winnableEndgame(const Board &, Color, evalBits *, int);
 
 /**
  * @brief Taper evaluation between Opening and Endgame and scale it
