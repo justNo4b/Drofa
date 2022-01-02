@@ -917,8 +917,9 @@ inline int Eval::winnableEndgame(const Board & board, Color color, evalBits * eB
   bool pawnsBothFlanks =  ((pawnsTotal & KING_SIDE) != 0) && ((pawnsTotal & QUEEN_SIDE) != 0);
 
   int winnable = (pawnsBothFlanks * 35) - 60;
+  s = gS(0, sign * std::max(winnable, -abs(eGpart)));
 
-  return gS(0, sign * std::max(winnable, -abs(eGpart)));
+  return s;
 
 }
 
