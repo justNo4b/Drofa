@@ -112,7 +112,7 @@ extern U64 KING_PAWN_MASKS[2][2][8];
   const int COUNT_TO_POWER_DIVISOR = 128;
   /**@}*/
 
-const int TEMPO = 13;
+const int TEMPO = 17;
 
 const int KING_HIGH_DANGER = gS(-46,-62);
 
