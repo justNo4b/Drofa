@@ -320,14 +320,11 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     // If Queen attacking squares near enemy king
     // Adjust our kind Danger code
     int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
-    U64 kingChecks = attackBitBoard & board.getAttacksForSquare(QUEEN, getOppositeColor(color), eB->EnemyKingSquare[color]);
-    int kingChecksCount = _popCount(kingChecks);
-    int KingFaceChecksCount = _popCount(kingChecks & board.getAttacksForSquare(KING, getOppositeColor(color), eB->EnemyKingSquare[color]) & eB->AttackedSquares[color]);
+    int kingChecksCount = _popCount(attackBitBoard & board.getAttacksForSquare(QUEEN, getOppositeColor(color), eB->EnemyKingSquare[color]));
     if (kingAttack > 0 || kingChecksCount > 0){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[QUEEN];
-      eB->KingAttackPower[color] += (kingChecksCount - KingFaceChecksCount) * PIECE_CHECK_POWER[QUEEN];
-      eB->KingAttackPower[color] += KingFaceChecksCount * QUEEN_FACE_CHECK;
+      eB->KingAttackPower[color] += kingChecksCount * PIECE_CHECK_POWER[QUEEN];
     }
 
     // Save our attacks for further use
@@ -748,7 +745,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
              !((ONE << forwardSqv) & otherPawns)){
 
       if (TRACK) ft.BackwardPawn[r][color]++;
-      s += BACKWARD_PAWN[r];   
+      s += BACKWARD_PAWN[r];
     }
 
     // test on if a pawn is connected
@@ -824,7 +821,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   pawnPush = color == WHITE ? ((pawnPush << 9) & ~FILE_A) | ((pawnPush << 7) & ~FILE_H)
                             : ((pawnPush >> 9) & ~FILE_H) | ((pawnPush >> 7) & ~FILE_A);
   s += PAWN_PUSH_THREAT * _popCount(pawnPush & targets);
-  if (TRACK) ft.PawnPushThreat[color] += _popCount(pawnPush & targets);                        
+  if (TRACK) ft.PawnPushThreat[color] += _popCount(pawnPush & targets);
 
   // Passer - piece evaluation
 
