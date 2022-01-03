@@ -5,12 +5,13 @@
 #include "eval.h"
 #include "outposts.h"
 
-#define BIG_FEATURE_NUMBER (68)
+#define BIG_FEATURE_NUMBER (70)
 
 enum TuningType{
     ALL,
     OP_ONLY,
-    EG_ONLY
+    EG_ONLY,
+    EG_WINNABILITY
 };
 
 struct tFeature {
@@ -28,6 +29,8 @@ struct tFeature {
 };
 
 tFeature myFeatures [BIG_FEATURE_NUMBER] = {
+    tFeature("BOTH_FLANKS_PAWNS", false, &Eval::BOTH_FLANKS_PAWNS, 1, 1, ALL),
+    tFeature("WINNABILITY_ADJUSTMENT", false, &Eval::WINNABILITY_ADJUSTMENT, 1, 1, ALL),
     tFeature("KING_HIGH_DANGER", false, &Eval::KING_HIGH_DANGER, 1, 1, ALL),
     tFeature("KING_MED_DANGER", false, &Eval::KING_MED_DANGER, 1, 1, ALL),
     tFeature("KING_LOW_DANGER", false, &Eval::KING_LOW_DANGER, 1, 1, ALL),

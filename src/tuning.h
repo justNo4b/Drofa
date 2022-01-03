@@ -15,6 +15,9 @@ struct posFeatured{
     //scaling consts
     int Scale;
 
+    // Winnability
+    int BothFlanksPawns[2];
+    int WinnabilityAdj[2];
     // Simple features
     int BishopPair[2];
     int KingHighDanger[2];
@@ -122,7 +125,7 @@ struct tEntry {
   const std::string TUNING_DATA        = "d8FENS_WrongResults_mixed.epd";
   const int         TUNING_POS_COUNT   = 35821985; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 921;
+  const int         TUNING_TERMS_COUNT = 923;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
   const int         TUNIGN_PRINT       = 25;

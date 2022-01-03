@@ -110,7 +110,18 @@ extern U64 KING_PAWN_MASKS[2][2][8];
 
   const int COUNT_TO_POWER[8] = {0, 0, 51, 83, 102, 111, 122, 128};
   const int COUNT_TO_POWER_DIVISOR = 128;
-  /**@}*/
+/**@}*/
+
+
+/**
+ * @brief Terms for winnability evaluation
+  * @{
+  */
+  const int BOTH_FLANKS_PAWNS = gS(0, 35);
+
+  const int WINNABILITY_ADJUSTMENT = gS(0, -60);
+
+/**@}*/
 
 const int TEMPO = 10;
 

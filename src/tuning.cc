@@ -16,7 +16,7 @@ int eTraceStackSize;
 
 posFeatured ft, zero;
 
-#ifdef _TUNE_
+//#ifdef _TUNE_
 
 TuningType FeatureTypeMap[TUNING_TERMS_COUNT];
 
@@ -233,6 +233,8 @@ void InitCoefficients(featureCoeff coeff){
     // Insert features here
     // Basicall we calculate if feature difference, so we dont hold it if it is 0
     // and to take less space to hold it in general
+    coeff[i++] = ft.BothFlanksPawns[WHITE] - ft.BothFlanksPawns[BLACK];
+    coeff[i++] = ft.WinnabilityAdj[WHITE] - ft.WinnabilityAdj[BLACK];
     coeff[i++] = ft.KingHighDanger[WHITE] - ft.KingHighDanger[BLACK];
     coeff[i++] = ft.KingMedDanger[WHITE] - ft.KingMedDanger[BLACK];
     coeff[i++] = ft.KingLowDanger[WHITE] - ft.KingLowDanger[BLACK];
@@ -607,4 +609,4 @@ void CheckFeaturesNumber(){
         exit(1);
     }
 }
-#endif
+//#endif
