@@ -241,7 +241,6 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.PawnIsolated[WHITE] - ft.PawnIsolated[BLACK];
     coeff[i++] = ft.PawnBlocked[WHITE] - ft.PawnBlocked[BLACK];
     coeff[i++] = ft.PassersBlocked[WHITE] - ft.PassersBlocked[BLACK];
-    coeff[i++] = ft.PawnPushThreat[WHITE] - ft.PawnPushThreat[BLACK];
     coeff[i++] = ft.BishopRammed[WHITE] - ft.BishopRammed[BLACK];
     coeff[i++] = ft.BishopCenterControl[WHITE] - ft.BishopCenterControl[BLACK];
     coeff[i++] = ft.BishopProtOutJump[WHITE] - ft.BishopProtOutJump[BLACK];
@@ -317,6 +316,10 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 5; j++){
         coeff[i++] = ft.HangingPiece[j][WHITE] - ft.HangingPiece[j][BLACK];
+    }
+
+    for (int j = 0; j < 2; j++){
+        coeff[i++] = ft.PawnPushThreat[j][WHITE] - ft.PawnPushThreat[j][BLACK];
     }
 
     for (int j = 0; j < 4; j++){

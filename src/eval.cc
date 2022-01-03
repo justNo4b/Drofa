@@ -823,8 +823,8 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   pawnPush = pawnPush & ~ (board.getAllPieces(color) | board.getAllPieces(otherColor)) & (posAdvance &  ~eB->EnemyPawnAttackMap[color]);
   pawnPush = color == WHITE ? ((pawnPush << 9) & ~FILE_A) | ((pawnPush << 7) & ~FILE_H)
                             : ((pawnPush >> 9) & ~FILE_H) | ((pawnPush >> 7) & ~FILE_A);
-  s += PAWN_PUSH_THREAT * _popCount(pawnPush & targets);
-  if (TRACK) ft.PawnPushThreat[color] += _popCount(pawnPush & targets);                        
+  s += PAWN_PUSH_THREAT[board.getActivePlayer() == color] * _popCount(pawnPush & targets);
+  if (TRACK) ft.PawnPushThreat[board.getActivePlayer() == color][color] += _popCount(pawnPush & targets);                        
 
   // Passer - piece evaluation
 
