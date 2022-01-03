@@ -816,13 +816,21 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   s += MINOR_BLOCK_OWN_PASSER * _popCount(eB->Passers[color] & pieces);
   if (TRACK) ft.MinorBlockOwnPassed[color] += _popCount(eB->Passers[color] & pieces);
 
+  // Evaluate pawn push threats
+  U64 posAdvance = ~AllTheirAttacks | AllOurAttacks;
+  U64 targets  = board.getAllPieces(otherColor) ^ board.getPieces(otherColor, PAWN);
+  U64 pawnPush = color == WHITE ? board.getPieces(color, PAWN) << 8 : board.getPieces(color, PAWN) >> 8;
+  pawnPush = pawnPush & ~ (board.getAllPieces(color) | board.getAllPieces(otherColor)) & (posAdvance &  ~eB->EnemyPawnAttackMap[color]);
+  pawnPush = color == WHITE ? ((pawnPush << 9) & ~FILE_A) | ((pawnPush << 7) & ~FILE_H)
+                            : ((pawnPush >> 9) & ~FILE_H) | ((pawnPush >> 7) & ~FILE_A);
+  s += PAWN_PUSH_THREAT * _popCount(pawnPush & targets);
+  if (TRACK) ft.PawnPushThreat[color] += _popCount(pawnPush & targets);                        
 
   // Passer - piece evaluation
 
   tmpPawns = eB->Passers[color];
   pieces   = board.getAllPieces(color) | board.getAllPieces(otherColor);
   int forward = color == WHITE ? 8 : -8;
-  U64 posAdvance = ~AllTheirAttacks | AllOurAttacks;
   int ourKingSquare = _bitscanForward(board.getPieces(color, KING));
   int enemyKingSquare = _bitscanForward(board.getPieces(otherColor, KING));
 
