@@ -515,8 +515,7 @@ int  Board:: Calculate_SEE(const Move move) const{
   // so just return true
 
   unsigned int flags = move.getFlags();
-  if ((flags & Move::PROMOTION) || (flags & Move::EN_PASSANT)
-     ||(flags & Move::KSIDE_CASTLE) || (flags & Move::QSIDE_CASTLE)){
+  if ((flags & Move::KSIDE_CASTLE) || (flags & Move::QSIDE_CASTLE)){
        return 1024;
      }
 
