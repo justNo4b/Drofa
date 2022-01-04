@@ -33,7 +33,7 @@ void MovePicker::_scoreMoves(const Board *board) {
       }
       move.setValue(value);
     } else if (move.getFlags() & Move::PROMOTION) {
-      int value = _ply == MAX_PLY ? board->Calculate_SEE(move) :  PROMOTION_SORT[move.getPromotionPieceType()];
+      int value = _ply == MAX_PLY ? PROMOTION_SORT[move.getPromotionPieceType()] / 128 :  PROMOTION_SORT[move.getPromotionPieceType()];
       move.setValue(value);
     } else if (moveINT == Killer1) {
       move.setValue(KILLER1_BONUS);
