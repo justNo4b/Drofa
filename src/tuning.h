@@ -10,8 +10,9 @@
 // that is traced as we Evalute position
 struct posFeatured{
 
-    //whole finalEval
+    //whole Eval Parts
     int FinalEval;
+    int FinalWinnability;
     //scaling consts
     int Scale;
 
@@ -129,6 +130,7 @@ struct tEntry {
     int16_t phase;
     int16_t tracesCount;
     int FinalEval;
+    int Winnability;
     int FinalEvalScale;
     double result;
     double pFactors[2];
@@ -142,6 +144,7 @@ struct gEvalData {
     double winEval;
 
     gEvalData() : egEval(0), winEval(0) {}
+    gEvalData(double eE, double wE) : egEval(eE), winEval(wE) {}
 };
 
   //

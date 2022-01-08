@@ -204,6 +204,7 @@ void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
     // As we called evaluate() from stm perspective
     // we need to adjust it here to be from WHITE POW
     positionList[pCount].FinalEval =  b.getActivePlayer() == WHITE ? ft.FinalEval : -ft.FinalEval;
+    positionList[pCount].Winnability = ft.FinalWinnability;
 
     // 6. Also save modifiers to know is it is
     // OCBEndgame
@@ -515,14 +516,39 @@ double SigmoidForK(double eval, double K){
 }
 
 double TuningEval(tEntry* entry, tValueHolder diff, gEvalData * geData){
-    double opScore = opS(entry->FinalEval);
-    double egScore = egS(entry->FinalEval);
+    double opScore      = 0;
+    double egScore      = 0;
+    double opScoreDiff[2]  = {0};
+    double egScoreDiff[2]  = {0};
+    double allTerms[2]     = {0};
+    double winnability     = 0;
 
     // Save any modifications for MG or EG for each evaluation type
     for (int i = 0; i < entry->tracesCount; i++) {
-        opScore += (double) entry->traces[i].count * diff[entry->traces[i].index][OPENING];
-        egScore += (double) entry->traces[i].count * diff[entry->traces[i].index][ENDGAME];
+        int16_t tIndex      = entry->traces[i].index;
+        bool isWinability   = FeatureTypeMap[tIndex] == EG_WINNABILITY;
+        opScoreDiff[isWinability] += (double) entry->traces[i].count * diff[tIndex][OPENING];
+        egScoreDiff[isWinability] += (double) entry->traces[i].count * diff[tIndex][ENDGAME];
     }
+
+    // Calculate general eval
+    allTerms[OPENING] = opS(entry->FinalEval) + opScoreDiff[0];
+    allTerms[ENDGAME] = egS(entry->FinalEval) + egScoreDiff[0];
+
+    // Calculate winnability
+    int sign  = allTerms[ENDGAME] == 0 ? 0 :
+                allTerms[ENDGAME] > 0  ? 1 :
+               -1;
+    winnability = egS(entry->Winnability) + egScoreDiff[1];
+
+    // Save winnability and allTerms scores in the data to compute gradients
+    if (geData != nullptr){
+        *geData = gEvalData(allTerms[ENDGAME], winnability);
+    }
+
+    // Make some final calculations
+    opScore = allTerms[OPENING];
+    egScore = allTerms[ENDGAME] + sign * std::max(winnability, -abs(allTerms[ENDGAME]));
 
     double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase)) / 256.0;
 
