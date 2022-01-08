@@ -97,6 +97,26 @@ struct posFeatured{
     int MaterialValue[5][2];
 };
 
+ /**
+  * @brief Main tuning constants are defined here
+  * @{
+  */
+  const std::string TUNING_DATA        = "d8FENS_WrongResults_mixed.epd";
+  const int         TUNING_POS_COUNT   = 35821985; //9996883 42484641
+  const int         TUNING_THREADS     = 16;
+  const int         TUNING_TERMS_COUNT = 923;
+  const int         TUNING_BATCH_SIZE  = 0;
+  const int         TUNIGN_MAX_ITER    = 2500;
+  const int         TUNIGN_PRINT       = 25;
+  const int         TUNING_K_PRECISION = 10;
+  const int         TUNING_L_STEP      = 1500;
+  const double      TUNING_K           = 3.155529889; //2.829175699;
+  const double      TUNING_L_DROP      = 1.0;
+  const double      TUNING_L_RATE      = 10.0;
+
+  const int         TUNING_STACK_SIZE = ((int)((double) TUNING_POS_COUNT * TUNING_TERMS_COUNT / 64));
+  /**@}*/
+
 struct eTrace {
     int16_t index;
     int16_t count;
@@ -117,26 +137,12 @@ struct tEntry {
     eTrace *traces;
 };
 
+struct gEvalData {
+    double egEval;
+    double winEval;
 
- /**
-  * @brief Main tuning constants are defined here
-  * @{
-  */
-  const std::string TUNING_DATA        = "d8FENS_WrongResults_mixed.epd";
-  const int         TUNING_POS_COUNT   = 35821985; //9996883 42484641
-  const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 923;
-  const int         TUNING_BATCH_SIZE  = 0;
-  const int         TUNIGN_MAX_ITER    = 2500;
-  const int         TUNIGN_PRINT       = 25;
-  const int         TUNING_K_PRECISION = 10;
-  const int         TUNING_L_STEP      = 1500;
-  const double      TUNING_K           = 3.155529889; //2.829175699;
-  const double      TUNING_L_DROP      = 1.0;
-  const double      TUNING_L_RATE      = 10.0;
-
-  const int         TUNING_STACK_SIZE = ((int)((double) TUNING_POS_COUNT * TUNING_TERMS_COUNT / 64));
-  /**@}*/
+    gEvalData() : egEval(0), winEval(0) {}
+};
 
   //
 
@@ -181,7 +187,7 @@ struct tEntry {
 
  double SigmoidForK(double);
 
- double TuningEval(tEntry*, tValueHolder);
+ double TuningEval(tEntry*, tValueHolder, gEvalData *);
 
  double TunedError(tEntry*, tValueHolder);
 

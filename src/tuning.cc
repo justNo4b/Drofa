@@ -484,7 +484,8 @@ void CalculateGradient(tEntry* entries, tValueHolder grad, tValueHolder diff){
 }
 
 void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
-    double eval = TuningEval(entry, diff);
+    gEvalData posEvalData;
+    double eval = TuningEval(entry, diff, &posEvalData);
     double sigm = Sigmoid(eval);
     double X = (entry->result - sigm) * sigm * (1.0 - sigm);
 
@@ -513,7 +514,7 @@ double SigmoidForK(double eval, double K){
     return 1.0 / (1.0 + exp(( -K * eval) / 400.0));
 }
 
-double TuningEval(tEntry* entry, tValueHolder diff){
+double TuningEval(tEntry* entry, tValueHolder diff, gEvalData * geData){
     double opScore = opS(entry->FinalEval);
     double egScore = egS(entry->FinalEval);
 
@@ -538,7 +539,7 @@ double TunedError(tEntry* entries, tValueHolder diff) {
     {
         #pragma omp for schedule(static, TUNING_POS_COUNT / TUNING_THREADS) reduction(+:total)
         for (int i = 0; i < TUNING_POS_COUNT; i++)
-            total += pow(entries[i].result - Sigmoid(TuningEval(&entries[i], diff)), 2);
+            total += pow(entries[i].result - Sigmoid(TuningEval(&entries[i], diff, nullptr)), 2);
     }
 
     return total / (double) TUNING_POS_COUNT;
