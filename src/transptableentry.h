@@ -40,14 +40,20 @@ struct HASH_Entry
 
 struct pawn_HASH_Entry
 {
-    U64 posKey;
-    U64 wPassers;
-    U64 bPassers;
-    int score;
+    U64 posKey;             // 8
+    U64 wPassers;           // 8
+    U64 bPassers;           // 8
+    int score;              // 4
+    uint8_t wKsMask;        // 1
+    uint8_t wQsMask;        // 1
+    uint8_t bKsMask;        // 1
+    uint8_t bQsMask;        // 1
 
-    pawn_HASH_Entry() : posKey(0), wPassers(0), bPassers(0), score(0) {}
-    pawn_HASH_Entry( U64 key, U64 wP, U64 bP, int sc ) :
-        posKey(key), wPassers(wP), bPassers(bP), score(sc) {}
+    pawn_HASH_Entry() : posKey(0), wPassers(0), bPassers(0), score(0),
+                        wKsMask(0), wQsMask(0), bKsMask(0), bQsMask(0) {}
+    pawn_HASH_Entry( U64 key, U64 wP, U64 bP, int sc, uint8_t wkm, uint8_t wqm, uint8_t bkm, uint8_t bqm) :
+                        posKey(key), wPassers(wP), bPassers(bP), score(sc),
+                        wKsMask(wkm), wQsMask(wqm), bKsMask(bkm), bQsMask(bqm) {}
 };
 
 

@@ -161,6 +161,8 @@ evalBits Eval::Setupbits(const Board &board){
     U64 king = board.getPieces(color, KING);
     eB.EnemyKingZone[!color] = detail::KINGZONE[color][_bitscanForward(king)];
     eB.EnemyKingSquare[!color] = _bitscanForward(king);
+    eB.ksMask[color] = 8;
+    eB.qsMask[color] = 8;
   }
 
   eB.PossibleGenOutposts[WHITE] = pawnFrontSpans[BLACK] & ~attFrontSpawn[BLACK];
@@ -252,41 +254,28 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, evalBits * eB
       eB->KingAttackPower[otherColor] += -1 * opS(KING_LOW_DANGER);
       return KING_LOW_DANGER;
     }
-    U64 pawnMap = board.getPieces(color, PAWN);
 
     //проверяем где наш король. Проверка по сути на то, куда сделали рокировку.
     //если король не рокирован-выгнан с рокировки, то король не в безопасности, начислить штраф
     //0 - kingSide; 1 - QueenSide
-    CastleSide cSide = NoCastle;
-    if (KSIDE_CASTLE[color] & board.getPieces(color, KING)){
-      cSide = KingSide;
-    } else if (QSIDE_CASTLE[color] & board.getPieces(color, KING)){
-      cSide = QueenSide;
-    }
+    CastleSide cSide = (KSIDE_CASTLE[color] & board.getPieces(color, KING)) ? KingSide :
+                       (QSIDE_CASTLE[color] & board.getPieces(color, KING)) ? QueenSide :
+                        NoCastle;
 
     if (cSide == NoCastle){
       if (TRACK) ft.KingHighDanger[color]++;
       eB->KingAttackPower[otherColor] += (-1 * opS(KING_HIGH_DANGER));
       return KING_HIGH_DANGER;
     }
-    // Cycle through all masks, if one of them is true,
-    // Apply bonus for safety and score
-    for (int i = 0; i < 8; i++){
-      if ((pawnMap & detail::KING_PAWN_MASKS[color][cSide][i]) == detail::KING_PAWN_MASKS[color][cSide][i]){
-                if (TRACK){
-                  if (cSide == KingSide)  ft.KingShieldKS[i][color]++;
-                  if (cSide == QueenSide) ft.KingShieldQS[i][color]++;
-                }
-                eB->KingAttackPower[otherColor] += cSide == KingSide ? (-1 * opS( KING_PAWN_SHIELD_KS[i])) : (-1 * opS(KING_PAWN_SHIELD_QS[i]));
-                return cSide == KingSide ? KING_PAWN_SHIELD_KS[i] : KING_PAWN_SHIELD_QS[i];
-            }
-    }
+    // We already know from pawn TT what is the right mask, so just us it form eBits
 
-      // если не одна из масок не прошла, то король в опасности.
-      // вернуть штраф к нашей позиции
-      if (TRACK) ft.KingMedDanger[color]++;
-      eB->KingAttackPower[otherColor] += (-1 * opS(KING_MED_DANGER));
-      return KING_MED_DANGER;
+    if (TRACK){
+      if (cSide == KingSide)  ft.KingShieldKS[eB->ksMask[color]][color]++;
+      if (cSide == QueenSide) ft.KingShieldQS[eB->qsMask[color]][color]++;
+    }
+    eB->KingAttackPower[otherColor] += cSide == KingSide ? (-1 * opS( KING_PAWN_SHIELD_KS[eB->ksMask[color]]))
+                                                         : (-1 * opS(KING_PAWN_SHIELD_QS[eB->qsMask[color]]));
+    return cSide == KingSide ? KING_PAWN_SHIELD_KS[eB->ksMask[color]] : KING_PAWN_SHIELD_QS[eB->qsMask[color]];
 
 }
 
@@ -644,12 +633,16 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
 inline int Eval::probePawnStructure(const Board & board, Color color, evalBits * eB){
   // Pawn structure
   int pScore = 0;
-  pawn_HASH_Entry pENTRY  = myHASH->pHASH_Get(board.getPawnStructureZKey().getValue());
+  const pawn_HASH_Entry pENTRY  = myHASH->pHASH_Get(board.getPawnStructureZKey().getValue());
 
   #ifndef _TUNE_
   if (pENTRY.posKey != 0){
     eB->Passers[WHITE] = pENTRY.wPassers;
     eB->Passers[BLACK] = pENTRY.bPassers;
+    eB->ksMask[WHITE]  = pENTRY.wKsMask;
+    eB->ksMask[BLACK]  = pENTRY.bKsMask;
+    eB->qsMask[WHITE]  = pENTRY.wQsMask;
+    eB->qsMask[BLACK]  = pENTRY.bQsMask;
 
     return color == WHITE ? pENTRY.score : -pENTRY.score;
   }
@@ -657,7 +650,8 @@ inline int Eval::probePawnStructure(const Board & board, Color color, evalBits *
   #endif
   {
     pScore += evaluatePAWNS(board, WHITE, eB) - evaluatePAWNS(board, BLACK, eB);
-    myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB->Passers[WHITE], eB->Passers[BLACK], pScore);
+    myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB->Passers[WHITE], eB->Passers[BLACK], pScore,
+                        eB->ksMask[WHITE], eB->qsMask[WHITE], eB->ksMask[BLACK], eB->qsMask[BLACK]);
     return color == WHITE ? pScore : -pScore;
   }
 }
@@ -748,7 +742,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
              !((ONE << forwardSqv) & otherPawns)){
 
       if (TRACK) ft.BackwardPawn[r][color]++;
-      s += BACKWARD_PAWN[r];   
+      s += BACKWARD_PAWN[r];
     }
 
     // test on if a pawn is connected
@@ -761,6 +755,22 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     if ((ONE << square) & eB->EnemyPawnAttackMap[otherColor]){
       if (TRACK) ft.PawnSupported[relSqv][color]++;
       s += PAWN_SUPPORTED[relSqv];
+    }
+  }
+
+  // Evaluate pawn structures on kingSide and queenSide
+  // It will be used later to assign pawnShield score
+  for (int i = 0; i < 8; i++){
+    if ((pawns & detail::KING_PAWN_MASKS[color][KingSide][i]) == detail::KING_PAWN_MASKS[color][KingSide][i]){
+        eB->ksMask[color] = i;
+        break;
+    }
+  }
+
+  for (int i = 0; i < 8; i++){
+    if ((pawns & detail::KING_PAWN_MASKS[color][QueenSide][i]) == detail::KING_PAWN_MASKS[color][QueenSide][i]){
+        eB->qsMask[color] = i;
+        break;
     }
   }
 
@@ -824,7 +834,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   pawnPush = color == WHITE ? ((pawnPush << 9) & ~FILE_A) | ((pawnPush << 7) & ~FILE_H)
                             : ((pawnPush >> 9) & ~FILE_H) | ((pawnPush >> 7) & ~FILE_A);
   s += PAWN_PUSH_THREAT * _popCount(pawnPush & targets);
-  if (TRACK) ft.PawnPushThreat[color] += _popCount(pawnPush & targets);                        
+  if (TRACK) ft.PawnPushThreat[color] += _popCount(pawnPush & targets);
 
   // Passer - piece evaluation
 

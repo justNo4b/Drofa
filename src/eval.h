@@ -21,6 +21,8 @@ struct evalBits{
     int KingAttackers[2];
     int KingAttackPower[2];
     int EnemyKingSquare[2];
+    uint8_t ksMask[2];
+    uint8_t qsMask[2];
 };
 
 enum CastleSide {
@@ -115,8 +117,6 @@ extern U64 KING_PAWN_MASKS[2][2][8];
 const int TEMPO = 10;
 
 const int KING_HIGH_DANGER = gS(-46,-62);
-
-const int KING_MED_DANGER = gS(-25,-39);
 
 const int KING_LOW_DANGER = gS(74,-78);
 
@@ -261,14 +261,14 @@ const int QUEEN_ATTACKED_BY[4] = {
            gS(0,0), gS(61,36), gS(39,20), gS(42,43),
 };
 
-const int KING_PAWN_SHIELD_KS[8] = {
+const int KING_PAWN_SHIELD_KS[9] = {
            gS(-6,2), gS(6,9), gS(0,11), gS(0,4),
-           gS(-7,5), gS(-21,0), gS(-6,17), gS(0,0),
+           gS(-7,5), gS(-21,0), gS(-6,17), gS(0,0), gS(-25,-39)
 };
 
-const int KING_PAWN_SHIELD_QS[8] = {
+const int KING_PAWN_SHIELD_QS[9] = {
            gS(7,0), gS(14,20), gS(13,0), gS(23,0),
-           gS(9,0), gS(-18,-1), gS(-5,15), gS(10,0),
+           gS(9,0), gS(-18,-1), gS(-5,15), gS(10,0), gS(-25,-39)
 };
 
 /**
