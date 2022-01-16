@@ -66,3 +66,7 @@ Move MovePicker::getNext() {
   std::swap(_moves->at(_currHead), _moves->at(bestIndex));
   return _moves->at(_currHead++);
 }
+
+void MovePicker::refreshPicker(){
+  _currHead = 0;
+}
