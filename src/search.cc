@@ -544,6 +544,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         break;
       }
 
+      // skip quiet TT moves
+      if (move == probedHASHentry.move && move.isQuiet()){
+        continue;
+      }
+
       // make a move
       Board movedBoard = board;
       movedBoard.doMove(move);
@@ -553,7 +558,13 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         // if it holds, do proper reduced search
         if(qScore >= pcBeta){
+          _posHist.Add(board.getZKey().getValue());
+          _sStack.AddMove(move.getMoveINT());
+
           int sScore = -_negaMax(movedBoard, &thisPV, depth - 4, -pcBeta, -pcBeta + 1, false, !cutNode);
+
+          _posHist.Remove();
+          _sStack.Remove();
 
           if (sScore >= pcBeta){
             return beta;
