@@ -115,7 +115,7 @@
 
       int getSearchDepth();
 
-      void adjustTimer(U64, U64);
+      void adjustTimer(U64, U64, int);
   };
 
 #endif

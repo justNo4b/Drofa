@@ -82,16 +82,16 @@ bool Timer::checkLimits(U64 nodes){
   return false;
 }
 
-void Timer::adjustTimer(U64 totalNodes, U64 bestNodes){
+void Timer::adjustTimer(U64 totalNodes, U64 bestNodes, int depth){
     int nodesCoeff = bestNodes * 100 / totalNodes;
-
+    int depthCoeff = std::min(4, depth / 8);
     // clamp coeff between 25 and 75
     // we assume that standart case is about ~50% of nodes go in bestMove
     nodesCoeff = std::max(25, nodesCoeff);
     nodesCoeff = std::min(75, nodesCoeff);
 
     // First approach. Tweak time if it is not inf time search
-    if (_timeAllocated != INF) _timeAllocated += (_timeAllocated * (50 - nodesCoeff)) / 1000;
+    if (_timeAllocated != INF) _timeAllocated += (_timeAllocated * depthCoeff * (50 - nodesCoeff)) / 2000;
 }
 
 void Timer::startIteration(){
