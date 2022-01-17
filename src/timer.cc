@@ -8,17 +8,21 @@ Timer::Timer(Limits l, Color color, int movenum){
     if (_limits.infinite) { // Infinite search
         _searchDepth = INF;
         _timeAllocated = INF;
+        _timeMaximumAllowed = INF;
     } else if (_limits.depth != 0) { // Depth search
         _searchDepth = _limits.depth;
         _timeAllocated = INF;
+        _timeMaximumAllowed = INF;
     } else if (_limits.moveTime != 0) {
         _searchDepth = MAX_SEARCH_DEPTH;
         _timeAllocated = _limits.moveTime;
+        _timeMaximumAllowed = _limits.moveTime;
     } else if (_limits.time[color] != 0) {
         _setupTimer(color, movenum);
     } else { // No limits specified, use default depth
         _searchDepth = DEFAULT_SEARCH_DEPTH;
         _timeAllocated = INF;
+        _timeMaximumAllowed = INF;
     }
 }
 
@@ -35,6 +39,7 @@ void Timer::_setupTimer(Color color, int movenum){
       _timeAllocated = ourTime * tCoefficient;
       if (movenum > INCR_CRIT_MOVE) _timeAllocated = ourTime / 10 + ourIncrement;
       _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - 10);
+      _timeMaximumAllowed = std::min(ourTime * 8 / 10, _timeAllocated);
     } else {
       // when movetogo is specified, use different coefficients
 
@@ -42,6 +47,7 @@ void Timer::_setupTimer(Color color, int movenum){
       _timeAllocated = ourTime * tCoefficient;
       if (movenum > CYCL_CRIT_MOVE) _timeAllocated = ourTime / 10 + ourIncrement;
       _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - 10);
+      _timeMaximumAllowed = std::min(ourTime * 8 / 10, _timeAllocated);
     }
 
     // Depth is infinity in a timed search (ends when time runs out)
@@ -98,12 +104,12 @@ bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes){
     nodesConfidance = std::min(85.0, nodesConfidance);
 
     double nodesCoeff = 1.0 + (50.0 - nodesConfidance) / 50.0;
-
+    double totalTime  = std::min((double)_timeMaximumAllowed, _timeAllocated * nodesCoeff * 0.5);
 
 
 
     *elapsedTime = elapsed;
-    if (_wasThoughtProlonged ||  (elapsed >= (_timeAllocated * nodesCoeff * 0.5))){
+    if (_wasThoughtProlonged ||  (elapsed >= totalTime)){
         return true;
     }
 

@@ -36,6 +36,7 @@
      *
      */
     int _timeAllocated;
+    int _timeMaximumAllowed;
 
     /**
      * @brief This variable holds value of how much time left on our
