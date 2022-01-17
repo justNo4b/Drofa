@@ -62,48 +62,53 @@ void Search::iterDeep() {
 
   _nodes = 0;
   _selDepth = 0;
+  std::memset(_rootNodesSpent, 0, sizeof(_rootNodesSpent));
   _timer.startIteration();
   int targetDepth = _timer.getSearchDepth();
   int aspWindow = 25;
   int aspDelta  = 50;
 
-  for (int currDepth = 1; currDepth <= targetDepth; currDepth++) {
+    for (int currDepth = 1; currDepth <= targetDepth; currDepth++) {
 
-    int aspAlpha = LOST_SCORE;
-    int aspBeta  =-LOST_SCORE;
-    if (currDepth > 6){
-      aspAlpha = _bestScore - aspWindow;
-      aspBeta  = _bestScore + aspWindow;
+        int aspAlpha = LOST_SCORE;
+        int aspBeta  =-LOST_SCORE;
+        if (currDepth > 6){
+            aspAlpha = _bestScore - aspWindow;
+            aspBeta  = _bestScore + aspWindow;
+        }
+
+        while (true){
+
+            int score = _rootMax(_initialBoard, aspAlpha, aspBeta, currDepth);
+
+            if (_stop) break;
+
+            if (score <= aspAlpha){
+                aspAlpha = std::max(aspAlpha - aspDelta, LOST_SCORE);
+            }else if( score >= aspBeta){
+                aspBeta  = std::min(aspBeta + aspDelta, -LOST_SCORE);
+            }else{
+                break;
+            }
+
+            aspDelta += aspDelta * 2 / 3;
+        }
+
+        // Iteration finished normally
+        // Check and adjust time we should spend, and print UCI info
+        if (currDepth > 6) _timer.adjustTimer(_nodes, _rootNodesSpent[_bestMove.getPieceType()][_bestMove.getTo()]);
+
+        if (_stop) break;
+
+        int elapsed = 0;
+        bool shouldStop = _timer.finishOnThisDepth(&elapsed);
+        if (_logUci) {
+            _logUciInfo(_getPv(), currDepth, _bestScore, _nodes, elapsed);
+        }
+
+        if (shouldStop) break;
+
     }
-
-    while (true){
-
-    int score = _rootMax(_initialBoard, aspAlpha, aspBeta, currDepth);
-
-    if (_stop) break;
-    if (score <= aspAlpha){
-      aspAlpha = std::max(aspAlpha - aspDelta, LOST_SCORE);
-    }else if( score >= aspBeta){
-      aspBeta  = std::min(aspBeta + aspDelta, -LOST_SCORE);
-    }else{
-      break;
-    }
-
-    aspDelta += aspDelta * 2 / 3;
-    }
-
-
-    if (_stop) break;
-
-    int elapsed = 0;
-    bool shouldStop = _timer.finishOnThisDepth(&elapsed);
-    if (_logUci) {
-      _logUciInfo(_getPv(), currDepth, _bestScore, _nodes, elapsed);
-    }
-
-    if (shouldStop) break;
-
-  }
 
   if (_logUci) std::cout << "bestmove " << getBestMove().getNotation() << std::endl;
 
@@ -260,7 +265,10 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
     Board movedBoard = board;
     movedBoard.doMove(move);
     _sStack.AddMove(move.getMoveINT());
+
     if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
+        U64 nodesStart = _nodes;
+
         if (fullWindow) {
           currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, false, false);
         } else {
@@ -284,6 +292,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
           std::memcpy(_ourPV.pVmoves + 1, rootPV.pVmoves, sizeof(int) * rootPV.length);
           // Break if we've found a checkmate
         }
+        _rootNodesSpent[move.getPieceType()][move.getTo()] += _nodes - nodesStart;
 
     }
     _sStack.Remove();

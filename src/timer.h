@@ -114,6 +114,8 @@
       bool finishOnThisDepth(int *);
 
       int getSearchDepth();
+
+      void adjustTimer(U64, U64);
   };
 
 #endif

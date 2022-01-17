@@ -82,6 +82,18 @@ bool Timer::checkLimits(U64 nodes){
   return false;
 }
 
+void Timer::adjustTimer(U64 totalNodes, U64 bestNodes){
+    int nodesCoeff = bestNodes * 100 / totalNodes;
+
+    // clamp coeff between 25 and 75
+    // we assume that standart case is about ~50% of nodes go in bestMove
+    nodesCoeff = std::max(25, nodesCoeff);
+    nodesCoeff = std::min(75, nodesCoeff);
+
+    // First approach. Tweak time
+    _timeAllocated += (_timeAllocated * (50 - nodesCoeff)) / 1000;
+}
+
 void Timer::startIteration(){
     _start = std::chrono::steady_clock::now();
     _lastPlyTime = 0;
