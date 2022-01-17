@@ -90,8 +90,8 @@ void Timer::adjustTimer(U64 totalNodes, U64 bestNodes){
     nodesCoeff = std::max(25, nodesCoeff);
     nodesCoeff = std::min(75, nodesCoeff);
 
-    // First approach. Tweak time
-    _timeAllocated += (_timeAllocated * (50 - nodesCoeff)) / 1000;
+    // First approach. Tweak time if it is not inf time search
+    if (_timeAllocated != INF) _timeAllocated += (_timeAllocated * (50 - nodesCoeff)) / 1000;
 }
 
 void Timer::startIteration(){
