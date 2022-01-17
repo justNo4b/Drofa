@@ -620,7 +620,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       if (!AreWeInCheck &&
           depth <= 2 &&
           !isQuiet &&
-          moveHistory <= -8192 - 4096 * depth) continue;
+          moveHistory <= -4096 - 4096 * depth) continue;
 
     }
 
