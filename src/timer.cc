@@ -5,6 +5,7 @@
 Timer::Timer(Limits l, Color color, int movenum){
     _limits = l;
     _wasThoughtProlonged = false;
+    _onlyReplyPosition = false;
     if (_limits.infinite) { // Infinite search
         _searchDepth = INF;
         _timeAllocated = INF;
@@ -93,11 +94,15 @@ bool Timer::finishOnThisDepth(int * elapsedTime){
     // debug needed
     *elapsedTime = elapsed;
 
-    if (_wasThoughtProlonged ||  (elapsed >= (_timeAllocated / 2))){
+    if (_wasThoughtProlonged ||  (elapsed >= (_timeAllocated / 2) || _onlyReplyPosition)){
         return true;
     }
 
     return false;
+}
+
+void Timer::singleLegalMove(){
+    _onlyReplyPosition = true;
 }
 
 int Timer::getSearchDepth(){

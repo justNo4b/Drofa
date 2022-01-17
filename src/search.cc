@@ -236,6 +236,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
   MoveGen movegen(board, false);
   MoveList legalMoves = movegen.getMoves();
   pV rootPV = pV();
+  int LegalMovesCount = 0;
 
   _sStack.AddEval(board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer()));
 
@@ -261,6 +262,8 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
     movedBoard.doMove(move);
     _sStack.AddMove(move.getMoveINT());
     if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
+        LegalMovesCount++;
+
         if (fullWindow) {
           currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, false, false);
         } else {
@@ -294,6 +297,10 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
     _bestMove = bestMove;
     _bestScore = alpha;
   }
+
+  // We searched all moves, and have only one legal move
+  // Notify time manager of that
+  if (LegalMovesCount == 1) _timer.singleLegalMove();
 
   return alpha;
 }

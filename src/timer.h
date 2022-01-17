@@ -51,6 +51,7 @@
      *
      */
     bool _wasThoughtProlonged;
+    bool _onlyReplyPosition;
 
     /**
      *  @brief We track how much time we spended while
@@ -114,6 +115,8 @@
       bool finishOnThisDepth(int *);
 
       int getSearchDepth();
+
+      void singleLegalMove();
   };
 
 #endif
