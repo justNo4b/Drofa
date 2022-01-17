@@ -3,6 +3,7 @@
 #include "version.h"
 #include "eval.h"
 #include "searchdata.h"
+#include "timer.h"
 #include <iostream>
 #include <thread>
 
@@ -137,7 +138,7 @@ void pickBestMove() {
 
 void go(std::istringstream &is) {
   std::string token;
-  Search::Limits limits;
+  Limits limits;
 
   while (is >> token) {
     if (token == "depth") is >> limits.depth;
@@ -156,7 +157,7 @@ void go(std::istringstream &is) {
     for (int i = 1; i < myTHREADSCOUNT; i++){
       // copy board stuff
       Board b = board;
-      Search::Limits l = limits;
+      Limits l = limits;
       Hist h = positionHistory;
 
       // create new search and start
