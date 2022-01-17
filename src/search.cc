@@ -44,7 +44,7 @@ void Search::init_LMR_array(){
 
 Search::Search(const Board &board, Limits limits, Hist positionHistory, OrderingInfo *info, bool logUci) :
     _orderingInfo(*info),
-    _limits(limits),
+    _timer(limits, board.getActivePlayer(), board._getGameClock() / 2),
     _initialBoard(board),
     _logUci(logUci),
     _stop(false),
@@ -54,35 +54,20 @@ Search::Search(const Board &board, Limits limits, Hist positionHistory, Ordering
      {
 
   _sStack = SEARCH_Data();
-  init_LMR_array();
-  _wasThoughtProlonged = false;
   _posHist = positionHistory;
-  if (_limits.infinite) { // Infinite search
-    _searchDepth = INF;
-    _timeAllocated = INF;
-  } else if (_limits.depth != 0) { // Depth search
-    _searchDepth = _limits.depth;
-    _timeAllocated = INF;
-  } else if (_limits.moveTime != 0) {
-    _searchDepth = MAX_SEARCH_DEPTH;
-    _timeAllocated = _limits.moveTime;
-  } else if (_limits.time[_initialBoard.getActivePlayer()] != 0) {
-    _setupTimer(board, 0);
-  } else { // No limits specified, use default depth
-    _searchDepth = DEFAULT_SEARCH_DEPTH;
-    _timeAllocated = INF;
-  }
+  init_LMR_array();
 }
 
 void Search::iterDeep() {
-  _start = std::chrono::steady_clock::now();
+
   _nodes = 0;
   _selDepth = 0;
-  _lastPlyTime = 0;
+  _timer.startIteration();
+  int targetDepth = _timer.getSearchDepth();
   int aspWindow = 25;
   int aspDelta  = 50;
 
-  for (int currDepth = 1; currDepth <= _searchDepth; currDepth++) {
+  for (int currDepth = 1; currDepth <= targetDepth; currDepth++) {
 
     int aspAlpha = LOST_SCORE;
     int aspBeta  =-LOST_SCORE;
@@ -108,21 +93,16 @@ void Search::iterDeep() {
     }
 
 
-
     if (_stop) break;
-    int elapsed =
-        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
-    _lastPlyTime =  elapsed - _lastPlyTime;
-    // If limits were exceeded in the search, break without logging UCI info (search was incomplete)
 
-
+    int elapsed = 0;
+    bool shouldStop = _timer.finishOnThisDepth(&elapsed);
     if (_logUci) {
       _logUciInfo(_getPv(), currDepth, _bestScore, _nodes, elapsed);
     }
 
-    if (_wasThoughtProlonged)  break;
-    // If the last search has exceeded or hit 50% of the allocated time, stop searching
-    if (elapsed >= (_timeAllocated / 2)) break;
+    if (shouldStop) break;
+
   }
 
   if (_logUci) std::cout << "bestmove " << getBestMove().getNotation() << std::endl;
@@ -219,7 +199,7 @@ int Search::getNodes(){
 int Search::getBestScore(){
   return _bestScore;
 }
-// эта штука - запрос к времени раз в сколько-то позиций
+
 bool Search::_checkLimits() {
 
   if (--_limitCheckCount > 0) {
@@ -227,77 +207,7 @@ bool Search::_checkLimits() {
   }
 
   _limitCheckCount = 2048;
-
-  int elapsed =
-      std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
-
-  if (_limits.nodes != 0 && (_nodes >= _limits.nodes)) return true;
-
-  // when searching at a time control we will try to use time efficiatnly.
-  // If we already started the search, but it took way longer than expected
-  // we actually do not want to lose all of our effort
-  // So we check if we have enough time to actually finish it
-  // If we have much time left, we will allocate some more
-  // time to finish search and set a flag that search was prolonged
-  // so we didnt prolong it again.
-
-  if (_wasThoughtProlonged && elapsed >= (_timeAllocated)){
-    return true;
-  } else  if (elapsed >= (_timeAllocated)){
-
-    // if we have so much time left that we supposedly
-    // can search last ply ~25 times at least
-    // we can prolong thought here.
-    if (_ourTimeLeft > _lastPlyTime * 20 + 30 ){
-      _timeAllocated += _lastPlyTime * 2;
-      _wasThoughtProlonged = true;
-      return false;
-    }else{
-      return true;
-    }
-
-  }
-
-  return false;
-}
-
-void Search::_setupTimer(const Board &board, int curPlyNum){
-
-    int ourTime = _limits.time[_initialBoard.getActivePlayer()];
-    //int opponentTime = _limits.time[_initialBoard.getInactivePlayer()];
-    int moveNum = board._getGameClock() / 2;
-    int ourIncrement = _limits.increment[_initialBoard.getActivePlayer()];
-
-    int tWidth_a = 30;
-    int tWidth = 175;
-    int tMove = 20;
-    int criticalMove = 28;
-
-    double tCoefficient = 0;
-
-    // Divide up the remaining time (If movestogo not specified we are in
-    // sudden death)
-    if (_limits.movesToGo == 0) {
-      tCoefficient = 10 * (tWidth_a / pow((tWidth + pow((moveNum - tMove), 2)), 1.5));
-      _timeAllocated = ourTime * tCoefficient;
-      if (moveNum > criticalMove) _timeAllocated = ourTime / 10 + ourIncrement;
-      _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - 10);
-    } else {
-      // when movetogo is specified, use different coefficients
-      tWidth_a = 75;
-      tWidth = 200;
-      tMove = 35;
-      criticalMove = 20;
-
-      tCoefficient = 10 * (tWidth_a / pow((tWidth + pow((moveNum - tMove), 2)), 1.5));
-      _timeAllocated = ourTime * tCoefficient;
-      if (moveNum > criticalMove) _timeAllocated = ourTime / 10 + ourIncrement;
-      _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - 10);
-    }
-
-    // Depth is infinity in a timed search (ends when time runs out)
-    _searchDepth = MAX_SEARCH_DEPTH;
-    _ourTimeLeft = ourTime - _timeAllocated;
+  return _timer.checkLimits(_nodes);
 }
 
 inline void Search::_updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ply, int depth){
