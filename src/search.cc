@@ -538,8 +538,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     while (movePicker.hasNext()){
       Move move = movePicker.getNext();
 
-      // exit when there is no more captures
-      if (move.getValue() <= 300000){
+      // exit when there is no more captures or promotions
+      if (move.getValue() < 300000){
         movePicker.refreshPicker();
         break;
       }
