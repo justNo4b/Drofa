@@ -730,7 +730,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                              (cutNode || pvNode) ? -1 : 0;
 
           reduction = std::max(minReduction, reduction);
-          bool isNextCutNode = reduction <= 0 ? !cutNode : true;
+          bool isNextCutNode = reduction < 0 ? !cutNode : true;
           //Avoid to reduce so much that we go to QSearch right away
           int fDepth = std::max(1, tDepth - 1 - reduction);
 
