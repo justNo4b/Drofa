@@ -516,17 +516,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           failedNull = true;
   }
 
-  // 4. UN_HASHED REDUCTION
-  // We reduce depth by 1 if the position we currently analysing isnt hashed.
-  // Based on talkchess discussion, replaces Internal iterative deepening.
-  // The justification is if our hashing is decent, if the
-  // position at high depth isnt here, its probably position not worth searching
-  //
-  // Drofa dont do this reduction after NullMove, because we already reduced a lot,
-  // and reducing further may reduce quality of the NM_Search
-  if (depth >= 5 && !TTmove && pMove != 0 && !sing)
-    depth--;
-
   // No pruning occured, generate moves and recurse
   MoveGen movegen(board, false);
   MoveList legalMoves = movegen.getMoves();
@@ -573,6 +562,20 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       }
     }
   }
+
+
+  // 4. UN_HASHED REDUCTION
+  // We reduce depth by 1 if the position we currently analysing isnt hashed.
+  // Based on talkchess discussion, replaces Internal iterative deepening.
+  // The justification is if our hashing is decent, if the
+  // position at high depth isnt here, its probably position not worth searching
+  //
+  // Drofa dont do this reduction after NullMove, because we already reduced a lot,
+  // and reducing further may reduce quality of the NM_Search
+  if (depth >= 5 && !TTmove && pMove != 0 && !sing)
+    depth--;
+
+  // Start main move loop
 
   Move bestMove;
   int  LegalMoveCount = 0;
