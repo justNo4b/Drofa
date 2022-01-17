@@ -567,6 +567,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           _sStack.Remove();
 
           if (sScore >= pcBeta){
+            if (!_stop && !sing && !TTmove) myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, sScore, depth - 4, ply);
             return beta;
           }
         }
