@@ -767,7 +767,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // Beta cutoff
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
-          int divisor = isQuiet ? 64 : 128;
+          int divisor = isQuiet ? 32 : 64;
           int hBonus = depth + std::min(3, (alpha - statEVAL)/ divisor) * (statEVAL < alpha);
           _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, hBonus);
           // Add a new tt entry for this node
