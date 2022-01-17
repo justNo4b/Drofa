@@ -96,12 +96,11 @@ void Search::iterDeep() {
 
         // Iteration finished normally
         // Check and adjust time we should spend, and print UCI info
-        if (currDepth > 6) _timer.adjustTimer(_nodes, _rootNodesSpent[_bestMove.getPieceType()][_bestMove.getTo()]);
 
         if (_stop) break;
 
         int elapsed = 0;
-        bool shouldStop = _timer.finishOnThisDepth(&elapsed);
+        bool shouldStop = _timer.finishOnThisDepth(&elapsed, _nodes, _rootNodesSpent[_bestMove.getPieceType()][_bestMove.getTo()]);
         if (_logUci) {
             _logUciInfo(_getPv(), currDepth, _bestScore, _nodes, elapsed);
         }

@@ -82,30 +82,28 @@ bool Timer::checkLimits(U64 nodes){
   return false;
 }
 
-void Timer::adjustTimer(U64 totalNodes, U64 bestNodes){
-    int nodesCoeff = bestNodes * 100 / totalNodes;
-
-    // clamp coeff between 25 and 75
-    // we assume that standart case is about ~50% of nodes go in bestMove
-    nodesCoeff = std::max(25, nodesCoeff);
-    nodesCoeff = std::min(75, nodesCoeff);
-
-    // First approach. Tweak time if it is not inf time search
-    if (_timeAllocated != INF) _timeAllocated += (_timeAllocated * (50 - nodesCoeff)) / 1000;
-}
-
 void Timer::startIteration(){
     _start = std::chrono::steady_clock::now();
     _lastPlyTime = 0;
 }
 
-bool Timer::finishOnThisDepth(int * elapsedTime){
+bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes){
     int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
     _lastPlyTime =  elapsed - _lastPlyTime;
-    // debug needed
-    *elapsedTime = elapsed;
 
-    if (_wasThoughtProlonged ||  (elapsed >= (_timeAllocated / 2))){
+    double nodesConfidance = bestNodes * 100.0 / totalNodes;
+    // clamp coeff between 25 and 75
+    // we assume that standart case is about ~50% of nodes go in bestMove
+    nodesConfidance = std::max(25.0, nodesConfidance);
+    nodesConfidance = std::min(85.0, nodesConfidance);
+
+    double nodesCoeff = 1.0 + (50.0 - nodesConfidance) / 50.0;
+
+
+
+
+    *elapsedTime = elapsed;
+    if (_wasThoughtProlonged ||  (elapsed >= (_timeAllocated * nodesCoeff * 0.5))){
         return true;
     }
 

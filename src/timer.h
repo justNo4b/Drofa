@@ -111,11 +111,9 @@
 
       void startIteration();
 
-      bool finishOnThisDepth(int *);
+      bool finishOnThisDepth(int *, U64, U64);
 
       int getSearchDepth();
-
-      void adjustTimer(U64, U64);
   };
 
 #endif
