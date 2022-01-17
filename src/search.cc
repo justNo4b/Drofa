@@ -730,12 +730,13 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                              (cutNode || pvNode) ? -1 : 0;
 
           reduction = std::max(minReduction, reduction);
+          bool isNextCutNode = reduction <= 0 ? !cutNode : true;
           //Avoid to reduce so much that we go to QSearch right away
           int fDepth = std::max(1, tDepth - 1 - reduction);
 
           //Search with reduced depth around alpha in assumtion
           // that alpha would not be beaten here
-          score = -_negaMax(movedBoard, &thisPV, fDepth, -alpha - 1 , -alpha, false, true);
+          score = -_negaMax(movedBoard, &thisPV, fDepth, -alpha - 1 , -alpha, false, isNextCutNode);
         }
 
         // Code here is restructured based on Weiss
