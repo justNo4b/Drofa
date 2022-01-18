@@ -62,17 +62,19 @@ void Search::iterDeep() {
 
   _nodes = 0;
   _selDepth = 0;
-  std::memset(_rootNodesSpent, 0, sizeof(_rootNodesSpent));
   _timer.startIteration();
   int targetDepth = _timer.getSearchDepth();
   int aspWindow = 25;
   int aspDelta  = 50;
+  U64 iterStartNodes = 0;
 
     for (int currDepth = 1; currDepth <= targetDepth; currDepth++) {
 
         int aspAlpha = LOST_SCORE;
         int aspBeta  =-LOST_SCORE;
         if (currDepth > 6){
+            std::memset(_rootNodesSpent, 0, sizeof(_rootNodesSpent));
+            iterStartNodes = _nodes;
             aspAlpha = _bestScore - aspWindow;
             aspBeta  = _bestScore + aspWindow;
         }
@@ -100,7 +102,7 @@ void Search::iterDeep() {
         if (_stop) break;
 
         int elapsed = 0;
-        bool shouldStop = _timer.finishOnThisDepth(&elapsed, _nodes, _rootNodesSpent[_bestMove.getPieceType()][_bestMove.getTo()]);
+        bool shouldStop = _timer.finishOnThisDepth(&elapsed, (_nodes - iterStartNodes), _rootNodesSpent[_bestMove.getPieceType()][_bestMove.getTo()]);
         if (_logUci) {
             _logUciInfo(_getPv(), currDepth, _bestScore, _nodes, elapsed);
         }
