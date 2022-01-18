@@ -24,9 +24,10 @@ Timer::Timer(Limits l, Color color, int movenum){
 
 void Timer::_setupTimer(Color color, int movenum){
     int ourTime = _limits.time[color];
-    //int opponentTime = _limits.time[_initialBoard.getInactivePlayer()];
+    int opponentTime = _limits.time[getOppositeColor(color)];
     int ourIncrement = _limits.increment[color];
     double tCoefficient = 0;
+    double oppTimeDelta = ourTime - opponentTime;
 
     // Divide up the remaining time (If movestogo not specified we are in
     // sudden death)
@@ -34,6 +35,7 @@ void Timer::_setupTimer(Color color, int movenum){
       tCoefficient = INCR_T_WIDTH_A / pow((INCR_T_WIDTH + pow((movenum - INCR_T_MOVE), 2)), 1.5);
       _timeAllocated = ourTime * tCoefficient;
       if (movenum > INCR_CRIT_MOVE) _timeAllocated = ourTime / 10 + ourIncrement;
+      if (oppTimeDelta > 0) _timeAllocated += oppTimeDelta / 4;
       _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - 10);
     } else {
       // when movetogo is specified, use different coefficients
@@ -41,6 +43,7 @@ void Timer::_setupTimer(Color color, int movenum){
       tCoefficient = CYCL_T_WIDTH_A / pow((CYCL_T_WIDTH + pow((movenum - CYCL_T_MOVE), 2)), 1.5);
       _timeAllocated = ourTime * tCoefficient;
       if (movenum > CYCL_CRIT_MOVE) _timeAllocated = ourTime / 10 + ourIncrement;
+      if (oppTimeDelta > 0) _timeAllocated += oppTimeDelta / 4;
       _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - 10);
     }
 
