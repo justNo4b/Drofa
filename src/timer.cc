@@ -103,7 +103,7 @@ bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes){
 
 
     *elapsedTime = elapsed;
-    if (_wasThoughtProlonged ||  (elapsed >= (_timeAllocated * nodesCoeff * 0.5))){
+    if (_wasThoughtProlonged ||  (elapsed >= (_timeAllocated * nodesCoeff))){
         return true;
     }
 
