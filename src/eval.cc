@@ -747,8 +747,10 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
              ((ONE << forwardSqv) & eB->EnemyPawnAttackMap[color]) &&
              !((ONE << forwardSqv) & otherPawns)){
 
-      if (TRACK) ft.BackwardPawn[r][color]++;
-      s += BACKWARD_PAWN[r];   
+      if (TRACK){
+          if ((detail::FORWARD_BITS[color][square] & otherPawns) != 0) ft.BackwardPawn[r][color]++; else ft.BackwardOpenPawn[r][color]++;
+      } 
+      s += ((detail::FORWARD_BITS[color][square] & otherPawns) != 0) ?  BACKWARD_PAWN[r] : BACKWARD_OPEN_PAWN[r];   
     }
 
     // test on if a pawn is connected
