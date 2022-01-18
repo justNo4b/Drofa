@@ -6,6 +6,7 @@
 #include "movegen.h"
 #include "transptable.h"
 #include "orderinginfo.h"
+#include "timer.h"
 #include <chrono>
 #include <atomic>
 
@@ -18,51 +19,6 @@
  */
 class Search {
  public:
-  /**
-   * @brief Represents limits imposed on a search through the UCI protocol.
-   */
-  struct Limits {
-    /**
-     * @brief Constructs a new Limits struct with all numerical limits set to 0.
-     */
-    Limits() : depth(0), infinite(false), nodes(0), movesToGo(0), moveTime(0), time{}, increment{} {};
-
-    /**
-     * @brief Maximum depth to search to
-     */
-    int depth;
-
-    /**
-     * @brief If true, don't stop the search until the stop flag is set
-     */
-    bool infinite;
-
-    /**
-     * @brief Maximum number of nodes to search
-     */
-    U64 nodes;
-
-    /**
-     * @brief Moves left to the next time control
-     */
-    int movesToGo;
-
-    /**
-     * @brief If nonzero, search exactly this number of milliseconds
-     */
-    int moveTime;
-
-    /**
-     * @brief Array indexed by [color] of time left on the clock for black and white.
-     */
-    int time[2];
-
-    /**
-     * @brief Array indexed by [color] of increment per move for black and white.
-     */
-    int increment[2];
-  };
-
   /**
    * @brief Constructs a new Search for the given board.
    *
@@ -116,23 +72,7 @@ class Search {
    */
   int _lmp_Array[MAX_PLY][2];
 
-  /**
-   * @brief Default depth to search to if no limits are specified.
-   */
-  static const int DEFAULT_SEARCH_DEPTH = 15;
-
-  /**
-   * @brief Estimated number of moves left in the game when in sudden death
-   * that the Search class uses to calculate the time allocated to a sudden
-   * death search.
-   */
-  static const int SUDDEN_DEATH_MOVESTOGO = 10;
-
-  /**
-   * @brief Maximum depth to search to if depth is not explicitly specified
-   * and time limits are imposed.
-   */
-  static const int MAX_SEARCH_DEPTH = 64;
+  U64 _rootNodesSpent[6][64];
 
   /**
    * @brief that is showing maxDepth with extentions we reached in the search
@@ -164,10 +104,11 @@ class Search {
   OrderingInfo & _orderingInfo;
 
   /**
-   * @brief Limits object representing limits imposed on this search.
+   * @brief Timer that is controlling time management and testing to not over
+   * overstep depth/nodes/etc bounds
    *
    */
-  Limits _limits;
+  Timer _timer;
 
   /**
    * @brief Initial board being used in this search.
@@ -180,47 +121,11 @@ class Search {
   bool _logUci;
 
   /**
-   * @brief Time allocated for this search in ms
-   */
-  int _timeAllocated;
-
-  /**
-   * @brief This variable holds value of how much time left on our
-   * clock. If it is too low, we do not prolong search.
-   *
-   */
-  int _ourTimeLeft;
-
-  /**
-   * @brief We keep track of times we prolonged thought
-   * during the search. It is important to not prolong a more
-   * than one in a row in order not to lose on time.
-   *
-   */
-  bool _wasThoughtProlonged;
-
-  /**
-   *  @brief We track how much time we spended while
-   *  searching last ply. It is used to estimate how much time
-   *  we grant engine when search be prolonged.
-   */
-  int _lastPlyTime;
-
-  /**
-   * @brief Depth of this search in plys
-   */
-  int _searchDepth;
-
-  /**
    * @brief If this flag is set, calls to _negaMax() and _rootMax() will end as soon
    * as possible and calls to _rootMax will not set the best move and best score.
    */
   std::atomic<bool> _stop;
 
-  /**
-   * @brief time_point object representing the exact moment this search was started.
-   */
-  std::chrono::time_point<std::chrono::steady_clock> _start;
 
   /**
    * @brief Returns True if this search has exceeded its given limits
@@ -335,7 +240,6 @@ class Search {
    */
   void init_LMR_array();
 
-  void _setupTimer(const Board &, int);
 };
 
 #endif

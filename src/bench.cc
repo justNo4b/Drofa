@@ -2,6 +2,7 @@
 #include "searchdata.h"
 #include "search.h"
 #include "move.h"
+#include "timer.h"
 #include <iostream>
 #include <memory>
 
@@ -15,7 +16,7 @@ void myBench(){
     Board board = Board();
     int nodes_total = 0;
 
-    Search::Limits limits;
+    Limits limits;
     limits.depth = BENCH_SEARCH_DEPTH;
     Hist history = Hist();
     std::shared_ptr<Search> search;
