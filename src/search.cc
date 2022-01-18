@@ -317,6 +317,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   int score;
   int ply = _sStack.ply;
   int pMove = _sStack.moves[ply - 1];
+  int pMovePiece = (pMove & 0x7);
+  int pMoveTo = ((pMove >> 15) & 0x3f);
   int alphaOrig = alpha;
   int statEVAL = 0;
   Move hashedMove = Move(0);
@@ -545,7 +547,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         int  moveHistory  = isQuiet ?
                             _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) :
                             _orderingInfo.getCaptureHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo());
-        int cmHistory     = isQuiet ? _orderingInfo.getCountermoveHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo()) : 0;
+        int cmHistory     = isQuiet ?
+                            _orderingInfo.getCountermoveHistory(board.getActivePlayer(), pMovePiece, pMoveTo, move.getPieceType(), move.getTo())
+                            : 0;
         int tDepth = depth;
         // 6. EXTENTIONS
         //

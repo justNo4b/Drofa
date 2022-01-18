@@ -80,8 +80,8 @@ int OrderingInfo::getCaptureHistory(PieceType capturingPiece, PieceType captured
   return _captureHistory[capturingPiece][capturedPiece][to];
 }
 
-int OrderingInfo::getCountermoveHistory(Color color, int pMove, PieceType pType, int to) const{
-  return _counterMoveHistory[color][(pMove & 0x7)][((pMove >> 15) & 0x3f)][pType][to];
+int OrderingInfo::getCountermoveHistory(Color color, int pType, int pTo, PieceType type, int to) const{
+  return _counterMoveHistory[color][pType][pTo][type][to];
 }
 
 void OrderingInfo::updateKillers(int ply, Move move) {

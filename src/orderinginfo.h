@@ -104,11 +104,12 @@ class OrderingInfo {
   /**
    * @brief Get CounterMoveHistory for the move
    *
-   * @param prevMove  previous move made
-   * @param pType     moving piece type
-   * @param to        move to
+   * @param prevMovePiece     previous move made
+   * @param prevMoveTo  previous move made
+   * @param pType          moving piece type
+   * @param to             move to
    */
-  int getCountermoveHistory(Color, int, PieceType, int) const;
+  int getCountermoveHistory(Color, int, int, PieceType, int) const;
 
   /**
    * @brief Update the killer moves for the given ply with the given move.

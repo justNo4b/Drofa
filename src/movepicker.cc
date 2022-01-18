@@ -18,6 +18,8 @@ void MovePicker::_scoreMoves(const Board *board) {
   int Killer1 = _orderingInfo->getKiller1(_ply);
   int Killer2 = _orderingInfo->getKiller2(_ply);
   int Counter = _orderingInfo->getCounterMoveINT(_color, _pMove);
+  int pMovePiece = (_pMove & 0x7);
+  int pMoveTo = ((_pMove >> 15) & 0x3f);
 
   for (auto &move : *_moves) {
     int moveINT = move.getMoveINT();
@@ -42,7 +44,7 @@ void MovePicker::_scoreMoves(const Board *board) {
       move.setValue(COUNTERMOVE_BONUS);
     } else { // Quiet
       move.setValue(_orderingInfo->getHistory(_color, move.getFrom(), move.getTo()) +
-                    _orderingInfo->getCountermoveHistory(_color, _pMove, move.getPieceType(), move.getTo()));
+                    _orderingInfo->getCountermoveHistory(_color, pMovePiece, pMoveTo, move.getPieceType(), move.getTo()));
     }
   }
 }
