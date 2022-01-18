@@ -104,7 +104,7 @@ bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes, 
     // Dont do it if abs(score) is too high already
     double scoreCoeff = 1.0;
     if (abs(bestScore) < 300){
-        bestScoreDelta = std::min(150, bestScoreDelta);
+        bestScoreDelta = std::min(125, bestScoreDelta);
         scoreCoeff = 1.0 + 0.005 * (bestScoreDelta - 50.0);
     }
 
