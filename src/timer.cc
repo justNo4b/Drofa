@@ -87,7 +87,7 @@ void Timer::startIteration(){
     _lastPlyTime = 0;
 }
 
-bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes){
+bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes, int bestScore, int bestScoreDelta){
     int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
     _lastPlyTime =  elapsed - _lastPlyTime;
 
@@ -99,11 +99,18 @@ bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes){
 
     double nodesCoeff = 1.0 + (50.0 - nodesConfidance) / 50.0;
 
-
+    // Calculate how much does score of the best move changed in the iteration
+    // If it is changed too much we probably should try and search deeper
+    // Dont do it if abs(score) is too high already
+    double scoreCoeff = 1.0;
+    if (abs(bestScore) < 300){
+        bestScoreDelta = std::min(150, bestScoreDelta);
+        scoreCoeff = 1.0 + 0.005 * (bestScoreDelta - 50.0);
+    }
 
 
     *elapsedTime = elapsed;
-    if (_wasThoughtProlonged ||  (elapsed >= (_timeAllocated * nodesCoeff * 0.5))){
+    if (_wasThoughtProlonged ||  (elapsed >= (_timeAllocated * nodesCoeff * scoreCoeff * 0.5))){
         return true;
     }
 

@@ -55,6 +55,7 @@ Search::Search(const Board &board, Limits limits, Hist positionHistory, Ordering
 
   _sStack = SEARCH_Data();
   _posHist = positionHistory;
+  _prevBestScore = 0;
   init_LMR_array();
 }
 
@@ -96,11 +97,12 @@ void Search::iterDeep() {
 
         // Iteration finished normally
         // Check and adjust time we should spend, and print UCI info
-
         if (_stop) break;
 
+        int bScoreDelta = abs(_bestScore - _prevBestScore);
+        _prevBestScore = _bestScore;
         int elapsed = 0;
-        bool shouldStop = _timer.finishOnThisDepth(&elapsed, _nodes, _rootNodesSpent[_bestMove.getPieceType()][_bestMove.getTo()]);
+        bool shouldStop = _timer.finishOnThisDepth(&elapsed, _nodes, _rootNodesSpent[_bestMove.getPieceType()][_bestMove.getTo()], _bestScore, bScoreDelta);
         if (_logUci) {
             _logUciInfo(_getPv(), currDepth, _bestScore, _nodes, elapsed);
         }

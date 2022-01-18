@@ -157,6 +157,7 @@ class Search {
    * @brief Score corresponding to _bestMove
    */
   int _bestScore;
+  int _prevBestScore;
 
   /**
    * @brief principal variantion we calculated
