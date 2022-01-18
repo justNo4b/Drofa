@@ -620,7 +620,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // Reduce more when side-to-move was behind prior to NMP on the previous NMP try
           // Basically copy-pasted Koivisto idea
-          reduction += isQuiet && nmpTree && board.getActivePlayer() == behindColor;
+          reduction += (isQuiet || cutNode) && nmpTree && board.getActivePlayer() == behindColor;
 
           // Reduce more in the cut-nodes - used by SF/Komodo/etc
           reduction += cutNode;
