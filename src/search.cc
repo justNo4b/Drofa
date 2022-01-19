@@ -473,18 +473,21 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
         // see if qSearch holds
         int qScore = - _qSearch(movedBoard, -pcBeta, -pcBeta + 1);
+        int pcDepth = depth - 4;
 
         // if it holds, do proper reduced search
         if(qScore >= pcBeta){
           _posHist.Add(board.getZKey().getValue());
           _sStack.AddMove(move.getMoveINT());
 
-          int sScore = -_negaMax(movedBoard, &thisPV, depth - 4, -pcBeta, -pcBeta + 1, false, !cutNode);
+          int sScore = -_negaMax(movedBoard, &thisPV, pcDepth, -pcBeta, -pcBeta + 1, false, !cutNode);
 
           _posHist.Remove();
           _sStack.Remove();
 
           if (sScore >= pcBeta){
+
+            _updateBeta(false, move, board.getActivePlayer(), pMove, ply, (pcDepth + 2 * (statEVAL < alpha)));
             return beta;
           }
         }
