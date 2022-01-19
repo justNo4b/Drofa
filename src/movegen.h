@@ -43,7 +43,7 @@ class MoveGen {
    *
    * @return A MoveList of all pseudo-legal moves that have been generated for the current board.
    */
-  MoveList getMoves();
+  MoveList * getMoves();
 
  private:
   /**
@@ -192,7 +192,7 @@ class MoveGen {
    * @{
    */
   void _getWhitePromQonly(const Board &);
-  void _genBlackPromQonly(const Board &); 
+  void _genBlackPromQonly(const Board &);
   /**@}*/
 
   /**
