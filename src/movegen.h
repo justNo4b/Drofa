@@ -109,18 +109,6 @@ class MoveGen {
   void _genBlackMoves(const Board &);
   /**@}*/
 
-
-  /**
-   * @name White/black captures generation functions
-   *
-   * These functions generate all pseudo-legal moves for black and white.
-   *
-   * @{
-   */
-  void _genWhiteCaps(const Board &);
-  void _genBlackCaps(const Board &);
-  /**@}*/
-
   /**
    * @name Pseudo-legal move generation functions
    *
@@ -147,33 +135,6 @@ class MoveGen {
   void _genBlackQueenMoves(const Board &);
   /**@}*/
 
-
-    /**
-   * @name Pseudo-legal capture generation functions
-   *
-   * These functions generate pseudo-legal captures for their piece and color for the given board.
-   *
-   * @{
-   */
-  void _genWhitePawnCaps(const Board &);
-  void _genBlackPawnCaps(const Board &);
-
-  void _genWhiteKingCaps(const Board &);
-  void _genBlackKingCaps(const Board &);
-
-  void _genWhiteKnightCaps(const Board &);
-  void _genBlackKnightCaps(const Board &);
-
-  void _genWhiteBishopCaps(const Board &);
-  void _genBlackBishopCaps(const Board &);
-
-  void _genWhiteRookCaps(const Board &);
-  void _genBlackRookCaps(const Board &);
-
-  void _genWhiteQueenCaps(const Board &);
-  void _genBlackQueenCaps(const Board &);
-  /**@}*/
-
   /**
    * @name White pawn pseudo-legal move generation functions
    *
@@ -182,17 +143,8 @@ class MoveGen {
    */
   void _genWhitePawnSingleMoves(const Board &);
   void _genWhitePawnDoubleMoves(const Board &);
-  void _genWhitePawnRightAttacks(const Board &);
-  void _genWhitePawnLeftAttacks(const Board &);
-  /**@}*/
-
-  /**
-   *  @brief Generates pseudo-legal pawn promotions
-   * only to Q. Generates only quiet promotions
-   * @{
-   */
-  void _getWhitePromQonly(const Board &);
-  void _genBlackPromQonly(const Board &); 
+  inline void _genPawnAttacks(const Board &, Color color);
+  inline void _getPromQonly(const Board &, Color color);
   /**@}*/
 
   /**
@@ -204,8 +156,6 @@ class MoveGen {
    */
   void _genBlackPawnSingleMoves(const Board &);
   void _genBlackPawnDoubleMoves(const Board &);
-  void _genBlackPawnRightAttacks(const Board &);
-  void _genBlackPawnLeftAttacks(const Board &);
   /**@}*/
 
   /**
@@ -229,11 +179,11 @@ class MoveGen {
    * generate moves for and a bitboard of attackable pieces.
    *
    */
-  void _genKingCaps(const Board &, U64, U64);
-  void _genKnightCaps(const Board &, U64, U64);
-  void _genBishopCaps(const Board &, U64, U64);
-  void _genRookCaps(const Board &, U64, U64);
-  void _genQueenCaps(const Board &, U64, U64);
+  inline void _genKingCaps(const Board &, U64, U64);
+  inline void _genKnightCaps(const Board &, U64, U64);
+  inline void _genBishopCaps(const Board &, U64, U64);
+  inline void _genRookCaps(const Board &, U64, U64);
+  inline void _genQueenCaps(const Board &, U64, U64);
   /**@}*/
 
   /**
@@ -264,7 +214,7 @@ class MoveGen {
    * @param moves      Bitboard containing possible destination squares
    * @param attackable Bitboard containing attackable pieces for this move
    */
-  void _addCaps(const Board &, int, PieceType, U64, U64);
+  inline void _addCaps(const Board &, int, PieceType, U64, U64);
 };
 
 #endif
