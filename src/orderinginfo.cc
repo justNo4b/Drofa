@@ -29,10 +29,22 @@ void OrderingInfo::updateCounterMove(Color color, int counteredMove, int counter
   _counterMove[color][pType][to] = counterMove;
 }
 
+void OrderingInfo::updateFolloupMove(Color color, int ppMove, int folloup){
+  int pType = ppMove & 0x7;
+  int to = (ppMove >> 15) & 0x3f;
+  _folloupMove[color][pType][to] = folloup;
+}
+
 int OrderingInfo::getCounterMoveINT(Color color, int pMove) const{
   int type = pMove & 0x7;
   int to = (pMove >> 15) & 0x3f;
   return _counterMove[color][type][to];
+}
+
+int OrderingInfo::getFolloupMoveINT(Color color, int ppMove) const{
+  int type = ppMove & 0x7;
+  int to = (ppMove >> 15) & 0x3f;
+  return _folloupMove[color][type][to];
 }
 
 // currently use formula clamps history between (-16384 and 16384)

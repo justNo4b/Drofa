@@ -72,6 +72,7 @@ class OrderingInfo {
    *
    */
   void updateCounterMove(Color, int , int);
+  void updateFolloupMove(Color, int , int);
 
   /**
    * @brief Gets CounterMove using last move made in the position as info
@@ -80,6 +81,7 @@ class OrderingInfo {
    * @param pMove Previous move made in the Search
    */
   int getCounterMoveINT(Color, int) const;
+  int getFolloupMoveINT(Color, int) const;
 
   /**
    * @brief Get beta-cutoff history information for the given color, from square and
@@ -168,6 +170,8 @@ class OrderingInfo {
    * Indexed by [OppositeColor][PieceType][to_square] of the move they countered
    */
   int _counterMove[2][6][64];
+
+  int _folloupMove[2][6][64];
 };
 
 #endif
