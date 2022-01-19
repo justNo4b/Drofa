@@ -58,6 +58,7 @@ class MoveGen {
    * of moves from any one position.
    */
   static const int MOVELIST_RESERVE_SIZE = 218;
+  static const int MOVELIST_RESERVE_SIZE_CAPS = 32;
 
   /**
    * @brief Generates pseudo-legal moves for the active player of the given board
@@ -99,63 +100,14 @@ class MoveGen {
   void _genPawnPromotions(unsigned int, unsigned int, unsigned int= 0, PieceType= PAWN);
 
   /**
-   * @name White/black move generation functions
-   *
-   * These functions generate all pseudo-legal moves for black and white.
-   *
-   * @{
-   */
-  void _genWhiteMoves(const Board &);
-  void _genBlackMoves(const Board &);
-  /**@}*/
-
-  /**
-   * @name Pseudo-legal move generation functions
-   *
-   * These functions generate pseudo-legal moves for their piece and color for the given board.
-   *
-   * @{
-   */
-  void _genWhitePawnMoves(const Board &);
-  void _genBlackPawnMoves(const Board &);
-
-  void _genWhiteKingMoves(const Board &);
-  void _genBlackKingMoves(const Board &);
-
-  void _genWhiteKnightMoves(const Board &);
-  void _genBlackKnightMoves(const Board &);
-
-  void _genWhiteBishopMoves(const Board &);
-  void _genBlackBishopMoves(const Board &);
-
-  void _genWhiteRookMoves(const Board &);
-  void _genBlackRookMoves(const Board &);
-
-  void _genWhiteQueenMoves(const Board &);
-  void _genBlackQueenMoves(const Board &);
-  /**@}*/
-
-  /**
    * @name White pawn pseudo-legal move generation functions
    *
    * These functions generate the four types of pawn moves for white for a given board.
    * @{
    */
-  void _genWhitePawnSingleMoves(const Board &);
-  void _genWhitePawnDoubleMoves(const Board &);
+  inline void _genPawnMoves(const Board &, Color color);
   inline void _genPawnAttacks(const Board &, Color color);
   inline void _getPromQonly(const Board &, Color color);
-  /**@}*/
-
-  /**
-   * @name Black pawn pseudo-legal generation functions
-   *
-   * These functions generate the four types of pawn moves for black for a given board.
-   *
-   * @{
-   */
-  void _genBlackPawnSingleMoves(const Board &);
-  void _genBlackPawnDoubleMoves(const Board &);
   /**@}*/
 
   /**
@@ -165,7 +117,7 @@ class MoveGen {
    * generate moves for and a bitboard of attackable pieces.
    *
    */
-  void _genKingMoves(const Board &, U64, U64);
+  void _genKingMoves(const Board &, Color, U64, U64);
   void _genKnightMoves(const Board &, U64, U64);
   void _genBishopMoves(const Board &, U64, U64);
   void _genRookMoves(const Board &, U64, U64);

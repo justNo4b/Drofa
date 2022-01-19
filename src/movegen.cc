@@ -26,13 +26,17 @@ MoveList MoveGen::getMoves() {
 }
 
 void MoveGen::_genMoves(const Board &board) {
-  _moves.reserve(MOVELIST_RESERVE_SIZE);
-  switch (board.getActivePlayer()) {
-    case WHITE: _genWhiteMoves(board);
-      break;
-    case BLACK: _genBlackMoves(board);
-      break;
-  }
+    _moves.reserve(MOVELIST_RESERVE_SIZE);
+    Color color = board.getActivePlayer();
+    Color otherColor = getOppositeColor(color);
+
+    _genPawnMoves(board, color);
+    _genPawnAttacks(board, color);
+    _genRookMoves(board, board.getPieces(color, ROOK), board.getAttackable(otherColor));
+    _genKnightMoves(board, board.getPieces(color, KNIGHT), board.getAttackable(otherColor));
+    _genBishopMoves(board, board.getPieces(color, BISHOP), board.getAttackable(otherColor));
+    _genKingMoves(board, color, board.getPieces(color, KING), board.getAttackable(otherColor));
+    _genQueenMoves(board, board.getPieces(color, QUEEN), board.getAttackable(otherColor));
 }
 
 void MoveGen::_genCaptures(const Board &board) {
@@ -50,25 +54,7 @@ void MoveGen::_genCaptures(const Board &board) {
 
 }
 
-void MoveGen::_genWhiteMoves(const Board &board) {
-  _genWhitePawnMoves(board);
-  _genWhiteRookMoves(board);
-  _genWhiteKnightMoves(board);
-  _genWhiteBishopMoves(board);
-  _genWhiteKingMoves(board);
-  _genWhiteQueenMoves(board);
-}
-
-void MoveGen::_genBlackMoves(const Board &board) {
-  _genBlackPawnMoves(board);
-  _genBlackRookMoves(board);
-  _genBlackKnightMoves(board);
-  _genBlackBishopMoves(board);
-  _genBlackKingMoves(board);
-  _genBlackQueenMoves(board);
-}
-
-void MoveGen::_genPawnPromotions(unsigned int from, unsigned int to, unsigned int flags, PieceType capturedPieceType) {
+inline void MoveGen::_genPawnPromotions(unsigned int from, unsigned int to, unsigned int flags, PieceType capturedPieceType) {
   Move promotionBase = Move(from, to, PAWN, flags | Move::PROMOTION);
   if (flags & Move::CAPTURE) {
     promotionBase.setCapturedPieceType(capturedPieceType);
@@ -91,30 +77,39 @@ void MoveGen::_genPawnPromotions(unsigned int from, unsigned int to, unsigned in
   _moves.push_back(knightPromotion);
 }
 
-void MoveGen::_genWhitePawnSingleMoves(const Board &board) {
-  U64 movedPawns = board.getPieces(WHITE, PAWN) << 8;
+void MoveGen::_genPawnMoves(const Board &board, Color color) {
+  U64 movedPawns = color == WHITE ? board.getPieces(color, PAWN) << 8
+                                  : board.getPieces(color, PAWN) >> 8;
   movedPawns &= board.getNotOccupied();
+  U64 doublePushes = color == WHITE ? (movedPawns << 8) & board.getNotOccupied() & DOUBLE_PUSH_RANK[color]
+                                    : (movedPawns >> 8) & board.getNotOccupied() & DOUBLE_PUSH_RANK[color];
 
-  U64 promotions = movedPawns & RANK_8;
-  movedPawns &= ~RANK_8;
+  U64 promotions = movedPawns & PROMOTION_RANK[color];
+  movedPawns &= ~PROMOTION_RANK[color];
+  int fromAdj = color == WHITE ? -8 : 8;
 
   // Generate single non promotion moves
   while (movedPawns) {
     int to = _popLsb(movedPawns);
-    _moves.push_back(Move(to - 8, to, PAWN));
+    _moves.push_back(Move(to + fromAdj, to, PAWN));
   }
 
   // Generate promotions
   while (promotions) {
     int to = _popLsb(promotions);
-    _genPawnPromotions(to - 8, to);
+    _genPawnPromotions(to + fromAdj, to);
+  }
+
+  while (doublePushes) {
+    int to = _popLsb(doublePushes);
+    _moves.push_back(Move(to + (2 * fromAdj), to, PAWN, Move::DOUBLE_PAWN_PUSH));
   }
 }
 
 inline void MoveGen::_getPromQonly(const Board &board, Color color){
   U64 promotions = color == WHITE ? board.getPieces(color, PAWN) << 8 : board.getPieces(color, PAWN) >> 8;
   promotions &= board.getNotOccupied();
-  promotions &= color == WHITE ? RANK_8 : RANK_1;
+  promotions &= PROMOTION_RANK[color];
   int fromAdj = color == WHITE ? -8 : 8;
 
   // Generate promotions
@@ -123,16 +118,6 @@ inline void MoveGen::_getPromQonly(const Board &board, Color color){
     Move m = Move(to + fromAdj, to, PAWN, Move::PROMOTION);
     m.setPromotionPieceType(QUEEN);
     _moves.push_back(m);
-  }
-}
-
-void MoveGen::_genWhitePawnDoubleMoves(const Board &board) {
-  U64 singlePushes = (board.getPieces(WHITE, PAWN) << 8) & board.getNotOccupied();
-  U64 doublePushes = (singlePushes << 8) & board.getNotOccupied() & RANK_4;
-
-  while (doublePushes) {
-    int to = _popLsb(doublePushes);
-    _moves.push_back(Move(to - 16, to, PAWN, Move::DOUBLE_PAWN_PUSH));
   }
 }
 
@@ -204,80 +189,33 @@ inline void MoveGen::_genPawnAttacks(const Board &board, Color color) {
   }
 }
 
-void MoveGen::_genBlackPawnSingleMoves(const Board &board) {
-  U64 movedPawns = board.getPieces(BLACK, PAWN) >> 8;
-  movedPawns &= board.getNotOccupied();
+void MoveGen::_genKingMoves(const Board &board, Color color, U64 king, U64 attackable) {
+    // Add normal moves
+    int kingIndex = _bitscanForward(king);
+    U64 moves = board.getAttacksForSquare(KING, board.getActivePlayer(), kingIndex);
+    _addMoves(board, kingIndex, KING, moves, attackable);
 
-  U64 promotions = movedPawns & RANK_1;
-  movedPawns &= ~RANK_1;
+    // Add Castlings
+    switch (color)
+    {
+    case WHITE:
+        if (board.whiteCanCastleKs()) {
+            _moves.push_back(Move(e1, g1, KING, Move::KSIDE_CASTLE));
+        }
+        if (board.whiteCanCastleQs()) {
+            _moves.push_back(Move(e1, c1, KING, Move::QSIDE_CASTLE));
+        }
+        break;
 
-  // Generate single non promotion moves'
-  while (movedPawns) {
-    int to = _popLsb(movedPawns);
-    _moves.push_back(Move(to + 8, to, PAWN));
-  }
-
-  // Generate promotions
-  while (promotions) {
-    int to = _popLsb(promotions);
-    _genPawnPromotions(to + 8, to);
-  }
-}
-
-void MoveGen::_genBlackPawnDoubleMoves(const Board &board) {
-  U64 singlePushes = (board.getPieces(BLACK, PAWN) >> 8) & board.getNotOccupied();
-  U64 doublePushes = (singlePushes >> 8) & board.getNotOccupied() & RANK_5;
-
-  while (doublePushes) {
-    int to = _popLsb(doublePushes);
-    _moves.push_back(Move(to + 16, to, PAWN, Move::DOUBLE_PAWN_PUSH));
-  }
-}
-
-void MoveGen::_genWhitePawnMoves(const Board &board) {
-  _genWhitePawnSingleMoves(board);
-  _genWhitePawnDoubleMoves(board);
-  _genPawnAttacks(board, board.getActivePlayer());
-}
-
-void MoveGen::_genBlackPawnMoves(const Board &board) {
-  _genBlackPawnSingleMoves(board);
-  _genBlackPawnDoubleMoves(board);
-  _genPawnAttacks(board, board.getActivePlayer());
-}
-
-void MoveGen::_genWhiteKingMoves(const Board &board) {
-  _genKingMoves(board, board.getPieces(WHITE, KING), board.getAttackable(BLACK));
-
-  if (board.whiteCanCastleKs()) {
-    _moves.push_back(Move(e1, g1, KING, Move::KSIDE_CASTLE));
-  }
-  if (board.whiteCanCastleQs()) {
-    _moves.push_back(Move(e1, c1, KING, Move::QSIDE_CASTLE));
-  }
-}
-
-void MoveGen::_genBlackKingMoves(const Board &board) {
-  _genKingMoves(board, board.getPieces(BLACK, KING), board.getAttackable(WHITE));
-
-  if (board.blackCanCastleKs()) {
-    _moves.push_back(Move(e8, g8, KING, Move::KSIDE_CASTLE));
-  }
-  if (board.blackCanCastleQs()) {
-    _moves.push_back(Move(e8, c8, KING, Move::QSIDE_CASTLE));
-  }
-}
-
-void MoveGen::_genKingMoves(const Board &board, U64 king, U64 attackable) {
-  if (king == 0) {
-    return;
-  }
-
-  int kingIndex = _bitscanForward(king);
-
-  U64 moves = board.getAttacksForSquare(KING, board.getActivePlayer(), kingIndex);
-
-  _addMoves(board, kingIndex, KING, moves, attackable);
+    case BLACK:
+        if (board.blackCanCastleKs()) {
+            _moves.push_back(Move(e8, g8, KING, Move::KSIDE_CASTLE));
+        }
+        if (board.blackCanCastleQs()) {
+            _moves.push_back(Move(e8, c8, KING, Move::QSIDE_CASTLE));
+        }
+        break;
+    }
 }
 
 inline void MoveGen::_genKingCaps(const Board &board, U64 king, U64 attackable) {
@@ -292,15 +230,7 @@ inline void MoveGen::_genKingCaps(const Board &board, U64 king, U64 attackable) 
   _addCaps(board, kingIndex, KING, moves, attackable);
 }
 
-void MoveGen::_genWhiteKnightMoves(const Board &board) {
-  _genKnightMoves(board, board.getPieces(WHITE, KNIGHT), board.getAttackable(BLACK));
-}
-
-void MoveGen::_genBlackKnightMoves(const Board &board) {
-  _genKnightMoves(board, board.getPieces(BLACK, KNIGHT), board.getAttackable(WHITE));
-}
-
-void MoveGen::_genKnightMoves(const Board &board, U64 knights, U64 attackable) {
+inline void MoveGen::_genKnightMoves(const Board &board, U64 knights, U64 attackable) {
   while (knights) {
     int from = _popLsb(knights);
 
@@ -320,15 +250,7 @@ inline void MoveGen::_genKnightCaps(const Board &board, U64 knights, U64 attacka
   }
 }
 
-void MoveGen::_genWhiteBishopMoves(const Board &board) {
-  _genBishopMoves(board, board.getPieces(WHITE, BISHOP), board.getAttackable(BLACK));
-}
-
-void MoveGen::_genBlackBishopMoves(const Board &board) {
-  _genBishopMoves(board, board.getPieces(BLACK, BISHOP), board.getAttackable(WHITE));
-}
-
-void MoveGen::_genBishopMoves(const Board &board, U64 bishops, U64 attackable) {
+inline void MoveGen::_genBishopMoves(const Board &board, U64 bishops, U64 attackable) {
   while (bishops) {
     int from = _popLsb(bishops);
 
@@ -348,15 +270,7 @@ inline void MoveGen::_genBishopCaps(const Board &board, U64 bishops, U64 attacka
   }
 }
 
-void MoveGen::_genWhiteRookMoves(const Board &board) {
-  _genRookMoves(board, board.getPieces(WHITE, ROOK), board.getAttackable(BLACK));
-}
-
-void MoveGen::_genBlackRookMoves(const Board &board) {
-  _genRookMoves(board, board.getPieces(BLACK, ROOK), board.getAttackable(WHITE));
-}
-
-void MoveGen::_genRookMoves(const Board &board, U64 rooks, U64 attackable) {
+inline void MoveGen::_genRookMoves(const Board &board, U64 rooks, U64 attackable) {
   while (rooks) {
     int from = _popLsb(rooks);
 
@@ -376,15 +290,7 @@ inline void MoveGen::_genRookCaps(const Board &board, U64 rooks, U64 attackable)
   }
 }
 
-void MoveGen::_genWhiteQueenMoves(const Board &board) {
-  _genQueenMoves(board, board.getPieces(WHITE, QUEEN), board.getAttackable(BLACK));
-}
-
-void MoveGen::_genBlackQueenMoves(const Board &board) {
-  _genQueenMoves(board, board.getPieces(BLACK, QUEEN), board.getAttackable(WHITE));
-}
-
-void MoveGen::_genQueenMoves(const Board &board, U64 queens, U64 attackable) {
+inline void MoveGen::_genQueenMoves(const Board &board, U64 queens, U64 attackable) {
   while (queens) {
     int from = _popLsb(queens);
 
@@ -404,7 +310,7 @@ inline void MoveGen::_genQueenCaps(const Board &board, U64 queens, U64 attackabl
   }
 }
 
-void MoveGen::_addMoves(const Board &board, int from, PieceType pieceType, U64 moves, U64 attackable) {
+inline void MoveGen::_addMoves(const Board &board, int from, PieceType pieceType, U64 moves, U64 attackable) {
   // Ignore all moves/attacks to kings
   moves &= ~(board.getPieces(board.getInactivePlayer(), KING));
 
