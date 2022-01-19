@@ -161,7 +161,7 @@ class OrderingInfo {
    * @brief Table of beta-cutoff values dependand on the previous move by opponent
    * Indexed by [prevPieceType][prevTo][movePieceType][moveTo]
    */
-  int16_t _counterMoveHistory[2][6][64][6][64];
+  int16_t _counterMoveHistory[2][6 * 6][64][64];
 
   /**
    * @brief Array of the moves (represented by their INT), that counter move
