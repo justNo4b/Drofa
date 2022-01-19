@@ -20,17 +20,23 @@ struct posFeatured{
     int KingHighDanger[2];
     int KingMedDanger[2];
     int KingLowDanger[2];
-    int PawnSupported[2];
     int PawnDoubled[2];
     int PawnIsolated[2];
     int PawnBlocked[2];
     int PassersBlocked[2];
+    int PawnPushThreat[2];
     int BishopRammed[2];
     int BishopCenterControl[2];
+    int BishopProtOutJump[2];
+    int BishopGenOutJump[2];
+    int KnightProtOutJump[2];
+    int KnightGenOutJump[2];
     int MinorBehindPawn[2];
     int MinorBehindPasser[2];
     int MinorBlockOwn[2];
     int MinorBlockOwnPassed[2];
+    int RookTensionLine[2];
+    int RookRammedLine[2];
     int KingAheadPasser[2];
     int KingEqualPasser[2];
     int KingBehindPasser[2];
@@ -38,16 +44,21 @@ struct posFeatured{
     int KingSemiOwnFile[2];
     int KingSemiEnemyFile[2];
     int KingAttackPawn[2];
+    int KingPawnless[2];
     //Array features
-    int PawnConnected[7][2];
     int PassedPawnRank[7][2];
-    int PassedPawnFile[8][2];
+    int PassedPawnFile[4][2];
     int PassedPawnFree[7][2];
     int PassedPawnPosAdvance[7][2];
     int PassedPassedDistance[8][2];
     int KingFriendlyPasser[8][2];
     int KingEnemyPasser[8][2];
     int KnightEnemyPasser[4][2];
+    int CandidatePasser[7][2];
+    int CandidatePasserFile[4][2];
+    int BackwardPawn[7][2];
+    int BackwardOpenPawn[7][2];
+    //
     int RookOpenFile[2][2];
     int RookHalfFile[2][2];
     int HangingPiece[5][2];
@@ -77,6 +88,9 @@ struct posFeatured{
     int BishopOutProtBlack[32][2];
     int KnightOutBlack[32][2];
     int BishopOutBlack[32][2];
+
+    int PawnConnected[32][2];
+    int PawnSupported[32][2];
     // Material
     int MaterialValue[5][2];
 };
@@ -109,7 +123,7 @@ struct tEntry {
   const std::string TUNING_DATA        = "d8FENS_WrongResults_mixed.epd";
   const int         TUNING_POS_COUNT   = 35821985; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 843;
+  const int         TUNING_TERMS_COUNT = 928;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
   const int         TUNIGN_PRINT       = 25;

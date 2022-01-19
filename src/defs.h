@@ -112,8 +112,10 @@ const U64 WHITE_SQUARES = 0x55AA55AA55AA55AA;
 /**
  * @name Other helpfull bitboards
  */
-const U64 CENTER         = (ONE << e4) | (ONE << e5) | (ONE << d4) | (ONE << d5);
-const U64 FIGHTING_AREA  = RANK_3 | RANK_4 | RANK_5 | RANK_6;
+const U64 CENTER            = (ONE << e4) | (ONE << e5) | (ONE << d4) | (ONE << d5);
+const U64 FIGHTING_AREA     = RANK_3 | RANK_4 | RANK_5 | RANK_6;
+const U64 SIDE_FILES        = FILE_A | FILE_H;
+const U64 EXT_MIDDLE_FILES  = FILE_C | FILE_D | FILE_E | FILE_F;
 const U64 PASSER_ZONE [2] = { (RANK_5 | RANK_6),
                               (RANK_3 | RANK_4) };
 const U64 ENEMY_SIDE [2]  = { (RANK_5 | RANK_6 | RANK_7 | RANK_8),
@@ -122,6 +124,17 @@ const U64 KSIDE_CASTLE [2] = { ((ONE << g1) | (ONE << h1) | (ONE << g2) | (ONE <
                                ((ONE << g8) | (ONE << h8) | (ONE << g7) | (ONE << h7)) };
 const U64 QSIDE_CASTLE [2] = { ((ONE << a1) | (ONE << b1) | (ONE << c1) | (ONE << a2) | (ONE << b2)),
                                ((ONE << a8) | (ONE << b8) | (ONE << c8) | (ONE << a7) | (ONE << b7)) };
+
+const U64 DECENT_BISHOP_PROT_OUTPOST[2] = { (RANK_3 | RANK_4 | RANK_5 | RANK_6 | RANK_7) & ~SIDE_FILES,
+                                            (RANK_2 | RANK_3 | RANK_4 | RANK_5 | RANK_6) & ~SIDE_FILES };
+
+const U64 DECENT_KNIGHT_PROT_OUTPOST[2] = {(RANK_4 | RANK_5 | RANK_6),
+                                           (RANK_3 | RANK_4 | RANK_5) };
+
+const U64 DECENT_BISHOP_GEN_OUTPOST  = { RANK_3 | RANK_4 | RANK_5 | RANK_6 };
+
+const U64 DECENT_KNIGHT_GEN_OUTPOST[2] = { (((RANK_4 | RANK_5) & EXT_MIDDLE_FILES) | (ONE << b5) | (ONE << g5)),
+                                           (((RANK_4 | RANK_5) & EXT_MIDDLE_FILES) | (ONE << b4) | (ONE << g4)) };
 /**@}*/
 
 /** @brief Positive infinity to be used during search (eg. as a return value for winning) */
@@ -149,6 +162,8 @@ enum PieceType {
   KING
 };
 
+const int DEFAULT_SEARCH_DEPTH = 15;
+const int MAX_SEARCH_DEPTH = 64;
 const int PHASE_WEIGHT_SUM = 24;
 const int MAX_PHASE = 256;
 

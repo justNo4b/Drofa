@@ -5,7 +5,7 @@
 #include "eval.h"
 #include "outposts.h"
 
-#define BIG_FEATURE_NUMBER (57)
+#define BIG_FEATURE_NUMBER (69)
 
 enum TuningType{
     ALL,
@@ -32,17 +32,23 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("KING_MED_DANGER", false, &Eval::KING_MED_DANGER, 1, 1, ALL),
     tFeature("KING_LOW_DANGER", false, &Eval::KING_LOW_DANGER, 1, 1, ALL),
     tFeature("BISHOP_PAIR_BONUS", false, &Eval::BISHOP_PAIR_BONUS, 1, 1, ALL),
-    tFeature("PAWN_SUPPORTED", false, &Eval::PAWN_SUPPORTED, 1, 1, ALL),
     tFeature("DOUBLED_PAWN_PENALTY", false, &Eval::DOUBLED_PAWN_PENALTY, 1, 1, ALL),
     tFeature("ISOLATED_PAWN_PENALTY", false, &Eval::ISOLATED_PAWN_PENALTY, 1, 1, ALL),
     tFeature("PAWN_BLOCKED", false, &Eval::PAWN_BLOCKED, 1, 1, ALL),
     tFeature("PASSER_BLOCKED", false, &Eval::PASSER_BLOCKED, 1, 1, ALL),
+    tFeature("PAWN_PUSH_THREAT", false, &Eval::PAWN_PUSH_THREAT, 1, 1, ALL),
     tFeature("BISHOP_RAMMED_PENALTY", false, &Eval::BISHOP_RAMMED_PENALTY, 1, 1, ALL),
     tFeature("BISHOP_CENTER_CONTROL", false, &Eval::BISHOP_CENTER_CONTROL, 1, 1, ALL),
+    tFeature("BISHOP_POS_PROUTPOST_JUMP", false, &Eval::BISHOP_POS_PROUTPOST_JUMP, 1, 1, ALL),
+    tFeature("BISHOP_POS_GENOUTPOST_JUMP", false, &Eval::BISHOP_POS_GENOUTPOST_JUMP, 1, 1, ALL),
+    tFeature("KNIGHT_POS_PROUTPOST_JUMP", false, &Eval::KNIGHT_POS_PROUTPOST_JUMP, 1, 1, ALL),
+    tFeature("KNIGHT_POS_GENOUTPOST_JUMP", false, &Eval::KNIGHT_POS_GENOUTPOST_JUMP, 1, 1, ALL),
     tFeature("MINOR_BEHIND_PAWN", false, &Eval::MINOR_BEHIND_PAWN, 1, 1, ALL),
     tFeature("MINOR_BEHIND_PASSER", false, &Eval::MINOR_BEHIND_PASSER, 1, 1, ALL),
     tFeature("MINOR_BLOCK_OWN_PAWN", false, &Eval::MINOR_BLOCK_OWN_PAWN, 1, 1, ALL),
     tFeature("MINOR_BLOCK_OWN_PASSER", false, &Eval::MINOR_BLOCK_OWN_PASSER, 1, 1, ALL),
+    tFeature("ROOK_LINE_TENSION", false, &Eval::ROOK_LINE_TENSION, 1, 1, ALL),
+    tFeature("ROOK_RAMMED_LINE", false, &Eval::ROOK_RAMMED_LINE, 1, 1, ALL),
     tFeature("KING_AHEAD_PASSER", false, &Eval::KING_AHEAD_PASSER, 1, 1, ALL),
     tFeature("KING_EQUAL_PASSER", false, &Eval::KING_EQUAL_PASSER, 1, 1, ALL),
     tFeature("KING_BEHIND_PASSER", false, &Eval::KING_BEHIND_PASSER, 1, 1, ALL),
@@ -50,15 +56,19 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("KING_OWN_SEMI_FILE", false, &Eval::KING_OWN_SEMI_FILE, 1, 1, ALL),
     tFeature("KING_ENEMY_SEMI_LINE", false, &Eval::KING_ENEMY_SEMI_LINE, 1, 1, ALL),
     tFeature("KING_ATTACK_PAWN", false, &Eval::KING_ATTACK_PAWN, 1, 1, ALL),
-    tFeature("PAWN_CONNECTED", true, Eval::PAWN_CONNECTED, 7, 4, ALL),
+    tFeature("KING_PAWNLESS_FLANG", false, &Eval::KING_PAWNLESS_FLANG, 1, 1, ALL),
     tFeature("PASSED_PAWN_RANKS", true, Eval::PASSED_PAWN_RANKS, 7, 4, ALL),
-    tFeature("PASSED_PAWN_FILES", true, Eval::PASSED_PAWN_FILES, 8, 4, ALL),
+    tFeature("PASSED_PAWN_FILES", true, Eval::PASSED_PAWN_FILES, 4, 10, ALL),
     tFeature("PASSED_PAWN_FREE", true, Eval::PASSED_PAWN_FREE, 7, 4, ALL),
     tFeature("PASSED_PAWN_POS_ADVANCE", true, Eval::PASSED_PAWN_POS_ADVANCE, 7, 4, ALL),
     tFeature("PASSED_PASSED_DISTANCE", true, Eval::PASSED_PASSED_DISTANCE, 8, 4, ALL),
     tFeature("KING_PASSER_DISTANCE_FRIENDLY", true, Eval::KING_PASSER_DISTANCE_FRIENDLY, 8, 4, ALL),
     tFeature("KING_PASSER_DISTANCE_ENEMY", true, Eval::KING_PASSER_DISTANCE_ENEMY, 8, 4, ALL),
     tFeature("KNIGHT_PASSER_DISTANCE_ENEMY", true, Eval::KNIGHT_PASSER_DISTANCE_ENEMY, 4, 10, ALL),
+    tFeature("CANDIDATE_PASSED_PAWN", true, Eval::CANDIDATE_PASSED_PAWN, 7, 4, ALL),
+    tFeature("CANDIDATE_PASSED_PAWN_FILES", true, Eval::CANDIDATE_PASSED_PAWN_FILES, 4, 10, ALL),
+    tFeature("BACKWARD_PAWN", true, Eval::BACKWARD_PAWN, 7, 4, ALL),
+    tFeature("BACKWARD_OPEN_PAWN", true, Eval::BACKWARD_OPEN_PAWN, 7, 4, ALL),
     tFeature("ROOK_OPEN_FILE_BONUS", true, Eval::ROOK_OPEN_FILE_BONUS, 2, 10, ALL),
     tFeature("ROOK_SEMI_FILE_BONUS", true, Eval::ROOK_SEMI_FILE_BONUS, 2, 10, ALL),
     tFeature("HANGING_PIECE", true, Eval::HANGING_PIECE, 5, 10, ALL),
@@ -84,6 +94,8 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("BISHOP_PROT_OUTPOST_BLACK", true, BISHOP_PROT_OUTPOST_BLACK, 32, 4, ALL),
     tFeature("KNIGHT_OUTPOST_BLACK", true, KNIGHT_OUTPOST_BLACK, 32, 4, ALL),
     tFeature("BISHOP_OUTPOST_BLACK", true, BISHOP_OUTPOST_BLACK, 32, 4, ALL),
+    tFeature("PAWN_CONNECTED", true, PAWN_CONNECTED, 32, 4, ALL),
+    tFeature("PAWN_SUPPORTED", true, PAWN_SUPPORTED, 32, 4, ALL),
     tFeature("MATERIAL_VALUES", true, Eval::MATERIAL_VALUES, 5, 10, ALL),
 };
 

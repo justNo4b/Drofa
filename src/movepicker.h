@@ -38,6 +38,13 @@ class MovePicker {
    */
   bool hasNext() const;
 
+  /**
+   * @brief Refresh movepicker to the first entry to start picking moves from the beginning
+   *
+   * Used in the probcut implementation to avoid double-move-generation
+   */
+  void refreshPicker();
+
    private:
   /**
    * @brief List of moves this MovePicker picks from
