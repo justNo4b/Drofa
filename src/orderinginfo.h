@@ -59,9 +59,9 @@ class OrderingInfo {
 
   void decrementCapHistory(PieceType, PieceType, int, int);
 
-  void incrementCounterHistory(Color, int, PieceType, int, int);
+  void incrementCounterHistory(Color, int, int, PieceType, int, int);
 
-  void decrementCounterHistory(Color, int, PieceType, int, int);
+  void decrementCounterHistory(Color, int, int, PieceType, int, int);
 
   /**
    * @brief Update countermove.
@@ -71,7 +71,7 @@ class OrderingInfo {
    * @param counterMove Move that rejected counteredMove
    *
    */
-  void updateCounterMove(Color, int , int);
+  void updateCounterMove(Color, int , int, int);
 
   /**
    * @brief Gets CounterMove using last move made in the position as info
@@ -79,7 +79,7 @@ class OrderingInfo {
    * @param color Color of the current sideToMove
    * @param pMove Previous move made in the Search
    */
-  int getCounterMoveINT(Color, int) const;
+  int getCounterMoveINT(Color, int, int) const;
 
   /**
    * @brief Get beta-cutoff history information for the given color, from square and
