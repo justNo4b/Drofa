@@ -59,9 +59,9 @@ class OrderingInfo {
 
   void decrementCapHistory(PieceType, PieceType, int, int);
 
-  void incrementCounterHistory(Color, int, int, PieceType, int, int);
+  void incrementCounterHistory(Color, int, int, int, int);
 
-  void decrementCounterHistory(Color, int, int, PieceType, int, int);
+  void decrementCounterHistory(Color, int, int, int, int);
 
   /**
    * @brief Update countermove.
@@ -109,7 +109,7 @@ class OrderingInfo {
    * @param pType          moving piece type
    * @param to             move to
    */
-  int getCountermoveHistory(Color, int, int, PieceType, int) const;
+  int getCountermoveHistory(Color, int, int, int) const;
 
   /**
    * @brief Update the killer moves for the given ply with the given move.
