@@ -219,9 +219,6 @@ void MoveGen::_genKingMoves(const Board &board, Color color, U64 king, U64 attac
 }
 
 inline void MoveGen::_genKingCaps(const Board &board, U64 king, U64 attackable) {
-  if (king == 0) {
-    return;
-  }
 
   int kingIndex = _bitscanForward(king);
 
@@ -311,9 +308,6 @@ inline void MoveGen::_genQueenCaps(const Board &board, U64 queens, U64 attackabl
 }
 
 inline void MoveGen::_addMoves(const Board &board, int from, PieceType pieceType, U64 moves, U64 attackable) {
-  // Ignore all moves/attacks to kings
-  moves &= ~(board.getPieces(board.getInactivePlayer(), KING));
-
   // Generate non attacks
   U64 nonAttacks = moves & ~attackable;
   while (nonAttacks) {
@@ -334,8 +328,6 @@ inline void MoveGen::_addMoves(const Board &board, int from, PieceType pieceType
 }
 
 inline void MoveGen::_addCaps(const Board &board, int from, PieceType pieceType, U64 moves, U64 attackable) {
-  // Ignore all moves/attacks to kings
-  moves &= ~(board.getPieces(board.getInactivePlayer(), KING));
 
   // Generate attacks
   U64 attacks = moves & attackable;
