@@ -24,7 +24,8 @@ void MovePicker::_scoreMoves(const Board *board) {
     if (_hashMove != 0 && moveINT == _hashMove) {
       move.setValue(INF);
     }else if(_ply == 0){
-        move.setValue(_orderingInfo->getRootNodeCount(move.getPieceType(), move.getTo()));
+        U64 value = _orderingInfo->getRootNodeCount(move.getPieceType(), move.getTo());
+        move.setValue((int)(value / 1024));
     } else if (move.getFlags() & Move::CAPTURE) {
       int see   = board->Calculate_SEE(move);
       int value = _ply == MAX_PLY ? see :
