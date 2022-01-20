@@ -110,6 +110,6 @@ int OrderingInfo::getKiller2(int ply) const {
   return _killer2[ply];
 }
 
-U64 OrderingInfo::getRootNodeCount(PieceType piece, int to) const {
-    return _rootNodesSpent[piece][to];
+int OrderingInfo::getRootNodeCount(PieceType piece, int to) const {
+    return (int)_rootNodesSpent[piece][to] / 1000;
 }

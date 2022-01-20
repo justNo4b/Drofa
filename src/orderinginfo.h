@@ -139,7 +139,7 @@ class OrderingInfo {
    */
   int getKiller2(int) const;
 
-  U64 getRootNodeCount(PieceType, int) const;
+  int getRootNodeCount(PieceType, int) const;
 
  private:
 
