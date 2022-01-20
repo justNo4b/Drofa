@@ -456,7 +456,7 @@ bool Board:: isThereMajorPiece() const {
 
 bool Board:: isEndGamePosition() const {
   return (_popCount(_allPieces[WHITE] ^ _pieces[WHITE][PAWN]) +
-          _popCount(_allPieces[BLACK] ^ _pieces[BLACK][PAWN])) < 5;
+          _popCount(_allPieces[BLACK] ^ _pieces[BLACK][PAWN])) <= 5;
 }
 
 U64 Board::_getLeastValuableAttacker(Color color, U64 attackers, PieceType &piece) const{
