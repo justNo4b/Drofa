@@ -472,7 +472,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       movedBoard.doMove(move);
       if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
         // see if qSearch holds
-        int qScore = - _qSearch(movedBoard, -pcBeta, -pcBeta + 1);
+        int qScore = (depth - 4 >= 3) ? - _qSearch(movedBoard, -pcBeta, -pcBeta + 1) : pcBeta;
 
         // if it holds, do proper reduced search
         if(qScore >= pcBeta){
