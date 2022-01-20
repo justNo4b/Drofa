@@ -111,5 +111,5 @@ int OrderingInfo::getKiller2(int ply) const {
 }
 
 int OrderingInfo::getRootNodeCount(PieceType piece, int to) const {
-    return (int)_rootNodesSpent[piece][to] / 1000;
+    return (int)_rootNodesSpent[piece][to] / 1024;
 }
