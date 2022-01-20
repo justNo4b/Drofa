@@ -33,6 +33,8 @@ class OrderingInfo {
    */
   void clearChildrenKillers(int);
 
+  void clearRootNodes();
+
   /**
    * @brief Increment the history heuristic value of the board for
    * the given color, from square, to square and depth.
@@ -72,6 +74,9 @@ class OrderingInfo {
    *
    */
   void updateCounterMove(Color, int , int);
+
+  void addRootNodes(PieceType, int, U64);
+
 
   /**
    * @brief Gets CounterMove using last move made in the position as info
@@ -134,6 +139,8 @@ class OrderingInfo {
    */
   int getKiller2(int) const;
 
+  U64 getRootNodeCount(PieceType, int) const;
+
  private:
 
   /**
@@ -168,6 +175,8 @@ class OrderingInfo {
    * Indexed by [OppositeColor][PieceType][to_square] of the move they countered
    */
   int _counterMove[2][6][64];
+
+  U64 _rootNodesSpent[6][64];
 };
 
 #endif

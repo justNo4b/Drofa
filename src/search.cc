@@ -62,7 +62,7 @@ void Search::iterDeep() {
 
   _nodes = 0;
   _selDepth = 0;
-  std::memset(_rootNodesSpent, 0, sizeof(_rootNodesSpent));
+  _orderingInfo.clearRootNodes();
   _timer.startIteration();
   int targetDepth = _timer.getSearchDepth();
   int aspWindow = 25;
@@ -100,7 +100,7 @@ void Search::iterDeep() {
         if (_stop) break;
 
         int elapsed = 0;
-        bool shouldStop = _timer.finishOnThisDepth(&elapsed, _nodes, _rootNodesSpent[_bestMove.getPieceType()][_bestMove.getTo()]);
+        bool shouldStop = _timer.finishOnThisDepth(&elapsed, _nodes, _orderingInfo.getRootNodeCount(_bestMove.getPieceType(), _bestMove.getTo()));
         if (_logUci) {
             _logUciInfo(_getPv(), currDepth, _bestScore, _nodes, elapsed);
         }
@@ -291,7 +291,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
           std::memcpy(_ourPV.pVmoves + 1, rootPV.pVmoves, sizeof(int) * rootPV.length);
           // Break if we've found a checkmate
         }
-        _rootNodesSpent[move.getPieceType()][move.getTo()] += _nodes - nodesStart;
+        _orderingInfo.addRootNodes(move.getPieceType(), move.getTo(), (_nodes - nodesStart));
 
     }
     _sStack.Remove();

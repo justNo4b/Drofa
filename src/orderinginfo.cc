@@ -11,6 +11,7 @@ void OrderingInfo::clearAllHistory(){
   std::memset(_counterMove, 0, sizeof(_counterMove));
   std::memset(_killer1, 0, sizeof(_killer1));
   std::memset(_killer2, 0, sizeof(_killer2));
+  clearRootNodes();
 }
 
 void OrderingInfo::clearKillers(){
@@ -21,6 +22,10 @@ void OrderingInfo::clearKillers(){
 void OrderingInfo::clearChildrenKillers(int ply){
   _killer1[ply + 2] = 0;
   _killer2[ply + 2] = 0;
+}
+
+void OrderingInfo::clearRootNodes(){
+    std::memset(_rootNodesSpent, 0, sizeof(_rootNodesSpent));
 }
 
 void OrderingInfo::updateCounterMove(Color color, int counteredMove, int counterMove){
@@ -72,6 +77,10 @@ void OrderingInfo::decrementCounterHistory(Color color, int pMove, PieceType pTy
   _counterMoveHistory[color][(pMove & 0x7)][((pMove >> 15) & 0x3f)][pType][to] += 32 * bonus - current * abs(bonus) / 512;
 }
 
+void OrderingInfo::addRootNodes(PieceType piece, int to, U64 count){
+    _rootNodesSpent[piece][to] += count;
+}
+
 int OrderingInfo::getHistory(Color color, int from, int to) const {
   return _history[color][from][to];
 }
@@ -99,4 +108,8 @@ int OrderingInfo::getKiller1(int ply) const {
 
 int OrderingInfo::getKiller2(int ply) const {
   return _killer2[ply];
+}
+
+U64 OrderingInfo::getRootNodeCount(PieceType piece, int to) const {
+    return _rootNodesSpent[piece][to];
 }

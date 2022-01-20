@@ -72,8 +72,6 @@ class Search {
    */
   int _lmp_Array[MAX_PLY][2];
 
-  U64 _rootNodesSpent[6][64];
-
   /**
    * @brief that is showing maxDepth with extentions we reached in the search
    */

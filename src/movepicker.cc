@@ -23,6 +23,8 @@ void MovePicker::_scoreMoves(const Board *board) {
     int moveINT = move.getMoveINT();
     if (_hashMove != 0 && moveINT == _hashMove) {
       move.setValue(INF);
+    }else if(_ply == 0){
+        move.setValue(_orderingInfo->getRootNodeCount(move.getPieceType(), move.getTo()));
     } else if (move.getFlags() & Move::CAPTURE) {
       int see   = board->Calculate_SEE(move);
       int value = _ply == MAX_PLY ? see :
