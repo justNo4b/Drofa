@@ -828,6 +828,34 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   s += PAWN_PUSH_THREAT * _popCount(pawnPush & targets);
   if (TRACK) ft.PawnPushThreat[color] += _popCount(pawnPush & targets);                        
 
+  // BishopPair - Pieces interaction
+
+  bool isPair = _popCount(board.getPieces(color, BISHOP)) > 1;
+
+  s += BP_INTERACTION_OUR[QUEEN] * isPair * (_popCount(board.getPieces(color, QUEEN)) > 1);
+  s += BP_INTERACTION_ENEMY[QUEEN] * isPair * (_popCount(board.getPieces(otherColor, QUEEN)) > 1);
+
+  s += BP_INTERACTION_OUR[ROOK] * isPair * (_popCount(board.getPieces(color, ROOK)) > 1);
+  s += BP_INTERACTION_ENEMY[ROOK] * isPair * (_popCount(board.getPieces(otherColor, ROOK)) > 1);  
+
+  s += BP_INTERACTION_OUR[KNIGHT] * isPair * (_popCount(board.getPieces(color, KNIGHT)) > 1);
+  s += BP_INTERACTION_ENEMY[KNIGHT] * isPair * (_popCount(board.getPieces(otherColor, KNIGHT)) > 1);
+
+  s += BP_INTERACTION_ENEMY[BISHOP] * isPair * (_popCount(board.getPieces(otherColor, BISHOP)) > 1);
+
+  if (TRACK){
+    ft.BpInteractionOur[QUEEN][color] += isPair * (_popCount(board.getPieces(color, QUEEN)) > 1);
+    ft.BpInteractionEnemy[QUEEN][color] += isPair * (_popCount(board.getPieces(otherColor, QUEEN)) > 1);
+
+    ft.BpInteractionOur[ROOK][color] += isPair * (_popCount(board.getPieces(color, ROOK)) > 1);
+    ft.BpInteractionEnemy[ROOK][color] += isPair * (_popCount(board.getPieces(otherColor, ROOK)) > 1);
+
+    ft.BpInteractionOur[KNIGHT][color] += isPair * (_popCount(board.getPieces(color, KNIGHT)) > 1);
+    ft.BpInteractionEnemy[KNIGHT][color] += isPair * (_popCount(board.getPieces(otherColor, KNIGHT)) > 1);
+
+    ft.BpInteractionEnemy[BISHOP][color] += isPair * (_popCount(board.getPieces(otherColor, BISHOP)) > 1);
+  }
+
   // Passer - piece evaluation
 
   tmpPawns = eB->Passers[color];

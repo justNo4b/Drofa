@@ -343,6 +343,14 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.KingShieldQS[j][WHITE] - ft.KingShieldQS[j][BLACK];
     }
 
+    for (int j = 0; j < 5; j++){
+        coeff[i++] = ft.BpInteractionOur[j][WHITE] - ft.BpInteractionOur[j][BLACK];
+    }
+
+    for (int j = 0; j < 5; j++){
+        coeff[i++] = ft.BpInteractionEnemy[j][WHITE] - ft.BpInteractionEnemy[j][BLACK];
+    }
+
     for (int j = 0; j < 14; j++){
         coeff[i++] = ft.BishopMobility[j][WHITE] - ft.BishopMobility[j][BLACK];
     }
