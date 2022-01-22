@@ -169,12 +169,13 @@ void Search::_logUciInfo(const MoveList &pv, int depth, int bestScore, U64 nodes
   // Avoid divide by zero errors with nps
   elapsed++;
   // Avoid _selDepth being smaller than depth when entire path to score is in TT
-  _selDepth = std::max(depth, _selDepth);
+  int selDepth = std::max(depth, _selDepth);
 
-  //collect info about nodes from all Threads
+  //collect info about nodes and seldepth from all Threads
   for (int i = 1; i < myTHREADSCOUNT; i++){
     if (cSearch[i] != nullptr){
-      nodes += cSearch[i]->getNodes();
+        nodes += cSearch[i]->getNodes();
+        selDepth = std::max(selDepth, cSearch[i]->getSelDepth());
     }
   }
 
@@ -196,8 +197,12 @@ Move Search::getBestMove() {
   return _bestMove;
 }
 
-int Search::getNodes(){
+U64 Search::getNodes(){
   return _nodes;
+}
+
+int Search::getSelDepth(){
+    return _selDepth;
 }
 
 int Search::getBestScore(){

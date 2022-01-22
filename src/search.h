@@ -56,7 +56,8 @@ class Search {
   /**
    * @brief get amount of nodes we spent searching
    */
-  int getNodes();
+  U64 getNodes();
+  int getSelDepth();
 
  private:
 
