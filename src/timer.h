@@ -98,6 +98,9 @@
       const int CYCL_T_MOVE    = 35;
       const int CYCL_CRIT_MOVE = 20;
 
+      const int MTG_CYC_INCR   = 10;
+      const int MTG_NO_INCR    = 40;
+
 
     /**@}*/
 
