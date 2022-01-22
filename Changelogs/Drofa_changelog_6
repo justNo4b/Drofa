@@ -336,3 +336,14 @@ SPRT  | 8.0+0.08s Threads=1 Hash=8MB
 LLR   | 2.95 (-2.94, 2.94) [0.00, 5.00]
 GAMES | N: 2688 W: 708 L: 560 D: 1420
 ------------------------------------------------------------------
+42. Fix non-incremental time control. Now should be no time-losses
+or crashes if time >30s. Or at least rare.
+------------------------------------------------------------------
+Non-incremental: tested to have 0 bugs in 250 GAMES
+
+Normal TC:
+ELO   | 3.22 +- 4.99 (95%)
+SPRT  | 8.0+0.08s Threads=1 Hash=8MB
+LLR   | 2.97 (-2.94, 2.94) [-5.00, 0.00]
+GAMES | N: 9384 W: 2413 L: 2326 D: 4645
+------------------------------------------------------------------
