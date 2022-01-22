@@ -100,7 +100,8 @@ void Search::iterDeep() {
         if (_stop) break;
 
         int elapsed = 0;
-        bool shouldStop = _timer.finishOnThisDepth(&elapsed, _nodes, _rootNodesSpent[_bestMove.getPieceType()][_bestMove.getTo()]);
+        bool shouldStop = _logUci ? _timer.finishOnThisDepth(&elapsed, _nodes, _rootNodesSpent[_bestMove.getPieceType()][_bestMove.getTo()])
+                        : false;
         if (_logUci) {
             _logUciInfo(_getPv(), currDepth, _bestScore, _nodes, elapsed);
         }
@@ -211,7 +212,7 @@ int Search::getBestScore(){
 
 bool Search::_checkLimits() {
 
-  if (--_limitCheckCount > 0) {
+  if (!_logUci || --_limitCheckCount > 0) {
     return false;
   }
 
