@@ -21,8 +21,8 @@ void MoveGen::setBoard(const Board &board, bool isCaptureGenerated) {
 }
 
 
-MoveList MoveGen::getMoves() {
-  return _moves;
+MoveList * MoveGen::getMoves() {
+  return  &_moves;
 }
 
 void MoveGen::_genMoves(const Board &board) {

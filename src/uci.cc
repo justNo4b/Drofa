@@ -115,7 +115,8 @@ void setPosition(std::istringstream &is) {
     }
 
     MoveGen movegen(board, false);
-    for (auto move : movegen.getMoves()) {
+    MoveList * moves = movegen.getMoves();
+    for (auto &move : *moves) {
       if (move.getNotation() == token) {
         board.doMove(move);
         if ((move.getPieceType() == PAWN) || (move.getFlags() & Move::CAPTURE) ){
@@ -180,13 +181,13 @@ unsigned long long perft(const Board &board, int depth) {
   if (depth <= 0) {
     return 1;
   } else if (depth == 1) {
-    return MoveGen(board, false).getMoves().size();
+    return MoveGen(board, false).getMoves()->size();
   }
 
   MoveGen movegen(board, false);
-
+  MoveList * moves = movegen.getMoves();
   unsigned long long nodes = 0;
-  for (auto move : movegen.getMoves()) {
+  for (auto &move : *moves) {
     Board movedBoard = board;
     movedBoard.doMove(move);
 
@@ -203,7 +204,8 @@ void perftDivide(int depth) {
 
   std::cout << std::endl;
   auto start = std::chrono::steady_clock::now();
-  for (auto move : movegen.getMoves()) {
+  MoveList * moves = movegen.getMoves();
+  for (auto &move : *moves) {
     Board movedBoard = board;
     movedBoard.doMove(move);
 
@@ -304,7 +306,9 @@ void loop() {
     else if (token == "printboard") {
       std::cout << std::endl << board.getStringRep() << std::endl;
     } else if (token == "printmoves") {
-      for (auto move : MoveGen(board, false).getMoves()) {
+      MoveGen movegen(board, false);
+      MoveList * moves = movegen.getMoves();
+      for (auto &move : *moves) {
         std::cout << move.getNotation() << " ";
       }
       std::cout << std::endl;

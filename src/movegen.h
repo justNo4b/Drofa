@@ -43,7 +43,7 @@ class MoveGen {
    *
    * @return A MoveList of all pseudo-legal moves that have been generated for the current board.
    */
-  MoveList getMoves();
+  MoveList * getMoves();
 
  private:
   /**
