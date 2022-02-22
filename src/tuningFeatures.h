@@ -5,7 +5,7 @@
 #include "eval.h"
 #include "outposts.h"
 
-#define BIG_FEATURE_NUMBER (70)
+#define BIG_FEATURE_NUMBER (71)
 
 enum TuningType{
     ALL,
