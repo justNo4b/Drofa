@@ -61,6 +61,7 @@ struct posFeatured{
     int CandidatePasser[7][2];
     int CandidatePasserFile[4][2];
     int BackwardPawn[7][2];
+    int BackwardOpenPawn[7][2];
     //
     int RookOpenFile[2][2];
     int RookHalfFile[2][2];

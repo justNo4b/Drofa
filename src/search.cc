@@ -238,13 +238,13 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
   _nodes++;
 
   MoveGen movegen(board, false);
-  MoveList legalMoves = movegen.getMoves();
+  MoveList * legalMoves = movegen.getMoves();
   pV rootPV = pV();
 
   _sStack.AddEval(board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer()));
 
   // If no legal moves are available, just return, setting bestmove to a null move
-  if (legalMoves.empty()) {
+  if (legalMoves->empty()) {
     _bestMove = Move();
     _bestScore = LOST_SCORE;
     return 0;
@@ -252,7 +252,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
 
   const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
   int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
-  MovePicker movePicker(&_orderingInfo, &board, &legalMoves, hashMove, board.getActivePlayer(), 0, 0);
+  MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashMove, board.getActivePlayer(), 0, 0);
 
   int currScore;
 
@@ -447,50 +447,53 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   // No pruning occured, generate moves and recurse
   MoveGen movegen(board, false);
-  MoveList legalMoves = movegen.getMoves();
-  MovePicker movePicker(&_orderingInfo, &board, &legalMoves, hashedMove.getMoveINT(), board.getActivePlayer(), ply, pMove);
+  MoveList * legalMoves = movegen.getMoves();
+  MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashedMove.getMoveINT(), board.getActivePlayer(), ply, pMove);
 
   // Probcut
-  if (!pvNode && depth >= 5 && alpha < WON_IN_X){
-    int pcBeta = beta + 200;
-    while (movePicker.hasNext()){
-      Move move = movePicker.getNext();
+  if (!pvNode &&
+       depth >= 5 &&
+       !(quietTT && failedNull) &&
+       alpha < WON_IN_X){
+        int pcBeta = beta + 200;
+        while (movePicker.hasNext()){
+            Move move = movePicker.getNext();
 
-      // exit when there is no more captures
-      if (move.getValue() <= 300000){
-        movePicker.refreshPicker();
-        break;
-      }
+            // exit when there is no more captures
+            if (move.getValue() <= 300000){
+                movePicker.refreshPicker();
+                break;
+            }
 
-      // skip quiet TT moves
-      if (move == probedHASHentry.move && move.isQuiet()){
-        continue;
-      }
+            // skip quiet TT moves
+            if (move == probedHASHentry.move && move.isQuiet()){
+                continue;
+            }
 
-      // make a move
-      Board movedBoard = board;
-      movedBoard.doMove(move);
-      if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
-        // see if qSearch holds
-        int qScore = - _qSearch(movedBoard, -pcBeta, -pcBeta + 1);
+            // make a move
+            Board movedBoard = board;
+            movedBoard.doMove(move);
+            if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
+                // see if qSearch holds
+                int qScore = - _qSearch(movedBoard, -pcBeta, -pcBeta + 1);
 
-        // if it holds, do proper reduced search
-        if(qScore >= pcBeta){
-          _posHist.Add(board.getZKey().getValue());
-          _sStack.AddMove(move.getMoveINT());
+                // if it holds, do proper reduced search
+                if(qScore >= pcBeta){
+                    _posHist.Add(board.getZKey().getValue());
+                    _sStack.AddMove(move.getMoveINT());
 
-          int sScore = -_negaMax(movedBoard, &thisPV, depth - 4, -pcBeta, -pcBeta + 1, false, !cutNode);
+                    int sScore = -_negaMax(movedBoard, &thisPV, depth - 4, -pcBeta, -pcBeta + 1, false, !cutNode);
 
-          _posHist.Remove();
-          _sStack.Remove();
+                    _posHist.Remove();
+                    _sStack.Remove();
 
-          if (sScore >= pcBeta){
-            return beta;
-          }
+                    if (sScore >= pcBeta){
+                        return beta;
+                    }
+                }
+            }
         }
-      }
     }
-  }
 
   Move bestMove;
   int  LegalMoveCount = 0;
@@ -772,9 +775,9 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   }
 
   MoveGen movegen(board, true);
-  MoveList legalMoves = movegen.getMoves();
+  MoveList * legalMoves = movegen.getMoves();
   MovePicker movePicker
-      (&_orderingInfo, &board, &legalMoves, 0, board.getActivePlayer(), MAX_PLY, 0);
+      (&_orderingInfo, &board, legalMoves, 0, board.getActivePlayer(), MAX_PLY, 0);
 
   // If node is quiet, just return eval
   if (!movePicker.hasNext()) {

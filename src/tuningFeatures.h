@@ -71,6 +71,7 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("CANDIDATE_PASSED_PAWN", true, Eval::CANDIDATE_PASSED_PAWN, 7, 4, ALL),
     tFeature("CANDIDATE_PASSED_PAWN_FILES", true, Eval::CANDIDATE_PASSED_PAWN_FILES, 4, 10, ALL),
     tFeature("BACKWARD_PAWN", true, Eval::BACKWARD_PAWN, 7, 4, ALL),
+    tFeature("BACKWARD_OPEN_PAWN", true, Eval::BACKWARD_OPEN_PAWN, 7, 4, ALL),
     tFeature("ROOK_OPEN_FILE_BONUS", true, Eval::ROOK_OPEN_FILE_BONUS, 2, 10, ALL),
     tFeature("ROOK_SEMI_FILE_BONUS", true, Eval::ROOK_SEMI_FILE_BONUS, 2, 10, ALL),
     tFeature("HANGING_PIECE", true, Eval::HANGING_PIECE, 5, 10, ALL),
