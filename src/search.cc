@@ -452,7 +452,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   // Probcut
   if (!pvNode &&
-	  !sign &&	
+	  !sing &&	
        depth >= 5 &&
        !(quietTT && failedNull) &&
        alpha < WON_IN_X){
