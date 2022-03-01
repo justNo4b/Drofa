@@ -117,11 +117,8 @@ class MoveGen {
    * generate moves for and a bitboard of attackable pieces.
    *
    */
+  void _genPieceMoves(const Board &, PieceType, U64, U64);
   void _genKingMoves(const Board &, Color, U64, U64);
-  void _genKnightMoves(const Board &, U64, U64);
-  void _genBishopMoves(const Board &, U64, U64);
-  void _genRookMoves(const Board &, U64, U64);
-  void _genQueenMoves(const Board &, U64, U64);
   /**@}*/
 
     /**
@@ -131,11 +128,7 @@ class MoveGen {
    * generate moves for and a bitboard of attackable pieces.
    *
    */
-  inline void _genKingCaps(const Board &, U64, U64);
-  inline void _genKnightCaps(const Board &, U64, U64);
-  inline void _genBishopCaps(const Board &, U64, U64);
-  inline void _genRookCaps(const Board &, U64, U64);
-  inline void _genQueenCaps(const Board &, U64, U64);
+  inline void _genPieceCaps(const Board &, PieceType, U64, U64);
   /**@}*/
 
   /**
