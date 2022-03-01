@@ -240,6 +240,11 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
   MoveGen movegen(board, false);
   MoveList * legalMoves = movegen.getMoves();
   pV rootPV = pV();
+  bool TTmove = false;
+  Move hashedMove;
+  CutOffState TTbound;
+  int hashScore;
+  int TTdepth;
 
   _sStack.AddEval(board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer()));
 
@@ -250,8 +255,8 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
     return 0;
   }
 
-  const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
-  int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
+  TTmove = myHASH->HASH_Get(board.getZKey().getValue(), &hashedMove, &TTbound, &hashScore, &TTdepth);
+  int hashMove = TTbound ? hashedMove.getMoveINT() : 0;
   MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashMove, board.getActivePlayer(), 0, 0);
 
   int currScore;
@@ -322,6 +327,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   Move hashedMove = Move(0);
   pV   thisPV = pV();
   Color behindColor = _sStack.sideBehind;
+  CutOffState TTbound = NONE;
+  int TTdepth;
+  int hashScore;
 
   // Check if we are out of time
   if (_stop || _checkLimits()) {
@@ -339,24 +347,21 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   // Check transposition table cache
   // If TT is causing a cuttoff, we update move ordering stuff
-  const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
-  if (probedHASHentry.Flag != NONE){
-    TTmove = true;
-    hashedMove = Move(probedHASHentry.move);
+  TTmove = myHASH->HASH_Get(board.getZKey().getValue(), &hashedMove, &TTbound, &hashScore, &TTdepth);
+  if (TTmove){
     quietTT = hashedMove.isQuiet();
-    if (probedHASHentry.depth >= depth && !pvNode && !sing){
-      int hashScore = probedHASHentry.score;
+    if (TTdepth >= depth && !pvNode && !sing){
 
       if (abs(hashScore) > WON_IN_X){
         hashScore = (hashScore > 0) ? (hashScore - ply) :  (hashScore + ply);
       }
-      if (probedHASHentry.Flag == EXACT){
+      if (TTbound == EXACT){
         return hashScore;
       }
-      if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){
+      if (TTbound == ALPHA && hashScore <= alpha){
         return alpha;
       }
-      if (probedHASHentry.Flag == BETA && hashScore >= beta){
+      if (TTbound == BETA && hashScore >= beta){
         _updateBeta(quietTT, hashedMove, board.getActivePlayer(), pMove, ply, depth);
         return beta;
       }
@@ -466,7 +471,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             }
 
             // skip quiet TT moves
-            if (move == probedHASHentry.move && move.isQuiet()){
+            if (move == hashedMove && move.isQuiet()){
                 continue;
             }
 
@@ -501,7 +506,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   while (movePicker.hasNext()) {
 
     Move move = movePicker.getNext();
-    if (move == probedHASHentry.move && sing){
+    if (move == hashedMove && sing){
       continue;
     }
     bool isQuiet = move.isQuiet();
@@ -573,12 +578,12 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // that non other moves are even close to it, extend this move
         if (depth > 8 &&
             !AreWeInCheck &&
-            probedHASHentry.Flag != ALPHA &&
-            probedHASHentry.depth >= depth - 2 &&
-            probedHASHentry.move == move.getMoveINT() &&
-            abs(probedHASHentry.score) < WON_IN_X / 4){
+            TTbound != ALPHA &&
+            TTdepth >= depth - 2 &&
+            hashedMove == move.getMoveINT() &&
+            abs(hashScore) < WON_IN_X / 4){
               int sDepth = depth / 2;
-              int sBeta = probedHASHentry.score - depth * 2;
+              int sBeta = hashScore - depth * 2;
               Board sBoard = board;
               int score = _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, true, cutNode);
               if (sBeta > score){
@@ -735,6 +740,14 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     score = AreWeInCheck ? LOST_SCORE + ply : 0; // LOST_SCORE = checkmate, 0 = stalemate (draw)
     up_pV->length = 0;
     return score;
+  }
+
+
+  // If the best move was not set in the main search loop
+  // alpha was not raised at any point, just return alpha
+  // (ie do not write in the TT)
+  if (bestMove.getFlags() & Move::NULL_MOVE) {
+    return alpha;
   }
 
   // Store bestScore in transposition table

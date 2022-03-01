@@ -63,12 +63,16 @@ void  HASH::HASH_Store(U64 posKey, int cMove, CutOffState bound, int score, int 
 }
 
 
-HASH_Entry  HASH::HASH_Get(U64 posKey){
+bool  HASH::HASH_Get(U64 posKey, Move * hMove, CutOffState *bound, int * score, int * depth){
   U64 index = posKey % TableSize;
-  if (hashTable[index].posKey == posKey){
-    return  hashTable[index];
+  if (hashTable[index].posKey == posKey || hashTable[index].Flag != NONE){
+      *hMove = Move(hashTable[index].move);
+      *bound = (CutOffState)hashTable[index].Flag;
+      *score = hashTable[index].score;
+      *depth = hashTable[index].depth;
+      return  true;
   }
-  return HASH_Entry();
+  return false;
 }
 
 void HASH::HASH_Prefetch(U64 posKey){
