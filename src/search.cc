@@ -580,7 +580,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             !AreWeInCheck &&
             TTbound != ALPHA &&
             TTdepth >= depth - 2 &&
-            hashedMove == move.getMoveINT() &&
+            hashedMove == move &&
             abs(hashScore) < WON_IN_X / 4){
               int sDepth = depth / 2;
               int sBeta = hashScore - depth * 2;
