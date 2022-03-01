@@ -451,46 +451,49 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashedMove.getMoveINT(), board.getActivePlayer(), ply, pMove);
 
   // Probcut
-  if (!pvNode && depth >= 5 && alpha < WON_IN_X){
-    int pcBeta = beta + 200;
-    while (movePicker.hasNext()){
-      Move move = movePicker.getNext();
+  if (!pvNode &&
+       depth >= 5 &&
+       !(quietTT && failedNull) &&
+       alpha < WON_IN_X){
+        int pcBeta = beta + 200;
+        while (movePicker.hasNext()){
+            Move move = movePicker.getNext();
 
-      // exit when there is no more captures
-      if (move.getValue() <= 300000){
-        movePicker.refreshPicker();
-        break;
-      }
+            // exit when there is no more captures
+            if (move.getValue() <= 300000){
+                movePicker.refreshPicker();
+                break;
+            }
 
-      // skip quiet TT moves
-      if (move == probedHASHentry.move && move.isQuiet()){
-        continue;
-      }
+            // skip quiet TT moves
+            if (move == probedHASHentry.move && move.isQuiet()){
+                continue;
+            }
 
-      // make a move
-      Board movedBoard = board;
-      movedBoard.doMove(move);
-      if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
-        // see if qSearch holds
-        int qScore = - _qSearch(movedBoard, -pcBeta, -pcBeta + 1);
+            // make a move
+            Board movedBoard = board;
+            movedBoard.doMove(move);
+            if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
+                // see if qSearch holds
+                int qScore = - _qSearch(movedBoard, -pcBeta, -pcBeta + 1);
 
-        // if it holds, do proper reduced search
-        if(qScore >= pcBeta){
-          _posHist.Add(board.getZKey().getValue());
-          _sStack.AddMove(move.getMoveINT());
+                // if it holds, do proper reduced search
+                if(qScore >= pcBeta){
+                    _posHist.Add(board.getZKey().getValue());
+                    _sStack.AddMove(move.getMoveINT());
 
-          int sScore = -_negaMax(movedBoard, &thisPV, depth - 4, -pcBeta, -pcBeta + 1, false, !cutNode);
+                    int sScore = -_negaMax(movedBoard, &thisPV, depth - 4, -pcBeta, -pcBeta + 1, false, !cutNode);
 
-          _posHist.Remove();
-          _sStack.Remove();
+                    _posHist.Remove();
+                    _sStack.Remove();
 
-          if (sScore >= pcBeta){
-            return beta;
-          }
+                    if (sScore >= pcBeta){
+                        return beta;
+                    }
+                }
+            }
         }
-      }
     }
-  }
 
   Move bestMove;
   int  LegalMoveCount = 0;
