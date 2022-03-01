@@ -56,7 +56,6 @@ class MovePicker {
    * @{
    */
   static const int CAPTURE_BONUS      = 400000;
-  static const int PROMOTION_BONUS    = 300000;
   static const int KILLER1_BONUS      = 200000;
   static const int KILLER2_BONUS      = 150000;
   static const int COUNTERMOVE_BONUS  = 50000;

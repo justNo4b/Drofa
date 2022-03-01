@@ -25,7 +25,7 @@ void MovePicker::_scoreMoves(const Board *board) {
       move.setValue(INF);
     } else if (move.getFlags() & Move::CAPTURE) {
       int see   = board->Calculate_SEE(move);
-      int value = _ply == MAX_PLY ? see :
+      int value = _ply == MAX_PLY ? (see + 1) :
                                   opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]) +
                                   _orderingInfo->getCaptureHistory(move.getPieceType(),move.getCapturedPieceType(), move.getTo());
       if (_ply != MAX_PLY){
@@ -33,7 +33,8 @@ void MovePicker::_scoreMoves(const Board *board) {
       }
       move.setValue(value);
     } else if (move.getFlags() & Move::PROMOTION) {
-      move.setValue(PROMOTION_SORT[move.getPromotionPieceType()]);
+      int value = _ply == MAX_PLY ? 0 : PROMOTION_SORT[move.getPromotionPieceType()];
+      move.setValue(value);
     } else if (moveINT == Killer1) {
       move.setValue(KILLER1_BONUS);
     } else if (moveINT == Killer2) {
