@@ -43,7 +43,7 @@ void myBench(){
 
 
 void testSEE(){
-    for (int j = 0; j < 9; j++){
+    for (int j = 0; j < 10; j++){
         Board board = Board(SEE_POSITION[j]);
         Move move = SEE_MOVE[j];
         int i = board.Calculate_SEE(move);

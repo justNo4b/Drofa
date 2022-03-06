@@ -515,7 +515,7 @@ int  Board:: Calculate_SEE(const Move move) const{
   // so just return true
 
   unsigned int flags = move.getFlags();
-  if ((flags & Move::PROMOTION) || (flags & Move::EN_PASSANT)
+  if ((flags & Move::EN_PASSANT)
      ||(flags & Move::KSIDE_CASTLE) || (flags & Move::QSIDE_CASTLE)){
        return 1024;
      }
@@ -551,9 +551,6 @@ int  Board:: Calculate_SEE(const Move move) const{
     d++;
     gain[d]  = _SEE_cost[aPiece] - gain[d-1];
     //std::cout <<"d"<< d << " gain[d] " << gain [d] <<std::endl;
-    if ( std::max(-gain[d-1], gain[d]) < 0){
-      break;
-    }
     aBoard[side] = aBoard[side] ^ attBit;
     occupied = occupied ^ attBit;
     if (horiXray & attBit){
