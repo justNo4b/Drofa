@@ -510,14 +510,11 @@ int  Board:: Calculate_SEE(const Move move) const{
   // so we use limit to calculate it faster
 
   // 0. Early exits
-  // If move is special case (promotion, enpass, castle)
-  // its SEE is at least 0 (well, not exactly, Prom could be -100, but still)
-  // so just return true
+  // If move is special case (castle)
 
   unsigned int flags = move.getFlags();
-  if ((flags & Move::PROMOTION) || (flags & Move::EN_PASSANT)
-     ||(flags & Move::KSIDE_CASTLE) || (flags & Move::QSIDE_CASTLE)){
-       return 1024;
+  if ((flags & Move::KSIDE_CASTLE) || (flags & Move::QSIDE_CASTLE)){
+       return 0;
      }
 
 
