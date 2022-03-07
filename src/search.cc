@@ -421,6 +421,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       if (probeResult == TB_LOSS && tbScore <= alpha){
           return tbScore;
       }
+
+      // adjust alpha for pvNodes
+      if (pvNode && probeResult == TB_LOSS) alpha = std::max(alpha, tbScore);
   }
 
   // Check our InCheck status
