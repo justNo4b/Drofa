@@ -4,6 +4,7 @@
 #include "eval.h"
 #include "searchdata.h"
 #include "timer.h"
+#include "pyrrhic/tbprobe.h"
 #include <iostream>
 #include <thread>
 
@@ -53,6 +54,10 @@ void changeThreadsNumber(){
   myTHREADSCOUNT = tNum;
 }
 
+void setUpTb(){
+  tb_init(optionsMap["SyzygyPath"].getValue().c_str());
+}
+
 #ifdef _TUNE_
 void loadCosts(){
 
@@ -69,6 +74,7 @@ void initOptions() {
   optionsMap["BookPath"] = Option("book.bin", &loadBook);
   optionsMap["Hash"] = Option(MIN_HASH, MIN_HASH, MAX_HASH, &changeTTsize);
   optionsMap["Threads"] = Option(MIN_THREADS, MIN_THREADS, MAX_THREADS, &changeThreadsNumber);
+  optionsMap["SyzygyPath"] = Option("", &setUpTb);
 
 
   // Options for tuning is defined here.
