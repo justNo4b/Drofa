@@ -39,7 +39,7 @@
  */
 
 #include "../attacks.h"
-#include "../bitboards.h"
+#include "../bitutils.h"
 
 #define PYRRHIC_POPCOUNT(x)              (popcount(x))
 #define PYRRHIC_LSB(x)                   (getlsb(x))
