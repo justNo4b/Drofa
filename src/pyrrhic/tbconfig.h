@@ -41,9 +41,9 @@
 #include "../attacks.h"
 #include "../bitutils.h"
 
-#define PYRRHIC_POPCOUNT(x)              (popcount(x))
-#define PYRRHIC_LSB(x)                   (getlsb(x))
-#define PYRRHIC_POPLSB(x)                (poplsb(x))
+#define PYRRHIC_POPCOUNT(x)              (_popCount(x))
+#define PYRRHIC_LSB(x)                   (pyrric_getlsb(x))
+#define PYRRHIC_POPLSB(x)                (pyrric_poplsb(x))
 
 #define PYRRHIC_PAWN_ATTACKS(sq, c)      (Attacks::getNonSlidingAttacks(PAWN, sq, (Color)!c))
 #define PYRRHIC_KNIGHT_ATTACKS(sq)       (Attacks::getNonSlidingAttacks(KNIGHT, sq, WHITE))

@@ -19,6 +19,16 @@ inline int _popLsb(U64 &board) {
   return lsbIndex;
 }
 
+inline int pyrric_getlsb(uint64_t bb) {
+    return __builtin_ctzll(bb);
+}
+
+inline int pyrric_poplsb(uint64_t *bb) {
+    int lsb = pyrric_getlsb(*bb);
+    *bb &= *bb - 1;
+    return lsb;
+}
+
 /**
  * @brief Returns the number of set bits in the given bitboard.
  *

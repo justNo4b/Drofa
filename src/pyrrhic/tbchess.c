@@ -93,8 +93,8 @@ const char pyrrhic_piece_to_char[] = " PNBRQK  pnbrqk";
 
 uint64_t pyrrhic_pieces_by_type(const PyrrhicPosition *pos, int colour, int piece) {
 
-    assert(PYRRHIC_PAWN <= piece && piece <= PYRRHIC_KING);
-    assert(colour == PYRRHIC_WHITE || colour == PYRRHIC_BLACK);
+    //assert(PYRRHIC_PAWN <= piece && piece <= PYRRHIC_KING);
+    //assert(colour == PYRRHIC_WHITE || colour == PYRRHIC_BLACK);
 
     uint64_t side = (colour == PYRRHIC_WHITE ? pos->white : pos->black);
 
@@ -105,7 +105,7 @@ uint64_t pyrrhic_pieces_by_type(const PyrrhicPosition *pos, int colour, int piec
         case PYRRHIC_ROOK   : return pos->rooks   & side;
         case PYRRHIC_QUEEN  : return pos->queens  & side;
         case PYRRHIC_KING   : return pos->kings   & side;
-        default: assert(0); return 0;
+        default: return 0;
     }
 }
 
