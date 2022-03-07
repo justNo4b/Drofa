@@ -22,8 +22,19 @@ typedef unsigned long long U64;
 #define MAX_HASH    (65536)
 #define MIN_THREADS (    1)
 #define MAX_THREADS (  172)
-#define MAX_PLY     (  127)
-#define MAX_INT_PLY (  128)
+
+/**
+ * Global search constants here
+ *
+*/
+#define MAX_PLY      (    127)
+#define MAX_INT_PLY  (    128)
+#define MAX_GAME_PLY (   2048)
+#define LOST_SCORE   ( -30000)
+#define NOSCORE      (  32666)
+#define TB_WIN_SCORE (  15000)
+#define WON_IN_X     (30000 - MAX_INT_PLY)
+
 
 /**
  * @name Rank bitboards
@@ -40,16 +51,6 @@ const U64 RANK_7 = 0xff000000000000ull;
 const U64 RANK_8 = 0xff00000000000000ull;
 
 /**@}*/
-
-
-/**
- * Global search constants here
- *
-*/
-const int LOST_SCORE = -30000;
-const int NOSCORE = 32666;
-const int WON_IN_X = 30000 - 50;
-const int MAX_GAME_PLY = 2048;
 
 /**
  * @enum SquareIndex

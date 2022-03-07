@@ -406,12 +406,12 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   if (probeResult != TB_RESULT_FAILED){
       _tbhits++;
 
-      int tbScore = TB_WIN  ?  TB_WIN - ply :
-                    TB_LOSS ? -TB_WIN + ply :
+      int tbScore = TB_WIN  ?  TB_WIN_SCORE - ply :
+                    TB_LOSS ? -TB_WIN_SCORE + ply :
                     0;
       // if Syzygy forces a cut here, return a score
       if (probeResult == TB_DRAW){
-          return TB_DRAW;
+          return 0;
       }
 
       if (probeResult == TB_WIN && tbScore >= beta){
