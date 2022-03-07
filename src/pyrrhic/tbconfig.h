@@ -45,12 +45,12 @@
 #define PYRRHIC_LSB(x)                   (getlsb(x))
 #define PYRRHIC_POPLSB(x)                (poplsb(x))
 
-#define PYRRHIC_PAWN_ATTACKS(sq, c)      (pawnAttacks(!c, sq))
-#define PYRRHIC_KNIGHT_ATTACKS(sq)       (knightAttacks(sq))
-#define PYRRHIC_BISHOP_ATTACKS(sq, occ)  (bishopAttacks(sq, occ))
-#define PYRRHIC_ROOK_ATTACKS(sq, occ)    (rookAttacks(sq, occ))
-#define PYRRHIC_QUEEN_ATTACKS(sq, occ)   (queenAttacks(sq, occ))
-#define PYRRHIC_KING_ATTACKS(sq)         (kingAttacks(sq))
+#define PYRRHIC_PAWN_ATTACKS(sq, c)      (Attacks::getNonSlidingAttacks(PAWN, sq, (Color)!c))
+#define PYRRHIC_KNIGHT_ATTACKS(sq)       (Attacks::getNonSlidingAttacks(KNIGHT, sq, WHITE))
+#define PYRRHIC_BISHOP_ATTACKS(sq, occ)  (Attacks::getSlidingAttacks(BISHOP, sq, occ))
+#define PYRRHIC_ROOK_ATTACKS(sq, occ)    (Attacks::getSlidingAttacks(ROOK, sq, occ))
+#define PYRRHIC_QUEEN_ATTACKS(sq, occ)   (Attacks::getSlidingAttacks(QUEEN, sq, occ))
+#define PYRRHIC_KING_ATTACKS(sq)         (Attacks::getNonSlidingAttacks(KING, sq, WHITE))
 
 /*
  * Pyrrhic can produce scores for tablebase moves. These depend on the value
