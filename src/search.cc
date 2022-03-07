@@ -218,7 +218,7 @@ bool Search::_checkLimits() {
   return _timer.checkLimits(_nodes);
 }
 
-inline uint _probeSyzygy(const Board &board){
+inline uint Search::_probeSyzygy(const Board &board){
 
     bool noCastle = !board.whiteCanCastleKs() && !board.whiteCanCastleQs() &&
                     !board.blackCanCastleKs() && !board.blackCanCastleQs();
