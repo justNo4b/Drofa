@@ -4,7 +4,7 @@ SRC_DIR = $(shell pwd)/src
 OBJ_DIR = obj
 
 CPP_FILES = $(wildcard src/*.cc)
-C_FILES   = $(wildcard src/pyrrhic/*.c)
+C_FILES   = $(wildcard src/pyrrhic/tbprobe.c)
 OBJ_FILES = $(addprefix obj/,$(notdir $(CPP_FILES:.cc=.o))) $(addprefix obj/,$(notdir $(C_FILES:.c=.o)))
 
 LD_FLAGS ?= -pthread -flto
