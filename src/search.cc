@@ -241,11 +241,11 @@ inline uint _probeSyzygy(const Board &board){
     U64 pawns   = board.getPieces(WHITE, PAWN) | board.getPieces(BLACK, PAWN);
 
     U64 ep = board.getEnPassant();
-    unsigned ep = ep == 0 ? 0 : _popLsb(ep);
+    unsigned epsqv = ep == 0 ? 0 : _popLsb(ep);
 
     bool iswhiteturn = board.getActivePlayer() == WHITE;
 
-    uint result = tb_probe_wdl(board.getAllPieces(WHITE), board.getAllPieces(BLACK), kings, queens, rooks, bishops, knights, pawns, ep, iswhiteturn);
+    uint result = tb_probe_wdl(board.getAllPieces(WHITE), board.getAllPieces(BLACK), kings, queens, rooks, bishops, knights, pawns, epsqv, iswhiteturn);
 
     return result;
 }
