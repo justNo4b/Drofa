@@ -51,6 +51,7 @@ Search::Search(const Board &board, Limits limits, Hist positionHistory, Ordering
     _stop(false),
     _limitCheckCount(0),
     _nodes(0),
+    _tbhits(0),
     _bestScore(0)
      {
 
@@ -62,6 +63,7 @@ Search::Search(const Board &board, Limits limits, Hist positionHistory, Ordering
 void Search::iterDeep() {
 
   _nodes = 0;
+  _tbhits = 0;
   _selDepth = 0;
   std::memset(_rootNodesSpent, 0, sizeof(_rootNodesSpent));
   _timer.startIteration();
@@ -215,6 +217,38 @@ bool Search::_checkLimits() {
   return _timer.checkLimits(_nodes);
 }
 
+inline uint _probeSyzygy(const Board &board){
+
+    bool noCastle = !board.whiteCanCastleKs() && !board.whiteCanCastleQs() &&
+                    !board.blackCanCastleKs() && !board.blackCanCastleQs();
+    int piecesNum = _popCount(board.getAllPieces(WHITE)| board.getAllPieces(BLACK));
+
+    // Early exit. Do not probe when someone can castle,
+    // we have more pieces than TB offeers, or last move wasnt capture
+    if (!noCastle ||
+        piecesNum > TB_LARGEST ||
+        board.getHalfmoveClock() != 0){
+            return TB_RESULT_FAILED;
+        }
+
+    // prepare bitboards for passing through syzygy
+    U64 kings   = board.getPieces(WHITE, KING) | board.getPieces(BLACK, KING);
+    U64 queens  = board.getPieces(WHITE, QUEEN) | board.getPieces(BLACK, QUEEN);
+    U64 rooks   = board.getPieces(WHITE, ROOK) | board.getPieces(BLACK, ROOK);
+    U64 bishops = board.getPieces(WHITE, BISHOP) | board.getPieces(BLACK, BISHOP);
+    U64 knights = board.getPieces(WHITE, KNIGHT) | board.getPieces(BLACK, KNIGHT);
+    U64 pawns   = board.getPieces(WHITE, PAWN) | board.getPieces(BLACK, PAWN);
+
+    U64 ep = board.getEnPassant();
+    unsigned ep = ep == 0 ? 0 : _popLsb(ep);
+
+    bool iswhiteturn = board.getActivePlayer() == WHITE;
+
+    uint result = tb_probe_wdl(board.getAllPieces(WHITE), board.getAllPieces(BLACK), kings, queens, rooks, bishops, knights, pawns, ep, iswhiteturn);
+
+    return result;
+}
+
 inline void Search::_updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ply, int depth){
 	if (isQuiet) {
     _orderingInfo.updateKillers(ply, move);
@@ -362,6 +396,30 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         return beta;
       }
     }
+  }
+
+
+  // Check syzygy TBs (if avaliable)
+  uint probeResult = _probeSyzygy(board);
+
+  if (probeResult != TB_RESULT_FAILED){
+      _tbhits++;
+
+      int tbScore = TB_WIN  ?  TB_WIN - ply :
+                    TB_LOSS ? -TB_WIN + ply :
+                    0;
+      // if Syzygy forces a cut here, return a score
+      if (probeResult == TB_DRAW){
+          return TB_DRAW;
+      }
+
+      if (probeResult == TB_WIN && tbScore >= beta){
+          return tbScore;
+      }
+
+      if (probeResult == TB_LOSS && tbScore <= alpha){
+          return tbScore;
+      }
   }
 
   // Check our InCheck status

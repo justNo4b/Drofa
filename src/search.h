@@ -149,6 +149,11 @@ class Search {
   U64 _nodes;
 
   /**
+   * @brief Number of syzygyTB hits during search
+   */
+  U64 _tbhits;
+
+  /**
    * @brief Best move found on last search.
    */
   Move _bestMove;
@@ -175,6 +180,8 @@ class Search {
   inline void _updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ply, int depth);
 
   inline bool _isRepetitionDraw(U64, int);
+
+  inline uint _probeSyzygy(const Board &);
 
   /**
    * @brief Root negamax function.
