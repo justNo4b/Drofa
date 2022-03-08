@@ -33,7 +33,7 @@ typedef unsigned long long U64;
 #define LOST_SCORE   ( -30000)
 #define NOSCORE      (  32666)
 #define TB_WIN_SCORE (  15000)
-#define WON_IN_X     (30000 - MAX_INT_PLY)
+#define WON_IN_X     (TB_WIN_SCORE - MAX_INT_PLY)
 
 
 /**
