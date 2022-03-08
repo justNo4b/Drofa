@@ -183,6 +183,8 @@ class Search {
 
   inline uint _probeSyzygy(const Board &);
 
+  inline bool _probeSyzygyAtRoot(const Board &);
+
   /**
    * @brief Root negamax function.
    *

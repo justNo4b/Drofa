@@ -6,7 +6,7 @@ Timer::Timer(Limits l, Color color, int movenum){
     _limits = l;
     _wasThoughtProlonged = false;
     if (_limits.infinite) { // Infinite search
-        _searchDepth = INF;
+        _searchDepth = MAX_SEARCH_DEPTH;
         _timeAllocated = INF;
     } else if (_limits.depth != 0) { // Depth search
         _searchDepth = _limits.depth;

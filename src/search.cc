@@ -73,6 +73,15 @@ void Search::iterDeep() {
 
     for (int currDepth = 1; currDepth <= targetDepth; currDepth++) {
 
+        // if this is a main search thread, try accessing syzygy TB at root
+        if (_logUci){
+            if (_probeSyzygyAtRoot(_initialBoard)){
+                _logUciInfo(_getPv(), currDepth, _bestScore, 1, 0);
+                continue;
+            }
+        }
+
+
         int aspAlpha = LOST_SCORE;
         int aspBeta  =-LOST_SCORE;
         if (currDepth > 6){
@@ -241,13 +250,72 @@ inline uint Search::_probeSyzygy(const Board &board){
     U64 pawns   = board.getPieces(WHITE, PAWN) | board.getPieces(BLACK, PAWN);
 
     U64 ep = board.getEnPassant();
-    unsigned epsqv = ep == 0 ? 0 : _popLsb(ep);
+    uint epsqv = ep == 0 ? 0 : _popLsb(ep);
 
     bool iswhiteturn = board.getActivePlayer() == WHITE;
 
     uint result = tb_probe_wdl(board.getAllPieces(WHITE), board.getAllPieces(BLACK), kings, queens, rooks, bishops, knights, pawns, epsqv, iswhiteturn);
 
     return result;
+}
+
+inline bool Search::_probeSyzygyAtRoot(const Board &board){
+
+    bool noCastle = !board.whiteCanCastleKs() && !board.whiteCanCastleQs() &&
+                    !board.blackCanCastleKs() && !board.blackCanCastleQs();
+    int piecesNum = _popCount(board.getAllPieces(WHITE)| board.getAllPieces(BLACK));
+
+    if (!noCastle ||
+        piecesNum > TB_LARGEST){
+            return false;
+        }
+
+    // prepare bitboards for passing through syzygy
+    U64 kings   = board.getPieces(WHITE, KING) | board.getPieces(BLACK, KING);
+    U64 queens  = board.getPieces(WHITE, QUEEN) | board.getPieces(BLACK, QUEEN);
+    U64 rooks   = board.getPieces(WHITE, ROOK) | board.getPieces(BLACK, ROOK);
+    U64 bishops = board.getPieces(WHITE, BISHOP) | board.getPieces(BLACK, BISHOP);
+    U64 knights = board.getPieces(WHITE, KNIGHT) | board.getPieces(BLACK, KNIGHT);
+    U64 pawns   = board.getPieces(WHITE, PAWN) | board.getPieces(BLACK, PAWN);
+
+    U64 ep = board.getEnPassant();
+    uint epsqv = ep == 0 ? 0 : _popLsb(ep);
+    uint mr50  = (uint)board.getHalfmoveClock();
+    uint res = 0;
+
+    bool iswhiteturn = board.getActivePlayer() == WHITE;
+
+    uint result = tb_probe_root
+                (board.getAllPieces(WHITE), board.getAllPieces(BLACK), kings, queens, rooks, bishops, knights, pawns, mr50, epsqv, iswhiteturn, &res);
+
+    if (result == TB_RESULT_FAILED ||
+        result == TB_RESULT_CHECKMATE ||
+        result == TB_RESULT_STALEMATE){
+            return false;
+        }
+
+    // if probing is successfull, extract information and set bestmove
+    uint from = TB_GET_FROM(result);
+    uint to   = TB_GET_TO(result);
+    uint prom = TB_GET_PROMOTES(result);
+    uint wdl  = TB_GET_WDL(result);
+    PieceType pt = board.getPieceAtSquare(board.getActivePlayer(), from);
+
+    // Do not worry about flags this much because no actual search would be done
+    _bestMove = Move(from, to, pt, 0);
+    if (prom != 0){
+        _bestMove.setFlag(Move::PROMOTION);
+        _bestMove.setPromotionPieceType(QUEEN);
+        std::cout << prom << std::endl;
+    }
+    _ourPV.pVmoves[0] = _bestMove.getMoveINT();
+
+    // set bestscore report sucess
+    _bestScore = wdl == TB_WIN ?   TB_WIN_SCORE :
+                 wdl == TB_LOSS ? -TB_WIN_SCORE :
+                 0;
+    return true;
+
 }
 
 inline void Search::_updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ply, int depth){
