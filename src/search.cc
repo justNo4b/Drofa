@@ -354,11 +354,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         return hashScore;
       }
       if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){
-        return alpha;
+        return hashScore;
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
         _updateBeta(quietTT, hashedMove, board.getActivePlayer(), pMove, ply, depth);
-        return beta;
+        return hashScore;
       }
     }
   }
@@ -735,13 +735,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     score = AreWeInCheck ? LOST_SCORE + ply : 0; // LOST_SCORE = checkmate, 0 = stalemate (draw)
     up_pV->length = 0;
     return score;
-  }
-
-  // If the best move was not set in the main search loop
-  // alpha was not raised at any point, just return alpha
-  // (ie do not write in the TT)
-  if (bestMove.getFlags() & Move::NULL_MOVE) {
-    return alpha;
   }
 
   // Store bestScore in transposition table
