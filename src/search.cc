@@ -502,7 +502,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                     TB_LOSS ? -TB_WIN_SCORE + ply :
                     0;
       // if Syzygy forces a cut here, return a score
-      if (probeResult == TB_DRAW){
+      if (probeResult == TB_DRAW || probeResult == TB_BLESSED_LOSS || probeResult == TB_CURSED_WIN){
           return 0;
       }
 
