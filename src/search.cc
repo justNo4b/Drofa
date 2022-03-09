@@ -481,6 +481,17 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
 
+  // Check our InCheck status
+  AreWeInCheck = board.colorIsInCheck(board.getActivePlayer());
+
+  // Go into the QSearch if depth is 0 and we are not in check
+  // Cut out pV and update our seldepth before dropping into qSearch
+  if ((depth <= 0 && !AreWeInCheck) || ply >= MAX_PLY) {
+    _selDepth = std::max(ply, _selDepth);
+    up_pV->length = 0;
+    return _qSearch(board, alpha, beta);
+  }
+
   // Check syzygy TBs (if avaliable)
   uint probeResult = _probeSyzygy(board);
 
@@ -510,16 +521,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       if (pvNode && probeResult == TB_WIN) alpha = std::max(alpha, tbScore);
   }
 
-  // Check our InCheck status
-  AreWeInCheck = board.colorIsInCheck(board.getActivePlayer());
-
-  // Go into the QSearch if depth is 0 and we are not in check
-  // Cut out pV and update our seldepth before dropping into qSearch
-  if ((depth <= 0 && !AreWeInCheck) || ply >= MAX_PLY) {
-    _selDepth = std::max(ply, _selDepth);
-    up_pV->length = 0;
-    return _qSearch(board, alpha, beta);
-  }
 
   // Statically evaluate our position
   // Do the Evaluation, unless we are in check or prev move was NULL
