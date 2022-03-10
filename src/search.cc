@@ -449,12 +449,14 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   MoveGen movegen(board, false);
   MoveList * legalMoves = movegen.getMoves();
   MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashedMove.getMoveINT(), board.getActivePlayer(), ply, pMove);
+  bool isEndgame = board.isEndGamePosition();
 
   // Probcut
   if (!pvNode &&
        depth >= 5 &&
        !(quietTT && failedNull) &&
        alpha < WON_IN_X){
+
         int pcBeta = beta + 200;
         while (movePicker.hasNext()){
             Move move = movePicker.getNext();
@@ -564,7 +566,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // Thus we extend in the endgame pushes of the non-blocked
         // passers that are near the middle of the board
         // Extend more if null move failed
-        if (depth <= 8 && board.isEndGamePosition() && move.isItPasserPush(board)){
+        if (depth <= 8 && isEndgame && move.isItPasserPush(board)){
               tDepth += 1 + failedNull;
             }
 
@@ -589,7 +591,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // 6.3 Last capture extention
         // In the endgame positions we extend any non-pawn captures
         // It seems benefitial as we calculate resulting endgame more accurately
-        if (!isQuiet && board.isEndGamePosition() &&
+        if (!isQuiet && isEndgame &&
             move.getCapturedPieceType() != PAWN){
               tDepth++;
             }
