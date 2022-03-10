@@ -471,11 +471,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         return hashScore;
       }
       if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){
-        return alpha;
+        return hashScore;
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
         _updateBeta(quietTT, hashedMove, board.getActivePlayer(), pMove, ply, depth);
-        return beta;
+        return hashScore;
       }
     }
   }
@@ -487,19 +487,22 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   if (probeResult != TB_RESULT_FAILED){
       _tbhits++;
 
-      int tbScore = TB_WIN  ?  TB_WIN_SCORE - ply :
-                    TB_LOSS ? -TB_WIN_SCORE + ply :
+      int tbScore = probeResult == TB_WIN  ?  TB_WIN_SCORE - ply :
+                    probeResult == TB_LOSS ? -TB_WIN_SCORE + ply :
                     0;
       // if Syzygy forces a cut here, return a score
-      if (probeResult == TB_DRAW){
-          return 0;
+      if (probeResult == TB_DRAW || probeResult == TB_BLESSED_LOSS || probeResult == TB_CURSED_WIN){
+          myHASH->HASH_Store(board.getZKey().getValue(), 0, EXACT, tbScore, MAX_GAME_PLY, ply);
+          return tbScore;
       }
 
       if (probeResult == TB_WIN && tbScore >= beta){
+          myHASH->HASH_Store(board.getZKey().getValue(), 0, BETA, tbScore, MAX_GAME_PLY, ply);
           return tbScore;
       }
 
       if (probeResult == TB_LOSS && tbScore <= alpha){
+          myHASH->HASH_Store(board.getZKey().getValue(), 0, ALPHA, tbScore, MAX_GAME_PLY, ply);
           return tbScore;
       }
 
