@@ -492,22 +492,19 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                     0;
       // if Syzygy forces a cut here, return a score
       if (probeResult == TB_DRAW || probeResult == TB_BLESSED_LOSS || probeResult == TB_CURSED_WIN){
-          myHASH->HASH_Store(board.getZKey().getValue(), 0, EXACT, tbScore, MAX_GAME_PLY, ply);
+          //myHASH->HASH_Store(board.getZKey().getValue(), 0, EXACT, tbScore, MAX_GAME_PLY, ply);
           return tbScore;
       }
 
       if (probeResult == TB_WIN && tbScore >= beta){
-          myHASH->HASH_Store(board.getZKey().getValue(), 0, BETA, tbScore, MAX_GAME_PLY, ply);
+          //myHASH->HASH_Store(board.getZKey().getValue(), 0, BETA, tbScore, MAX_GAME_PLY, ply);
           return tbScore;
       }
 
       if (probeResult == TB_LOSS && tbScore <= alpha){
-          myHASH->HASH_Store(board.getZKey().getValue(), 0, ALPHA, tbScore, MAX_GAME_PLY, ply);
+          //myHASH->HASH_Store(board.getZKey().getValue(), 0, ALPHA, tbScore, MAX_GAME_PLY, ply);
           return tbScore;
       }
-
-      // adjust alpha for pvNodes
-      if (pvNode && probeResult == TB_WIN) alpha = std::max(alpha, tbScore);
   }
 
   // Check our InCheck status
