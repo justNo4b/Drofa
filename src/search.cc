@@ -485,7 +485,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                     _sStack.AddMove(move.getMoveINT());
 
                     int pcDepth = std::max(1, depth - 4 - isEndgame);
-                    int sScore = -_negaMax(movedBoard, &thisPV, depth - 4, -pcBeta, -pcBeta + 1, false, !cutNode);
+                    int sScore = -_negaMax(movedBoard, &thisPV, pcDepth, -pcBeta, -pcBeta + 1, false, !cutNode);
 
                     _posHist.Remove();
                     _sStack.Remove();
