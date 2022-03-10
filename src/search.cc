@@ -281,12 +281,11 @@ inline bool Search::_probeSyzygyAtRoot(const Board &board){
     U64 ep = board.getEnPassant();
     uint epsqv = ep == 0 ? 0 : _popLsb(ep);
     uint mr50  = (uint)board.getHalfmoveClock();
-    uint res = 0;
 
     bool iswhiteturn = board.getActivePlayer() == WHITE;
 
     uint result = tb_probe_root
-                (board.getAllPieces(WHITE), board.getAllPieces(BLACK), kings, queens, rooks, bishops, knights, pawns, mr50, epsqv, iswhiteturn, &res);
+                (board.getAllPieces(WHITE), board.getAllPieces(BLACK), kings, queens, rooks, bishops, knights, pawns, mr50, epsqv, iswhiteturn, NULL);
 
     if (result == TB_RESULT_FAILED ||
         result == TB_RESULT_CHECKMATE ||
@@ -303,12 +302,26 @@ inline bool Search::_probeSyzygyAtRoot(const Board &board){
 
     // Do not worry about flags this much because no actual search would be done
     _bestMove = Move(from, to, pt, 0);
+    // In case move is a promotion, set flag and promoting piece
     if (prom != 0){
         _bestMove.setFlag(Move::PROMOTION);
-        _bestMove.setPromotionPieceType(QUEEN);
-        std::cout << prom << std::endl;
+        switch (prom)
+        {
+        case 1: _bestMove.setPromotionPieceType(QUEEN);
+            break;
+        case 2: _bestMove.setPromotionPieceType(ROOK);
+            break;
+        case 3: _bestMove.setPromotionPieceType(BISHOP);
+            break;
+        case 4: _bestMove.setPromotionPieceType(KNIGHT);
+            break;
+        default:
+            break;
+        }
     }
+    // Put bestmove in the PV
     _ourPV.pVmoves[0] = _bestMove.getMoveINT();
+    _ourPV.length = 1;
 
     // set bestscore report sucess
     _bestScore = wdl == TB_WIN ?   TB_WIN_SCORE :
