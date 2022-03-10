@@ -459,13 +459,13 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         while (movePicker.hasNext()){
             Move move = movePicker.getNext();
 
-            // exit when there is no more captures
-            if (move.getValue() <= 300000){
+            // exit when there is no more good captures
+            if (move.getValue() < (400000 - 8192)){
                 movePicker.refreshPicker();
                 break;
             }
 
-            // skip quiet TT moves
+            // skip quiet TT moves or captures with bad history
             if (move == probedHASHentry.move && move.isQuiet()){
                 continue;
             }
