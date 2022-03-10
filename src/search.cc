@@ -74,12 +74,12 @@ void Search::iterDeep() {
     for (int currDepth = 1; currDepth <= targetDepth; currDepth++) {
 
         // if this is a main search thread, try accessing syzygy TB at root
-        if (_logUci){
-            if (_probeSyzygyAtRoot(_initialBoard)){
-                _logUciInfo(_getPv(), currDepth, _bestScore, 1, 0);
-                continue;
-            }
-        }
+        //if (_logUci){
+        //    if (_probeSyzygyAtRoot(_initialBoard)){
+        //        _logUciInfo(_getPv(), currDepth, _bestScore, 1, 0);
+        //        continue;
+        //    }
+        //}
 
 
         int aspAlpha = LOST_SCORE;
@@ -481,32 +481,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
 
-  // Check syzygy TBs (if avaliable)
-  uint probeResult = _probeSyzygy(board);
-
-  if (probeResult != TB_RESULT_FAILED){
-      _tbhits++;
-
-      int tbScore = TB_WIN  ?  TB_WIN_SCORE - ply :
-                    TB_LOSS ? -TB_WIN_SCORE + ply :
-                    0;
-      // if Syzygy forces a cut here, return a score
-      if (probeResult == TB_DRAW){
-          return 0;
-      }
-
-      if (probeResult == TB_WIN && tbScore >= beta){
-          return tbScore;
-      }
-
-      if (probeResult == TB_LOSS && tbScore <= alpha){
-          return tbScore;
-      }
-
-      // adjust alpha for pvNodes
-      if (pvNode && probeResult == TB_WIN) alpha = std::max(alpha, tbScore);
-  }
-
   // Check our InCheck status
   AreWeInCheck = board.colorIsInCheck(board.getActivePlayer());
 
@@ -517,6 +491,33 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     up_pV->length = 0;
     return _qSearch(board, alpha, beta);
   }
+
+  // Check syzygy TBs (if avaliable)
+  uint probeResult = _probeSyzygy(board);
+
+  if (probeResult != TB_RESULT_FAILED){
+      _tbhits++;
+
+      int tbScore = TB_WIN  ?  TB_WIN_SCORE - ply :
+                    TB_LOSS ? -TB_WIN_SCORE + ply :
+                    0;
+      // if Syzygy forces a cut here, return a score
+      if (probeResult == TB_DRAW || probeResult == TB_BLESSED_LOSS || probeResult == TB_CURSED_WIN){
+          myHASH->HASH_Store(board.getZKey().getValue(), 0, EXACT, tbScore, MAX_PLY, ply);
+          return tbScore;
+      }
+
+      if (probeResult == TB_WIN && tbScore >= beta){
+          myHASH->HASH_Store(board.getZKey().getValue(), 0, BETA, tbScore, MAX_PLY, ply);
+          return tbScore;
+      }
+
+      if (probeResult == TB_LOSS && tbScore <= alpha){
+          myHASH->HASH_Store(board.getZKey().getValue(), 0, ALPHA, tbScore, MAX_PLY, ply);
+          return tbScore;
+      }
+  }
+
 
   // Statically evaluate our position
   // Do the Evaluation, unless we are in check or prev move was NULL
