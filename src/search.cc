@@ -229,13 +229,13 @@ bool Search::_checkLimits() {
 
 inline uint Search::_probeSyzygy(const Board &board){
 
-    bool noCastle = !board.whiteCanCastleKs() && !board.whiteCanCastleQs() &&
-                    !board.blackCanCastleKs() && !board.blackCanCastleQs();
+    bool isCastle = board.whiteCanCastleKs() || board.whiteCanCastleQs() ||
+                    board.blackCanCastleKs() || board.blackCanCastleQs();
     int piecesNum = _popCount(board.getAllPieces(WHITE)| board.getAllPieces(BLACK));
 
     // Early exit. Do not probe when someone can castle,
     // we have more pieces than TB offeers, or last move wasnt capture
-    if (!noCastle ||
+    if ( isCastle ||
         piecesNum > TB_LARGEST ||
         board.getHalfmoveClock() != 0){
             return TB_RESULT_FAILED;
@@ -471,11 +471,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         return hashScore;
       }
       if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){
-        return hashScore;
+        return alpha;
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
         _updateBeta(quietTT, hashedMove, board.getActivePlayer(), pMove, ply, depth);
-        return hashScore;
+        return beta;
       }
     }
   }
