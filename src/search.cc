@@ -636,8 +636,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // reduce less when a move is giving check
           reduction -= giveCheck;
 
-          reduction -= singularExists;
-
           // reduce more/less based on the hitory
           reduction -= moveHistory / 8192;
           reduction -= cmHistory  / 12288;
@@ -651,8 +649,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // We finished reduction tweaking, calculate final depth and search
           // Idea from SF - > allow extending if our reductions are very negative
-          int minReduction = (!isQuiet && LegalMoveCount <= 6) ? -2 :
-                             (cutNode || pvNode) ? -1 : 0;
+          int minReduction = (!isQuiet && LegalMoveCount <= 6) ? -2 + singularExists :
+                             (cutNode || pvNode) ? -1 + singularExists : 0;
 
           reduction = std::max(minReduction, reduction);
           //Avoid to reduce so much that we go to QSearch right away
