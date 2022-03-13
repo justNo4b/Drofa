@@ -227,7 +227,7 @@ bool Search::_checkLimits() {
   return _timer.checkLimits(_nodes);
 }
 
-inline uint Search::_probeSyzygy(const Board &board){
+inline uint Search::_probeSyzygy(const Board &board, int depth){
 
     bool isCastle = board.whiteCanCastleKs() || board.whiteCanCastleQs() ||
                     board.blackCanCastleKs() || board.blackCanCastleQs();
@@ -235,7 +235,8 @@ inline uint Search::_probeSyzygy(const Board &board){
 
     // Early exit. Do not probe when someone can castle,
     // we have more pieces than TB offeers, or last move wasnt capture
-    if ( isCastle ||
+    if ( depth < 8 ||
+        isCastle ||
         piecesNum > TB_LARGEST ||
         board.getHalfmoveClock() != 0){
             return TB_RESULT_FAILED;
@@ -482,7 +483,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
 
   // Check syzygy TBs (if avaliable)
-  uint probeResult = _probeSyzygy(board);
+  uint probeResult = _probeSyzygy(board, depth);
 
   if (probeResult != TB_RESULT_FAILED){
       _tbhits++;

@@ -181,7 +181,7 @@ class Search {
 
   inline bool _isRepetitionDraw(U64, int);
 
-  inline uint _probeSyzygy(const Board &);
+  inline uint _probeSyzygy(const Board &, int);
 
   inline bool _probeSyzygyAtRoot(const Board &);
 
