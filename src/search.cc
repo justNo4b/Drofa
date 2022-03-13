@@ -498,6 +498,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   Move bestMove;
   int  LegalMoveCount = 0;
   int  qCount = 0;
+  bool singularExists = false;
   while (movePicker.hasNext()) {
 
     Move move = movePicker.getNext();
@@ -583,6 +584,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               int score = _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, true, cutNode);
               if (sBeta > score){
                 tDepth += 1 + failedNull;
+                singularExists = true;
               }
             }
 
@@ -633,6 +635,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // reduce less when a move is giving check
           reduction -= giveCheck;
+
+          reduction -= singularExists;
 
           // reduce more/less based on the hitory
           reduction -= moveHistory / 8192;
