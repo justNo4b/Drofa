@@ -636,6 +636,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // reduce less when a move is giving check
           reduction -= giveCheck;
 
+          // reduce less for a position where singular move exists
           reduction -= singularExists;
 
           // reduce more/less based on the hitory
