@@ -61,8 +61,8 @@ void OrderingInfo::decrementCapHistory(PieceType capturingPiece, PieceType captu
 }
 
 void OrderingInfo::incrementCounterHistory(Color color, int pMove, PieceType pType, int to, int depth){
-  int pMoveIndx = (pMove & 0x7) + ((pMove >> 15) & 0x3f) * 6;
-  int tMoveIndx = pType + to * 6;
+  int pMoveIndx = pTypeToPair((pMove & 0x7), ((pMove >> 15) & 0x3f));
+  int tMoveIndx = pTypeToPair(pType, to);
 
   int16_t current = _counterMoveHistory[color][pMoveIndx][tMoveIndx];
   int16_t bonus   = depth * depth;
@@ -70,10 +70,9 @@ void OrderingInfo::incrementCounterHistory(Color color, int pMove, PieceType pTy
 }
 
 void OrderingInfo::decrementCounterHistory(Color color, int pMoveIndx, PieceType pType, int to, int depth){
-  int tMoveIndx = pType + to * 6;
-  int16_t current = _counterMoveHistory[color][pMoveIndx][tMoveIndx];
+  int16_t current = _counterMoveHistory[color][pMoveIndx][pTypeToPair(pType, to)];
   int16_t bonus   = -1 * depth * depth;
-  _counterMoveHistory[color][pMoveIndx][tMoveIndx] += 32 * bonus - current * abs(bonus) / 512;
+  _counterMoveHistory[color][pMoveIndx][pTypeToPair(pType, to)] += 32 * bonus - current * abs(bonus) / 512;
 }
 
 int OrderingInfo::getHistory(Color color, int from, int to) const {
@@ -85,8 +84,7 @@ int OrderingInfo::getCaptureHistory(PieceType capturingPiece, PieceType captured
 }
 
 int OrderingInfo::getCountermoveHistory(Color color, int pMoveIndx, PieceType pType, int to) const{
-  int tMoveIndx = pType + to * 6;
-  return _counterMoveHistory[color][pMoveIndx][tMoveIndx];
+  return _counterMoveHistory[color][pMoveIndx][pTypeToPair(pType, to)];
 }
 
 void OrderingInfo::updateKillers(int ply, Move move) {

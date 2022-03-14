@@ -6,6 +6,9 @@
 #include "movegen.h"
 #include "move.h"
 
+
+#define pTypeToPair(pt, to)  ((int)(pt + to * 6))
+
 /**
  * @brief Contains information related to a search in progress
  * for move ordering purposes.

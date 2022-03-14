@@ -499,7 +499,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   int  LegalMoveCount = 0;
   int  qCount = 0;
   bool singularExists = false;
-  int  pMoveIndx = (pMove & 0x7) + ((pMove >> 15) & 0x3f) * 6;
+  int  pMoveIndx = pTypeToPair((pMove & 0x7), ((pMove >> 15) & 0x3f));
 
   while (movePicker.hasNext()) {
     Move move = movePicker.getNext();
