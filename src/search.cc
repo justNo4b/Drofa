@@ -533,6 +533,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       // At shallow depth prune highlyish -negative SEE-moves
       if (depth <= 10
           && isQuiet
+          && move.getValue() <= 150000
           && board.Calculate_SEE(move) < -51 * depth) continue;
     }
 
