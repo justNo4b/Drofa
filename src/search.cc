@@ -499,8 +499,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   int  LegalMoveCount = 0;
   int  qCount = 0;
   bool singularExists = false;
-  while (movePicker.hasNext()) {
+  int  pMoveIndx = (pMove & 0x7) + ((pMove >> 15) & 0x3f) * 6;
 
+  while (movePicker.hasNext()) {
     Move move = movePicker.getNext();
     if (move == probedHASHentry.move && sing){
       continue;
@@ -549,7 +550,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         int  moveHistory  = isQuiet ?
                             _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) :
                             _orderingInfo.getCaptureHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo());
-        int cmHistory     = isQuiet ? _orderingInfo.getCountermoveHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo()) : 0;
+        int cmHistory     = isQuiet ? _orderingInfo.getCountermoveHistory(board.getActivePlayer(), pMoveIndx, move.getPieceType(), move.getTo()) : 0;
         int tDepth = depth;
         // 6. EXTENTIONS
         //
@@ -726,7 +727,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           int dBonus = std::max(0, depth - (statEVAL < alpha) - (!TTmove && depth >= 4));
           if (isQuiet){
             _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), dBonus);
-            _orderingInfo.decrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), dBonus);
+            _orderingInfo.decrementCounterHistory(board.getActivePlayer(), pMoveIndx, move.getPieceType(), move.getTo(), dBonus);
           }else{
             _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), dBonus);
           }
