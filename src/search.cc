@@ -560,16 +560,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           tDepth++;
         }
 
-        // 6.1. Passed pawn push extention
-        // In the late game  we fear that we may miss
-        // some pawn promotions near the leafs of the search tree
-        // Thus we extend in the endgame pushes of the non-blocked
-        // passers that are near the middle of the board
-        // Extend more if null move failed
-        if (depth <= 8 && board.isEndGamePosition() && move.isItPasserPush(board)){
-              tDepth += 1;
-            }
-
         // 6.2 Singular move extention
         // At high depth if we have the TT move, and we are certain
         // that non other moves are even close to it, extend this move
