@@ -269,6 +269,25 @@ class Board {
    */
   U64 getMobilityForSquare(PieceType, Color, int, U64) const;
 
+
+  /**
+   * @brief Returns a bitboard containing all of the squares with potential rook-type pinners
+   *
+   * @param  color     The color of the piece to lookup move locations for.
+   * @param  square       The little endian rank file mapping of the destination square.
+   * @return
+   */
+  U64 getPotentialRookDiscoveries(Color, int) const;
+
+  /**
+   * @brief Returns a bitboard containing all of the squares with potential bishop-type pinners
+   *
+   * @param  color     The color of the piece to lookup move locations for.
+   * @param  square       The little endian rank file mapping of the destination square.
+   * @return
+   */
+  U64 getPotentialBishopDiscoveries(Color, int) const;
+
   /**
    * @brief return true if current sideToMove have at least 1 non-pawn on the board.
    *

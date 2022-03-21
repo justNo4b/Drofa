@@ -21,6 +21,7 @@ int MATERIAL_VALUES_TUNABLE[6] = {
 
 U64 Eval::detail::FILES[8] = {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H};
 U64 Eval::detail::DISTANCE[64][64];
+U64 Eval::detail::IN_BETWEEN[64][64];
 U64 Eval::detail::NEIGHBOR_FILES[8] = {
     FILE_B,
     FILE_A | FILE_C,
@@ -104,6 +105,13 @@ void Eval::init() {
 
     for (int i =0; i < 64; i++){
       detail::DISTANCE[square][i] = std::max(abs(_col(square) - _col(i)), abs(_row(square) - _row(i)));
+      if (Attacks::getSlidingAttacks(BISHOP, square, 0) & (ONE << i)){
+        detail::IN_BETWEEN[square][i] = (Attacks::getSlidingAttacks(BISHOP, square, ONE << i) & Attacks::getSlidingAttacks(BISHOP, i, ONE << square));
+      }else if (Attacks::getSlidingAttacks(ROOK, square, 0) & (ONE << i)){
+        detail::IN_BETWEEN[square][i] =  (Attacks::getSlidingAttacks(ROOK, square, ONE << i) & Attacks::getSlidingAttacks(ROOK, i, ONE << square));
+      }else{
+        detail::IN_BETWEEN[square][i] = 0;
+      }
     }
 
     for (auto color : { WHITE, BLACK }) {
@@ -638,6 +646,37 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
     if (TRACK) ft.KingPawnless[color]++;
   }
 
+  // Detect potential discovered attacks against king
+  U64 bishopDiscoveries = board.getPotentialBishopDiscoveries(otherColor, square);
+  U64 rookDiscoveries = board.getPotentialRookDiscoveries(otherColor, square);
+
+  // if we can see bishop/queen thorout bihop/queen, they are already counted in king attack
+  U64 discBishTargets = board.getAllPieces(otherColor) ^ (board.getPieces(otherColor, BISHOP) | board.getPieces(otherColor, QUEEN));
+  // if we see rook/queen throut rook/queen, they are already counted. Also exclude pawns that cannot
+  // be immediately traded
+  U64 discRookTargets = board.getAllPieces(otherColor) ^
+                        (board.getPieces(otherColor, ROOK) | board.getPieces(otherColor, QUEEN) |
+                        (board.getPieces(otherColor, PAWN) & ~eB->EnemyPawnAttackMap[otherColor]));
+
+
+    // Award discovery check as usual check
+  while (bishopDiscoveries){
+    int pinnerSquare = _popLsb(bishopDiscoveries);
+    if ((_popCount(detail::IN_BETWEEN[pinnerSquare][square] & discBishTargets) == 1) &&
+        (_popCount(detail::IN_BETWEEN[pinnerSquare][square] & board.getAllPieces(otherColor)) == 1)){
+            eB->KingAttackPower[otherColor] += DISCOVERY_CHECK;
+        }
+  }
+
+  while (rookDiscoveries){
+    int pinnerSquare = _popLsb(rookDiscoveries);
+    if ((_popCount(detail::IN_BETWEEN[pinnerSquare][square] & discRookTargets) == 1) &&
+        (_popCount(detail::IN_BETWEEN[pinnerSquare][square] & board.getAllPieces(otherColor)) == 1)){
+            eB->KingAttackPower[otherColor] += DISCOVERY_CHECK;
+        }
+  }
+
+
   return s;
 }
 
@@ -749,8 +788,8 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
       if (TRACK){
           if ((detail::FORWARD_BITS[color][square] & otherPawns) != 0) ft.BackwardPawn[r][color]++; else ft.BackwardOpenPawn[r][color]++;
-      } 
-      s += ((detail::FORWARD_BITS[color][square] & otherPawns) != 0) ?  BACKWARD_PAWN[r] : BACKWARD_OPEN_PAWN[r];   
+      }
+      s += ((detail::FORWARD_BITS[color][square] & otherPawns) != 0) ?  BACKWARD_PAWN[r] : BACKWARD_OPEN_PAWN[r];
     }
 
     // test on if a pawn is connected
@@ -826,7 +865,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   pawnPush = color == WHITE ? ((pawnPush << 9) & ~FILE_A) | ((pawnPush << 7) & ~FILE_H)
                             : ((pawnPush >> 9) & ~FILE_H) | ((pawnPush >> 7) & ~FILE_A);
   s += PAWN_PUSH_THREAT * _popCount(pawnPush & targets);
-  if (TRACK) ft.PawnPushThreat[color] += _popCount(pawnPush & targets);                        
+  if (TRACK) ft.PawnPushThreat[color] += _popCount(pawnPush & targets);
 
   // Passer - piece evaluation
 
