@@ -106,16 +106,6 @@ U64 Board::getMobilityForSquare(PieceType pieceType, Color color, int square, U6
   return attacks;
 }
 
-U64 Board::getPotentialRookDiscoveries(Color color, int square) const{
-  U64 rookTypes = getPieces(color, ROOK) | getPieces(color, QUEEN);
-  return Attacks::getSlidingAttacks(ROOK, square, _occupied ^ getAllPieces(color)) &  rookTypes;
-}
-
-U64 Board::getPotentialBishopDiscoveries(Color color, int square) const{
-  U64 bishopTypes = getPieces(color, BISHOP) | getPieces(color, QUEEN);
-  return Attacks::getSlidingAttacks(BISHOP, square, _occupied ^ getAllPieces(color)) &  bishopTypes;
-}
-
 Color Board::getInactivePlayer() const {
   return _activePlayer == WHITE ? BLACK : WHITE;
 }

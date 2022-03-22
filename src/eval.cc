@@ -351,6 +351,10 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
   U64 pieces = board.getPieces(color, ROOK);
   U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~board.getPieces(otherColor, QUEEN);
   U64 rammedPawns = (board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN);
+  U64 discAllPieces = board.getAllPieces(color) | board.getAllPieces(otherColor);
+  U64 discRookTargets = board.getAllPieces(color) ^
+                        (board.getPieces(color, ROOK) | board.getPieces(color, QUEEN) |
+                        (board.getPieces(color, PAWN) & ~eB->EnemyPawnAttackMap[otherColor]));
 
   // Apply penalty for each Rook attacked by enemy pawn
   s += HANGING_PIECE[ROOK] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
@@ -389,6 +393,12 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     // Adjust our kind Danger code
     int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
     int kingChecks = _popCount(attackBitBoard & board.getAttacksForSquare(ROOK, getOppositeColor(color), eB->EnemyKingSquare[color]));
+
+    if ((_popCount(detail::IN_BETWEEN[eB->EnemyKingSquare[color]][square] & discAllPieces) == 1) &&
+        (_popCount(detail::IN_BETWEEN[eB->EnemyKingSquare[color]][square] & discRookTargets) == 1)){
+          kingChecks++;
+    }
+
     if (kingAttack > 0 || kingChecks > 0){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[ROOK];
@@ -431,6 +441,8 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
   U64 pieces = board.getPieces(color, BISHOP);
   Color otherColor = getOppositeColor(color);
   U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
+  U64 discBishTargets = board.getAllPieces(color) ^ (board.getPieces(color, BISHOP) | board.getPieces(color, QUEEN));
+  U64 discAllPieces = board.getAllPieces(color) | board.getAllPieces(otherColor);
 
   // Bishop pair
   if (_popCount(pieces) > 1){
@@ -486,6 +498,12 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
       int kingChecks = _popCount(attackBitBoard & board.getAttacksForSquare(BISHOP, getOppositeColor(color), eB->EnemyKingSquare[color]));
+
+      if ((_popCount(detail::IN_BETWEEN[eB->EnemyKingSquare[color]][square] & discAllPieces) == 1) &&
+          (_popCount(detail::IN_BETWEEN[eB->EnemyKingSquare[color]][square] & discBishTargets) == 1)){
+            kingChecks++;
+        }
+
       if (kingAttack > 0 || kingChecks > 0){
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[BISHOP];
@@ -645,37 +663,6 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
     s += KING_PAWNLESS_FLANG;
     if (TRACK) ft.KingPawnless[color]++;
   }
-
-  // Detect potential discovered attacks against king
-  U64 bishopDiscoveries = board.getPotentialBishopDiscoveries(otherColor, square);
-  U64 rookDiscoveries = board.getPotentialRookDiscoveries(otherColor, square);
-
-  // if we can see bishop/queen thorout bihop/queen, they are already counted in king attack
-  U64 discBishTargets = board.getAllPieces(otherColor) ^ (board.getPieces(otherColor, BISHOP) | board.getPieces(otherColor, QUEEN));
-  // if we see rook/queen throut rook/queen, they are already counted. Also exclude pawns that cannot
-  // be immediately traded
-  U64 discRookTargets = board.getAllPieces(otherColor) ^
-                        (board.getPieces(otherColor, ROOK) | board.getPieces(otherColor, QUEEN) |
-                        (board.getPieces(otherColor, PAWN) & ~eB->EnemyPawnAttackMap[otherColor]));
-
-
-    // Award discovery check as usual check
-  while (bishopDiscoveries){
-    int pinnerSquare = _popLsb(bishopDiscoveries);
-    if ((_popCount(detail::IN_BETWEEN[pinnerSquare][square] & discBishTargets) == 1) &&
-        (_popCount(detail::IN_BETWEEN[pinnerSquare][square] & board.getAllPieces(otherColor)) == 1)){
-            eB->KingAttackPower[otherColor] += DISCOVERY_CHECK;
-        }
-  }
-
-  while (rookDiscoveries){
-    int pinnerSquare = _popLsb(rookDiscoveries);
-    if ((_popCount(detail::IN_BETWEEN[pinnerSquare][square] & discRookTargets) == 1) &&
-        (_popCount(detail::IN_BETWEEN[pinnerSquare][square] & board.getAllPieces(otherColor)) == 1)){
-            eB->KingAttackPower[otherColor] += DISCOVERY_CHECK;
-        }
-  }
-
 
   return s;
 }
