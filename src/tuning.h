@@ -20,8 +20,6 @@ struct posFeatured{
     int KingHighDanger[2];
     int KingMedDanger[2];
     int KingLowDanger[2];
-    int PawnDoubled[2];
-    int PawnIsolated[2];
     int PawnBlocked[2];
     int PassersBlocked[2];
     int PawnPushThreat[2];
@@ -50,14 +48,9 @@ struct posFeatured{
     int PassedPawnFile[4][2];
     int PassedPawnFree[7][2];
     int PassedPawnPosAdvance[7][2];
-    int PassedPassedDistance[8][2];
     int KingFriendlyPasser[8][2];
     int KingEnemyPasser[8][2];
     int KnightEnemyPasser[4][2];
-    int CandidatePasser[7][2];
-    int CandidatePasserFile[4][2];
-    int BackwardPawn[7][2];
-    int BackwardOpenPawn[7][2];
     //
     int RookOpenFile[2][2];
     int RookHalfFile[2][2];
@@ -76,8 +69,6 @@ struct posFeatured{
     int QueenMobility[28][2];
     //Array features - PSQT
     int KingPsqtBlack[64][2];
-    int PawnPsqtBlackIsQ[64][2];
-    int PawnPsqtBlackIsOwn[64][2];
     int PawnPsqtBlack[64][2];
     int RookPsqtBlack[64][2];
     int BishopPsqtBlack[64][2];
@@ -88,9 +79,6 @@ struct posFeatured{
     int BishopOutProtBlack[32][2];
     int KnightOutBlack[32][2];
     int BishopOutBlack[32][2];
-
-    int PawnConnected[32][2];
-    int PawnSupported[32][2];
     // Material
     int MaterialValue[5][2];
 };

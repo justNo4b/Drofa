@@ -237,8 +237,6 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.KingMedDanger[WHITE] - ft.KingMedDanger[BLACK];
     coeff[i++] = ft.KingLowDanger[WHITE] - ft.KingLowDanger[BLACK];
     coeff[i++] = ft.BishopPair[WHITE] - ft.BishopPair[BLACK];
-    coeff[i++] = ft.PawnDoubled[WHITE] - ft.PawnDoubled[BLACK];
-    coeff[i++] = ft.PawnIsolated[WHITE] - ft.PawnIsolated[BLACK];
     coeff[i++] = ft.PawnBlocked[WHITE] - ft.PawnBlocked[BLACK];
     coeff[i++] = ft.PassersBlocked[WHITE] - ft.PassersBlocked[BLACK];
     coeff[i++] = ft.PawnPushThreat[WHITE] - ft.PawnPushThreat[BLACK];
@@ -280,10 +278,6 @@ void InitCoefficients(featureCoeff coeff){
     }
 
     for (int j = 0; j < 8; j++){
-        coeff[i++] = ft.PassedPassedDistance[j][WHITE] - ft.PassedPassedDistance[j][BLACK];
-    }
-
-    for (int j = 0; j < 8; j++){
         coeff[i++] = ft.KingFriendlyPasser[j][WHITE] - ft.KingFriendlyPasser[j][BLACK];
     }
 
@@ -293,22 +287,6 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 4; j++){
         coeff[i++] = ft.KnightEnemyPasser[j][WHITE] - ft.KnightEnemyPasser[j][BLACK];
-    }
-
-    for (int j = 0; j < 7; j++){
-        coeff[i++] = ft.CandidatePasser[j][WHITE] - ft.CandidatePasser[j][BLACK];
-    }
-
-    for (int j = 0; j < 4; j++){
-        coeff[i++] = ft.CandidatePasserFile[j][WHITE] - ft.CandidatePasserFile[j][BLACK];
-    }
-
-    for (int j = 0; j < 7; j++){
-        coeff[i++] = ft.BackwardPawn[j][WHITE] - ft.BackwardPawn[j][BLACK];
-    }
-
-    for (int j = 0; j < 7; j++){
-        coeff[i++] = ft.BackwardOpenPawn[j][WHITE] - ft.BackwardOpenPawn[j][BLACK];
     }
 
     for (int j = 0; j < 2; j++){
@@ -372,14 +350,6 @@ void InitCoefficients(featureCoeff coeff){
     }
 
     for (int j = 0; j < 64; j++){
-        coeff[i++] = ft.PawnPsqtBlackIsQ[j][WHITE] - ft.PawnPsqtBlackIsQ[j][BLACK];
-    }
-
-    for (int j = 0; j < 64; j++){
-        coeff[i++] = ft.PawnPsqtBlackIsOwn[j][WHITE] - ft.PawnPsqtBlackIsOwn[j][BLACK];
-    }
-
-    for (int j = 0; j < 64; j++){
         coeff[i++] = ft.RookPsqtBlack[j][WHITE] - ft.RookPsqtBlack[j][BLACK];
     }
 
@@ -409,14 +379,6 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 32; j++){
         coeff[i++] = ft.BishopOutBlack[j][WHITE] - ft.BishopOutBlack[j][BLACK];
-    }
-
-    for (int j = 0; j < 32; j++){
-        coeff[i++] = ft.PawnConnected[j][WHITE] - ft.PawnConnected[j][BLACK];
-    }
-
-    for (int j = 0; j < 32; j++){
-        coeff[i++] = ft.PawnSupported[j][WHITE] - ft.PawnSupported[j][BLACK];
     }
 
     for (int j = 0; j < 5; j++){

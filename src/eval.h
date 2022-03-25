@@ -121,10 +121,6 @@ const int KING_LOW_DANGER = gS(74,-78);
 
 const int BISHOP_PAIR_BONUS = gS(31,52);
 
-const int DOUBLED_PAWN_PENALTY = gS(-9,-22);
-
-const int ISOLATED_PAWN_PENALTY = gS(-5,-5);
-
 const int PAWN_BLOCKED = gS(3,14);
 
 const int PASSER_BLOCKED = gS(5,-2);
@@ -193,11 +189,6 @@ const int PASSED_PAWN_POS_ADVANCE[7] = {
            gS(10,27), gS(33,57), gS(65,107),
 };
 
-const int PASSED_PASSED_DISTANCE[8] = {
-           gS(-4,-23), gS(17,2), gS(0,-17), gS(-7,-6),
-           gS(-10,-8), gS(-19,-8), gS(-17,-13), gS(-15,-11),
-};
-
 const int KING_PASSER_DISTANCE_FRIENDLY[8] = {
            gS(0,0), gS(3,32), gS(-9,25), gS(-7,9),
            gS(-3,1), gS(0,0), gS(13,0), gS(11,0),
@@ -210,25 +201,6 @@ const int KING_PASSER_DISTANCE_ENEMY[8] = {
 
 const int KNIGHT_PASSER_DISTANCE_ENEMY[4] = {
            gS(-5,-8), gS(1,2), gS(7,8), gS(13,12),
-};
-
-const int CANDIDATE_PASSED_PAWN[7] = {
-           gS(0,0), gS(-18,0), gS(-11,7), gS(0,11),
-           gS(5,30), gS(6,52), gS(0,0),
-};
-
-const int CANDIDATE_PASSED_PAWN_FILES[4] = {
-           gS(8,16), gS(0,7), gS(0,0), gS(-6,-2),
-};
-
-const int BACKWARD_PAWN[7] = {
-           gS(0,0), gS(0,-6), gS(1,-4), gS(-1,-7),
-           gS(0,-4), gS(0,0), gS(0,0),
-};
-
-const int BACKWARD_OPEN_PAWN[7] = {
-           gS(0,0), gS(-13,-11), gS(-7,-10), gS(-5,-9),
-           gS(0,-4), gS(0,0), gS(0,0),
 };
 
 /**
@@ -329,28 +301,6 @@ const int PAWN_PSQT_BLACK[64] = {
            gS(-27,5), gS(-23,12), gS(-10,0), gS(5,-3), gS(4,-4), gS(5,-3), gS(-7,1), gS(-21,-4),
            gS(-28,-1), gS(-20,0), gS(-8,-3), gS(-5,0), gS(0,0), gS(-1,-2), gS(-4,-6), gS(-23,-9),
            gS(-37,7), gS(-18,6), gS(-14,8), gS(0,7), gS(0,10), gS(0,6), gS(-5,1), gS(-28,-5),
-           gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0),
-};
-
-const int PAWN_PSQT_BLACK_IS_ENEMY_QUEEN[64] = {
-           gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0),
-           gS(-3,15), gS(-2,10), gS(0,7), gS(0,3), gS(0,1), gS(-1,1), gS(0,1), gS(0,7),
-           gS(-6,12), gS(-7,18), gS(-11,8), gS(0,0), gS(0,2), gS(-7,5), gS(-4,21), gS(-5,14),
-           gS(-3,-4), gS(-3,-3), gS(-11,-8), gS(0,-19), gS(0,-15), gS(-6,-4), gS(-6,0), gS(-5,0),
-           gS(0,-18), gS(-4,-9), gS(2,-14), gS(0,-25), gS(0,-24), gS(0,-6), gS(-6,0), gS(0,0),
-           gS(0,-26), gS(-3,-4), gS(-7,-6), gS(-4,0), gS(-7,-9), gS(-8,0), gS(2,-6), gS(0,-27),
-           gS(0,-45), gS(-1,-21), gS(-6,-6), gS(-14,0), gS(-9,0), gS(0,-2), gS(0,-8), gS(0,-50),
-           gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0),
-};
-
-const int PAWN_PSQT_BLACK_IS_OWN_QUEEN[64] = {
-           gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0),
-           gS(-6,7), gS(-5,7), gS(-1,2), gS(0,0), gS(0,0), gS(-2,0), gS(-1,0), gS(-2,0),
-           gS(-4,11), gS(-8,12), gS(-8,12), gS(-1,0), gS(0,1), gS(-7,2), gS(-1,21), gS(-4,8),
-           gS(0,-1), gS(0,0), gS(0,0), gS(1,-16), gS(0,-14), gS(0,-8), gS(-9,-3), gS(0,1),
-           gS(0,14), gS(0,1), gS(0,-4), gS(0,-7), gS(0,-5), gS(0,-8), gS(-1,0), gS(0,0),
-           gS(2,3), gS(-1,5), gS(-1,3), gS(-5,4), gS(-2,6), gS(-3,10), gS(3,-2), gS(6,3),
-           gS(3,31), gS(-1,15), gS(-3,24), gS(-2,19), gS(-4,16), gS(2,20), gS(5,14), gS(8,19),
            gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0),
 };
 

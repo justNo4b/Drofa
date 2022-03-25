@@ -682,8 +682,6 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     if (TRACK){
       int relSqv = color == WHITE ? _mir(square) : square;
       ft.PawnPsqtBlack[relSqv][color]++;
-      if (board.getPieces(otherColor, QUEEN) != 0) ft.PawnPsqtBlackIsQ[relSqv][color]++;
-      if (board.getPieces(color, QUEEN) != 0) ft.PawnPsqtBlackIsOwn[relSqv][color]++;
     }
 
     // add bonuses if the pawn is passed
@@ -695,75 +693,11 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         ft.PassedPawnRank[r][color]++;
         ft.PassedPawnFile[edgeDistance][color]++;
       }
-      // if the pawn is passed evaluate how far
-      // is it from other passers (_col-wise)
-      U64 tmpPassers = eB->Passers[color];
-      while (tmpPassers != ZERO){
-        int tPasSquare = _popLsb(tmpPassers);
-        int tPasCol = _col(tPasSquare);
-
-        s += PASSED_PASSED_DISTANCE[abs(tPasCol - pawnCol)];
-        if (TRACK) ft.PassedPassedDistance[abs(tPasCol - pawnCol)][color]++;
-      }
-
       // Add pawn to the passers list for further use
       eB->Passers[color] = eB->Passers[color] | (ONE << square);
-    } else{
-      // check if the pawn is a candidate passer
-      // 1) we can just push this pawn and it will become passed
-      // 2) we can push it itno trading into all becoming passed
-      U64 canSupport = detail::OUTPOST_PROTECTION[color][forwardSqv] & pawns;
-      U64 canEnemies = detail::OUTPOST_PROTECTION[otherColor][forwardSqv] & otherPawns;
-      if ((otherPawns & (ONE << forwardSqv)) == ZERO){
-        if (((otherPawns & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO) ||
-            ((_popCount(canSupport) >= _popCount(canEnemies)) &&
-            (((otherPawns & ~canEnemies) & detail::PASSED_PAWN_MASKS[color][forwardSqv]) == ZERO))){
-          s += CANDIDATE_PASSED_PAWN[r] + CANDIDATE_PASSED_PAWN_FILES[edgeDistance];
-          if (TRACK) ft.CandidatePasser[r][color]++;
-          if (TRACK) ft.CandidatePasserFile[edgeDistance][color]++;
-        }
-      }
-
     }
 
 
-
-    // add penalties for the doubled pawns
-    if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0 &&
-        !((ONE << square) & eB->EnemyPawnAttackMap[color])){
-      if (TRACK) ft.PawnDoubled[color]++;
-      s += DOUBLED_PAWN_PENALTY;
-    }
-
-    // score a pawn if it is isolated
-    if (!(detail::NEIGHBOR_FILES[pawnCol] & pawns) &&
-        !((ONE << square) & eB->EnemyPawnAttackMap[color])){
-      if (TRACK) ft.PawnIsolated[color]++;
-      s += ISOLATED_PAWN_PENALTY;
-    } // if pawn is not isolated check if it is backwards
-    else if (!((ONE << square) & eB->EnemyPawnAttackMap[color]) &&
-             !(detail::PASSED_PAWN_MASKS[otherColor][square] & pawns) &&
-             !(detail::CONNECTED_MASK[square] & pawns) &&
-             ((ONE << forwardSqv) & eB->EnemyPawnAttackMap[color]) &&
-             !((ONE << forwardSqv) & otherPawns)){
-
-      if (TRACK){
-          if ((detail::FORWARD_BITS[color][square] & otherPawns) != 0) ft.BackwardPawn[r][color]++; else ft.BackwardOpenPawn[r][color]++;
-      } 
-      s += ((detail::FORWARD_BITS[color][square] & otherPawns) != 0) ?  BACKWARD_PAWN[r] : BACKWARD_OPEN_PAWN[r];   
-    }
-
-    // test on if a pawn is connected
-    if ((detail::CONNECTED_MASK[square] & pawns) != 0){
-      if (TRACK) ft.PawnConnected[relSqv][color]++;
-      s += PAWN_CONNECTED[relSqv];
-    }
-
-    // test if the pawn is supported by other friendly pawn
-    if ((ONE << square) & eB->EnemyPawnAttackMap[otherColor]){
-      if (TRACK) ft.PawnSupported[relSqv][color]++;
-      s += PAWN_SUPPORTED[relSqv];
-    }
   }
 
   return s;
@@ -826,7 +760,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   pawnPush = color == WHITE ? ((pawnPush << 9) & ~FILE_A) | ((pawnPush << 7) & ~FILE_H)
                             : ((pawnPush >> 9) & ~FILE_H) | ((pawnPush >> 7) & ~FILE_A);
   s += PAWN_PUSH_THREAT * _popCount(pawnPush & targets);
-  if (TRACK) ft.PawnPushThreat[color] += _popCount(pawnPush & targets);                        
+  if (TRACK) ft.PawnPushThreat[color] += _popCount(pawnPush & targets);
 
   // Passer - piece evaluation
 
@@ -987,16 +921,6 @@ int Eval::evaluate(const Board &board, Color color) {
 
   // Piece square tables
   score += board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(otherColor);
-
-  // Get PSQT-pawns Adjustments
-  // 0 - own queen
-  if (board.getPieces(color, QUEEN) != 0){
-    score += board.getPSquareTable().getPawnAdjustment(color, 0) - board.getPSquareTable().getPawnAdjustment(otherColor, 1);
-  }
-
-  if (board.getPieces(otherColor, QUEEN) != 0){
-    score += board.getPSquareTable().getPawnAdjustment(color, 1) - board.getPSquareTable().getPawnAdjustment(otherColor, 0);
-  }
 
   // Create evalBits stuff
   evalBits eB = Eval::Setupbits(board);

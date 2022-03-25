@@ -6,8 +6,8 @@
 //various OUTPOSTS PSQT are defined here
 
 /**
- * @brief [color][sqv] 
- */ 
+ * @brief [color][sqv]
+ */
 const int KNIGHT_PROT_OUTPOST_BLACK[32] = {
            gS(0,0), gS(0,0), gS(0,0), gS(0,0),
            gS(0,0), gS(2,0), gS(1,0), gS(3,2),
@@ -50,27 +50,5 @@ const int BISHOP_OUTPOST_BLACK[32] = {
            gS(6,13), gS(6,6), gS(3,6), gS(8,3),
            gS(-2,0), gS(2,5), gS(-3,1), gS(0,4),
            gS(0,6), gS(-6,5), gS(-2,6), gS(-2,0),
-};
-
-const int PAWN_CONNECTED[32] = {
-           gS(0,0), gS(0,0), gS(0,0), gS(0,0),
-           gS(0,2), gS(0,5), gS(0,1), gS(0,1),
-           gS(9,27), gS(20,50), gS(16,36), gS(18,36),
-           gS(18,7), gS(12,13), gS(28,20), gS(25,15),
-           gS(1,2), gS(10,3), gS(7,10), gS(9,16),
-           gS(2,3), gS(1,0), gS(6,5), gS(6,5),
-           gS(8,-4), gS(3,1), gS(4,-5), gS(1,0),
-           gS(0,0), gS(0,0), gS(0,0), gS(0,0),
-};
-
-const int PAWN_SUPPORTED[32] = {
-           gS(0,0), gS(0,0), gS(0,0), gS(0,0),
-           gS(3,14), gS(14,14), gS(12,13), gS(12,19),
-           gS(19,15), gS(34,16), gS(50,24), gS(55,24),
-           gS(10,5), gS(8,14), gS(26,8), gS(21,19),
-           gS(3,5), gS(15,2), gS(10,6), gS(11,10),
-           gS(6,3), gS(13,7), gS(13,3), gS(9,10),
-           gS(0,0), gS(0,0), gS(0,0), gS(0,0),
-           gS(0,0), gS(0,0), gS(0,0), gS(0,0),
 };
 #endif
