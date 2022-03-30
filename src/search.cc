@@ -241,7 +241,8 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
   MoveList * legalMoves = movegen.getMoves();
   pV rootPV = pV();
 
-  _sStack.AddEval(board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer()));
+  int statEVAL = board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer());
+  _sStack.AddEval(statEVAL);
 
   // If no legal moves are available, just return, setting bestmove to a null move
   if (legalMoves->empty()) {
@@ -282,6 +283,9 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
 
         // If the current score is better than alpha, or this is the first move in the loop
         if (currScore > alpha) {
+            if (currScore >= beta){
+                _updateBeta(move.isQuiet(), move, board.getActivePlayer(), 0, 0, (depth + 2 * (statEVAL < alpha)));
+            }
           fullWindow = false;
           bestMove = move;
           alpha = currScore;
@@ -290,6 +294,13 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
           // memcpy - (куда, откуда, длина)
           std::memcpy(_ourPV.pVmoves + 1, rootPV.pVmoves, sizeof(int) * rootPV.length);
           // Break if we've found a checkmate
+        }else{
+          int dBonus = std::max(0, depth - (statEVAL < alpha));
+          if (move.isQuiet()){
+            _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), dBonus);
+          }else{
+            _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), dBonus);
+          }
         }
         _rootNodesSpent[move.getPieceType()][move.getTo()] += _nodes - nodesStart;
 
