@@ -459,7 +459,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             Move move = movePicker.getNext();
 
             // exit when there is no more captures
-            if (move.getValue() <= 20000){
+            if (getVal(move.getValue()) <= 20000){
                 movePicker.refreshPicker();
                 break;
             }
@@ -791,12 +791,12 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
     // in qSearch if Value < 0 it means it is a bad capture
     // and we should prune it
-    if (move.getValue() < 0){
+    if (getVal(move.getValue()) < 0){
       break;
     }
 
     // Use Halogen futility variation
-    if (!(move.getFlags() & Move::PROMOTION) && standPat + move.getValue() + DELTA_MOVE_CONST < alpha)
+    if (!(move.getFlags() & Move::PROMOTION) && standPat + getVal(move.getValue()) + DELTA_MOVE_CONST < alpha)
       break;
 
     Board movedBoard = board;

@@ -5,6 +5,12 @@
 #include "board.h"
 #include "orderinginfo.h"
 
+// essentially same as in gameScore in eval, just name differently
+
+#define moveValue(see, val) (int)((unsigned int)(see) << 16) + (val)
+#define getSee(mV) (int16_t)((uint16_t)((unsigned)((mV) + 0x8000) >> 16))
+#define getVal(mV) (int16_t)((uint16_t)((unsigned)((mV))))
+
 /**
  * @brief Abstract base class for an object that picks moves from a move list in an optimal order.
  *

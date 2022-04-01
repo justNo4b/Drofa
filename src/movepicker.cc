@@ -23,7 +23,7 @@ void MovePicker::_scoreMoves(const Board *board) {
   for (auto &move : *_moves) {
     int moveINT = move.getMoveINT();
     if (_hashMove != 0 && moveINT == _hashMove) {
-      move.setValue(HASH_MOVE);
+      move.setValue(moveValue(0, HASH_MOVE));
     } else if (move.getFlags() & Move::CAPTURE) {
       int see   = board->Calculate_SEE(move);
       int value = _ply == MAX_PLY ? see :
@@ -32,18 +32,19 @@ void MovePicker::_scoreMoves(const Board *board) {
       if (_ply != MAX_PLY){
         value += see >= 0 ? CAPTURE_BONUS : BAD_CAPTURE;
       }
-      move.setValue(value);
+      move.setValue(moveValue(see, value));
     } else if (move.getFlags() & Move::PROMOTION) {
-      move.setValue(PROMOTION_SORT[move.getPromotionPieceType()]);
+      move.setValue(moveValue(0, PROMOTION_SORT[move.getPromotionPieceType()]));
     } else if (moveINT == Killer1) {
-      move.setValue(KILLER1_BONUS);
+      move.setValue(moveValue(0, KILLER1_BONUS));
     } else if (moveINT == Killer2) {
-      move.setValue(KILLER2_BONUS);
+      move.setValue(moveValue(0, KILLER2_BONUS));
     } else if (moveINT == Counter){
-      move.setValue(COUNTERMOVE_BONUS);
+      move.setValue(moveValue(0, COUNTERMOVE_BONUS));
     } else { // Quiet
-      move.setValue(_orderingInfo->getHistory(_color, move.getFrom(), move.getTo()) +
-                    _orderingInfo->getCountermoveHistory(_color, pMoveInx, move.getPieceType(), move.getTo()));
+      int value = _orderingInfo->getHistory(_color, move.getFrom(), move.getTo()) +
+                  _orderingInfo->getCountermoveHistory(_color, pMoveInx, move.getPieceType(), move.getTo());
+      move.setValue(moveValue(0, value));
     }
   }
 }
@@ -58,8 +59,9 @@ Move MovePicker::getNext() {
   int bestScore = -INF;
 
   for (size_t i = _currHead; i < _moves->size(); i++) {
-    if (_moves->at(i).getValue() > bestScore) {
-      bestScore = _moves->at(i).getValue();
+    int value = getVal(_moves->at(i).getValue());
+    if ( value > bestScore) {
+      bestScore = value;
       bestIndex = i;
     }
   }
