@@ -537,7 +537,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
       if (depth <= 6
           && !isQuiet
-          && getSee(move.getValue()) <= -25 * depth * depth) continue;
+          && getSee(move.getValue()) <= -35 * depth * depth) continue;
     }
 
     Board movedBoard = board;
