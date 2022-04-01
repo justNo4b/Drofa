@@ -55,14 +55,14 @@ class MovePicker {
    * @brief Bonuses applied to specific move types.
    * @{
    */
-  static const int CAPTURE_BONUS      = 400000;
-  static const int PROMOTION_BONUS    = 300000;
-  static const int KILLER1_BONUS      = 200000;
-  static const int KILLER2_BONUS      = 150000;
-  static const int COUNTERMOVE_BONUS  = 50000;
+  static const int HASH_MOVE          = 32766;
+  static const int CAPTURE_BONUS      = 25000;
+  static const int KILLER1_BONUS      = 19000;
+  static const int KILLER2_BONUS      = 18000;
+  static const int COUNTERMOVE_BONUS  = 16000;
   static const int QUIET_BONUS        = 0;
-  static const int BAD_CAPTURE        =-100000;
-  const int PROMOTION_SORT[6] = {0, 0, 100000, -50000, 300000, 0};
+  static const int BAD_CAPTURE        =-20000;
+  const int PROMOTION_SORT[6] = {0, 0, 17000, -15000, 20000, 0};
   /**@}*/
 
   /**

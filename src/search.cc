@@ -459,7 +459,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             Move move = movePicker.getNext();
 
             // exit when there is no more captures
-            if (move.getValue() <= 300000){
+            if (move.getValue() <= 20000){
                 movePicker.refreshPicker();
                 break;
             }
@@ -636,8 +636,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           reduction -= singularExists;
 
           // reduce more/less based on the hitory
-          reduction -= moveHistory / 8192;
-          reduction -= cmHistory  / 12288;
+          reduction -= moveHistory / 2048;
+          reduction -= cmHistory  / 3072;
 
           // reduce less when move is a Queen promotion
           reduction -= (move.getFlags() & Move::PROMOTION) && (move.getPromotionPieceType() == QUEEN);

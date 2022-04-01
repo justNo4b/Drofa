@@ -23,11 +23,11 @@ void MovePicker::_scoreMoves(const Board *board) {
   for (auto &move : *_moves) {
     int moveINT = move.getMoveINT();
     if (_hashMove != 0 && moveINT == _hashMove) {
-      move.setValue(INF);
+      move.setValue(HASH_MOVE);
     } else if (move.getFlags() & Move::CAPTURE) {
       int see   = board->Calculate_SEE(move);
       int value = _ply == MAX_PLY ? see :
-                                  opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]) +
+                                  (opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]) / 4) +
                                   _orderingInfo->getCaptureHistory(move.getPieceType(),move.getCapturedPieceType(), move.getTo());
       if (_ply != MAX_PLY){
         value += see >= 0 ? CAPTURE_BONUS : BAD_CAPTURE;
