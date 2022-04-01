@@ -534,6 +534,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       if (depth <= 10
           && isQuiet
           && board.Calculate_SEE(move) < -51 * depth) continue;
+
+      if (depth <= 10
+          && !isQuiet
+          && getSee(move.getValue()) < -20 * depth * depth) continue;
     }
 
     Board movedBoard = board;
