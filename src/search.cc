@@ -794,7 +794,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
     // Plus Halogen-styled futility-pruning
     int see = board.Calculate_SEE(move);
     if (see < 0 ||
-        !(move.getFlags() & Move::PROMOTION) && standPat + see + DELTA_MOVE_CONST < alpha){
+        (!(move.getFlags() & Move::PROMOTION) && standPat + see + DELTA_MOVE_CONST < alpha)){
       break;
     }
 
