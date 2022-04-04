@@ -652,7 +652,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                              (cutNode || pvNode) ? -1 : 0;
 
           // for captures dont allow to big reductions
-          int maxResuction = isQuiet ? 10 : 2;
+          int maxResuction = isQuiet ? 10 : 3;
 
           reduction = std::max(minReduction, reduction);
           reduction = std::min(maxResuction, reduction);
