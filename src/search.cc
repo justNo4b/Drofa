@@ -749,13 +749,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     return score;
   }
 
-  // If the best move was not set in the main search loop
-  // alpha was not raised at any point, just return alpha
-  // (ie do not write in the TT)
-  if (bestMove.getFlags() & Move::NULL_MOVE) {
-    return bestAchieved;
-  }
-
   // Store bestScore in transposition table
   if (!_stop && !sing){
       if (alpha <= alphaOrig) {
