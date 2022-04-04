@@ -255,6 +255,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
   MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashMove, board.getActivePlayer(), 0, 0);
 
   int currScore;
+  int bestAchieved = LOST_SCORE;
 
   Move bestMove;
   bool fullWindow = true;
@@ -281,16 +282,20 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
         }
 
         // If the current score is better than alpha, or this is the first move in the loop
-        if (currScore > alpha) {
-          fullWindow = false;
-          bestMove = move;
-          alpha = currScore;
-          _ourPV.length = rootPV.length + 1;
-          _ourPV.pVmoves[0] = move.getMoveINT();
-          // memcpy - (куда, откуда, длина)
-          std::memcpy(_ourPV.pVmoves + 1, rootPV.pVmoves, sizeof(int) * rootPV.length);
-          // Break if we've found a checkmate
+        if(currScore > bestAchieved){
+            bestAchieved = currScore;
+            if (currScore > alpha) {
+                fullWindow = false;
+                bestMove = move;
+                alpha = currScore;
+                _ourPV.length = rootPV.length + 1;
+                _ourPV.pVmoves[0] = move.getMoveINT();
+                // memcpy - (куда, откуда, длина)
+                std::memcpy(_ourPV.pVmoves + 1, rootPV.pVmoves, sizeof(int) * rootPV.length);
+                // Break if we've found a checkmate
+            }
         }
+
         _rootNodesSpent[move.getPieceType()][move.getTo()] += _nodes - nodesStart;
 
     }
@@ -298,12 +303,12 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
   }
 
   if (!_stop && !(bestMove.getFlags() & Move::NULL_MOVE)) {
-    myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), EXACT, alpha, depth, 0);
+    myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), EXACT, bestAchieved, depth, 0);
     _bestMove = bestMove;
-    _bestScore = alpha;
+    _bestScore = bestAchieved;
   }
 
-  return alpha;
+  return bestAchieved;
 }
 
 int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int beta, bool sing, bool cutNode) {
@@ -354,11 +359,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         return hashScore;
       }
       if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){
-        return alpha;
+        return hashScore;
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
         _updateBeta(quietTT, hashedMove, board.getActivePlayer(), pMove, ply, depth);
-        return beta;
+        return hashScore;
       }
     }
   }
@@ -429,7 +434,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           _posHist.Remove();
           _sStack.RemoveNull(behindColor, nmpTree);
           if (score >= beta){
-            return beta;
+            return score;
           }
           failedNull = true;
   }
@@ -487,7 +492,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                     _sStack.Remove();
 
                     if (sScore >= pcBeta){
-                        return beta;
+                        return sScore;
                     }
                 }
             }
@@ -495,6 +500,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     }
 
   Move bestMove;
+  int  bestAchieved = LOST_SCORE;
   int  LegalMoveCount = 0;
   int  qCount = 0;
   bool singularExists = false;
@@ -686,6 +692,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         _posHist.Remove();
         _sStack.Remove();
+
         // Beta cutoff
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
@@ -702,30 +709,34 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             std::memcpy(up_pV->pVmoves + 1, thisPV.pVmoves, sizeof(int) * thisPV.length);
           }
 
-          return beta;
+          return score;
         }
 
         // Check if alpha raised (new best move)
-        if (score > alpha) {
-          alpha = score;
-          bestMove = move;
-          // we updated alpha and in the pVNode so we should update our pV
-          if (pvNode && !_stop){
-            up_pV->length = thisPV.length + 1;
-            up_pV->pVmoves[0] = move.getMoveINT();
-            // memcpy - (куда, откуда, длина)
-            std::memcpy(up_pV->pVmoves + 1, thisPV.pVmoves, sizeof(int) * thisPV.length);
-          }
+        if (score > bestAchieved){
+            bestAchieved = score;
 
-        }else{
-          // Beta was not beaten and we dont improve alpha in this case we lower our search history values
-          int dBonus = std::max(0, depth - (statEVAL < alpha) - (!TTmove && depth >= 4));
-          if (isQuiet){
-            _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), dBonus);
-            _orderingInfo.decrementCounterHistory(board.getActivePlayer(), pMoveIndx, move.getPieceType(), move.getTo(), dBonus);
-          }else{
-            _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), dBonus);
-          }
+            if (score > alpha) {
+                alpha = score;
+                bestMove = move;
+                // we updated alpha and in the pVNode so we should update our pV
+                if (pvNode && !_stop){
+                    up_pV->length = thisPV.length + 1;
+                    up_pV->pVmoves[0] = move.getMoveINT();
+                    // memcpy - (куда, откуда, длина)
+                    std::memcpy(up_pV->pVmoves + 1, thisPV.pVmoves, sizeof(int) * thisPV.length);
+                }
+
+            }else{
+                // Beta was not beaten and we dont improve alpha in this case we lower our search history values
+                int dBonus = std::max(0, depth - (statEVAL < alpha) - (!TTmove && depth >= 4));
+                if (isQuiet){
+                    _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), dBonus);
+                    _orderingInfo.decrementCounterHistory(board.getActivePlayer(), pMoveIndx, move.getPieceType(), move.getTo(), dBonus);
+                }else{
+                    _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), dBonus);
+                }
+            }
         }
       }
 
@@ -742,19 +753,19 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // alpha was not raised at any point, just return alpha
   // (ie do not write in the TT)
   if (bestMove.getFlags() & Move::NULL_MOVE) {
-    return alpha;
+    return bestAchieved;
   }
 
   // Store bestScore in transposition table
   if (!_stop && !sing){
       if (alpha <= alphaOrig) {
-        myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), ALPHA, alpha, depth, ply);
+        myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), ALPHA, bestAchieved, depth, ply);
       } else {
-        myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), EXACT, alpha, depth, ply);
+        myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), EXACT, bestAchieved, depth, ply);
       }
   }
 
-  return alpha;
+  return bestAchieved;
 }
 
 int Search::_qSearch(const Board &board, int alpha, int beta) {
@@ -768,7 +779,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   int standPat = Eval::evaluate(board, board.getActivePlayer());
 
   if (standPat >= beta) {
-    return beta;
+    return standPat;
   }
 
   if (alpha < standPat) {
@@ -777,12 +788,12 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
   MoveGen movegen(board, true);
   MoveList * legalMoves = movegen.getMoves();
-  MovePicker movePicker
-      (&_orderingInfo, &board, legalMoves, 0, board.getActivePlayer(), MAX_PLY, 0);
+  MovePicker movePicker(&_orderingInfo, &board, legalMoves, 0, board.getActivePlayer(), MAX_PLY, 0);
+  int bestAchieved = standPat;
 
   // If node is quiet, just return eval
   if (!movePicker.hasNext()) {
-    return standPat;
+    return bestAchieved;
   }
 
 
@@ -801,19 +812,22 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
     Board movedBoard = board;
     movedBoard.doMove(move);
-      if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
+    if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
 
           int score = -_qSearch(movedBoard, -beta, -alpha);
 
-          if (score >= beta) {
-            return beta;
-          }
-          if (score > alpha) {
-            alpha = score;
-          }
+        if ( score > bestAchieved){
+            bestAchieved = score;
+            if (score >= beta) {
+                break;
+            }
+            if (score > alpha) {
+                alpha = score;
+            }
         }
+    }
 
 
   }
-  return alpha;
+  return bestAchieved;
 }
