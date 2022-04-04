@@ -447,7 +447,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   //
   // Drofa dont do this reduction after NullMove, because we already reduced a lot,
   // and reducing further may reduce quality of the NM_Search
-  if (depth >= 5 && !TTmove && pMove != 0 && !sing)
+  if (depth >= 5 && (!TTmove || probedHASHentry.Flag == ALPHA) && pMove != 0 && !sing)
     depth--;
 
   // No pruning occured, generate moves and recurse
