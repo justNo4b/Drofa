@@ -240,8 +240,9 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
   MoveGen movegen(board, false);
   MoveList * legalMoves = movegen.getMoves();
   pV rootPV = pV();
+  bool AreWeInCheck = board.colorIsInCheck(board.getActivePlayer());
 
-  _sStack.AddEval(board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer()));
+  _sStack.AddEval( AreWeInCheck ? NOSCORE : Eval::evaluate(board, board.getActivePlayer()));
 
   // If no legal moves are available, just return, setting bestmove to a null move
   if (legalMoves->empty()) {
@@ -267,12 +268,35 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
 
     if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
         U64 nodesStart = _nodes;
+        int tDepth = depth;
+
+        if (AreWeInCheck)
+            tDepth += 1;
+
+        // 6.2 Singular move extention
+        // At high depth if we have the TT move, and we are certain
+        // that non other moves are even close to it, extend this move
+        if (depth > 8 &&
+            !AreWeInCheck &&
+            probedHASHentry.Flag != ALPHA &&
+            probedHASHentry.depth >= depth - 2 &&
+            probedHASHentry.move == move.getMoveINT() &&
+            abs(probedHASHentry.score) < WON_IN_X / 4){
+              int sDepth = depth / 2;
+              int sBeta = probedHASHentry.score - depth * 2;
+              Board sBoard = board;
+              int score = _negaMax(sBoard, &rootPV, sDepth, sBeta - 1, sBeta, true, false);
+              if (sBeta > score){
+                tDepth += 1;
+              }
+            }
+
 
         if (fullWindow) {
-          currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, false, false);
+          currScore = -_negaMax(movedBoard, &rootPV, tDepth - 1, -beta, -alpha, false, false);
         } else {
-          currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -alpha - 1, -alpha,  false, true);
-          if (currScore > alpha) currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, false, false);
+          currScore = -_negaMax(movedBoard, &rootPV, tDepth - 1, -alpha - 1, -alpha,  false, true);
+          if (currScore > alpha) currScore = -_negaMax(movedBoard, &rootPV, tDepth - 1, -beta, -alpha, false, false);
         }
 
         if (_stop || _checkLimits()) {
