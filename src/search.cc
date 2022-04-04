@@ -651,7 +651,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           int minReduction = (!isQuiet && LegalMoveCount <= 6) ? -2 :
                              (cutNode || pvNode) ? -1 : 0;
 
+          // for captures dont allow to big reductions
+          int maxResuction = isQuiet ? 10 : 2;
+
           reduction = std::max(minReduction, reduction);
+          reduction = std::min(maxResuction, reduction);
           //Avoid to reduce so much that we go to QSearch right away
           int fDepth = std::max(1, tDepth - 1 - reduction);
 
