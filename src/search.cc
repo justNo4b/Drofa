@@ -337,7 +337,18 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     return 0;
   }
 
-  // Check transposition table cache
+  // Check our InCheck status
+  AreWeInCheck = board.colorIsInCheck(board.getActivePlayer());
+
+  // Go into the QSearch if depth is 0 and we are not in check
+  // Cut out pV and update our seldepth before dropping into qSearch
+  if ((depth <= 0 && !AreWeInCheck) || ply >= MAX_PLY) {
+    _selDepth = std::max(ply, _selDepth);
+    up_pV->length = 0;
+    return _qSearch(board, alpha, beta);
+  }
+
+    // Check transposition table cache
   // If TT is causing a cuttoff, we update move ordering stuff
   const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
   if (probedHASHentry.Flag != NONE){
@@ -361,17 +372,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         return beta;
       }
     }
-  }
-
-  // Check our InCheck status
-  AreWeInCheck = board.colorIsInCheck(board.getActivePlayer());
-
-  // Go into the QSearch if depth is 0 and we are not in check
-  // Cut out pV and update our seldepth before dropping into qSearch
-  if ((depth <= 0 && !AreWeInCheck) || ply >= MAX_PLY) {
-    _selDepth = std::max(ply, _selDepth);
-    up_pV->length = 0;
-    return _qSearch(board, alpha, beta);
   }
 
   // Statically evaluate our position
@@ -760,6 +760,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 int Search::_qSearch(const Board &board, int alpha, int beta) {
   // Check search limits
    _nodes++;
+   bool pvNode = alpha != beta - 1;
+
   if (_stop || _checkLimits()) {
     _stop = true;
     return 0;
@@ -775,10 +777,31 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
     alpha = standPat;
   }
 
+  // Check transposition table cache
+  // If TT is causing a cuttoff, we update move ordering stuff
+  const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
+  if (probedHASHentry.Flag != NONE){
+    if (!pvNode){
+      int hashScore = probedHASHentry.score;
+
+      if (abs(hashScore) > WON_IN_X){
+        hashScore = (hashScore > 0) ? (hashScore - MAX_PLY) :  (hashScore + MAX_PLY);
+      }
+      if (probedHASHentry.Flag == EXACT){
+        return hashScore;
+      }
+      if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){
+        return alpha;
+      }
+      if (probedHASHentry.Flag == BETA && hashScore >= beta){
+        return beta;
+      }
+    }
+  }
+
   MoveGen movegen(board, true);
   MoveList * legalMoves = movegen.getMoves();
-  MovePicker movePicker
-      (&_orderingInfo, &board, legalMoves, 0, board.getActivePlayer(), MAX_PLY, 0);
+  MovePicker movePicker(&_orderingInfo, &board, legalMoves, 0, board.getActivePlayer(), MAX_PLY, 0);
 
   // If node is quiet, just return eval
   if (!movePicker.hasNext()) {
@@ -801,11 +824,16 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
     Board movedBoard = board;
     movedBoard.doMove(move);
+    myHASH->HASH_Prefetch(movedBoard.getZKey().getValue());
       if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
 
           int score = -_qSearch(movedBoard, -beta, -alpha);
 
           if (score >= beta) {
+            // Add a new tt entry for this node
+            if (!_stop){
+                myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, 0, MAX_PLY);
+            }
             return beta;
           }
           if (score > alpha) {
