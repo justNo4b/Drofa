@@ -263,11 +263,12 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
 
     Board movedBoard = board;
     movedBoard.doMove(move);
-    _sStack.AddMove(move.getMoveINT());
 
     if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
         U64 nodesStart = _nodes;
 
+
+        _sStack.AddMove(move.getMoveINT());
         if (fullWindow) {
           currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, false, false);
         } else {
@@ -281,6 +282,8 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
         }
 
         // If the current score is better than alpha, or this is the first move in the loop
+
+        _sStack.Remove();
         if (currScore > alpha) {
           fullWindow = false;
           bestMove = move;
@@ -290,11 +293,21 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
           // memcpy - (куда, откуда, длина)
           std::memcpy(_ourPV.pVmoves + 1, rootPV.pVmoves, sizeof(int) * rootPV.length);
           // Break if we've found a checkmate
+
+            if (currScore >= beta) {
+            // Add this move as a new killer move and update history if move is quiet
+            _updateBeta(move.isQuiet(), move, board.getActivePlayer(), 0, 0, depth);
+                // Add a new tt entry for this node
+                if (!_stop){
+                    myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, currScore, depth, 0);
+                }
+            return beta;
+            }
         }
         _rootNodesSpent[move.getPieceType()][move.getTo()] += _nodes - nodesStart;
 
     }
-    _sStack.Remove();
+
   }
 
   if (!_stop && !(bestMove.getFlags() & Move::NULL_MOVE)) {
