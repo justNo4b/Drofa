@@ -761,6 +761,8 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   // Check search limits
    _nodes++;
    bool pvNode = alpha != beta - 1;
+   int  alphaOrig = alpha;
+   int  bestMove = 0;
 
   if (_stop || _checkLimits()) {
     _stop = true;
@@ -770,11 +772,13 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   int standPat = Eval::evaluate(board, board.getActivePlayer());
 
   if (standPat >= beta) {
+    myHASH->HASH_Store(board.getZKey().getValue(), 0, BETA, beta, 0, MAX_PLY);
     return beta;
   }
 
   if (alpha < standPat) {
     alpha = standPat;
+    alphaOrig = standPat;
   }
 
   // Check transposition table cache
@@ -837,11 +841,17 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
             return beta;
           }
           if (score > alpha) {
+            bestMove = move.getMoveINT();
             alpha = score;
           }
         }
 
 
   }
+
+    if (!_stop && alpha > alphaOrig){
+        myHASH->HASH_Store(board.getZKey().getValue(), bestMove, EXACT, alpha, 0, MAX_PLY);
+    }
+
   return alpha;
 }
