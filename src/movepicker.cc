@@ -22,8 +22,16 @@ void MovePicker::_scoreMoves(const Board *board) {
 
   for (auto &move : *_moves) {
     int moveINT = move.getMoveINT();
+
     if (_hashMove != 0 && moveINT == _hashMove) {
-      move.setValue(INF);
+        int value;
+        if (_ply == MAX_PLY){
+            int see = board->Calculate_SEE(move);
+            value = see < 0 ? see : see + 1024;
+        }else{
+            value = INF;
+        }
+        move.setValue(value);
     } else if (move.getFlags() & Move::CAPTURE) {
       int see   = board->Calculate_SEE(move);
       int value = _ply == MAX_PLY ? see :
