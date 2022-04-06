@@ -278,7 +278,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
 
         bool doLMR = false;
         int tDepth = depth + AreWeInCheck;
-        doLMR = tDepth > 2 && LegalMoveCount > 3;
+        doLMR = tDepth > 2 && LegalMoveCount > 5;
         if (doLMR){
 
           //Basic reduction is done according to the array
