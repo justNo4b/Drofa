@@ -301,7 +301,6 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
 
           // reduce more/less based on the hitory
           reduction -= moveHistory / 8192;
-          //reduction -= cmHistory  / 12288;
 
           // reduce less when move is a Queen promotion
           reduction -= (move.getFlags() & Move::PROMOTION) && (move.getPromotionPieceType() == QUEEN);
@@ -322,10 +321,8 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
           currScore = -_negaMax(movedBoard, &rootPV, fDepth, -alpha - 1 , -alpha, false, true);
         }
 
-        if (doLMR){
-          if (currScore > alpha){
+        if ((doLMR && (currScore > alpha)) || (LegalMoveCount > 1)){
             currScore = -_negaMax(movedBoard, &rootPV, tDepth - 1, -alpha - 1, -alpha, false, false);
-          }
         }
 
         // If we are in the PV
