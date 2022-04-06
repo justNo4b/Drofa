@@ -277,7 +277,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
                             _orderingInfo.getCaptureHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo());
 
         bool doLMR = false;
-        int tDepth = depth;
+        int tDepth = depth + AreWeInCheck;
         doLMR = tDepth > 2 && LegalMoveCount > 3;
         if (doLMR){
 
