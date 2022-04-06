@@ -761,6 +761,8 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   // Check search limits
    _nodes++;
    bool pvNode = alpha != beta - 1;
+   Move hashedMove;
+   bool quietTT;
 
   if (_stop || _checkLimits()) {
     _stop = true;
@@ -783,7 +785,8 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   if (probedHASHentry.Flag != NONE){
     if (!pvNode){
       int hashScore = probedHASHentry.score;
-
+      hashedMove = Move(probedHASHentry.move);
+      quietTT = hashedMove.isQuiet();
       if (abs(hashScore) > WON_IN_X){
         hashScore = (hashScore > 0) ? (hashScore - MAX_PLY) :  (hashScore + MAX_PLY);
       }
@@ -801,7 +804,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
   MoveGen movegen(board, true);
   MoveList * legalMoves = movegen.getMoves();
-  MovePicker movePicker(&_orderingInfo, &board, legalMoves, 0, board.getActivePlayer(), MAX_PLY, 0);
+  MovePicker movePicker(&_orderingInfo, &board, legalMoves, quietTT ? 0 : hashedMove.getMoveINT(), board.getActivePlayer(), MAX_PLY, 0);
 
   // If node is quiet, just return eval
   if (!movePicker.hasNext()) {
