@@ -240,8 +240,9 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
   MoveGen movegen(board, false);
   MoveList * legalMoves = movegen.getMoves();
   pV rootPV = pV();
+  bool AreWeInCheck = board.colorIsInCheck(board.getActivePlayer());
 
-  _sStack.AddEval(board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer()));
+  _sStack.AddEval(AreWeInCheck ? NOSCORE : Eval::evaluate(board, board.getActivePlayer()));
 
   // If no legal moves are available, just return, setting bestmove to a null move
   if (legalMoves->empty()) {
@@ -251,13 +252,13 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
   }
 
   const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
-  int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
-  MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashMove, board.getActivePlayer(), 0, 0);
+  Move hashMove = probedHASHentry.Flag != NONE ? Move(probedHASHentry.move) : Move();
+  MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashMove.getMoveINT(), board.getActivePlayer(), 0, 0);
 
   int currScore;
 
   Move bestMove;
-  bool fullWindow = true;
+  int LegalMoveCount = 0;
   while (movePicker.hasNext()) {
     Move move = movePicker.getNext();
 
@@ -268,12 +269,72 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
     if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
         U64 nodesStart = _nodes;
 
-        if (fullWindow) {
-          currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, false, false);
-        } else {
-          currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -alpha - 1, -alpha,  false, true);
-          if (currScore > alpha) currScore = -_negaMax(movedBoard, &rootPV, depth - 1, -beta, -alpha, false, false);
+        LegalMoveCount++;
+        bool isQuiet = move.isQuiet();
+        bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
+        int  moveHistory  = isQuiet ?
+                            _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) :
+                            _orderingInfo.getCaptureHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo());
+
+        bool doLMR = false;
+        int tDepth = depth;
+        doLMR = tDepth > 2 && LegalMoveCount > 3;
+        if (doLMR){
+
+          //Basic reduction is done according to the array
+          int reduction = _lmr_R_array[std::min(33, tDepth)][std::min(33, LegalMoveCount)];
+
+          // Reduction tweaks
+          // We generally want to guess if the move will not improve alpha and guess right to do no re-searches
+
+          // if move is quiet, reduce a bit more (from Weiss)
+          reduction += isQuiet;
+
+          //reduce more when side to move is in check
+          reduction += AreWeInCheck;
+
+          // Reduce more for late quiets if TTmove exists and it is non-Quiet move
+          reduction += isQuiet && !hashMove.isQuiet() && probedHASHentry.Flag != NONE;
+
+          // reduce less when a move is giving check
+          reduction -= giveCheck;
+
+          // reduce more/less based on the hitory
+          reduction -= moveHistory / 8192;
+          //reduction -= cmHistory  / 12288;
+
+          // reduce less when move is a Queen promotion
+          reduction -= (move.getFlags() & Move::PROMOTION) && (move.getPromotionPieceType() == QUEEN);
+
+          // Reduce less for CounterMove and both Killers
+          reduction -= 2 * (move == _orderingInfo.getKiller1(0) ||  move == _orderingInfo.getKiller2(0));
+
+          // We finished reduction tweaking, calculate final depth and search
+          // Idea from SF - > allow extending if our reductions are very negative
+          int minReduction = (!isQuiet && LegalMoveCount <= 6) ? -2 : -1;
+
+          reduction = std::max(minReduction, reduction);
+          //Avoid to reduce so much that we go to QSearch right away
+          int fDepth = std::max(1, tDepth - 1 - reduction);
+
+          //Search with reduced depth around alpha in assumtion
+          // that alpha would not be beaten here
+          currScore = -_negaMax(movedBoard, &rootPV, fDepth, -alpha - 1 , -alpha, false, true);
         }
+
+        if (doLMR){
+          if (currScore > alpha){
+            currScore = -_negaMax(movedBoard, &rootPV, tDepth - 1, -alpha - 1, -alpha, false, false);
+          }
+        }
+
+        // If we are in the PV
+        // Search with a full window the first move to calculate bounds
+        // or if score improved alpha during the current round of search.
+          if ((LegalMoveCount == 1) || (currScore > alpha && currScore < beta)){
+            currScore = -_negaMax(movedBoard, &rootPV, tDepth - 1, -beta, -alpha, false, false);
+          }
+
 
         if (_stop || _checkLimits()) {
           _stop = true;
@@ -282,14 +343,12 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
 
         // If the current score is better than alpha, or this is the first move in the loop
         if (currScore > alpha) {
-          fullWindow = false;
           bestMove = move;
           alpha = currScore;
           _ourPV.length = rootPV.length + 1;
           _ourPV.pVmoves[0] = move.getMoveINT();
           // memcpy - (куда, откуда, длина)
           std::memcpy(_ourPV.pVmoves + 1, rootPV.pVmoves, sizeof(int) * rootPV.length);
-          // Break if we've found a checkmate
         }
         _rootNodesSpent[move.getPieceType()][move.getTo()] += _nodes - nodesStart;
 
