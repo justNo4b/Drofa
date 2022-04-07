@@ -263,7 +263,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
 
     Board movedBoard = board;
     movedBoard.doMove(move);
-    _sStack.AddMove(move.getMoveINT());
+    _sStack.AddMove(move);
 
     if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
         U64 nodesStart = _nodes;
@@ -316,7 +316,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   bool nmpTree = _sStack.nmpTree;
   int score;
   int ply = _sStack.ply;
-  int pMove = _sStack.moves[ply - 1];
+  int pMove = _sStack.moves[ply - 1].getMoveINT();
+  int pMoveScore = _sStack.moves[ply - 1].getValue();
   int alphaOrig = alpha;
   int statEVAL = 0;
   Move hashedMove = Move(0);
@@ -479,7 +480,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                 // if it holds, do proper reduced search
                 if(qScore >= pcBeta){
                     _posHist.Add(board.getZKey().getValue());
-                    _sStack.AddMove(move.getMoveINT());
+                    _sStack.AddMove(move);
 
                     int sScore = -_negaMax(movedBoard, &thisPV, depth - 4, -pcBeta, -pcBeta + 1, false, !cutNode);
 
@@ -597,7 +598,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             }
 
         _posHist.Add(board.getZKey().getValue());
-        _sStack.AddMove(move.getMoveINT());
+        _sStack.AddMove(move);
 
         // 8. LATE MOVE REDUCTIONS
         // mix of ideas from Weiss code, own ones and what is written in the chessprogramming wiki
@@ -625,6 +626,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // Reduce more in the cut-nodes - used by SF/Komodo/etc
           reduction += cutNode;
+
+          reduction += pMoveScore < -8192;
 
           // if we are improving, reduce a bit less (from Weiss)
           reduction -= improving;
