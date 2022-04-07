@@ -627,7 +627,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // Reduce more in the cut-nodes - used by SF/Komodo/etc
           reduction += cutNode;
 
-          reduction += pMoveScore < -8192;
+          reduction -= pMoveScore < -8192;
 
           // if we are improving, reduce a bit less (from Weiss)
           reduction -= improving;
