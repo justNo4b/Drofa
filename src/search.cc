@@ -629,6 +629,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // if we are improving, reduce a bit less (from Weiss)
           reduction -= improving;
 
+          reduction -= pvNode && !isQuiet;
+
           // reduce less when a move is giving check
           reduction -= giveCheck;
 
