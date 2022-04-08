@@ -2,11 +2,12 @@
 #define SEARCHDATA_H
 
 #include "defs.h"
+#include "move.h"
 
 struct SEARCH_Data
 {
     int     statEval  [MAX_INT_PLY];
-    int     moves     [MAX_INT_PLY];
+    Move    moves     [MAX_INT_PLY];
     int8_t  ply;
     Color   sideBehind;
     bool    nmpTree;
@@ -17,13 +18,13 @@ struct SEARCH_Data
         statEval[ply] = e;
     };
 
-    void AddMove(int m){
+    void AddMove(Move m){
         moves[ply] = m;
         ply++;
     };
 
     void AddNullMove(Color sB){
-        moves[ply] = 0;
+        moves[ply] = Move();
         ply++;
         sideBehind = sB;
         nmpTree = true;
