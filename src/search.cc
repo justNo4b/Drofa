@@ -317,7 +317,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   int score;
   int ply = _sStack.ply;
   int pMove = _sStack.moves[ply - 1].getMoveINT();
-  int pMoveScore = _sStack.moves[ply - 1].getValue();
+  int pMoveScore = _sStack.moves[ply - 1].getValue() > -50000 ? _sStack.moves[ply - 1].getValue() :
+                   _sStack.moves[ply - 1].getValue() + 50000;
   int alphaOrig = alpha;
   int statEVAL = 0;
   Move hashedMove = Move(0);
