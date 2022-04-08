@@ -586,6 +586,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               if (sBeta > score){
                 tDepth += 1 + failedNull;
                 singularExists = true;
+              }else if (statEVAL > beta + 100){
+                return beta;
               }
             }
 
