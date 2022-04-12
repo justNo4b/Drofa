@@ -8,6 +8,7 @@ OrderingInfo::OrderingInfo() {
 void OrderingInfo::clearAllHistory(){
   std::memset(_history, 0, sizeof(_history));
   std::memset(_captureHistory, 0, sizeof(_captureHistory));
+  std::memset(_counterMoveHistory, 0, sizeof(_counterMoveHistory));
   std::memset(_counterMove, 0, sizeof(_counterMove));
   std::memset(_killer1, 0, sizeof(_killer1));
   std::memset(_killer2, 0, sizeof(_killer2));
