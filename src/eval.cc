@@ -749,8 +749,8 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
       if (TRACK){
           if ((detail::FORWARD_BITS[color][square] & otherPawns) != 0) ft.BackwardPawn[r][color]++; else ft.BackwardOpenPawn[r][color]++;
-      } 
-      s += ((detail::FORWARD_BITS[color][square] & otherPawns) != 0) ?  BACKWARD_PAWN[r] : BACKWARD_OPEN_PAWN[r];   
+      }
+      s += ((detail::FORWARD_BITS[color][square] & otherPawns) != 0) ?  BACKWARD_PAWN[r] : BACKWARD_OPEN_PAWN[r];
     }
 
     // test on if a pawn is connected
@@ -826,7 +826,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   pawnPush = color == WHITE ? ((pawnPush << 9) & ~FILE_A) | ((pawnPush << 7) & ~FILE_H)
                             : ((pawnPush >> 9) & ~FILE_H) | ((pawnPush >> 7) & ~FILE_A);
   s += PAWN_PUSH_THREAT * _popCount(pawnPush & targets);
-  if (TRACK) ft.PawnPushThreat[color] += _popCount(pawnPush & targets);                        
+  if (TRACK) ft.PawnPushThreat[color] += _popCount(pawnPush & targets);
 
   // Passer - piece evaluation
 
@@ -910,7 +910,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
 inline int Eval::kingDanger(Color color, const evalBits * eB){
   int attackScore = eB->KingAttackPower[color] * COUNT_TO_POWER[std::min(7, eB->KingAttackers[color])] / COUNT_TO_POWER_DIVISOR;
-  return gS(std::max(0, attackScore), 0);
+  return gS(std::max(0, attackScore), std::max(0, attackScore / 64));
 }
 
 inline int Eval::TaperAndScale(const Board &board, Color color, int score){
