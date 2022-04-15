@@ -56,9 +56,9 @@ void Attacks::detail::_initRookMagicTable() {
   // For all squares
   for (int square = 0; square < 64; square++) {
     // For all possible blockers for this square
-    for (int blockerIndex = 0; blockerIndex < (1 << _rookIndexBits[square]); blockerIndex++) {
+    for (int blockerIndex = 0; blockerIndex < (1 << (64 - _rookIndexBits[square])); blockerIndex++) {
       U64 blockers = _getBlockersFromIndex(blockerIndex, _rookMasks[square]);
-      _rookTable[square][(blockers * _rookMagics[square]) >> (64 - _rookIndexBits[square])] =
+      _rookTable[square][(blockers * _rookMagics[square]) >> _rookIndexBits[square]] =
           _getRookAttacksSlow(square, blockers);
     }
   }
@@ -68,9 +68,9 @@ void Attacks::detail::_initBishopMagicTable() {
   // For all squares
   for (int square = 0; square < 64; square++) {
     // For all possible blockers for this square
-    for (int blockerIndex = 0; blockerIndex < (1 << _bishopIndexBits[square]); blockerIndex++) {
+    for (int blockerIndex = 0; blockerIndex < (1 << (64 - _bishopIndexBits[square])); blockerIndex++) {
       U64 blockers = _getBlockersFromIndex(blockerIndex, _bishopMasks[square]);
-      _bishopTable[square][(blockers * _bishopMagics[square]) >> (64 - _bishopIndexBits[square])] =
+      _bishopTable[square][(blockers * _bishopMagics[square]) >> _bishopIndexBits[square]] =
           _getBishopAttacksSlow(square, blockers);
     }
   }
@@ -78,12 +78,12 @@ void Attacks::detail::_initBishopMagicTable() {
 
 U64 Attacks::detail::_getBishopAttacks(int square, U64 blockers) {
   blockers &= _bishopMasks[square];
-  return detail::_bishopTable[square][(blockers * detail::_bishopMagics[square]) >> (64 - detail::_bishopIndexBits[square])];
+  return detail::_bishopTable[square][(blockers * detail::_bishopMagics[square]) >> detail::_bishopIndexBits[square]];
 }
 
 U64 Attacks::detail::_getRookAttacks(int square, U64 blockers) {
   blockers &= detail::_rookMasks[square];
-  U64 key = (blockers * detail::_rookMagics[square]) >> (64 - detail::_rookIndexBits[square]);
+  U64 key = (blockers * detail::_rookMagics[square]) >> detail::_rookIndexBits[square];
   return detail::_rookTable[square][key];
 }
 
