@@ -385,6 +385,11 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[ROOK];
       eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[ROOK];
+    }else 
+    if (abs(_col(square) - _col(eB->EnemyKingSquare[color])) <= 1){
+    // If Rook cannot attack or check, add a bonus for Xraying the king
+      s += ROOK_XRAY_KING_CAMP;
+      if (TRACK) ft.RookXRayKing[color]++;
     }
 
     // See if a Rook is attacking an enemy unprotected pawn
