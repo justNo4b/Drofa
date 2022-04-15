@@ -573,8 +573,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // 6.2 Singular move extention
         // At high depth if we have the TT move, and we are certain
         // that non other moves are even close to it, extend this move
-        if (depth > 8 &&
-            !AreWeInCheck &&
+        if (!AreWeInCheck &&
             probedHASHentry.Flag != ALPHA &&
             probedHASHentry.depth >= depth - 2 &&
             probedHASHentry.move == move.getMoveINT() &&
@@ -582,7 +581,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               int sDepth = depth / 2;
               int sBeta = probedHASHentry.score - depth * 2;
               Board sBoard = board;
-              int score = _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, true, cutNode);
+              int score = depth > 8 ? _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, true, cutNode) : statEVAL;
               if (sBeta > score){
                 tDepth += 1 + failedNull;
                 singularExists = true;
