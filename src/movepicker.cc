@@ -3,22 +3,24 @@
 #include "defs.h"
 
 
-MovePicker::MovePicker(const OrderingInfo *orderingInfo, const Board *board, MoveList *moveList, int hMove, Color color, int ply, int pMove){
+MovePicker::MovePicker(const OrderingInfo *orderingInfo, const Board *board, MoveList *moveList, int hMove, Color color, int ply, int pMove, int ppMove){
   _orderingInfo = orderingInfo;
   _moves = moveList;
   _hashMove = hMove;
   _color = color;
   _ply = ply;
   _pMove = pMove;
+  _ppMove = ppMove;
   _currHead = 0;
   _scoreMoves(board);
 }
 
 void MovePicker::_scoreMoves(const Board *board) {
-  int Killer1  = _orderingInfo->getKiller1(_ply);
-  int Killer2  = _orderingInfo->getKiller2(_ply);
-  int Counter  = _orderingInfo->getCounterMoveINT(_color, _pMove);
-  int pMoveInx = (_pMove & 0x7) + ((_pMove >> 15) & 0x3f) * 6;
+  int Killer1   = _orderingInfo->getKiller1(_ply);
+  int Killer2   = _orderingInfo->getKiller2(_ply);
+  int Counter   = _orderingInfo->getCounterMoveINT(_color, _pMove);
+  int pMoveInx  = (_pMove & 0x7) + ((_pMove >> 15) & 0x3f) * 6;
+  int ppMoveInx = (_ppMove & 0x7) + ((_ppMove >> 15) & 0x3f) * 6;
 
   for (auto &move : *_moves) {
     int moveINT = move.getMoveINT();
@@ -43,7 +45,8 @@ void MovePicker::_scoreMoves(const Board *board) {
       move.setValue(COUNTERMOVE_BONUS);
     } else { // Quiet
       move.setValue(_orderingInfo->getHistory(_color, move.getFrom(), move.getTo()) +
-                    _orderingInfo->getCountermoveHistory(_color, pMoveInx, move.getPieceType(), move.getTo()));
+                    _orderingInfo->getCountermoveHistory(_color, pMoveInx, move.getPieceType(), move.getTo()) +
+                    _orderingInfo->getFollowmoveHistory(ppMoveInx, move.getPieceType(), move.getTo()));
     }
   }
 }
