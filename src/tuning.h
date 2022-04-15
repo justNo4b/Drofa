@@ -120,7 +120,7 @@ struct tEntry {
   * @brief Main tuning constants are defined here
   * @{
   */
-  const std::string TUNING_DATA        = "d8FENS_WrongResults_mixed.epd";
+  const std::string TUNING_DATA        = "d9_new_mixed.epd";
   const int         TUNING_POS_COUNT   = 35821985; //9996883 42484641
   const int         TUNING_THREADS     = 16;
   const int         TUNING_TERMS_COUNT = 928;
