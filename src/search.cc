@@ -563,6 +563,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // 6.1 Singular move extention
         // At high depth if we have the TT move, and we are certain
         // that non other moves are even close to it, extend this move
+        // At low depth use statEval instead of search (Kimmys idea)
         if (!AreWeInCheck &&
             probedHASHentry.Flag != ALPHA &&
             probedHASHentry.depth >= depth - 2 &&
