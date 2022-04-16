@@ -11,7 +11,7 @@ extern U64 PASSED_PAWN_MASKS[2][64];
 
 Move::Move() {
   _move = ((NULL_MOVE & 0x7f) << 21);
-  _value = 0;
+  _value = -16384;
 }
 
 Move::Move(unsigned int from, unsigned int to, PieceType piece, unsigned int flags) {
