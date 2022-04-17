@@ -456,6 +456,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
        depth >= 5 &&
        alpha < WON_IN_X){
         int pcBeta = beta + 200;
+        int dBonus = std::max(0, depth - 4 - (statEVAL < alpha) - (!TTmove && depth >= 4));
         while (movePicker.hasNext()){
             Move move = movePicker.getNext();
 
@@ -489,6 +490,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
                     if (sScore >= pcBeta){
                         return beta;
+                    }else{
+                        _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), dBonus);
                     }
                 }
             }
