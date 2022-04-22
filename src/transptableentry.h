@@ -9,7 +9,6 @@
 enum CutOffState{
     NONE,
     EXACT,
-    ALPHA,
     BETA
 };
 
