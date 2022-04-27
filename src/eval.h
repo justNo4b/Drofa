@@ -93,8 +93,11 @@ extern U64 KING_PAWN_MASKS[2][2][8];
   * @{
   */
   const int START_ATTACK_VALUE = -50;
-  const int ATTACK_TEMPO_BASE = 12;
   const int QUEEN_FACE_CHECK = 80;
+
+  const int ATTACK_TEMPO [6] = {
+      0, 0, 10, 35, 80, 160
+  };
 
   const int UNCONTESTED_KING_ATTACK [6] = {
       -70, -20, 0, 100, 150, 200

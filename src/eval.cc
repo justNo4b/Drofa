@@ -903,7 +903,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   int unContested = _popCount(eB->AttackedSquares[color] & eB->EnemyKingZone[color] & ~eB->AttackedSquares[otherColor]);
   eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
-  if (board.getActivePlayer() == color) eB->KingAttackPower[color] += ATTACK_TEMPO_BASE * eB->KingAttackers[color];
+  if (board.getActivePlayer() == color) eB->KingAttackPower[color] += ATTACK_TEMPO [std::min(eB->KingAttackers[color], 5)];
 
   return s;
 }
