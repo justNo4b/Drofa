@@ -331,9 +331,9 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
       eB->KingAttackPower[color] += (kingChecksCount - KingFaceChecksCount) * PIECE_CHECK_POWER[QUEEN];
       eB->KingAttackPower[color] += KingFaceChecksCount * QUEEN_FACE_CHECK;
     } else if (attackBitBoard & enemyCamp){
-        eB->KingAttackPower[color] += 15;
+        eB->KingAttackPower[color] += 30;
     } else{
-        eB->KingAttackPower[color] -= 15;
+        eB->KingAttackPower[color] -= 30;
     }
 
     // Save our attacks for further use
