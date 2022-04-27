@@ -100,6 +100,10 @@ extern U64 KING_PAWN_MASKS[2][2][8];
       -70, -20, 0, 100, 150, 200
   };
 
+  const int UNCONTESTED_FAR_ATTACK [4] = {
+      -10, 20, 30, 40
+  };
+
   const int PIECE_ATTACK_POWER[6] = {
         0, 24, 50, 26, 47, 0
   };
