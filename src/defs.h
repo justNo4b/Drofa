@@ -137,6 +137,9 @@ const U64 DECENT_BISHOP_GEN_OUTPOST  = { RANK_3 | RANK_4 | RANK_5 | RANK_6 };
 
 const U64 DECENT_KNIGHT_GEN_OUTPOST[2] = { (((RANK_4 | RANK_5) & EXT_MIDDLE_FILES) | (ONE << b5) | (ONE << g5)),
                                            (((RANK_4 | RANK_5) & EXT_MIDDLE_FILES) | (ONE << b4) | (ONE << g4)) };
+
+const U64 CAMP_SIDE [2] = {  (RANK_1 | RANK_2 | RANK_3 | RANK_4 | RANK_5),
+                             (RANK_8 | RANK_7 | RANK_6 | RANK_5 | RANK_4) };
 /**@}*/
 
 /** @brief Positive infinity to be used during search (eg. as a return value for winning) */
