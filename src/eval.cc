@@ -121,14 +121,19 @@ void Eval::init() {
                                                                  : ((sqv << 9) & ~FILE_A) | ((sqv << 7) & ~FILE_H);
 
       U64 kingAttack = Attacks::getNonSlidingAttacks(KING, square, WHITE);
-      detail::KINGZONE[color][square] = color == WHITE ? sqv | kingAttack | (kingAttack << 8)
-                                                       : sqv | kingAttack | (kingAttack >> 8);
+      detail::KINGZONE[color][square] = sqv | kingAttack;
       // When king is on the side files (A and H) include
       // squares on the C and F files to the kingzone
       if (_col(square) == 0){
-        detail::KINGZONE[color][square] = detail::KINGZONE[color][square] | detail::KINGZONE[color][square] << 1;
+        detail::KINGZONE[color][square] |= detail::KINGZONE[color][square] << 1;
       }else if (_col(square) == 7){
-        detail::KINGZONE[color][square] = detail::KINGZONE[color][square] | detail::KINGZONE[color][square] >> 1;
+        detail::KINGZONE[color][square] |= detail::KINGZONE[color][square] >> 1;
+      }
+
+      if (_row(square) == 0){
+           detail::KINGZONE[color][square] |= detail::KINGZONE[color][square] << 8;
+      }else if (_row(square) == 7){
+           detail::KINGZONE[color][square] |= detail::KINGZONE[color][square] >> 8;
       }
 
     }
@@ -749,8 +754,8 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
       if (TRACK){
           if ((detail::FORWARD_BITS[color][square] & otherPawns) != 0) ft.BackwardPawn[r][color]++; else ft.BackwardOpenPawn[r][color]++;
-      } 
-      s += ((detail::FORWARD_BITS[color][square] & otherPawns) != 0) ?  BACKWARD_PAWN[r] : BACKWARD_OPEN_PAWN[r];   
+      }
+      s += ((detail::FORWARD_BITS[color][square] & otherPawns) != 0) ?  BACKWARD_PAWN[r] : BACKWARD_OPEN_PAWN[r];
     }
 
     // test on if a pawn is connected
@@ -826,7 +831,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   pawnPush = color == WHITE ? ((pawnPush << 9) & ~FILE_A) | ((pawnPush << 7) & ~FILE_H)
                             : ((pawnPush >> 9) & ~FILE_H) | ((pawnPush >> 7) & ~FILE_A);
   s += PAWN_PUSH_THREAT * _popCount(pawnPush & targets);
-  if (TRACK) ft.PawnPushThreat[color] += _popCount(pawnPush & targets);                        
+  if (TRACK) ft.PawnPushThreat[color] += _popCount(pawnPush & targets);
 
   // Passer - piece evaluation
 
