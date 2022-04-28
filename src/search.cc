@@ -318,6 +318,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   int ply = _sStack.ply;
   int pMove = _sStack.moves[ply - 1].getMoveINT();
   int pMoveScore = _sStack.moves[ply - 1].getValue();
+  int sBestMoveInt = 0;
   int alphaOrig = alpha;
   int statEVAL = 0;
   Move hashedMove = Move(0);
@@ -573,6 +574,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               if (sBeta > score){
                 tDepth += 1 + failedNull;
                 singularExists = true;
+              } else if (depth > 8){
+                  sBestMoveInt = _sStack.moves[ply].getMoveINT();
               }
             }
 
@@ -641,6 +644,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // reduce less for a position where singular move exists
           reduction -= singularExists;
+
+          reduction -= move.getMoveINT() == sBestMoveInt;
 
           // reduce more/less based on the hitory
           reduction -= moveHistory / 8192;
