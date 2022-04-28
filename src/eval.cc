@@ -620,15 +620,16 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   s += KING_ATTACK_PAWN * _popCount(attackBitBoard & enemyPawns);
   if (TRACK) ft.KingAttackPawn[color] += _popCount(attackBitBoard & enemyPawns);
 
+  bool isEnemyRooks = board.getPieces(otherColor, ROOK) != 0;
   if (((file & ourPawns) == 0) && ((file & enemyPawns) == 0)){
-    s += KING_OPEN_FILE;
-    if (TRACK) ft.KingOpenFile[color]++;
+    s += KING_OPEN_FILE[isEnemyRooks];
+    if (TRACK) ft.KingOpenFile[isEnemyRooks][color]++;
   } else if ((file & ourPawns) == 0){
-    s += KING_OWN_SEMI_FILE;
-    if (TRACK) ft.KingSemiOwnFile[color]++;
+    s += KING_OWN_SEMI_FILE[isEnemyRooks];
+    if (TRACK) ft.KingSemiOwnFile[isEnemyRooks][color]++;
   } else if ((file & enemyPawns) == 0){
-    s += KING_ENEMY_SEMI_LINE;
-    if (TRACK) ft.KingSemiEnemyFile[color]++;
+    s += KING_ENEMY_SEMI_LINE[isEnemyRooks];
+    if (TRACK) ft.KingSemiEnemyFile[isEnemyRooks][color]++;
   }
 
   // Evaluate if King is on pawnless flang
