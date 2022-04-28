@@ -645,8 +645,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // reduce less for a position where singular move exists
           reduction -= singularExists;
 
-          reduction -= move.getMoveINT() == sBestMoveInt;
-
           // reduce more/less based on the hitory
           reduction -= moveHistory / 8192;
           reduction -= cmHistory  / 12288;
@@ -656,7 +654,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // Reduce less for CounterMove and both Killers
           reduction -= 2 * (move.getMoveINT() == _orderingInfo.getCounterMoveINT(board.getActivePlayer(), pMove) ||
-                            move == _orderingInfo.getKiller1(ply) ||  move == _orderingInfo.getKiller2(ply));
+                            move == _orderingInfo.getKiller1(ply) ||  move == _orderingInfo.getKiller2(ply) ||
+                            move.getMoveINT() == sBestMoveInt);
 
           // We finished reduction tweaking, calculate final depth and search
           // Idea from SF - > allow extending if our reductions are very negative
