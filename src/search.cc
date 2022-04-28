@@ -506,8 +506,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     bool isQuiet = move.isQuiet();
     qCount += isQuiet;
 
-    if (alpha < WON_IN_X
-        && LegalMoveCount >= 1){
+    if (alpha < WON_IN_X &&
+        LegalMoveCount >= 1 &&
+        !(isQuiet && move.getValue() >= 50000)){
 
       // 5. LATE MOVE PRUNING
       // If we made many quiet moves in the position already
