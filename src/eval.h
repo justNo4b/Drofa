@@ -13,11 +13,8 @@ struct evalBits{
     U64 EnemyPawnAttackMap[2];
     U64 PossibleProtOutposts[2];
     U64 PossibleGenOutposts[2];
-    U64 EnemyKingZone[2];
     U64 Passers[2];
     U64 AttackedSquares[2];
-    U64 AttackedByKing[2];
-    int RammedCount;
     int KingAttackers[2];
     int KingAttackPower[2];
 };
