@@ -20,7 +20,6 @@ struct evalBits{
     int RammedCount;
     int KingAttackers[2];
     int KingAttackPower[2];
-    int EnemyKingSquare[2];
 };
 
 enum CastleSide {
