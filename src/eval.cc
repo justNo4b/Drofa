@@ -794,7 +794,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   enemyFrontSpawn |= color == BLACK ? enemyFrontSpawn << 32 : enemyFrontSpawn >> 32;
 
   U64 pTest = board.getPieces(color, PAWN) & ~enemyFrontSpawn;
-  if (board.getPawnStructureZKey().getValue() == 12465751689894080693 && color == BLACK ){
+  if (pTest != eB->Passers[color] ){
      std::cout << enemyFrontSpawn << std::endl << std::endl;
      std::cout << "test " << pTest << std::endl << std::endl;
      std::cout << "main " << eB->Passers[color] << std::endl << std::endl;
