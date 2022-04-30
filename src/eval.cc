@@ -942,6 +942,7 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
     U64 bothRooks   = board.getPieces(color, ROOK) | board.getPieces(otherColor, ROOK);
     U64 bothKnights = board.getPieces(color, KNIGHT) | board.getPieces(otherColor, KNIGHT);
     U64 bothBishops = board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP);
+    U64 bothPawns   = board.getPieces(color, PAWN) | board.getPieces(otherColor, PAWN);
 
   // correct our score if there is an OCB case
   if (isOCB){
@@ -967,7 +968,8 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
   if (!bothBishops && !bothKnights && !bothQueens &&
       _popCount(board.getPieces(color, ROOK)) == 1 &&
       _popCount(board.getPieces(otherColor, ROOK)) == 1 &&
-      abs(_popCount(board.getPieces(color, PAWN)) - _popCount(board.getPieces(otherColor, PAWN))) <= 1){
+      abs(_popCount(board.getPieces(color, PAWN)) - _popCount(board.getPieces(otherColor, PAWN))) <= 1 &&
+      (bothPawns & KING_SIDE == bothPawns || bothPawns & QUEEN_SIDE == bothPawns)){
       final_eval = final_eval * BOTH_SCALE_DRAWISH_ROOK_EG / BOTH_SCALE_NORMAL;
       if (TRACK) ft.Scale = BOTH_SCALE_DRAWISH_ROOK_EG;
   }
