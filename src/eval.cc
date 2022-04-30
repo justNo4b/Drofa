@@ -786,6 +786,25 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   U64 posAdvance = ~AllTheirAttacks | AllOurAttacks;
   U64 enemyKingZone   = detail::KINGZONE[otherColor][enemyKingSquare];
 
+  // Get passed pawns
+  U64 enemyFrontSpawn = ZERO;
+  enemyFrontSpawn = eB->EnemyPawnAttackMap[color] | board.getPieces(otherColor, PAWN);
+  enemyFrontSpawn |= color == BLACK ? enemyFrontSpawn  << 8 : enemyFrontSpawn >> 8;
+  enemyFrontSpawn |= color == BLACK ? enemyFrontSpawn << 16 : enemyFrontSpawn >> 16;
+  enemyFrontSpawn |= color == BLACK ? enemyFrontSpawn << 32 : enemyFrontSpawn >> 32;
+
+  U64 pTest = board.getPieces(color, PAWN) & ~enemyFrontSpawn;
+  if (board.getPawnStructureZKey().getValue() == 12465751689894080693 && color == BLACK ){
+     std::cout << enemyFrontSpawn << std::endl << std::endl;
+     std::cout << "test " << pTest << std::endl << std::endl;
+     std::cout << "main " << eB->Passers[color] << std::endl << std::endl;
+     std::cout << board.getStringRep() << std::endl;
+     std::cout << "pHash " << board.getPawnStructureZKey().getValue() << std::endl << std::endl;
+     std::cout << "wP  " << board.getPieces(WHITE, PAWN)<< std::endl;
+     std::cout << "bP  " << board.getPieces(BLACK, PAWN)<< std::endl;
+     std::cout << "-------------------------------------------------" << std::endl << std::endl;
+
+  }
   // 1. Blocked pawns - separate for passers and non-passers
 
   // Get major blockers and pawns

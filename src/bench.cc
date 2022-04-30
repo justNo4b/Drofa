@@ -29,6 +29,7 @@ void myBench(){
         curNodes = search->getNodes();
         nodes_total += curNodes;
         myHASH->HASH_Clear();
+        myHASH->pHASH_Clear();
         myOrdering->clearAllHistory();
         printf("Position [# %2d] Best: %6s %5i cp  Nodes: %12i", i + 1,search->getBestMove().getNotation().c_str(),
                  search->getBestScore(), curNodes);
