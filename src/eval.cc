@@ -965,7 +965,9 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
 
   // scale for hard to win rook endgames
   if (!bothBishops && !bothKnights && !bothQueens &&
-      abs(_popCount(board.getPieces(color, PAWN)) - _popCount(board.getPieces(otherColor, PAWN))) < 2){
+      _popCount(board.getPieces(color, ROOK)) == 1 &&
+      _popCount(board.getPieces(otherColor, ROOK)) == 1 &&
+      abs(_popCount(board.getPieces(color, PAWN)) - _popCount(board.getPieces(otherColor, PAWN))) <= 1){
       final_eval = final_eval * BOTH_SCALE_DRAWISH_ROOK_EG / BOTH_SCALE_NORMAL;
       if (TRACK) ft.Scale = BOTH_SCALE_DRAWISH_ROOK_EG;
   }
