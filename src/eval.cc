@@ -162,7 +162,6 @@ evalBits Eval::Setupbits(const Board &board){
 
   eB.KingAttackers[0] = 0, eB.KingAttackers[1] = 0;
   eB.KingAttackPower[0] = START_ATTACK_VALUE, eB.KingAttackPower[1] = START_ATTACK_VALUE;
-  eB.Passers[0] = 0, eB.Passers[1] = 0;
   eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
   return eB;
 }
@@ -647,16 +646,13 @@ inline int Eval::probePawnStructure(const Board & board, Color color, evalBits *
 
   #ifndef _TUNE_
   if (pENTRY.posKey != 0){
-    eB->Passers[WHITE] = pENTRY.wPassers;
-    eB->Passers[BLACK] = pENTRY.bPassers;
-
     return color == WHITE ? pENTRY.score : -pENTRY.score;
   }
   else
   #endif
   {
     pScore += evaluatePAWNS(board, WHITE, eB) - evaluatePAWNS(board, BLACK, eB);
-    myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB->Passers[WHITE], eB->Passers[BLACK], pScore);
+    myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), pScore);
     return color == WHITE ? pScore : -pScore;
   }
 }
@@ -668,6 +664,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   U64 pawns = board.getPieces(color, PAWN);
   U64 otherPawns = board.getPieces(otherColor, PAWN);
   U64 tmpPawns = pawns;
+  U64 ourPassers = ZERO;
 
   while (tmpPawns != ZERO) {
 
@@ -687,7 +684,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 
     // add bonuses if the pawn is passed
     if ((otherPawns & detail::PASSED_PAWN_MASKS[color][square]) == ZERO){
-      eB->Passers[color] = eB->Passers[color] | (ONE << square);
+      ourPassers |= (ONE << square);
 
       s += PASSED_PAWN_RANKS[r] + PASSED_PAWN_FILES[edgeDistance];
       if (TRACK){
@@ -696,7 +693,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
       }
       // if the pawn is passed evaluate how far
       // is it from other passers (_col-wise)
-      U64 tmpPassers = eB->Passers[color];
+      U64 tmpPassers = ourPassers;
       while (tmpPassers != ZERO){
         int tPasSquare = _popLsb(tmpPassers);
         int tPasCol = _col(tPasSquare);
@@ -704,9 +701,6 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         s += PASSED_PASSED_DISTANCE[abs(tPasCol - pawnCol)];
         if (TRACK) ft.PassedPassedDistance[abs(tPasCol - pawnCol)][color]++;
       }
-
-      // Add pawn to the passers list for further use
-      eB->Passers[color] = eB->Passers[color] | (ONE << square);
     } else{
       // check if the pawn is a candidate passer
       // 1) we can just push this pawn and it will become passed
@@ -793,14 +787,21 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   enemyFrontSpawn |= color == BLACK ? enemyFrontSpawn << 16 : enemyFrontSpawn >> 16;
   enemyFrontSpawn |= color == BLACK ? enemyFrontSpawn << 32 : enemyFrontSpawn >> 32;
 
-  U64 pTest = board.getPieces(color, PAWN) & ~enemyFrontSpawn;
+  U64 ourFrontSpawn = ZERO;
+  ourFrontSpawn = eB->EnemyPawnAttackMap[otherColor] | board.getPieces(color, PAWN);
+  ourFrontSpawn |= color == WHITE ? ourFrontSpawn  << 8 : ourFrontSpawn >> 8;
+  ourFrontSpawn |= color == WHITE ? ourFrontSpawn << 16 : ourFrontSpawn >> 16;
+  ourFrontSpawn |= color == WHITE ? ourFrontSpawn << 32 : ourFrontSpawn >> 32;
+
+  U64 ourPassers   = board.getPieces(color, PAWN) & ~enemyFrontSpawn;
+  U64 theirPassers = board.getPieces(otherColor, PAWN) & ~ourFrontSpawn;
   // 1. Blocked pawns - separate for passers and non-passers
 
   // Get major blockers and pawns
   //  a. Non-passer pawns
   pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP) |
            board.getPieces(color, ROOK)   | board.getPieces(color, QUEEN);
-  tmpPawns = board.getPieces(otherColor, PAWN) ^ eB->Passers[otherColor];
+  tmpPawns = board.getPieces(otherColor, PAWN) ^ theirPassers;
 
   // Shift stuff, give evaluation
   // Do not forget to add pawns to BlockedBB for later use
@@ -809,7 +810,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   if (TRACK) ft.PawnBlocked[color] += (_popCount(pieces & tmpPawns));
 
   // same stuff, but with passed pawns
-  tmpPawns = otherColor == WHITE ? eB->Passers[otherColor] << 8 : eB->Passers[otherColor] >> 8;
+  tmpPawns = otherColor == WHITE ? theirPassers << 8 : theirPassers >> 8;
   s += PASSER_BLOCKED * (_popCount(pieces & tmpPawns));
   if (TRACK) ft.PassersBlocked[color] += (_popCount(pieces & tmpPawns));
 
@@ -818,23 +819,23 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   // Same as above, separate for passers and non-passers
   pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
   pieces = color == WHITE ? pieces << 8 : pieces >> 8;
-  tmpPawns = board.getPieces(color, PAWN) ^ eB->Passers[color];
+  tmpPawns = board.getPieces(color, PAWN) ^ ourPassers;
   s += MINOR_BEHIND_PAWN * _popCount(tmpPawns & pieces);
   if (TRACK) ft.MinorBehindPawn[color] += _popCount(tmpPawns & pieces);
 
-  s += MINOR_BEHIND_PASSER * _popCount(eB->Passers[color] & pieces);
-  if (TRACK) ft.MinorBehindPasser[color] += _popCount(eB->Passers[color] & pieces);
+  s += MINOR_BEHIND_PASSER * _popCount(ourPassers & pieces);
+  if (TRACK) ft.MinorBehindPasser[color] += _popCount(ourPassers & pieces);
 
   // Minor in front of own pawn - passer
   pieces = board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP);
   pieces = color == WHITE ? pieces >> 8 : pieces << 8;
-  tmpPawns = board.getPieces(color, PAWN) ^ eB->Passers[color];
+  tmpPawns = board.getPieces(color, PAWN) ^ ourPassers;
 
   s += MINOR_BLOCK_OWN_PAWN * _popCount(tmpPawns & pieces);
   if (TRACK) ft.MinorBlockOwn[color] += _popCount(tmpPawns & pieces);
 
-  s += MINOR_BLOCK_OWN_PASSER * _popCount(eB->Passers[color] & pieces);
-  if (TRACK) ft.MinorBlockOwnPassed[color] += _popCount(eB->Passers[color] & pieces);
+  s += MINOR_BLOCK_OWN_PASSER * _popCount(ourPassers & pieces);
+  if (TRACK) ft.MinorBlockOwnPassed[color] += _popCount(ourPassers & pieces);
 
   // Evaluate pawn push threats
   U64 targets  = board.getAllPieces(otherColor) ^ board.getPieces(otherColor, PAWN);
@@ -847,7 +848,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   // Passer - piece evaluation
 
-  tmpPawns = eB->Passers[color];
+  tmpPawns = ourPassers;
   pieces   = board.getAllPieces(color) | board.getAllPieces(otherColor);
 
   while (tmpPawns != ZERO) {
