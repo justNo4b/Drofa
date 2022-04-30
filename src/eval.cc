@@ -794,17 +794,6 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   enemyFrontSpawn |= color == BLACK ? enemyFrontSpawn << 32 : enemyFrontSpawn >> 32;
 
   U64 pTest = board.getPieces(color, PAWN) & ~enemyFrontSpawn;
-  if (pTest != eB->Passers[color] ){
-     std::cout << enemyFrontSpawn << std::endl << std::endl;
-     std::cout << "test " << pTest << std::endl << std::endl;
-     std::cout << "main " << eB->Passers[color] << std::endl << std::endl;
-     std::cout << board.getStringRep() << std::endl;
-     std::cout << "pHash " << board.getPawnStructureZKey().getValue() << std::endl << std::endl;
-     std::cout << "wP  " << board.getPieces(WHITE, PAWN)<< std::endl;
-     std::cout << "bP  " << board.getPieces(BLACK, PAWN)<< std::endl;
-     std::cout << "-------------------------------------------------" << std::endl << std::endl;
-
-  }
   // 1. Blocked pawns - separate for passers and non-passers
 
   // Get major blockers and pawns
