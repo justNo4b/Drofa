@@ -971,7 +971,7 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
       _popCount(board.getPieces(color, ROOK)) == 1 &&
       _popCount(board.getPieces(otherColor, ROOK)) == 1 &&
       abs(_popCount(board.getPieces(color, PAWN)) - _popCount(board.getPieces(otherColor, PAWN))) <= 1 &&
-      (((bothPawns & KING_SIDE & weakKing) == bothPawns) || ((bothPawns & QUEEN_SIDE & weakKing) == bothPawns))){
+      (((bothPawns & KING_SIDE & weakKing) == (bothPawns & weakKing)) || ((bothPawns & QUEEN_SIDE & weakKing) == (bothPawns & weakKing)))){
       final_eval = final_eval * BOTH_SCALE_DRAWISH_ROOK_EG / BOTH_SCALE_NORMAL;
       if (TRACK) ft.Scale = BOTH_SCALE_DRAWISH_ROOK_EG;
   }
