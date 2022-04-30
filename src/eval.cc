@@ -938,11 +938,14 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
   bool isOCB =  _popCount(board.getPieces(color, BISHOP)) == 1 && _popCount(board.getPieces(otherColor, BISHOP)) == 1 &&
                 _popCount((board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP)) & WHITE_SQUARES) == 1;
 
-  // correct our score if there is an OCB case
-  if (isOCB){
     U64 bothQueens  = board.getPieces(color, QUEEN) | board.getPieces(otherColor, QUEEN);
     U64 bothRooks   = board.getPieces(color, ROOK) | board.getPieces(otherColor, ROOK);
     U64 bothKnights = board.getPieces(color, KNIGHT) | board.getPieces(otherColor, KNIGHT);
+    U64 bothBishops = board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP);
+
+  // correct our score if there is an OCB case
+  if (isOCB){
+
 
     if (!bothQueens && !bothRooks && !bothKnights){
           final_eval = final_eval * BOTH_SCALE_OCB / BOTH_SCALE_NORMAL;
@@ -958,6 +961,13 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
           final_eval = final_eval * BOTH_SCALE_KNIGHT_OCB / BOTH_SCALE_NORMAL;
           if (TRACK) ft.Scale = BOTH_SCALE_KNIGHT_OCB;
         }
+  }
+
+  // scale for hard to win rook endgames
+  if (!bothBishops && !bothKnights && !bothQueens &&
+      abs(_popCount(board.getPieces(color, PAWN)) - _popCount(board.getPieces(otherColor, PAWN))) < 2){
+      final_eval = final_eval * BOTH_SCALE_DRAWISH_ROOK_EG / BOTH_SCALE_NORMAL;
+      if (TRACK) ft.Scale = BOTH_SCALE_DRAWISH_ROOK_EG;
   }
 
   return final_eval;
