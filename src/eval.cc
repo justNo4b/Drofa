@@ -295,6 +295,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
   Color otherColor = getOppositeColor(color);
   U64 pieces = board.getPieces(color, QUEEN);
   int enemyKingSquare = _bitscanForward(board.getPieces(otherColor, KING));
+  U64 enemyCamp   = CAMP_SIDE[getOppositeColor(color)] & (detail::FILES[_col(enemyKingSquare)] | detail::NEIGHBOR_FILES[_col(enemyKingSquare)]);
 
   // Apply penalty for each Queen attacked by enemy pawn
   s += HANGING_PIECE[QUEEN] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
@@ -329,6 +330,8 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[QUEEN];
       eB->KingAttackPower[color] += (kingChecksCount - KingFaceChecksCount) * PIECE_CHECK_POWER[QUEEN];
       eB->KingAttackPower[color] += KingFaceChecksCount * QUEEN_FACE_CHECK;
+    }else if (attackBitBoard & enemyCamp){
+        eB->KingAttackPower[color] += PIECE_REINFORCEMENT[QUEEN];
     }
 
     // Save our attacks for further use
@@ -345,6 +348,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
   U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~board.getPieces(otherColor, QUEEN);
   U64 rammedPawns = (board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN);
   int enemyKingSquare = _bitscanForward(board.getPieces(otherColor, KING));
+  U64 enemyCamp   = CAMP_SIDE[getOppositeColor(color)] & (detail::FILES[_col(enemyKingSquare)] | detail::NEIGHBOR_FILES[_col(enemyKingSquare)]);
 
   // Apply penalty for each Rook attacked by enemy pawn
   s += HANGING_PIECE[ROOK] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
@@ -387,6 +391,8 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[ROOK];
       eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[ROOK];
+    }else if (attackBitBoard & enemyCamp){
+        eB->KingAttackPower[color] += PIECE_REINFORCEMENT[ROOK];
     }
 
     // See if a Rook is attacking an enemy unprotected pawn
@@ -426,6 +432,8 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
   Color otherColor = getOppositeColor(color);
   U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
   int enemyKingSquare = _bitscanForward(board.getPieces(otherColor, KING));
+  U64 enemyCamp   = CAMP_SIDE[getOppositeColor(color)] & (detail::FILES[_col(enemyKingSquare)] | detail::NEIGHBOR_FILES[_col(enemyKingSquare)]);
+
 
   // Bishop pair
   if (_popCount(pieces) > 1){
@@ -485,6 +493,8 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[BISHOP];
         eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[BISHOP];
+      }else if (attackBitBoard & enemyCamp){
+          eB->KingAttackPower[color] += PIECE_REINFORCEMENT[BISHOP];
       }
 
       // See if a Bishop is attacking an enemy unprotected pawn
@@ -520,6 +530,8 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
   Color otherColor = getOppositeColor(color);
   U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
   int enemyKingSquare = _bitscanForward(board.getPieces(otherColor, KING));
+  U64 enemyCamp   = CAMP_SIDE[getOppositeColor(color)] & (detail::FILES[_col(enemyKingSquare)] | detail::NEIGHBOR_FILES[_col(enemyKingSquare)]);
+
 
   // Apply penalty for each Knight attacked by opponents pawn
   s += HANGING_PIECE[KNIGHT] * (_popCount(pieces & eB->EnemyPawnAttackMap[color]));
@@ -560,6 +572,8 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[KNIGHT];
         eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[KNIGHT];
+      }else if (attackBitBoard & enemyCamp){
+          eB->KingAttackPower[color] += PIECE_REINFORCEMENT[KNIGHT];
       }
 
       // See if a Knight is attacking an enemy unprotected pawn
