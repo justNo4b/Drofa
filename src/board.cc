@@ -710,11 +710,6 @@ void Board::doMove(Move move) {
     _updateCastlingRightsForMove(move);
   }
 
-  // Update pawn structure ZKey if this is a pawn move
-  if (move.getPieceType() == PAWN) {
-    _pawnStructureZkey.movePiece(_activePlayer, PAWN, from, to);
-  }
-
   _zKey.flipActivePlayer();
   _activePlayer = getInactivePlayer();
 }
