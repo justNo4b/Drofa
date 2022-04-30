@@ -331,7 +331,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
       eB->KingAttackPower[color] += (kingChecksCount - KingFaceChecksCount) * PIECE_CHECK_POWER[QUEEN];
       eB->KingAttackPower[color] += KingFaceChecksCount * QUEEN_FACE_CHECK;
     }else if (attackBitBoard & enemyCamp){
-        eB->KingAttackPower[color] += PIECE_REINFORCEMENT[QUEEN];
+        eB->KingAttackPower[color] += MATERIAL_VALUES_TUNABLE[QUEEN];
     }
 
     // Save our attacks for further use
@@ -392,7 +392,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[ROOK];
       eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[ROOK];
     }else if (attackBitBoard & enemyCamp){
-        eB->KingAttackPower[color] += PIECE_REINFORCEMENT[ROOK];
+        eB->KingAttackPower[color] += MATERIAL_VALUES_TUNABLE[ROOK];
     }
 
     // See if a Rook is attacking an enemy unprotected pawn
@@ -494,7 +494,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[BISHOP];
         eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[BISHOP];
       }else if (attackBitBoard & enemyCamp){
-          eB->KingAttackPower[color] += PIECE_REINFORCEMENT[BISHOP];
+          eB->KingAttackPower[color] += MATERIAL_VALUES_TUNABLE[BISHOP];
       }
 
       // See if a Bishop is attacking an enemy unprotected pawn
@@ -573,7 +573,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[KNIGHT];
         eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[KNIGHT];
       }else if (attackBitBoard & enemyCamp){
-          eB->KingAttackPower[color] += PIECE_REINFORCEMENT[KNIGHT];
+          eB->KingAttackPower[color] += MATERIAL_VALUES_TUNABLE[KNIGHT];
       }
 
       // See if a Knight is attacking an enemy unprotected pawn
