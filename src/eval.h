@@ -108,7 +108,7 @@ extern U64 KING_PAWN_MASKS[2][2][8];
   };
 
   const int PIECE_REINFORCEMENT[6] = {
-        0,0,0,0,0
+        0, 191, 14, 37, 143
   };
 
   const int COUNT_TO_POWER[8] = {12, 25, 51, 83, 102, 111, 122, 128};
