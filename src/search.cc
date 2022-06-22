@@ -798,9 +798,10 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
   // If node is quiet, just return eval
   if (!movePicker.hasNext()) {
-    return standPat;
+    return !board.colorIsInCheck(board.getActivePlayer()) ? standPat : LOST_SCORE + MAX_INT_PLY;
   }
 
+  int LegalMoveCount = 0;
 
   while (movePicker.hasNext()) {
     Move move = movePicker.getNext();
@@ -819,7 +820,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
     movedBoard.doMove(move);
     myHASH->HASH_Prefetch(movedBoard.getZKey().getValue());
       if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
-
+          LegalMoveCount++;
           int score = -_qSearch(movedBoard, -beta, -alpha);
 
           if (score >= beta) {
@@ -836,5 +837,5 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
 
   }
-  return alpha;
+  return (!board.colorIsInCheck(board.getActivePlayer()) || LegalMoveCount > 0) ? alpha : LOST_SCORE + MAX_INT_PLY;
 }
