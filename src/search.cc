@@ -571,7 +571,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               Board sBoard = board;
               int score = depth > 8 ? _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, true, cutNode) : statEVAL;
               if (sBeta > score){
-                tDepth += 1 + failedNull;
+                tDepth += 1 + (failedNull && depth > 8);
                 singularExists = true;
               }
             }
