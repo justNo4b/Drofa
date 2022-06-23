@@ -67,16 +67,20 @@ void Search::iterDeep() {
   int targetDepth = _timer.getSearchDepth();
   int aspWindow = 25;
   int aspDelta  = 50;
+  int olderBestScore = NOSCORE;
 
     for (int currDepth = 1; currDepth <= targetDepth; currDepth++) {
 
         int aspAlpha = LOST_SCORE;
         int aspBeta  =-LOST_SCORE;
-        if (currDepth > 6){
+        if (currDepth > 6 &&
+        !(currDepth > 7 && abs(_bestScore - olderBestScore) < 10)){
             aspAlpha = _bestScore - aspWindow;
             aspBeta  = _bestScore + aspWindow;
         }
 
+        // save best score before begining next iteration
+        olderBestScore = _bestScore;
         while (true){
 
             int score = _rootMax(_initialBoard, aspAlpha, aspBeta, currDepth);
@@ -96,7 +100,6 @@ void Search::iterDeep() {
 
         // Iteration finished normally
         // Check and adjust time we should spend, and print UCI info
-
         if (_stop) break;
 
         int elapsed = 0;
