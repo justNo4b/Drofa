@@ -65,19 +65,21 @@ void Search::iterDeep() {
   std::memset(_rootNodesSpent, 0, sizeof(_rootNodesSpent));
   _timer.startIteration();
   int targetDepth = _timer.getSearchDepth();
+
+  int aspAlpha = LOST_SCORE;
+  int aspBeta  =-LOST_SCORE;
   int aspWindow = 25;
   int aspDelta  = 50;
   int olderBestScore = NOSCORE;
 
     for (int currDepth = 1; currDepth <= targetDepth; currDepth++) {
 
-        int aspAlpha = LOST_SCORE;
-        int aspBeta  =-LOST_SCORE;
         if (currDepth > 6 &&
         !(currDepth > 7 && abs(_bestScore - olderBestScore) < 10)){
             aspAlpha = _bestScore - aspWindow;
             aspBeta  = _bestScore + aspWindow;
         }
+        //std::cout << "depth:" << currDepth << " aspA: " << aspAlpha << " score: " << _bestScore << " aspB: " << aspBeta << std::endl;
 
         // save best score before begining next iteration
         olderBestScore = _bestScore;
