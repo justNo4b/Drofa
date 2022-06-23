@@ -71,11 +71,13 @@ void Search::iterDeep() {
   int aspWindow = 25;
   int aspDelta  = 50;
   int olderBestScore = NOSCORE;
+  bool aspMoved = false;
 
     for (int currDepth = 1; currDepth <= targetDepth; currDepth++) {
+        aspMoved = false;
 
         if (currDepth > 6 &&
-        !(currDepth > 7 && abs(_bestScore - olderBestScore) < 10)){
+        !(currDepth > 7 && abs(_bestScore - olderBestScore) < 10 && !aspMoved)){
             aspAlpha = _bestScore - aspWindow;
             aspBeta  = _bestScore + aspWindow;
         }
@@ -90,8 +92,10 @@ void Search::iterDeep() {
             if (_stop) break;
 
             if (score <= aspAlpha){
+                aspMoved = true;
                 aspAlpha = std::max(aspAlpha - aspDelta, LOST_SCORE);
             }else if( score >= aspBeta){
+                aspMoved = true;
                 aspBeta  = std::min(aspBeta + aspDelta, -LOST_SCORE);
             }else{
                 break;
