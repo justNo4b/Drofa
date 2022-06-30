@@ -284,21 +284,9 @@ class Board {
   bool isEndGamePosition() const;
 
   /**
-   * @brief returns the cost of the most valuable piece on the bord
-   *
-   * Used for DELTA PRUNING
-   */
-  int  MostFancyPieceCost() const;
-
-  /**
    * @brief Calculates SEE of the Move
    */
   int Calculate_SEE(const Move move) const;
-
-  /**
-   * @brief Estimates potential scoreGain of the given move
-   */
-  int Calculate_MoveGain(const Move move) const;
 
   /**
    * @brief  get fully calculated phase value of the board

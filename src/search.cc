@@ -513,7 +513,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       // we suppose other moves wont improve our situation
       if (qCount > _lmp_Array[depth][(improving || pvNode)]) break;
 
-      // 7. SEE pruning of quiet moves
+      // 6. SEE pruning of quiet moves
       // At shallow depth prune highlyish -negative SEE-moves
       if (depth <= 10
           && isQuiet
