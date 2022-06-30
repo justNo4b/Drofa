@@ -416,8 +416,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // and when last move was also null
   // Drofa also track status of the Null move failure
   bool failedNull = false;
-  if (isPrune && depth >= 3 && pMove != 0 && statEVAL >= beta &&
-      board.isThereMajorPiece()){
+  if (isPrune && depth >= 3 && pMove != 0 && statEVAL >= beta && board.isThereMajorPiece()){
           Board movedBoard = board;
           _posHist.Add(board.getZKey().getValue());
           _sStack.AddNullMove(getOppositeColor(board.getActivePlayer()));
@@ -514,20 +513,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       // we suppose other moves wont improve our situation
       if (qCount > _lmp_Array[depth][(improving || pvNode)]) break;
 
-      // 6. EXTENDED FUTILITY PRUNING
-      // We try to pune a move, if depth is low (1 or 2)
-      // Move should not give check, shoudnt be a promotion and should not be the first move
-      // we also should not be in check and close to the MATE score
-      // We do not prune in the PV nodes.
-
-      if (!AreWeInCheck &&
-          depth < 3 &&
-          !(move.getFlags() & Move::PROMOTION) &&
-          statEVAL + board.Calculate_MoveGain(move) + FUTIL_MOVE_CONST * depth - 100 * improving <= alpha){
-            continue;
-      }
-
-      // 7. SEE pruning of quiet moves
+      // 6. SEE pruning of quiet moves
       // At shallow depth prune highlyish -negative SEE-moves
       if (depth <= 10
           && isQuiet
