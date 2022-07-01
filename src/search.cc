@@ -752,6 +752,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   int standPat = Eval::evaluate(board, board.getActivePlayer());
 
   if (standPat >= beta) {
+    if (!_stop) myHASH->HASH_Store(board.getZKey().getValue(), 0, BETA, beta, 0, MAX_PLY);
     return beta;
   }
 
@@ -810,9 +811,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
           if (score >= beta) {
             // Add a new tt entry for this node
-            if (!_stop){
-                myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, 0, MAX_PLY);
-            }
+            if (!_stop) myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, 0, MAX_PLY);
             return beta;
           }
           if (score > alpha) {
