@@ -30,10 +30,12 @@ class HASH{
   private:
 
   HASH_Entry *hashTable;
-  U64 TableSize;
+  U64 _tableSize;
+  U64 _mask;
 
   pawn_HASH_Entry *pHASH;
   U64 pTableSize;
+  U64 _pmask;
 
 };
 
