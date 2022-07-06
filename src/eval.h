@@ -419,6 +419,10 @@ void init();
  */
 int evaluate(const Board &, Color);
 
+int evaluateMain(const Board &, Color);
+
+int evaluateEndgame(const Board &, Color);
+
 /**
  * @brief Basically template function for testing various eval features.
  *  As I use it, it calls once before search.
@@ -455,6 +459,17 @@ int getMaterialValue(int, PieceType);
   /**@}*/
 
 evalBits Setupbits(const Board &);
+
+  /**
+    * @name Functions used for the evaluating positions of the Major Pieces
+    * @brief Returns structure that contain opening and enggame scores
+    * @{
+    */
+   inline int evaluate(const Board &, Color, evalBits *);
+
+  /**@}*/
+
+
 
 /**
  * @brief This function analyses king shield safety.

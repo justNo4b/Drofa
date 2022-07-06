@@ -963,7 +963,7 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
   return final_eval;
 }
 
-int Eval::evaluate(const Board &board, Color color) {
+int Eval::evaluateMain(const Board &board, Color color) {
 
   int score = 0;
   Color otherColor = getOppositeColor(color);
@@ -1030,6 +1030,15 @@ int Eval::evaluate(const Board &board, Color color) {
   int final_eval = TaperAndScale(board, color, score);
 
   return final_eval + TEMPO;
+}
+
+int Eval::evaluate(const Board &board, Color color){
+    int c = _popCount(board.getAllPieces(WHITE) | board.getAllPieces(BLACK));
+    if (c > 2){
+        return evaluateMain(board, color);
+    }else{
+        return evaluateEndgame(board, color);
+    }
 }
 
 int Eval::evalTestSuite(const Board &board, Color color)
