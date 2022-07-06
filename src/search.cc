@@ -252,7 +252,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
 
   const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
   int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
-  MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashMove, board.getActivePlayer(), 0, 0);
+  MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashMove, board.getActivePlayer(), 0, 0, board.colorIsInCheck(board.getActivePlayer()));
 
   int currScore;
 
@@ -445,7 +445,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // No pruning occured, generate moves and recurse
   MoveGen movegen(board, false);
   MoveList * legalMoves = movegen.getMoves();
-  MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashedMove.getMoveINT(), board.getActivePlayer(), ply, pMove);
+  MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashedMove.getMoveINT(), board.getActivePlayer(), ply, pMove, AreWeInCheck);
 
   // Probcut
   if (!pvNode &&
@@ -780,7 +780,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
   MoveGen movegen(board, true);
   MoveList * legalMoves = movegen.getMoves();
-  MovePicker movePicker(&_orderingInfo, &board, legalMoves, 0, board.getActivePlayer(), MAX_PLY, 0);
+  MovePicker movePicker(&_orderingInfo, &board, legalMoves, 0, board.getActivePlayer(), MAX_PLY, 0, false);
 
   // If node is quiet, just return eval
   if (!movePicker.hasNext()) {

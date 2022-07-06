@@ -22,7 +22,7 @@ class MovePicker {
    * @param board Current board state for all moves in the provided MoveList
    * @param moveList Pointer to the MoveList to pick moves from
    */
-  MovePicker(const OrderingInfo *, const Board *, MoveList *, int, Color, int, int);
+  MovePicker(const OrderingInfo *, const Board *, MoveList *, int, Color, int, int, bool);
 
   /**
    * @brief Returns the next best move from this MovePicker's MoveList.
@@ -95,6 +95,8 @@ class MovePicker {
    * @brief Current ply of the search
    */
   int _ply;
+
+  bool _inCheck;
 
   /**
    * @brief Previous move made during the search
