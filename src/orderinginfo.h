@@ -42,7 +42,7 @@ class OrderingInfo {
    * @param to To square to increment history for
    * @param depth Depth of move that caused this increment
    */
-  void incrementHistory(Color, int, int, int);
+  void incrementHistory(bool, Color, PieceType, int, int);
 
   /**
    * @brief Lower history heuristic value of the board for
@@ -53,7 +53,7 @@ class OrderingInfo {
    * @param to To square to increment history for
    * @param depth Depth of move that caused this increment
    */
-  void decrementHistory(Color, int, int, int);
+  void decrementHistory(bool, Color, PieceType, int, int);
 
   void incrementCapHistory(PieceType, PieceType, int, int);
 
@@ -90,7 +90,7 @@ class OrderingInfo {
    * @param to To square to get history for
    * @return int History heuristic value for the given from square, to square and color
    */
-  int getHistory(Color, int, int) const;
+  int getHistory(bool, Color, PieceType, int) const;
 
   /**
    * @brief Get history information for the current capture move
@@ -147,9 +147,9 @@ class OrderingInfo {
   int _killer2[MAX_INT_PLY];
 
   /**
-   * @brief Table of beta-cutoff history values indexed by [color][from_square][to_square]
+   * @brief Table of beta-cutoff history values indexed by [color][InCheck][PieceType][to_square]
    */
-  int16_t _history[2][64][64];
+  int16_t _history[2][2][6][64];
 
   /**
    * @brief Table of beta-cutoff values for captures indexed by [capturingPiece][capturedPiece][to_square]

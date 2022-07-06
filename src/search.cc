@@ -214,10 +214,10 @@ bool Search::_checkLimits() {
   return _timer.checkLimits(_nodes);
 }
 
-inline void Search::_updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ply, int depth){
+inline void Search::_updateBeta(bool isQuiet, bool inCheck, const Move move, Color color, int pMove, int ply, int depth){
 	if (isQuiet) {
     _orderingInfo.updateKillers(ply, move);
-    _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
+    _orderingInfo.incrementHistory(inCheck, color, move.getPieceType(), move.getTo(), depth);
     _orderingInfo.updateCounterMove(color, pMove, move.getMoveINT());
     _orderingInfo.incrementCounterHistory(color, pMove, move.getPieceType(), move.getTo(), depth);
   }else{
@@ -366,7 +366,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         return hashScore;
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
-        _updateBeta(quietTT, hashedMove, board.getActivePlayer(), pMove, ply, depth);
+        _updateBeta(AreWeInCheck, quietTT, hashedMove, board.getActivePlayer(), pMove, ply, depth);
         return beta;
       }
     }
@@ -531,7 +531,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         bool giveCheck = movedBoard.colorIsInCheck(movedBoard.getActivePlayer());
         int  moveHistory  = isQuiet ?
-                            _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) :
+                            _orderingInfo.getHistory(AreWeInCheck, board.getActivePlayer(), move.getPieceType(), move.getTo()) :
                             _orderingInfo.getCaptureHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo());
         int cmHistory     = isQuiet ? _orderingInfo.getCountermoveHistory(board.getActivePlayer(), pMoveIndx, move.getPieceType(), move.getTo()) : 0;
         int tDepth = depth;
@@ -682,7 +682,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // Beta cutoff
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
-          _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * (statEVAL < alpha)));
+          _updateBeta(AreWeInCheck, isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * (statEVAL < alpha)));
           // Add a new tt entry for this node
           if (!_stop && !sing){
             myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
@@ -714,7 +714,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // Beta was not beaten and we dont improve alpha in this case we lower our search history values
           int dBonus = std::max(0, depth - (statEVAL < alpha) - (!TTmove && depth >= 4));
           if (isQuiet){
-            _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), dBonus);
+            _orderingInfo.decrementHistory(AreWeInCheck, board.getActivePlayer(), move.getPieceType(), move.getTo(), dBonus);
             _orderingInfo.decrementCounterHistory(board.getActivePlayer(), pMoveIndx, move.getPieceType(), move.getTo(), dBonus);
           }else{
             _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), dBonus);
