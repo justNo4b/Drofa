@@ -320,6 +320,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   int pMoveScore = _sStack.moves[ply - 1].getValue();
   int alphaOrig = alpha;
   int statEVAL = 0;
+  bool pQuiet = _sStack.moves[ply - 1].isQuiet();
   Move hashedMove = Move(0);
   pV   thisPV = pV();
   Color behindColor = _sStack.sideBehind;
@@ -712,7 +713,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         }else{
           // Beta was not beaten and we dont improve alpha in this case we lower our search history values
-          int dBonus = std::max(0, depth - (statEVAL < alpha) - (!TTmove && depth >= 4));
+          int dBonus = std::max(0, depth - (statEVAL < alpha) - (!TTmove && depth >= 4) - (pQuiet && pMoveScore > 50000 && isQuiet));
           if (isQuiet){
             _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), dBonus);
             _orderingInfo.decrementCounterHistory(board.getActivePlayer(), pMoveIndx, move.getPieceType(), move.getTo(), dBonus);
