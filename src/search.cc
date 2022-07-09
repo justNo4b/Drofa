@@ -618,7 +618,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
           // Reduce less if move on the previous ply was bad
           // Ie hystorycally bad quiet, see- capture or underpromotion
-          reduction -= (pMoveIsQuiet && pMoveScore < -8192) || (!pMoveIsQuiet && pMoveScore < -108192) ;
+          reduction -= (pMoveIsQuiet && pMoveScore < -8192) || (!pMoveIsQuiet && pMoveScore < -100000) ;
 
           // if we are improving, reduce a bit less (from Weiss)
           reduction -= improving;
