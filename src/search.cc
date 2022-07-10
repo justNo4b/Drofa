@@ -685,7 +685,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * (statEVAL < alpha)));
 
           if (pMoveScore >= 50000 && pMoveScore <= 200000)
-            _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth / 2);
+            _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth / 4);
           // Add a new tt entry for this node
           if (!_stop && !sing){
             myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
