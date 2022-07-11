@@ -96,8 +96,8 @@ class ZKey {
   void setFromPawnStructure(const Board&);
 
   /**
-   * @brief Compare Zobrist keys 
-   * 
+   * @brief Compare Zobrist keys
+   *
    * @param other ZKey to compare
    * @return true if the two ZKeys have the same value, false otherwise
    */
@@ -139,6 +139,12 @@ class ZKey {
    * values to xor into _key for each color, piece type and square.
    */
   static U64 PIECE_KEYS[2][6][64];
+
+  /**
+   * @brief Array indexed by [color][PieceType][PieceNumber]
+   * Used to form a key for EG_Eval calculations
+   */
+  static U64 PIECE_COUNT_KEY[2][6][11];
 
   /**
    * @brief Pseudo-random keys to xor into _key for each en passant file

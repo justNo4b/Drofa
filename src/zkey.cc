@@ -10,6 +10,8 @@ const unsigned int ZKey::PRNG_KEY = 0xDEADBEEF;
 U64 ZKey::PIECE_KEYS[2][6][64];
 U64 ZKey::EN_PASSANT_KEYS[8];
 
+U64 ZKey::PIECE_COUNT_KEY[2][6][11];
+
 U64 ZKey::KS_CASTLE_KEYS[2];
 U64 ZKey::QS_CASTLE_KEYS[2];
 
@@ -36,6 +38,14 @@ void ZKey::init() {
       PIECE_KEYS[BLACK][pieceType][square] = dist(mt);
     }
   }
+
+  for (int pt = 0; pt < 6; pt++){
+    for (int num = 0; num < 11; num++){
+        PIECE_COUNT_KEY[WHITE][pt][num] = dist(mt);
+        PIECE_COUNT_KEY[BLACK][pt][num] = dist(mt);
+    }
+  }
+
 }
 
 ZKey::ZKey() {
