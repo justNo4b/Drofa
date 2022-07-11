@@ -123,6 +123,16 @@ void ZKey::setFromPawnStructure(const Board &board) {
   }
 }
 
+void ZKey::setFromPieceCounts(const Board &board) {
+    _key = ZERO;
+    for (auto pt : {  PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING}){
+        U64 blackPiece = board.getPieces(BLACK, pt);
+        U64 whitePiece = board.getPieces(WHITE, pt);
+        flipPieceCount(WHITE, pt, _popCount(whitePiece));
+        flipPieceCount(BLACK, pt, _popCount(blackPiece));
+    }
+}
+
 U64 ZKey::getValue() const {
   return _key;
 }
@@ -134,6 +144,10 @@ void ZKey::movePiece(Color color, PieceType piece, unsigned int from, unsigned i
 
 void ZKey::flipPiece(Color color, PieceType piece, unsigned int index) {
   _key ^= PIECE_KEYS[color][piece][index];
+}
+
+void ZKey::flipPieceCount(Color color, PieceType pt, int count){
+    _key ^= PIECE_COUNT_KEY[color][pt][count];
 }
 
 void ZKey::updateCastlingRights(bool whiteKs, bool whiteQs, bool blackKs, bool blackQs) {

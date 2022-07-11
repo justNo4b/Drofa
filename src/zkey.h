@@ -59,6 +59,12 @@ class ZKey {
   void flipPiece(Color, PieceType, unsigned int);
 
   /**
+   * @brief flipping Zkey for a given piece count
+   *
+   */
+  void flipPieceCount(Color, PieceType, int);
+
+  /**
    * @brief Flips the value of the active player in the ZKey
    *
    * If the active color is black, this method changes it to white, and vica-versa.
@@ -94,6 +100,12 @@ class ZKey {
    * positions
    */
   void setFromPawnStructure(const Board&);
+
+  /**
+   * @brief Sets Zkey from the given board, but only considering piece counts
+   *
+   */
+  void setFromPieceCounts(const Board&);
 
   /**
    * @brief Compare Zobrist keys
