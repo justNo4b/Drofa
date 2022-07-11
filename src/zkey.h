@@ -38,6 +38,13 @@ class ZKey {
   U64 getValue() const;
 
   /**
+   * @brief Get the Sing Key object
+   *
+   * @return U64
+   */
+  U64 getSingKey() const;
+
+  /**
    * @brief Updates the ZKey such that the given piece has been moved between the given squares.
    *
    * @param color  Color of piece to move
@@ -96,8 +103,8 @@ class ZKey {
   void setFromPawnStructure(const Board&);
 
   /**
-   * @brief Compare Zobrist keys 
-   * 
+   * @brief Compare Zobrist keys
+   *
    * @param other ZKey to compare
    * @return true if the two ZKeys have the same value, false otherwise
    */
@@ -158,6 +165,8 @@ class ZKey {
    * @brief Key to xor into _key when it's white's turn to move.
    */
   static U64 WHITE_TO_MOVE_KEY;
+
+  static U64 SINGULARITY_KEY;
 
   /**
    * @brief Seed used by the PRNG.

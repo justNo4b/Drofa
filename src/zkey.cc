@@ -14,6 +14,7 @@ U64 ZKey::KS_CASTLE_KEYS[2];
 U64 ZKey::QS_CASTLE_KEYS[2];
 
 U64 ZKey::WHITE_TO_MOVE_KEY;
+U64 ZKey::SINGULARITY_KEY;
 
 void ZKey::init() {
   std::mt19937_64 mt(PRNG_KEY);
@@ -25,6 +26,7 @@ void ZKey::init() {
   QS_CASTLE_KEYS[BLACK] = dist(mt);
 
   WHITE_TO_MOVE_KEY = dist(mt);
+  SINGULARITY_KEY   = dist(mt);
 
   for (int file = 0; file < 8; file++) {
     EN_PASSANT_KEYS[file] = dist(mt);
@@ -115,6 +117,10 @@ void ZKey::setFromPawnStructure(const Board &board) {
 
 U64 ZKey::getValue() const {
   return _key;
+}
+
+U64 ZKey::getSingKey() const {
+  return _key ^ SINGULARITY_KEY;
 }
 
 void ZKey::movePiece(Color color, PieceType piece, unsigned int from, unsigned int to) {

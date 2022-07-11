@@ -323,6 +323,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   Move hashedMove = Move(0);
   pV   thisPV = pV();
   Color behindColor = _sStack.sideBehind;
+  U64 zkey = sing ? board.getZKey().getSingKey() : board.getZKey().getValue();
 
   // Check if we are out of time
   if (_stop || _checkLimits()) {
@@ -351,7 +352,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
     // Check transposition table cache
   // If TT is causing a cuttoff, we update move ordering stuff
-  const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
+  const HASH_Entry probedHASHentry = myHASH->HASH_Get(zkey);
   if (probedHASHentry.Flag != NONE){
     TTmove = true;
     hashedMove = Move(probedHASHentry.move);
@@ -684,8 +685,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // Add this move as a new killer move and update history if move is quiet
           _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * (statEVAL < alpha)));
           // Add a new tt entry for this node
-          if (!_stop && !sing){
-            myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
+          if (!_stop){
+            myHASH->HASH_Store(zkey, move.getMoveINT(), BETA, score, depth, ply);
           }
           // we updated beta and in the pVNode so we should update our pV
           if (pvNode && !_stop){
