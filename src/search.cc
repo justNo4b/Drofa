@@ -590,7 +590,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         // 8. LATE MOVE REDUCTIONS
         // mix of ideas from Weiss code, own ones and what is written in the chessprogramming wiki
-        doLMR = tDepth > 2 && LegalMoveCount > 2 + pvNode;
+        doLMR = tDepth > 2 && LegalMoveCount > 1;
         if (doLMR){
 
           //Basic reduction is done according to the array
@@ -638,6 +638,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // Reduce less for CounterMove and both Killers
           reduction -= 2 * (move.getMoveINT() == _orderingInfo.getCounterMoveINT(board.getActivePlayer(), pMove) ||
                             move == _orderingInfo.getKiller1(ply) ||  move == _orderingInfo.getKiller2(ply));
+
+
+          if (LegalMoveCount <= 2 + pvNode && !isQuiet) reduction = std::min(0, reduction);
 
           // We finished reduction tweaking, calculate final depth and search
           // Idea from SF - > allow extending if our reductions are very negative
