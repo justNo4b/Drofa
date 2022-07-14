@@ -27,7 +27,7 @@ void MovePicker::_scoreMoves(const Board *board) {
     } else if (move.getFlags() & Move::CAPTURE) {
       int see   = board->Calculate_SEE(move);
       int hist  = _orderingInfo->getCaptureHistory(move.getPieceType(),move.getCapturedPieceType(), move.getTo());
-      int thold = see + (hist / 4096) * 100;
+      int thold = see + (hist / 8192) * 100;
       int value = _ply == MAX_PLY ? see : opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]) + hist;
       if (_ply != MAX_PLY){
         value += thold >= 0 ? CAPTURE_BONUS : BAD_CAPTURE;
