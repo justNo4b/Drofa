@@ -335,7 +335,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // cut pV out if we found draw
   if (board.getHalfmoveClock() >= 100 || _isRepetitionDraw(board.getZKey().getValue(), board.getHalfmoveClock())) {
     up_pV->length = 0;
-    return (_nodes & 0x7);
+    return 1 - (int8_t)(_nodes & 0x2);
   }
 
   // Check our InCheck status
