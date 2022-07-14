@@ -325,6 +325,8 @@ class Board {
 
   int _phase;
 
+  int _pCounts[2][6];
+
   /**
    * @brief Array indexed by [color][piecetype] of piece bitboards
    */
