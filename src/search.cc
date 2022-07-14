@@ -422,7 +422,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           _sStack.AddNullMove(getOppositeColor(board.getActivePlayer()));
           movedBoard.doNool();
           int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((statEVAL - beta) / 128, 4);
-          int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, false, false);
+          int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta + 1, false, false);
           _posHist.Remove();
           _sStack.RemoveNull(behindColor, nmpTree);
           if (score >= beta){
@@ -682,7 +682,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // Beta cutoff
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
-          _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * (statEVAL < alpha)));
+          _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * (isQuiet && statEVAL < alpha)));
           // Add a new tt entry for this node
           if (!_stop && !sing){
             myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
