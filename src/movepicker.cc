@@ -30,7 +30,7 @@ void MovePicker::_scoreMoves(const Board *board) {
                                   opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]) +
                                   _orderingInfo->getCaptureHistory(move.getPieceType(),move.getCapturedPieceType(), move.getTo());
       if (_ply != MAX_PLY){
-        value += see >= 0 ? CAPTURE_BONUS : BAD_CAPTURE;
+        value += (see >= 0 && value > -12288) ? CAPTURE_BONUS : BAD_CAPTURE;
       }
       move.setValue(value);
     } else if (move.getFlags() & Move::PROMOTION) {
