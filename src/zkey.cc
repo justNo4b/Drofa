@@ -142,6 +142,11 @@ void ZKey::movePiece(Color color, PieceType piece, unsigned int from, unsigned i
   flipPiece(color, piece, to);
 }
 
+void ZKey::pCountAddRemove(Color color, PieceType piece, int cWas, int cNow){
+    flipPieceCount(color, piece, cWas);
+    flipPieceCount(color, piece, cNow);
+}
+
 void ZKey::flipPiece(Color color, PieceType piece, unsigned int index) {
   _key ^= PIECE_KEYS[color][piece][index];
 }

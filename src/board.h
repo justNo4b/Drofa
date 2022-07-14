@@ -362,6 +362,8 @@ class Board {
    */
   ZKey _pawnStructureZkey;
 
+  ZKey _pCountKey;
+
  private:
 
   /**
