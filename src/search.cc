@@ -640,7 +640,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                             move == _orderingInfo.getKiller1(ply) ||  move == _orderingInfo.getKiller2(ply));
 
 
-          if (LegalMoveCount <= 2 + pvNode && !isQuiet) reduction = std::min(0, reduction);
+          if (LegalMoveCount <= 2 + pvNode && !isQuiet) reduction = 0;
 
           // We finished reduction tweaking, calculate final depth and search
           // Idea from SF - > allow extending if our reductions are very negative
