@@ -1,6 +1,7 @@
 #include "attacks.h"
 #include "bitutils.h"
 #include "rays.h"
+#include "x86intrin.h"
 #include <cstring>
 
 U64 Attacks::detail::_nonSlidingAttacks[2][6][64] = {{{0}}};
@@ -58,8 +59,11 @@ void Attacks::detail::_initRookMagicTable() {
     // For all possible blockers for this square
     for (int blockerIndex = 0; blockerIndex < (1 << _rookIndexBits[square]); blockerIndex++) {
       U64 blockers = _getBlockersFromIndex(blockerIndex, _rookMasks[square]);
-      _rookTable[square][(blockers * _rookMagics[square]) >> (64 - _rookIndexBits[square])] =
-          _getRookAttacksSlow(square, blockers);
+#ifdef _UPEXT_
+      _rookTable[square][_pext_u64(blockers, _rookMasks[square])] = _getRookAttacksSlow(square, blockers);
+#else
+      _rookTable[square][(blockers * _rookMagics[square]) >> (64 - _rookIndexBits[square])] =  _getRookAttacksSlow(square, blockers);
+#endif
     }
   }
 }
@@ -70,21 +74,31 @@ void Attacks::detail::_initBishopMagicTable() {
     // For all possible blockers for this square
     for (int blockerIndex = 0; blockerIndex < (1 << _bishopIndexBits[square]); blockerIndex++) {
       U64 blockers = _getBlockersFromIndex(blockerIndex, _bishopMasks[square]);
-      _bishopTable[square][(blockers * _bishopMagics[square]) >> (64 - _bishopIndexBits[square])] =
-          _getBishopAttacksSlow(square, blockers);
+#ifdef _UPEXT_
+      _bishopTable[square][_pext_u64(blockers, _bishopMasks[square])] = _getBishopAttacksSlow(square, blockers);
+#else
+      _bishopTable[square][(blockers * _bishopMagics[square]) >> (64 - _bishopIndexBits[square])] = _getBishopAttacksSlow(square, blockers);
+#endif
     }
   }
 }
 
 U64 Attacks::detail::_getBishopAttacks(int square, U64 blockers) {
+#ifdef _UPEXT_
+  return detail::_bishopTable[square][_pext_u64(blockers, _bishopMasks[square])];
+#else
   blockers &= _bishopMasks[square];
   return detail::_bishopTable[square][(blockers * detail::_bishopMagics[square]) >> (64 - detail::_bishopIndexBits[square])];
+#endif
 }
 
 U64 Attacks::detail::_getRookAttacks(int square, U64 blockers) {
+#ifdef _UPEXT_
+  return detail::_rookTable[square][_pext_u64(blockers, _rookMasks[square])];
+#else
   blockers &= detail::_rookMasks[square];
-  U64 key = (blockers * detail::_rookMagics[square]) >> (64 - detail::_rookIndexBits[square]);
-  return detail::_rookTable[square][key];
+  return detail::_rookTable[square][(blockers * detail::_rookMagics[square]) >> (64 - detail::_rookIndexBits[square])];
+#endif
 }
 
 U64 Attacks::getNonSlidingAttacks(PieceType pieceType, int square, Color color) {

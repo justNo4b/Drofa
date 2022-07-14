@@ -9,6 +9,18 @@ OBJ_FILES = $(addprefix obj/,$(notdir $(CPP_FILES:.cc=.o)))
 LD_FLAGS ?= -pthread -flto
 CC_FLAGS ?= -Wall -std=c++11 -O3 -march=native -flto -pthread -fno-exceptions
 
+# can we use pext here?
+# use it if is supported and no Ryzen1/2
+ARCH_INFO = $(shell echo | gcc -march=native -dM -E -)
+
+ifneq ($(findstring __BMI2__, $(ARCH_INFO)), )
+	ifeq ($(findstring __znver1, $(ARCH_INFO)), )
+		ifeq ($(findstring __znver2, $(ARCH_INFO)), )
+			CC_FLAGS += -D_UPEXT_
+		endif
+	endif
+endif
+
 # Special tuning compilation
 tune: CC_FLAGS  = -Wall -std=c++11 -O3 -march=native -flto -pthread -fopenmp -fno-exceptions -D_TUNE_
 tune: LD_FLAGS  = -pthread -flto -fopenmp

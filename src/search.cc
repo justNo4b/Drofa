@@ -365,9 +365,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       if (probedHASHentry.Flag == EXACT){
         return hashScore;
       }
-      if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){
-        return alpha;
-      }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
         _updateBeta(quietTT, hashedMove, board.getActivePlayer(), pMove, ply, depth);
         return beta;
@@ -409,7 +406,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // depth, we can just return estimated eval (eval - margin),
   // because beta probably will be beaten
   if (isPrune && depth < 6 && ((statEVAL - REVF_MOVE_CONST * depth + 100 * improving) >= beta)){
-      return statEVAL - REVF_MOVE_CONST * depth + 100 * improving;
+      return beta;
   }
 
   // 3. NULL MOVE
@@ -419,8 +416,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // and when last move was also null
   // Drofa also track status of the Null move failure
   bool failedNull = false;
-  if (isPrune && depth >= 3 && pMove != 0 && statEVAL >= beta &&
-      board.isThereMajorPiece()){
+  if (isPrune && depth >= 3 && pMove != 0 && statEVAL >= beta && board.isThereMajorPiece()){
           Board movedBoard = board;
           _posHist.Add(board.getZKey().getValue());
           _sStack.AddNullMove(getOppositeColor(board.getActivePlayer()));
@@ -517,20 +513,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       // we suppose other moves wont improve our situation
       if (qCount > _lmp_Array[depth][(improving || pvNode)]) break;
 
-      // 6. EXTENDED FUTILITY PRUNING
-      // We try to pune a move, if depth is low (1 or 2)
-      // Move should not give check, shoudnt be a promotion and should not be the first move
-      // we also should not be in check and close to the MATE score
-      // We do not prune in the PV nodes.
-
-      if (!AreWeInCheck &&
-          depth < 3 &&
-          !(move.getFlags() & Move::PROMOTION) &&
-          statEVAL + board.Calculate_MoveGain(move) + FUTIL_MOVE_CONST * depth - 100 * improving <= alpha){
-            continue;
-      }
-
-      // 7. SEE pruning of quiet moves
+      // 6. SEE pruning of quiet moves
       // At shallow depth prune highlyish -negative SEE-moves
       if (depth <= 10
           && isQuiet
@@ -565,7 +548,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // that non other moves are even close to it, extend this move
         // At low depth use statEval instead of search (Kimmys idea)
         if (!AreWeInCheck &&
-            probedHASHentry.Flag != ALPHA &&
+            TTmove &&
             probedHASHentry.depth >= depth - 2 &&
             probedHASHentry.move == move.getMoveINT() &&
             abs(probedHASHentry.score) < WON_IN_X / 4){
@@ -574,7 +557,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               Board sBoard = board;
               int score = depth > 8 ? _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, true, cutNode) : statEVAL;
               if (sBeta > score){
-                tDepth += 1 + failedNull;
+                tDepth += 1 + (failedNull && depth > 8);
                 singularExists = true;
               }
             }
@@ -748,20 +731,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     return score;
   }
 
-  // If the best move was not set in the main search loop
-  // alpha was not raised at any point, just return alpha
-  // (ie do not write in the TT)
-  if (bestMove.getFlags() & Move::NULL_MOVE) {
-    return alpha;
-  }
-
   // Store bestScore in transposition table
-  if (!_stop && !sing){
-      if (alpha <= alphaOrig) {
-        myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), ALPHA, alpha, depth, ply);
-      } else {
+  if (!_stop && !sing && alpha > alphaOrig){
         myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), EXACT, alpha, depth, ply);
-      }
   }
 
   return alpha;
@@ -799,9 +771,6 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
       }
       if (probedHASHentry.Flag == EXACT){
         return hashScore;
-      }
-      if (probedHASHentry.Flag == ALPHA && hashScore <= alpha){
-        return alpha;
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
         return beta;
