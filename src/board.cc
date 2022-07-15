@@ -118,6 +118,10 @@ ZKey Board::getPawnStructureZKey() const {
   return _pawnStructureZkey;
 }
 
+ZKey Board::getpCountKey() const {
+    return _pCountKey;
+}
+
 PSquareTable Board::getPSquareTable() const {
   return _pst;
 }

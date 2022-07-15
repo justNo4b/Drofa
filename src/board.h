@@ -222,6 +222,8 @@ class Board {
    */
   ZKey getPawnStructureZKey() const;
 
+  ZKey getpCountKey() const;
+
   /**
    * @brief Returns the Piece Square Table of this board for its current state.
    *
