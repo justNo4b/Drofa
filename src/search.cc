@@ -591,10 +591,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // 8. LATE MOVE REDUCTIONS
         // mix of ideas from Weiss code, own ones and what is written in the chessprogramming wiki
         doLMR = tDepth > 2 && LegalMoveCount > 2 + pvNode;
+        int reduction;
         if (doLMR){
 
           //Basic reduction is done according to the array
-          int reduction = _lmr_R_array[std::min(33, tDepth)][std::min(33, LegalMoveCount)];
+          reduction = _lmr_R_array[std::min(33, tDepth)][std::min(33, LegalMoveCount)];
 
           // Reduction tweaks
           // We generally want to guess if the move will not improve alpha and guess right to do no re-searches
@@ -663,6 +664,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         if (doLMR){
           if (score > alpha){
             score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -alpha - 1, -alpha, false, !cutNode);
+            if (reduction > 0) _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, depth / 2);
           }
         } else if (!pvNode || LegalMoveCount > 1){
           score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -alpha - 1, -alpha, false, !cutNode);
