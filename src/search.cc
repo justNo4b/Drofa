@@ -219,7 +219,7 @@ inline void Search::_updateBeta(bool isQuiet, const Move move, Color color, int 
     _orderingInfo.updateKillers(ply, move);
     _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
     _orderingInfo.updateCounterMove(color, pMove, move.getMoveINT());
-    _orderingInfo.incrementCounterHistory(color, pMove, move.getPieceType(), move.getTo(), depth);
+    _orderingInfo.incrementCounterHistory(color, pMove, move.getPieceType(), move.getTo(), 2 * depth);
   }else{
     _orderingInfo.incrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), depth);
   }
@@ -683,6 +683,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
           _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * (statEVAL < alpha)));
+          // Award counter-move history additionally if we refuted special quite previous move
+          if (pMoveScore >= 50000 && pMoveScore <= 200000)
+            _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
           // Add a new tt entry for this node
           if (!_stop && !sing){
             myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
