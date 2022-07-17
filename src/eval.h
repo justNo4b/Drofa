@@ -479,17 +479,6 @@ evalBits Setupbits(const Board &);
 inline int kingShieldSafety(const Board &, Color, evalBits *);
 
 /**
- * @brief This function takes number of each pieceType count for each
- * side and (assuming best play) returns if the position is deadDraw
- *
- * Returns true is position is drawn, returns false if there is some play left.
- * Based on Vice function.
- *
- */
-inline bool IsItDeadDraw (const Board &, Color);
-
-
-/**
  * @brief Function evaluate piece-pawns interactions for given color
  * Includes:
  * 1. Blocked Pawns

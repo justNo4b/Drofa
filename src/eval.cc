@@ -189,55 +189,6 @@ int Eval::getMaterialValue(int phase, PieceType pieceType) {
                           : egS(MATERIAL_VALUES[pieceType]);
 }
 
-inline bool Eval::IsItDeadDraw (const Board &board, Color color){
-  Color otherColor = getOppositeColor(color);
-
-  // если есть хоть одна пешка или королева, то играем
-  if ((board.getPieces(color, QUEEN) | board.getPieces(otherColor, QUEEN)) ||
-      (board.getPieces(color, PAWN) | board.getPieces(otherColor, PAWN))){
-    return false;
-  }
-
-  int ownBishop = _popCount(board.getPieces(color, BISHOP));
-  int oppBishop = _popCount(board.getPieces(otherColor, BISHOP));
-  int ownKnight = _popCount(board.getPieces(color, KNIGHT));
-  int oppKnight = _popCount(board.getPieces(otherColor, KNIGHT));
-  int ownRook   = _popCount(board.getPieces(color, ROOK));
-  int oppRook   = _popCount(board.getPieces(otherColor, ROOK));
-
-  if (!(board.getPieces(color, ROOK) | board.getPieces(otherColor, ROOK))){ // нет пешек, нет королев, нет ладей
-    if (!(board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP))){  // нет пешек, ладей, слонов.
-        if (_popCount(board.getPieces(color, KNIGHT)) < 3 && _popCount(board.getPieces(otherColor, KNIGHT)) < 3){ // меньше 2х коней = ничья
-          return true;
-        }
-    } else if (!(board.getPieces(color, KNIGHT) | board.getPieces(otherColor, KNIGHT))){ // нет пешек, королев, ладей, коней
-        if (abs(ownBishop - oppBishop) < 2){
-          return true;
-        }
-    } else if ((ownKnight < 3 && ownBishop == 0) || (ownBishop == 1 &&  ownKnight == 0)){
-      if ((oppKnight < 3 && oppBishop == 0)||(oppBishop == 1 && oppKnight == 0)){
-        return true;
-      }
-    }
-  } else {                             // ладьи есть
-    if (ownRook == 1 && oppRook == 1){
-      if (ownKnight + ownBishop < 2 && oppKnight + oppBishop < 2){    // тут немного криво, так как BR vs R выигрывают
-        return true;
-      }
-    } else if (ownRook == 1 && oppRook == 0){
-      if (ownKnight + ownBishop == 0 && oppKnight + oppBishop > 1){
-        return true;
-      }
-    } else if (oppRook == 1 && ownRook == 0){
-      if (oppKnight + oppBishop == 0 && ownKnight + ownBishop > 1){
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
 inline int Eval::kingShieldSafety(const Board &board, Color color, evalBits * eB){
       //King safety - замена pawnsShieldingKing
     // идея в том, чтобы
@@ -967,10 +918,6 @@ int Eval::evaluateMain(const Board &board, Color color) {
 
   int score = 0;
   Color otherColor = getOppositeColor(color);
-
-  if (IsItDeadDraw(board, color)){
-    return 0;
-  }
 
   if (TRACK){
     ft.MaterialValue[PAWN][color]+= _popCount(board.getPieces(color, PAWN));
