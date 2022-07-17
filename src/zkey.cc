@@ -4,6 +4,7 @@
 #include <random>
 #include <climits>
 #include <iostream>
+#include <sstream>
 
 const unsigned int ZKey::PRNG_KEY = 0xDEADBEEF;
 
@@ -200,4 +201,48 @@ void ZKey::flipActivePlayer() {
 
 bool ZKey::operator==(const ZKey &other) {
   return other.getValue() == _key;
+}
+
+void ZKey::setpKeyFromString(std::string pseudoFen){
+    _key = ZERO;
+    int pArray[2][6] = {{0}};
+    std::string token;
+    // Process string and initilize an array;
+    std::istringstream pfStream(pseudoFen);
+    pfStream >> token;
+    for (auto currChar : token) {
+      switch (currChar) {
+        case 'p': pArray[BLACK][PAWN]++;
+          break;
+        case 'r': pArray[BLACK][ROOK]++;
+          break;
+        case 'n': pArray[BLACK][KNIGHT]++;
+          break;
+        case 'b': pArray[BLACK][BISHOP]++;
+          break;
+        case 'q': pArray[BLACK][QUEEN]++;
+          break;
+        case 'k': pArray[BLACK][KING]++;
+          break;
+        case 'P': pArray[WHITE][PAWN]++;
+          break;
+        case 'R': pArray[WHITE][ROOK]++;
+          break;
+        case 'N': pArray[WHITE][KNIGHT]++;
+          break;
+        case 'B': pArray[WHITE][BISHOP]++;
+          break;
+        case 'Q': pArray[WHITE][QUEEN]++;
+          break;
+        case 'K': pArray[WHITE][KING]++;
+          break;
+        case '/': break;
+        }
+    }
+    // Set a key
+    for (auto pt : {  PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING}){
+        flipPieceCount(WHITE, pt, pArray[WHITE][pt]);
+        flipPieceCount(BLACK, pt, pArray[BLACK][pt]);
+    }
+
 }

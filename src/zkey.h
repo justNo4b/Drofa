@@ -110,6 +110,12 @@ class ZKey {
   void setFromPieceCounts(const Board&);
 
   /**
+   * @brief sets pCount-based ZKey from pseudo-fen
+   * needed for EG evaluation initializing
+   */
+  void setpKeyFromString(const std::string);
+
+  /**
    * @brief Compare Zobrist keys
    *
    * @param other ZKey to compare

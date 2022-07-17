@@ -97,6 +97,8 @@ U64 Eval::detail::KING_PAWN_MASKS[2][2][8] = {
 
 
 void Eval::init() {
+  // initialize endgame eval table
+  initEG();
   // Initialize passed pawn masks
   for (int square = 0; square < 64; square++) {
 

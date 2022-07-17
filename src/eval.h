@@ -409,6 +409,7 @@ const int MATERIAL_VALUES[5] = {
  * @brief Initializes all inner constants used by functions in the Eval namespace
  */
 void init();
+void initEG();
 
 /**
  * @brief Returns the evaluated advantage of the given color in centipawns
