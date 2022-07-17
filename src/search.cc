@@ -664,7 +664,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         if (doLMR){
           if (score > alpha){
             score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -alpha - 1, -alpha, false, !cutNode);
-            if (reduction > 0) _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
           }
         } else if (!pvNode || LegalMoveCount > 1){
           score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -alpha - 1, -alpha, false, !cutNode);
@@ -686,8 +685,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // Add this move as a new killer move and update history if move is quiet
           _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * (statEVAL < alpha)));
           // Award counter-move history additionally if we refuted special quite previous move
-          if (pMoveScore >= 50000 && pMoveScore <= 200000)
-            _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
+          _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
           // Add a new tt entry for this node
           if (!_stop && !sing){
             myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
