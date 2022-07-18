@@ -4,7 +4,8 @@
 #include "defs.h"
 
 
-#define EG_HASH_SIZE (2048)
+#define EG_HASH_SIZE        (2048)
+#define LARGEST_SP_EVAL     (5)
 
 typedef int (*egEvalFunction) ();
 
