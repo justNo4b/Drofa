@@ -925,14 +925,8 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
 
   // adjust EG eval based on pawns left
   int StrongPawn = egS(score) > 0 ? _popCount(board.getPieces(color, PAWN)) : _popCount(board.getPieces(otherColor, PAWN));
-  int Scale = std::min(EG_SCALE_NORMAL, EG_SCALE_MINIMAL + EG_SCALE_PAWN * StrongPawn);
-
-
-  // Interpolate between opening/endgame scores depending on the phase
-  int final_eval = ((opS(score) * (MAX_PHASE - phase)) + (egS(score) * phase * Scale / EG_SCALE_NORMAL)) / MAX_PHASE;
-
-  // Initiate values for tuning
-  if (TRACK){ ft.FinalEval = score;  ft.Scale  = BOTH_SCALE_NORMAL;}
+  int Scale_Pawn = std::min(EG_SCALE_NORMAL, EG_SCALE_BASE + EG_SCALE_PAWN * StrongPawn);
+  int Scale_OCB  = SCALE_NOSCALE;
 
   // see if we are in OCB endgame
   bool isOCB =  _popCount(board.getPieces(color, BISHOP)) == 1 && _popCount(board.getPieces(otherColor, BISHOP)) == 1 &&
@@ -945,20 +939,23 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
     U64 bothKnights = board.getPieces(color, KNIGHT) | board.getPieces(otherColor, KNIGHT);
 
     if (!bothQueens && !bothRooks && !bothKnights){
-          final_eval = final_eval * BOTH_SCALE_OCB / BOTH_SCALE_NORMAL;
-          if (TRACK) ft.Scale = BOTH_SCALE_OCB;
+        Scale_OCB = SCALE_OCB;
         } else if (
         !bothQueens && !bothKnights &&
         _popCount(board.getPieces(color, ROOK)) == 1 && _popCount(board.getPieces(otherColor, ROOK)) == 1){
-          final_eval = final_eval * BOTH_SCALE_ROOK_OCB / BOTH_SCALE_NORMAL;
-          if (TRACK) ft.Scale = BOTH_SCALE_ROOK_OCB;
+          Scale_OCB = SCALE_ROOK_OCB;
         } else if (
         !bothQueens && !bothRooks &&
         _popCount(board.getPieces(color, KNIGHT)) == 1 && _popCount(board.getPieces(otherColor, KNIGHT)) == 1){
-          final_eval = final_eval * BOTH_SCALE_KNIGHT_OCB / BOTH_SCALE_NORMAL;
-          if (TRACK) ft.Scale = BOTH_SCALE_KNIGHT_OCB;
+          Scale_OCB = SCALE_KNIGHT_OCB;
         }
   }
+
+  // Interpolate between opening/endgame scores depending on the phase
+  int final_eval = ((opS(score) * (MAX_PHASE - phase)) + (egS(score) * phase * Scale_Pawn * Scale_OCB / EG_SCALE_MAXIMUM)) / MAX_PHASE;
+
+  // Initiate values for tuning
+  if (TRACK){ ft.FinalEval = score;  ft.Scale  = Scale_Pawn * Scale_OCB;}
 
   return final_eval;
 }

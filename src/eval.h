@@ -77,14 +77,14 @@ extern U64 KING_PAWN_MASKS[2][2][8];
   * @{
   */
   const int EG_SCALE_NORMAL = 64;
-  const int EG_SCALE_MAXIMUM = 128;
-  const int EG_SCALE_MINIMAL = 32;
+  const int EG_SCALE_BASE   = 32;
   const int EG_SCALE_PAWN    = 8;
+  const int EG_SCALE_MAXIMUM = 256;
 
-  const int BOTH_SCALE_NORMAL = 4;
-  const int BOTH_SCALE_OCB = 2;
-  const int BOTH_SCALE_ROOK_OCB = 3;
-  const int BOTH_SCALE_KNIGHT_OCB = 3;
+  const int SCALE_OCB = 2;
+  const int SCALE_ROOK_OCB = 3;
+  const int SCALE_KNIGHT_OCB = 3;
+  const int SCALE_NOSCALE = 4;
   /**@}*/
 
 /**
