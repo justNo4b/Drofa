@@ -2,21 +2,40 @@
 #include "eval.h"
 #include "attacks.h"
 #include "movegen.h"
+#include "endgame.h"
 
+
+egEvalEntry myEvalHash [EG_HASH_SIZE];
+
+
+int Eval::evaluateDraw(){
+    return 0;
+}
 
 int Eval::evaluateEndgame(const Board &board, Color color){
     return 0;
 }
 
+
+inline void Eval::egHashAdd(U64 key, egEvalFunction ef){
+    U64 index = key & (EG_HASH_SIZE - 1);
+    myEvalHash[index] = egEvalEntry(key, ef);
+}
+
 void Eval::initEG(){
     // Veryfy for a change;
 
-    ZKey test;;
+    ZKey test;
     test.setpKeyFromString("k/KB");
     //  kp/K
-    // 8/1k6/8/8/8/5P2/3K4/8 w - - 0 1
-    Board t("8/1k6/8/8/8/5B2/3K4/8 w - - 0 1");
 
-    std::cout << "kpk: " << test.getValue() << " board: " << t.getpCountKey().getValue() << std::endl;
+    egHashAdd(test.getValue(), &evaluateDraw);
+
+    // initiate table with zero entries
+    for (int i = 0; i < EG_HASH_SIZE; i++){
+        myEvalHash[i] = egEvalEntry();
+    }
+
+
 
 }

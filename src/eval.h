@@ -4,6 +4,7 @@
 #include "defs.h"
 #include "movegen.h"
 #include "bitutils.h"
+#include "endgame.h"
 
 #define gS(opS, egS) (int)((unsigned int)(opS) << 16) + (egS)
 #define opS(gS) (int16_t)((uint16_t)((unsigned)((gS) + 0x8000) >> 16))
@@ -424,6 +425,9 @@ int evaluateMain(const Board &, Color);
 
 int evaluateEndgame(const Board &, Color);
 
+int evaluateDraw();
+inline void egHashAdd(U64, egEvalFunction);
+
 /**
  * @brief Basically template function for testing various eval features.
  *  As I use it, it calls once before search.
@@ -469,8 +473,6 @@ evalBits Setupbits(const Board &);
    inline int evaluate(const Board &, Color, evalBits *);
 
   /**@}*/
-
-
 
 /**
  * @brief This function analyses king shield safety.
