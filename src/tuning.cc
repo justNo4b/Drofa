@@ -492,7 +492,7 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
 
     double opBase = X * entry->pFactors[OPENING];
     double egBase = X * entry->pFactors[ENDGAME];
-    double scale = entry->FinalEvalScale / 4;
+    double scale = entry->FinalEvalScale / 256;
 
     for (int i = 0; i < entry->tracesCount; i++){
         int index = entry->traces[i].index;
@@ -501,7 +501,7 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
         // Check if the gradient needs to be updated for the selected stage
         // and the actually update gradient
 
-        if (FeatureTypeMap[index] == ALL || FeatureTypeMap[index] == OP_ONLY) local[index][OPENING] +=  opBase * count * scale;
+        if (FeatureTypeMap[index] == ALL || FeatureTypeMap[index] == OP_ONLY) local[index][OPENING] +=  opBase * count;
         if (FeatureTypeMap[index] == ALL || FeatureTypeMap[index] == EG_ONLY) local[index][ENDGAME] +=  egBase * count * scale;
 
     }
@@ -525,9 +525,7 @@ double TuningEval(tEntry* entry, tValueHolder diff){
         egScore += (double) entry->traces[i].count * diff[entry->traces[i].index][ENDGAME];
     }
 
-    double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase)) / 256.0;
-
-    final_eval = final_eval * entry->FinalEvalScale / 4;
+    double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase * entry->FinalEvalScale / 256.0)) / 256.0;
 
     return final_eval + (entry->stm == WHITE ? 10 : -10);
 }

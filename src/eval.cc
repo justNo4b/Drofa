@@ -951,11 +951,11 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
         }
   }
 
-  // Interpolate between opening/endgame scores depending on the phase
-  int final_eval = ((opS(score) * (MAX_PHASE - phase)) + (egS(score) * phase * Scale_Pawn * Scale_OCB / EG_SCALE_MAXIMUM)) / MAX_PHASE;
-
   // Initiate values for tuning
   if (TRACK){ ft.FinalEval = score;  ft.Scale  = Scale_Pawn * Scale_OCB;}
+
+  // Interpolate between opening/endgame scores depending on the phase
+  int final_eval = ((opS(score) * (MAX_PHASE - phase)) + (egS(score) * phase * Scale_Pawn * Scale_OCB / EG_SCALE_MAXIMUM)) / MAX_PHASE;
 
   return final_eval;
 }
