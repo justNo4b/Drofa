@@ -49,12 +49,20 @@ void Eval::initEG(){
     egHashAdd("kb/KB", &evaluateDraw);
     egHashAdd("kn/KB", &evaluateDraw);
     egHashAdd("kb/KN", &evaluateDraw);
+    // R vs R is also a draw
+    egHashAdd("kr/KR", &evaluateDraw);
     // King vs King + two knights is a draw
     egHashAdd("k/KNN", &evaluateDraw);
     egHashAdd("knn/K", &evaluateDraw);
     // same if losing side has a minors
     egHashAdd("k/KNN", &evaluateDraw);
     egHashAdd("knn/K", &evaluateDraw);
+    // Assume R vs B is always draw
+    egHashAdd("kb/KR", &evaluateDraw);
+    egHashAdd("kr/KB", &evaluateDraw);
+    // Same for R vs N
+    egHashAdd("kn/KR", &evaluateDraw);
+    egHashAdd("kr/KN", &evaluateDraw);
 
     // 5-man eval
     // lets say
