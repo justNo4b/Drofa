@@ -988,7 +988,7 @@ int Eval::evaluate(const Board &board, Color color){
     U64 index = board.getpCountKey().getValue() & (EG_HASH_SIZE - 1);
     egEvalFunction spEval = myEvalHash[index].eFunction;
 
-    if (spEval != nullptr){
+    if (myEvalHash[index].key == board.getpCountKey().getValue() && spEval != nullptr){
         return spEval();
     }
 
