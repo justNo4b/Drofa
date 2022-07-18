@@ -32,13 +32,36 @@ void Eval::initEG(){
     }
 
     // Add some generic draws
+    // 0. 2-man (KvsK) is draw
     egHashAdd("k/K", &evaluateDraw);
 
+    // 3-man eval:
+    // King vs King + Bishop = insufficient material
     egHashAdd("kb/K", &evaluateDraw);
     egHashAdd("k/KB", &evaluateDraw);
-
+    // King vs King + Knight = insufficient material
     egHashAdd("kn/K", &evaluateDraw);
     egHashAdd("k/KN", &evaluateDraw);
 
+    // 4-man eval
+    // Obviously KN vs KB etc is draw also
+    egHashAdd("kn/KN", &evaluateDraw);
+    egHashAdd("kb/KB", &evaluateDraw);
+    egHashAdd("kn/KB", &evaluateDraw);
+    egHashAdd("kb/KN", &evaluateDraw);
+    // King vs King + two knights is a draw
+    egHashAdd("k/KNN", &evaluateDraw);
+    egHashAdd("knn/K", &evaluateDraw);
+    // same if losing side has a minors
+    egHashAdd("k/KNN", &evaluateDraw);
+    egHashAdd("knn/K", &evaluateDraw);
 
+    // 5-man eval
+    // lets say
+    // King, Rook, Bishop vs King and Rook
+    egHashAdd("krb/KR", &evaluateDraw);
+    egHashAdd("kr/KRB", &evaluateDraw);
+    // King, Rook, Knight vs King and Rook
+    egHashAdd("krn/KR", &evaluateDraw);
+    egHashAdd("kr/KRN", &evaluateDraw);
 }
