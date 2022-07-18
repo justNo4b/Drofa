@@ -473,7 +473,7 @@ inline int kingShieldSafety(const Board &, Color, evalBits *);
  */
 inline bool IsItDeadDraw (const Board &, Color);
 
-inline int Eval::winnableEndgame(const Board &, Color, evalBits *, int);
+inline int winnableEndgame(const Board &, Color, evalBits *, int);
 
 
 /**
