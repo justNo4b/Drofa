@@ -358,18 +358,12 @@ void Board::setToFen(std::string fenString) {
   _gameClock = _gameClock * 2;
 
 
-  // set up phase and pice count for incremental updates
-  _pCounts[WHITE][PAWN] = _popCount(getPieces(WHITE, PAWN));
-  _pCounts[BLACK][PAWN] = _popCount(getPieces(BLACK, PAWN));
-  _pCounts[WHITE][KING] = _popCount(getPieces(WHITE, KING));
-  _pCounts[BLACK][KING] = _popCount(getPieces(BLACK, KING));
+  // set up phase
   _phase = PHASE_WEIGHT_SUM;
 
   for (auto pieceType : {ROOK, KNIGHT, BISHOP, QUEEN}) {
-    _pCounts[WHITE][pieceType] = _popCount(getPieces(WHITE, pieceType));
-    _pCounts[BLACK][pieceType] = _popCount(getPieces(BLACK, pieceType));
-    _phase -= _pCounts[WHITE][pieceType] * PHASE_WEIGHTS[pieceType];
-    _phase -= _pCounts[BLACK][pieceType] * PHASE_WEIGHTS[pieceType];
+    _phase -= _popCount(getPieces(WHITE, pieceType)) * PHASE_WEIGHTS[pieceType];
+    _phase -= _popCount(getPieces(BLACK, pieceType)) * PHASE_WEIGHTS[pieceType];
   }
 
   // Make sure phase is not negative
@@ -440,7 +434,6 @@ void Board::_removePiece(Color color, PieceType pieceType, int squareIndex) {
   U64 square = ONE << squareIndex;
   _phase += PHASE_WEIGHTS[pieceType];
 
-  _pCounts[color][pieceType]--;
   _pieces[color][pieceType] ^= square;
   _allPieces[color] ^= square;
 
@@ -450,7 +443,8 @@ void Board::_removePiece(Color color, PieceType pieceType, int squareIndex) {
     _pawnStructureZkey.flipPiece(color, PAWN, squareIndex);
   }
 
-  _pCountKey.pCountAddRemove(color, pieceType, _pCounts[color][pieceType], _pCounts[color][pieceType] + 1);
+  int c = _popCount(getPieces(color, pieceType));
+  _pCountKey.pCountAddRemove(color, pieceType, c, c + 1);
   _zKey.flipPiece(color, pieceType, squareIndex);
   _pst.removePiece(color, pieceType, squareIndex);
 }
@@ -459,13 +453,13 @@ void Board::_addPiece(Color color, PieceType pieceType, int squareIndex) {
   U64 square = ONE << squareIndex;
   _phase -= PHASE_WEIGHTS[pieceType];
 
-  _pCounts[color][pieceType]++;
   _pieces[color][pieceType] |= square;
   _allPieces[color] |= square;
 
   _occupied |= square;
 
-  _pCountKey.pCountAddRemove(color, pieceType, _pCounts[color][pieceType], _pCounts[color][pieceType] - 1);
+  int c = _popCount(getPieces(color, pieceType));
+  _pCountKey.pCountAddRemove(color, pieceType, c, c - 1);
   _zKey.flipPiece(color, pieceType, squareIndex);
   _pst.addPiece(color, pieceType, squareIndex);
 }

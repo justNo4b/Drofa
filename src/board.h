@@ -324,10 +324,7 @@ class Board {
    */
   int _SEE_cost[6] = {100, 500, 300, 300, 1000, 10000};
 
-
   int _phase;
-
-  int _pCounts[2][6];
 
   /**
    * @brief Array indexed by [color][piecetype] of piece bitboards
