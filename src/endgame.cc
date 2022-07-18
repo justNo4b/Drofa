@@ -17,25 +17,28 @@ int Eval::evaluateEndgame(const Board &board, Color color){
 }
 
 
-inline void Eval::egHashAdd(U64 key, egEvalFunction ef){
-    U64 index = key & (EG_HASH_SIZE - 1);
-    myEvalHash[index] = egEvalEntry(key, ef);
+inline void Eval::egHashAdd(std::string psFen, egEvalFunction ef){
+    ZKey key;
+    key.setpKeyFromString(psFen);
+    U64 index = key.getValue() & (EG_HASH_SIZE - 1);
+    myEvalHash[index] = egEvalEntry(key.getValue(), ef);
 }
 
 void Eval::initEG(){
-    // Veryfy for a change;
-
-    ZKey test;
-    test.setpKeyFromString("k/KB");
-    //  kp/K
-
-    egHashAdd(test.getValue(), &evaluateDraw);
 
     // initiate table with zero entries
     for (int i = 0; i < EG_HASH_SIZE; i++){
         myEvalHash[i] = egEvalEntry();
     }
 
+    // Add some generic draws
+    egHashAdd("k/K", &evaluateDraw);
+
+    egHashAdd("kb/K", &evaluateDraw);
+    egHashAdd("k/KB", &evaluateDraw);
+
+    egHashAdd("kn/K", &evaluateDraw);
+    egHashAdd("k/KN", &evaluateDraw);
 
 
 }

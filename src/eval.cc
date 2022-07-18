@@ -8,6 +8,7 @@
 #include "tuning.h"
 
 extern HASH * myHASH;
+extern egEvalEntry myEvalHash[];
 extern posFeatured ft;
 
 int MATERIAL_VALUES_TUNABLE[6] = {
@@ -982,12 +983,16 @@ int Eval::evaluateMain(const Board &board, Color color) {
 }
 
 int Eval::evaluate(const Board &board, Color color){
-    int c = _popCount(board.getAllPieces(WHITE) | board.getAllPieces(BLACK));
-    if (c > 2){
-        return evaluateMain(board, color);
-    }else{
-        return evaluateEndgame(board, color);
+
+    // Probe eval hash
+    U64 index = board.getpCountKey().getValue() & (EG_HASH_SIZE - 1);
+    egEvalFunction spEval = myEvalHash[index].eFunction;
+
+    if (spEval != nullptr){
+        return spEval();
     }
+
+    return evaluateMain(board, color);
 }
 
 int Eval::evalTestSuite(const Board &board, Color color)

@@ -426,7 +426,9 @@ int evaluateMain(const Board &, Color);
 int evaluateEndgame(const Board &, Color);
 
 int evaluateDraw();
-inline void egHashAdd(U64, egEvalFunction);
+
+
+inline void egHashAdd(std::string, egEvalFunction);
 
 /**
  * @brief Basically template function for testing various eval features.
