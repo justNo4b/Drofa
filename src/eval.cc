@@ -926,11 +926,13 @@ inline int Eval::winnableEndgame(const Board & board, Color color, evalBits * eB
                -1;
 
   Color otherColor = getOppositeColor(color);
-  U64 pawnsTotal = board.getPieces(color, PAWN) | board.getPieces(otherColor, PAWN);
 
+  U64 pawnsTotal = board.getPieces(color, PAWN) | board.getPieces(otherColor, PAWN);
   bool pawnsBothFlanks =  ((pawnsTotal & KING_SIDE) != 0) && ((pawnsTotal & QUEEN_SIDE) != 0);
 
-  int winnable = -1 * (!pawnsBothFlanks * 35);
+  U64 strongPassers = eGpart > 0 ? eB->Passers[color] : eB->Passers[otherColor];
+
+  int winnable = strongPassers * 5 + pawnsBothFlanks * 35 - 50;
   s = gS(0, sign * std::max(winnable, -abs(eGpart)));
 
   return s;
