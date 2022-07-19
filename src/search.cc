@@ -719,7 +719,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         }else{
           // Beta was not beaten and we dont improve alpha in this case we lower our search history values
           int dBonus = tDepth - (!reSearch) * reduction - (statEVAL < alpha) - (!TTmove && depth >= 4);
-          int dBonus = std::max(0, dBonus);
+          dBonus = std::max(0, dBonus);
           if (isQuiet){
             _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), dBonus);
             _orderingInfo.decrementCounterHistory(board.getActivePlayer(), pMoveIndx, move.getPieceType(), move.getTo(), dBonus);
