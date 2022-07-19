@@ -11,8 +11,9 @@ struct SEARCH_Data
     int8_t  ply;
     Color   sideBehind;
     bool    nmpTree;
+    bool    nmpDisabled;
 
-    SEARCH_Data() : statEval {0}, moves {0}, ply(0), sideBehind(WHITE), nmpTree(false) {};
+    SEARCH_Data() : statEval {0}, moves {0}, ply(0), sideBehind(WHITE), nmpTree(false), nmpDisabled(3) {};
 
     void AddEval(int e){
         statEval[ply] = e;

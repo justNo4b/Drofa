@@ -416,17 +416,27 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // and when last move was also null
   // Drofa also track status of the Null move failure
   bool failedNull = false;
-  if (isPrune && depth >= 3 && pMove != 0 && statEVAL >= beta && board.isThereMajorPiece()){
+  if (isPrune && depth >= 3 && pMove != 0 && statEVAL >= beta && board.isThereMajorPiece() && !_sStack.nmpDisabled){
+
           Board movedBoard = board;
           _posHist.Add(board.getZKey().getValue());
           _sStack.AddNullMove(getOppositeColor(board.getActivePlayer()));
           movedBoard.doNool();
           int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((statEVAL - beta) / 128, 4);
-          int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, false, false);
+          int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta + 1, false, false);
           _posHist.Remove();
           _sStack.RemoveNull(behindColor, nmpTree);
           if (score >= beta){
-            return beta;
+
+            if (depth <= 12) return beta;
+            // do a reSearch if we are
+            _sStack.nmpDisabled = true;
+            Board rsBoard = board;
+            int rsScore = _negaMax(rsBoard, &thisPV, fDepth, -beta, -beta + 1, false, false);
+            _sStack.nmpDisabled = false;
+            if (rsScore >= beta){
+                return beta;
+            }
           }
           failedNull = true;
   }
