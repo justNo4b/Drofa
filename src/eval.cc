@@ -932,7 +932,7 @@ inline int Eval::winnableEndgame(const Board & board, Color color, evalBits * eB
 
   U64 strongPassers = eGpart > 0 ? eB->Passers[color] : eB->Passers[otherColor];
 
-  int winnable = strongPassers * 5 + pawnsBothFlanks * 35 - 50;
+  int winnable = pawnsBothFlanks * 45 - 43;
   s = gS(0, sign * std::max(winnable, -abs(eGpart)));
 
   return s;
