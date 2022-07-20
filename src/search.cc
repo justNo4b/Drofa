@@ -428,7 +428,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           _sStack.RemoveNull(behindColor, nmpTree);
           if (score >= beta){
 
-            if (depth <= 10) return beta;
+            if (!board.isEndGamePosition()) return beta;
             // do a reSearch with nmp disabled for both colors at high
             // depth to verify not being in zungzwang
             _sStack.nmpDisabled = true;
