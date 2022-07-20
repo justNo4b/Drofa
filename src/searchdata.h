@@ -13,7 +13,7 @@ struct SEARCH_Data
     bool    nmpTree;
     bool    nmpDisabled;
 
-    SEARCH_Data() : statEval {0}, moves {0}, ply(0), sideBehind(WHITE), nmpTree(false), nmpDisabled(3) {};
+    SEARCH_Data() : statEval {0}, moves {0}, ply(0), sideBehind(WHITE), nmpTree(false), nmpDisabled(false) {};
 
     void AddEval(int e){
         statEval[ply] = e;
