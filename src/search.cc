@@ -433,7 +433,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             // depth to verify not being in zungzwang
             _sStack.nmpDisabled = true;
             Board rsBoard = board;
-            int rsScore = _negaMax(rsBoard, &thisPV, fDepth, -beta, -beta + 1, false, false);
+            int rsScore = _negaMax(rsBoard, &thisPV, fDepth, beta - 1, beta, false, false);
             _sStack.nmpDisabled = false;
             if (rsScore >= beta){
                 return beta;
