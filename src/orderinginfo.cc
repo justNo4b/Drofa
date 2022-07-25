@@ -79,13 +79,13 @@ void OrderingInfo::incrementFollowHistory(Color color, int ppMove, PieceType pTy
   int indx = (ppMove & 0x7) + ((ppMove >> 15) & 0x3f) * 6;
   int16_t current = _followMoveHistory[color][indx][pType][to];
   int16_t bonus   = depth * depth;
-  _counterMoveHistory[color][indx][pType][to] += 32 * bonus - current * abs(bonus) / 512;
+  _followMoveHistory[color][indx][pType][to] += 32 * bonus - current * abs(bonus) / 512;
 }
 
 void OrderingInfo::decrementFollowHistory(Color color, int pMoveIndx, PieceType pType, int to, int depth){
   int16_t current = _followMoveHistory[color][pMoveIndx][pType][to];
   int16_t bonus   = -1 * depth * depth;
-  _counterMoveHistory[color][pMoveIndx][pType][to] += 32 * bonus - current * abs(bonus) / 512;
+  _followMoveHistory[color][pMoveIndx][pType][to] += 32 * bonus - current * abs(bonus) / 512;
 }
 
 int OrderingInfo::getHistory(Color color, int from, int to) const {
