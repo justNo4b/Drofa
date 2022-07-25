@@ -220,6 +220,7 @@ inline void Search::_updateBeta(bool isQuiet, const Move move, Color color, int 
     _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
     _orderingInfo.updateCounterMove(color, pMove, move.getMoveINT());
     _orderingInfo.incrementCounterHistory(color, pMove, move.getPieceType(), move.getTo(), 2 * depth);
+    _orderingInfo.incrementFollowHistory(color, pMove, move.getPieceType(), move.getTo(), 2 * depth);
   }else{
     _orderingInfo.incrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), depth);
   }
@@ -252,7 +253,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
 
   const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
   int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
-  MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashMove, board.getActivePlayer(), 0, 0);
+  MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashMove, board.getActivePlayer(), 0, 0, 0);
 
   int currScore;
 
@@ -317,6 +318,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   int score;
   int ply = _sStack.ply;
   int pMove = _sStack.moves[ply - 1].getMoveINT();
+  int ppMove = ply > 1 ?  _sStack.moves[ply - 2].getMoveINT() : 0;
   int pMoveScore = _sStack.moves[ply - 1].getValue();
   int alphaOrig = alpha;
   int statEVAL = 0;
@@ -445,7 +447,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // No pruning occured, generate moves and recurse
   MoveGen movegen(board, false);
   MoveList * legalMoves = movegen.getMoves();
-  MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashedMove.getMoveINT(), board.getActivePlayer(), ply, pMove);
+  MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashedMove.getMoveINT(), board.getActivePlayer(), ply, pMove, ppMove);
 
   // Probcut
   if (!pvNode &&
@@ -496,6 +498,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   int  qCount = 0;
   bool singularExists = false;
   int  pMoveIndx = (pMove & 0x7) + ((pMove >> 15) & 0x3f) * 6;
+  int  ppMoveIndx = (ppMove & 0x7) + ((ppMove >> 15) & 0x3f) * 6;
 
   while (movePicker.hasNext()) {
     Move move = movePicker.getNext();
@@ -684,8 +687,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // Add this move as a new killer move and update history if move is quiet
           _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * (statEVAL < alpha)));
           // Award counter-move history additionally if we refuted special quite previous move
-          if (pMoveScore >= 50000 && pMoveScore <= 200000)
+          if (pMoveScore >= 50000 && pMoveScore <= 200000){
             _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
+            _orderingInfo.incrementFollowHistory(board.getActivePlayer(), ppMove, move.getPieceType(), move.getTo(), depth);
+          }
+
           // Add a new tt entry for this node
           if (!_stop && !sing){
             myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
@@ -719,6 +725,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           if (isQuiet){
             _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), dBonus);
             _orderingInfo.decrementCounterHistory(board.getActivePlayer(), pMoveIndx, move.getPieceType(), move.getTo(), dBonus);
+            _orderingInfo.decrementFollowHistory(board.getActivePlayer(), ppMoveIndx, move.getPieceType(), move.getTo(), dBonus);
           }else{
             _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), dBonus);
           }
@@ -783,7 +790,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
   MoveGen movegen(board, true);
   MoveList * legalMoves = movegen.getMoves();
-  MovePicker movePicker(&_orderingInfo, &board, legalMoves, 0, board.getActivePlayer(), MAX_PLY, 0);
+  MovePicker movePicker(&_orderingInfo, &board, legalMoves, 0, board.getActivePlayer(), MAX_PLY, 0, 0);
 
   // If node is quiet, just return eval
   if (!movePicker.hasNext()) {

@@ -63,6 +63,10 @@ class OrderingInfo {
 
   void decrementCounterHistory(Color, int, PieceType, int, int);
 
+  void incrementFollowHistory(Color, int, PieceType, int, int);
+
+  void decrementFollowHistory(Color, int, PieceType, int, int);
+
   /**
    * @brief Update countermove.
    *
@@ -109,6 +113,15 @@ class OrderingInfo {
    * @param to        move to
    */
   int getCountermoveHistory(Color, int, PieceType, int) const;
+
+  /**
+   * @brief Get CounterMoveHistory for the move
+   *
+   * @param prevMove  previous move made
+   * @param pType     moving piece type
+   * @param to        move to
+   */
+  int getFollowmoveHistory(Color, int, PieceType, int) const;
 
   /**
    * @brief Update the killer moves for the given ply with the given move.
@@ -161,6 +174,12 @@ class OrderingInfo {
    * Indexed by [prevPieceType][prevTo][movePieceType][moveTo]
    */
   int16_t _counterMoveHistory[2][6 * 64][6][64];
+
+  /**
+   * @brief Table of beta-cutoff values dependand on the previous move by opponent
+   * Indexed by [prevPieceType][prevTo][movePieceType][moveTo]
+   */
+  int16_t _followMoveHistory[2][6 * 64][6][64];
 
   /**
    * @brief Array of the moves (represented by their INT), that counter move
