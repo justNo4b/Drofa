@@ -421,8 +421,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           _posHist.Add(board.getZKey().getValue());
           _sStack.AddNullMove(getOppositeColor(board.getActivePlayer()));
           movedBoard.doNool();
-          int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((statEVAL - beta) / 128, 4);
-          int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, false, false);
+          int fDepth = depth - 4 - depth / 6 - std::min((statEVAL - beta) / 256, 3);
+          int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta + 1, false, false);
           _posHist.Remove();
           _sStack.RemoveNull(behindColor, nmpTree);
           if (score >= beta){
