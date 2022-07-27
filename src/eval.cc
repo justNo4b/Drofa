@@ -758,13 +758,15 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     }
 
     // test on if a pawn is connected
-    if ((detail::CONNECTED_MASK[square] & pawns) != 0){
+    if ((detail::CONNECTED_MASK[square] & pawns) != 0 &&
+        !((ONE << square) & eB->EnemyPawnAttackMap[color])){
       if (TRACK) ft.PawnConnected[relSqv][color]++;
       s += PAWN_CONNECTED[relSqv];
     }
 
     // test if the pawn is supported by other friendly pawn
-    if ((ONE << square) & eB->EnemyPawnAttackMap[otherColor]){
+    if ((((ONE << square) & eB->EnemyPawnAttackMap[otherColor]) != 0) &&
+        !((ONE << square) & eB->EnemyPawnAttackMap[color])){
       if (TRACK) ft.PawnSupported[relSqv][color]++;
       s += PAWN_SUPPORTED[relSqv];
     }
