@@ -1,6 +1,6 @@
                   Shallow_Blue -> Drofa 1.0.0 log
 ////////////////////////////////////////////////////////////////////
-1. Fuxed 50-move detection bug
+1. Fixed 50-move detection bug
 2. Fixed KillerMove bug causing to have 2 exact killers sometimes
 3. Fixed History updating in the beta cutoff area
 
