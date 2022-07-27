@@ -39,39 +39,39 @@ int OrderingInfo::getCounterMoveINT(Color color, int pMove) const{
 // currently use formula clamps history between (-16384 and 16384)
 void OrderingInfo::incrementHistory(Color color, int from, int to, int depth) {
   int16_t current = _history[color][from][to];
-  int16_t bonus   = depth * depth;
-  _history[color][from][to] += 32 * bonus - current * abs(bonus) / 512;
+  int16_t bonus   = std::min(2100, 350 * depth - 350);
+  _history[color][from][to] += bonus - current * abs(bonus) / 16384;
 }
 
 void OrderingInfo::decrementHistory(Color color, int from, int to, int depth) {
   int16_t current = _history[color][from][to];
-  int16_t bonus   = -1 * depth * (depth - 1);
-  _history[color][from][to] += 32 * bonus - current * abs(bonus) / 512;
+  int16_t bonus   = -1 * std::min(2100, 350 * depth - 350);;
+  _history[color][from][to] += bonus - current * abs(bonus) / 16384;
 }
 
 void OrderingInfo::incrementCapHistory(PieceType capturingPiece, PieceType capturedPiece, int to, int depth){
   int16_t current = _captureHistory[capturingPiece][capturedPiece][to];
-  int16_t bonus   = depth * depth;
-  _captureHistory[capturingPiece][capturedPiece][to] += 32 * bonus - current * abs(bonus) / 512;
+  int16_t bonus   = std::min(2100, 350 * depth - 350);;
+  _captureHistory[capturingPiece][capturedPiece][to] += bonus - current * abs(bonus) / 16384;
 }
 
 void OrderingInfo::decrementCapHistory(PieceType capturingPiece, PieceType capturedPiece, int to, int depth){
   int16_t current = _captureHistory[capturingPiece][capturedPiece][to];
-  int16_t bonus   = -1 * depth * depth;
-  _captureHistory[capturingPiece][capturedPiece][to] += 32 * bonus - current * abs(bonus) / 512;
+  int16_t bonus   = -1 * std::min(2100, 350 * depth - 350);;
+  _captureHistory[capturingPiece][capturedPiece][to] += bonus - current * abs(bonus) / 16384;
 }
 
 void OrderingInfo::incrementCounterHistory(Color color, int pMove, PieceType pType, int to, int depth){
   int indx = (pMove & 0x7) + ((pMove >> 15) & 0x3f) * 6;
   int16_t current = _counterMoveHistory[color][indx][pType][to];
-  int16_t bonus   = depth * depth;
-  _counterMoveHistory[color][indx][pType][to] += 32 * bonus - current * abs(bonus) / 512;
+  int16_t bonus   = std::min(2100, 350 * depth - 350);;
+  _counterMoveHistory[color][indx][pType][to] += bonus - current * abs(bonus) / 16384;
 }
 
 void OrderingInfo::decrementCounterHistory(Color color, int pMoveIndx, PieceType pType, int to, int depth){
   int16_t current = _counterMoveHistory[color][pMoveIndx][pType][to];
-  int16_t bonus   = -1 * depth * depth;
-  _counterMoveHistory[color][pMoveIndx][pType][to] += 32 * bonus - current * abs(bonus) / 512;
+  int16_t bonus   = -1 * std::min(2100, 350 * depth - 350);;
+  _counterMoveHistory[color][pMoveIndx][pType][to] += bonus - current * abs(bonus) / 16384;
 }
 
 int OrderingInfo::getHistory(Color color, int from, int to) const {
