@@ -66,7 +66,6 @@ void Search::iterDeep() {
   _timer.startIteration();
   int targetDepth = _timer.getSearchDepth();
   int aspWindow = 25;
-  int aspDelta  = 50;
 
     for (int currDepth = 1; currDepth <= targetDepth; currDepth++) {
 
@@ -84,14 +83,14 @@ void Search::iterDeep() {
             if (_stop) break;
 
             if (score <= aspAlpha){
-                aspAlpha = std::max(aspAlpha - aspDelta, LOST_SCORE);
+                aspAlpha = std::max(aspAlpha - aspWindow, LOST_SCORE);
             }else if( score >= aspBeta){
-                aspBeta  = std::min(aspBeta + aspDelta, -LOST_SCORE);
+                aspBeta  = std::min(aspBeta + aspWindow, -LOST_SCORE);
             }else{
                 break;
             }
 
-            aspDelta += aspDelta * 2 / 3;
+            aspWindow += aspWindow * 2 / 3;
         }
 
         // Iteration finished normally
