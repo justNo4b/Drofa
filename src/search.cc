@@ -451,7 +451,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   if (!pvNode &&
        depth >= 5 &&
        alpha < WON_IN_X){
-        int pcBeta = beta + 200;
+        int pcBeta = beta + 150 + (pMoveScore < -16384) * 100;
         while (movePicker.hasNext()){
             Move move = movePicker.getNext();
 
