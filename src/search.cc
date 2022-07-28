@@ -416,7 +416,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // and when last move was also null
   // Drofa also track status of the Null move failure
   bool failedNull = false;
-  if (isPrune && depth >= 3 && pMove != 0 && statEVAL >= beta + std::max(0, 120 - 20 * depth) && board.isThereMajorPiece()){
+  if (isPrune && depth >= 3 && pMove != 0 && statEVAL >= beta + std::max(0, 240 - 40 * depth) && board.isThereMajorPiece()){
           Board movedBoard = board;
           _posHist.Add(board.getZKey().getValue());
           _sStack.AddNullMove(getOppositeColor(board.getActivePlayer()));
