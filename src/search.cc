@@ -629,8 +629,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           reduction -= singularExists;
 
           // reduce more/less based on the hitory
-          reduction -= moveHistory / 8192;
-          reduction -= cmHistory  / 8192;
+          reduction -= clamp((moveHistory / 4096), -2, 2);
+          reduction -= clamp((cmHistory  / 4096), -2, 2);
 
           // reduce less when move is a Queen promotion
           reduction -= (move.getFlags() & Move::PROMOTION) && (move.getPromotionPieceType() == QUEEN);

@@ -178,6 +178,10 @@ const int PHASE_WEIGHTS[6] = {
     [KING] = 0
 };
 
+
+
+#define clamp(value, min, max)  ((value > max) ? max : ((value < min) ? min : value))
+
 /**
  * @brief Returns the opposite of the given color
  *
