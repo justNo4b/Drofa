@@ -42,6 +42,17 @@ U64 Eval::detail::TWO_PLUS_FILES[8] = {
     FILE_F | FILE_G | FILE_H,
 };
 
+U64 Eval::detail::STORM_FILES[8] = {
+    FILE_A | FILE_B | FILE_C,
+    FILE_A | FILE_B | FILE_C,
+    FILE_B | FILE_C | FILE_D,
+    FILE_C | FILE_D | FILE_E,
+    FILE_D | FILE_E | FILE_F,
+    FILE_E | FILE_F | FILE_G,
+    FILE_F | FILE_G | FILE_H,
+    FILE_F | FILE_G | FILE_H
+};
+
 U64 Eval::detail::PASSED_PAWN_MASKS[2][64];
 U64 Eval::detail::OUTPOST_MASK[2][64];
 U64 Eval::detail::CONNECTED_MASK[64];
@@ -599,6 +610,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
 
   U64 pieces = board.getPieces(color, KING);
   int square = _popLsb(pieces);
+  int kingCol = _col(square);
   Color otherColor = getOppositeColor(color);
 
   // Mobility
@@ -616,7 +628,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   // See if our king is on the Openish-files
   // Test for Open - SemiOpenToUs - SemiOpenToEnemy
   // General idea is from SF HCE
-  U64 file       = detail::FILES[_col(square)];
+  U64 file       = detail::FILES[kingCol];
   U64 ourPawns   = board.getPieces(color, PAWN);
   U64 enemyPawns = board.getPieces(otherColor, PAWN);
 
@@ -640,6 +652,26 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   if ((detail::TWO_PLUS_FILES[_col(square)] & (ourPawns | enemyPawns)) == 0){
     s += KING_PAWNLESS_FLANG;
     if (TRACK) ft.KingPawnless[color]++;
+  }
+
+  // Evaluate pawn strom
+  U64 dangerousPawns = enemyPawns & Eval::detail::STORM_FILES[kingCol] & ENEMY_SIDE[otherColor];
+  int forward = otherColor == WHITE ? 8 : -8;
+
+  while (dangerousPawns){
+
+    int pSquare = _popLsb(dangerousPawns);
+    int r = otherColor == WHITE ? _row(pSquare) : 7 - _row(pSquare);
+    s += (((ONE << (pSquare + forward)) & ourPawns) == 0) ? PAWN_STORM_UNBLOCKED[r] : PAWN_STORM_BLOCKED[r];
+
+    if (TRACK){
+
+          if (((ONE << (pSquare + forward)) & ourPawns) == 0){
+            ft.PawnStormUnblocked[r][color]++;
+          }else{
+            ft.PawnStormBlocked[r][color]++;
+          }
+    } 
   }
 
   return s;
