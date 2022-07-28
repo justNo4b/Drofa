@@ -311,6 +311,18 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.BackwardOpenPawn[j][WHITE] - ft.BackwardOpenPawn[j][BLACK];
     }
 
+    for (int j = 0; j < 8; j++){
+        coeff[i++] = ft.IncomingStrom4th[j][WHITE] - ft.IncomingStrom4th[j][BLACK];
+    }
+
+    for (int j = 0; j < 8; j++){
+        coeff[i++] = ft.IncomingStrom5th[j][WHITE] - ft.IncomingStrom5th[j][BLACK];
+    }
+
+    for (int j = 0; j < 8; j++){
+        coeff[i++] = ft.IncomingStrom6th[j][WHITE] - ft.IncomingStrom6th[j][BLACK];
+    }
+
     for (int j = 0; j < 2; j++){
         coeff[i++] = ft.RookOpenFile[j][WHITE] - ft.RookOpenFile[j][BLACK];
     }

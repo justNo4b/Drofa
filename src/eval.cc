@@ -599,6 +599,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
 
   U64 pieces = board.getPieces(color, KING);
   int square = _popLsb(pieces);
+  int kCol   = _col(square);
   Color otherColor = getOppositeColor(color);
 
   // Mobility
@@ -641,6 +642,36 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
     s += KING_PAWNLESS_FLANG;
     if (TRACK) ft.KingPawnless[color]++;
   }
+
+  // analyze incoming pawn storms
+  // Take incoming enemy pawns (rRank 4-5-6)
+
+  U64 pawn4th = color == WHITE ? enemyPawns & RANK_5 : enemyPawns & RANK_4;
+  U64 pawn5th = color == WHITE ? enemyPawns & RANK_4 : enemyPawns & RANK_5;
+  U64 pawn6th = color == WHITE ? enemyPawns & RANK_3 : enemyPawns & RANK_6;
+
+  while (pawn4th){
+    int pawn = _popLsb(pawn4th);
+    int pCol = _col(pawn);
+    s += INCOMING_STORM_4TH[abs(kCol - pCol)];
+    if (TRACK) ft.IncomingStrom4th[abs(kCol - pCol)][color]++;
+  }
+
+  while (pawn5th){
+    int pawn = _popLsb(pawn5th);
+    int pCol = _col(pawn);
+    s += INCOMING_STORM_5TH[abs(kCol - pCol)];
+    if (TRACK) ft.IncomingStrom5th[abs(kCol - pCol)][color]++;
+  }
+
+  while (pawn6th){
+    int pawn = _popLsb(pawn6th);
+    int pCol = _col(pawn);
+    s += INCOMING_STORM_6TH[abs(kCol - pCol)];
+    if (TRACK) ft.IncomingStrom6th[abs(kCol - pCol)][color]++;
+  }
+
+
 
   return s;
 }
