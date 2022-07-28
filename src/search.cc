@@ -765,7 +765,6 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   // If TT is causing a cuttoff, we update move ordering stuff
   const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
   if (probedHASHentry.Flag != NONE){
-    if (!pvNode){
       int hashScore = probedHASHentry.score;
 
       if (abs(hashScore) > WON_IN_X){
@@ -777,7 +776,6 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
         return beta;
       }
-    }
   }
 
   MoveGen movegen(board, true);
