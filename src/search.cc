@@ -314,6 +314,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   bool TTmove = false;
   bool quietTT = false;
   bool nmpTree = _sStack.nmpTree;
+  bool failedNull = false;
   int score;
   int ply = _sStack.ply;
   int pMove = _sStack.moves[ply - 1].getMoveINT();
@@ -410,12 +411,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
   // 3. NULL MOVE
-  // If we are doing so well, that giving opponent 2 moves wont improve his position
-  // we can safely prune this position.
-  // Apart from usual  stuff we do not use NMP when there is only Kings and Pawns
-  // and when last move was also null
-  // Drofa also track status of the Null move failure
-  bool failedNull = false;
+  // If we are doing so well, that giving opponent 2 moves wont improve his position we can safely prune this position.
+  // No nmp in pvNode, InCheck, when doing singular, or just after Null move was made
+  // Use SF-like conditional of requsting Eval being higher than beta at low depth
+  // Drofa track NMP_failure to use for extending decisions
   if (isPrune && depth >= 3 && pMove != 0 && statEVAL >= beta + std::max(0, 120 - 20 * depth) && board.isThereMajorPiece()){
           Board movedBoard = board;
           _posHist.Add(board.getZKey().getValue());
