@@ -367,6 +367,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       }
       if (probedHASHentry.Flag == BETA && hashScore >= beta){
         _updateBeta(quietTT, hashedMove, board.getActivePlayer(), pMove, ply, depth);
+        if (pMoveScore >= 50000 && pMoveScore <= 200000)
+            _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, hashedMove.getPieceType(), hashedMove.getTo(), depth);
         return beta;
       }
     }
