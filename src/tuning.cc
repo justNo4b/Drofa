@@ -55,9 +55,9 @@ void TunerStart(){
 
     std::cout << std::setprecision(16);
 
-    std::cout << "\n Calculating K... " << std::endl;
-    double K = CalculateFactorK(entries);
-    std::cout << "\n Optimal K = " << K << std::endl;
+    //std::cout << "\n Calculating K... " << std::endl;
+    //double K = CalculateFactorK(entries);
+    //std::cout << "\n Optimal K = " << K << std::endl;
     for (int epoch = 0; epoch < TUNIGN_MAX_ITER; epoch++){
 
         // Calculate gradient
@@ -341,6 +341,14 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 8; j++){
         coeff[i++] = ft.KingShieldQS[j][WHITE] - ft.KingShieldQS[j][BLACK];
+    }
+
+    for (int j = 0; j < 3; j++){
+        coeff[i++] = ft.kpTensions[j][WHITE] - ft.kpTensions[j][BLACK];
+    }
+
+    for (int j = 0; j < 3; j++){
+        coeff[i++] = ft.kpBlockedDanger[j][WHITE] - ft.kpBlockedDanger[j][BLACK];
     }
 
     for (int j = 0; j < 14; j++){

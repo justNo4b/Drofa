@@ -905,6 +905,18 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
   }
 
+
+  int tensions = std::min(2, _popCount(eB->EnemyPawnAttackMap[color] & eB->EnemyKingZone[otherColor] & board.getPieces(color, PAWN)));
+  s += KING_PAWN_TENSION[tensions];
+  if (TRACK) ft.kpTensions[tensions][color]++;
+
+
+  U64 ourShiftedPawns = color == WHITE ? board.getPieces(color, PAWN) << 8 : board.getPieces(color, PAWN) >> 8;
+  int dangerousBlockers = std::min(2, _popCount(eB->EnemyKingZone[otherColor] &  RELATIVE_3RD[color] & ourShiftedPawns & board.getPieces(otherColor, PAWN)));
+  s += KING_BLOCKED_TENSION[dangerousBlockers];
+  if (TRACK)ft.kpBlockedDanger[dangerousBlockers][color]++;
+
+
   int unContested = _popCount(eB->AttackedSquares[color] & eB->EnemyKingZone[color] & ~eB->AttackedSquares[otherColor]);
   eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
   if (board.getActivePlayer() == color) eB->KingAttackPower[color] += ATTACK_TEMPO;
