@@ -55,9 +55,9 @@ void TunerStart(){
 
     std::cout << std::setprecision(16);
 
-    std::cout << "\n Calculating K... " << std::endl;
-    double K = CalculateFactorK(entries);
-    std::cout << "\n Optimal K = " << K << std::endl;
+    //std::cout << "\n Calculating K... " << std::endl;
+    //double K = CalculateFactorK(entries);
+    //std::cout << "\n Optimal K = " << K << std::endl;
     for (int epoch = 0; epoch < TUNIGN_MAX_ITER; epoch++){
 
         // Calculate gradient
@@ -236,6 +236,8 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.KingHighDanger[WHITE] - ft.KingHighDanger[BLACK];
     coeff[i++] = ft.KingMedDanger[WHITE] - ft.KingMedDanger[BLACK];
     coeff[i++] = ft.KingLowDanger[WHITE] - ft.KingLowDanger[BLACK];
+    coeff[i++] = ft.kpTensions[WHITE] - ft.kpTensions[BLACK];
+    coeff[i++] = ft.kpBlockedDanger[WHITE] - ft.kpBlockedDanger[BLACK];
     coeff[i++] = ft.BishopPair[WHITE] - ft.BishopPair[BLACK];
     coeff[i++] = ft.PawnDoubled[WHITE] - ft.PawnDoubled[BLACK];
     coeff[i++] = ft.PawnIsolated[WHITE] - ft.PawnIsolated[BLACK];
