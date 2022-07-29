@@ -901,9 +901,15 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
             if (TRACK) ft.PassedPawnPosAdvance[r][color]++;
           }
     }
-
-
   }
+
+  // See how many potential outposts are covering with pieces. 
+  // Only do it if enemy has minors
+  if ((board.getPieces(otherColor, BISHOP) | board.getPieces(otherColor, KNIGHT)) != 0){
+    s += POS_OUTPOSTS_COVERED * _popCount(eB->AttackedSquares[color] & eB->PossibleGenOutposts[otherColor]);
+    if (TRACK) ft.HoleCovered[color] +=  _popCount(eB->AttackedSquares[color] & eB->PossibleGenOutposts[otherColor]);
+  }
+
 
   int unContested = _popCount(eB->AttackedSquares[color] & eB->EnemyKingZone[color] & ~eB->AttackedSquares[otherColor]);
   eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
