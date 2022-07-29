@@ -264,6 +264,10 @@ const int QUEEN_ATTACKED_BY[4] = {
            gS(0,0), gS(61,36), gS(39,20), gS(42,44),
 };
 
+const int THREAT_BY_KING[2] = {
+           gS(13,26), gS(1,3),
+};
+
 const int KING_PAWN_SHIELD_KS[8] = {
            gS(-6,2), gS(6,9), gS(0,11), gS(0,4),
            gS(-8,5), gS(-21,0), gS(-6,17), gS(0,0),

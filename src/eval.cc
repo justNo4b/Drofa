@@ -624,6 +624,16 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   s += KING_ATTACK_PAWN * _popCount(attackBitBoard & enemyPawns);
   if (TRACK) ft.KingAttackPawn[color] += _popCount(attackBitBoard & enemyPawns);
 
+  // See if a king is attacking enemy piece
+  U64 targets = board.getPieces(otherColor, ROOK) | board.getPieces(otherColor, BISHOP) | board.getPieces(otherColor, KNIGHT);
+  int kingThreatsCount = std::min(2, _popCount(attackBitBoard & targets)) - 1;
+  if (kingThreatsCount >= 0){
+    s += THREAT_BY_KING[kingThreatsCount];
+    if (TRACK) ft.ThreatByKing[kingThreatsCount][color]++;
+  } 
+
+
+
   if (((file & ourPawns) == 0) && ((file & enemyPawns) == 0)){
     s += KING_OPEN_FILE;
     if (TRACK) ft.KingOpenFile[color]++;

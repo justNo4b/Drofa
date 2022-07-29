@@ -335,6 +335,10 @@ void InitCoefficients(featureCoeff coeff){
         coeff[i++] = ft.QueenAttackedBy[j][WHITE] - ft.QueenAttackedBy[j][BLACK];
     }
 
+    for (int j = 0; j < 2; j++){
+        coeff[i++] = ft.ThreatByKing[j][WHITE] - ft.ThreatByKing[j][BLACK];
+    }
+
     for (int j = 0; j < 8; j++){
         coeff[i++] = ft.KingShieldKS[j][WHITE] - ft.KingShieldKS[j][BLACK];
     }
