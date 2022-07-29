@@ -117,6 +117,7 @@ const U64 FIGHTING_AREA     = RANK_3 | RANK_4 | RANK_5 | RANK_6;
 const U64 SIDE_FILES        = FILE_A | FILE_H;
 const U64 EXT_MIDDLE_FILES  = FILE_C | FILE_D | FILE_E | FILE_F;
 const U64 PROMOTION_RANK[2] = {RANK_8, RANK_1};
+const U64 RELATIVE_3RD[2]   = {RANK_3, RANK_6};
 const U64 DOUBLE_PUSH_RANK[2] = {RANK_4, RANK_5};
 const U64 PASSER_ZONE [2] = { (RANK_5 | RANK_6),
                               (RANK_3 | RANK_4) };
