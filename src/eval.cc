@@ -900,6 +900,13 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
             s += PASSED_PAWN_POS_ADVANCE[r];
             if (TRACK) ft.PassedPawnPosAdvance[r][color]++;
           }
+
+      // 5. Apply a bonus when no enemy king on passed pawn mask
+      if ((detail::PASSED_PAWN_MASKS[color][square] & board.getPieces(otherColor, KING)) == 0){
+        s += KINGLESS_PASSER_PATH;
+        if (TRACK) ft.KingLessPasser[color]++;
+      }
+
     }
 
 
