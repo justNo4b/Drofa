@@ -433,6 +433,17 @@ int evaluateBishopPawn_vs_KP(const Board &board, Color color);
 int evaluateKingPawn_vs_King(const Board &board, Color color);
 
 
+/**
+ * @brief This function takes number of each pieceType count for each
+ * side and (assuming best play) returns if the position is deadDraw
+ *
+ * Returns true is position is drawn, returns false if there is some play left.
+ * Based on Vice function.
+ *
+ */
+inline bool IsItDeadDraw (const Board &, Color);
+
+
 inline void egHashAdd(std::string, egEvalFunction);
 
 /**
