@@ -483,6 +483,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                     _sStack.Remove();
 
                     if (sScore >= pcBeta){
+                        _updateBeta(false, move, board.getActivePlayer(), pMove, ply, (depth - 4 + 2 * (statEVAL < alpha)));
                         return beta;
                     }
                 }
