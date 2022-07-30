@@ -449,7 +449,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // Probcut
   if (!pvNode &&
        depth >= 5 &&
-       alpha < WON_IN_X){
+       alpha < WON_IN_X && !sing){
         int pcBeta = beta + 200;
         while (movePicker.hasNext()){
             Move move = movePicker.getNext();
