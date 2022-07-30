@@ -57,8 +57,8 @@ int Eval::evaluateHugeAdvantage(const Board &board, Color color){
 inline void Eval::egHashAdd(std::string psFen, egEvalFunction ef){
     ZKey key;
     key.setpKeyFromString(psFen);
-    U64 index = key.getValue() & (EG_HASH_SIZE - 1);
-    myEvalHash[index] = egEvalEntry(key.getValue(), ef);
+    U64 index = key.getCountValue() & (EG_HASH_SIZE - 1);
+    myEvalHash[index] = egEvalEntry(key.getCountValue(), ef);
 }
 
 void Eval::initEG(){

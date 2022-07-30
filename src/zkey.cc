@@ -50,16 +50,19 @@ void ZKey::init() {
 }
 
 ZKey::ZKey() {
-  _key = ZERO;
+  _key[mainkey] = ZERO;
+  _key[pawnkey] = ZERO;
+  _key[countkey] = ZERO;
+
   _whiteKs = false, _whiteQs = false, _blackKs = false, _blackQs = false;
   _enPassantFile = -1;
 }
 
 ZKey::ZKey(const Board &board) {
-  _key = ZERO;
+  _key[mainkey] = ZERO;
 
   if (board.getActivePlayer() == WHITE) {
-    _key ^= WHITE_TO_MOVE_KEY;
+    _key[mainkey] ^= WHITE_TO_MOVE_KEY;
   }
 
   PieceType pieces[6] = {PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING};
@@ -72,9 +75,9 @@ ZKey::ZKey(const Board &board) {
     for (int squareIndex = 0; squareIndex < 64; squareIndex++) {
       U64 square = ONE << squareIndex;
       if (square & whiteBitBoard) {
-        flipPiece(WHITE, piece, squareIndex);
+        flipPiece(mainkey, WHITE, piece, squareIndex);
       } else if (square & blackBitBoard) {
-        flipPiece(BLACK, piece, squareIndex);
+        flipPiece(mainkey, BLACK, piece, squareIndex);
       }
     }
   }
@@ -82,7 +85,7 @@ ZKey::ZKey(const Board &board) {
   // Add en passant
   if (board.getEnPassant()) {
     _enPassantFile = (_bitscanForward(board.getEnPassant())) % 8;
-    _key ^= EN_PASSANT_KEYS[_enPassantFile];
+    _key[mainkey] ^= EN_PASSANT_KEYS[_enPassantFile];
   } else {
     _enPassantFile = -1;
   }
@@ -108,7 +111,7 @@ ZKey::ZKey(const Board &board) {
 }
 
 void ZKey::setFromPawnStructure(const Board &board) {
-  _key = ZERO;
+  _key[pawnkey] = ZERO;
 
   // Add white/black pieces
   U64 whitePawns = board.getPieces(WHITE, PAWN);
@@ -117,15 +120,15 @@ void ZKey::setFromPawnStructure(const Board &board) {
   for (unsigned int squareIndex = 0; squareIndex < 64; squareIndex++) {
     U64 square = ONE << squareIndex;
     if (square & whitePawns) {
-      flipPiece(WHITE, PAWN, squareIndex);
+      flipPiece(pawnkey, WHITE, PAWN, squareIndex);
     } else if (square & blackPawns) {
-      flipPiece(BLACK, PAWN, squareIndex);
+      flipPiece(pawnkey, BLACK, PAWN, squareIndex);
     }
   }
 }
 
 void ZKey::setFromPieceCounts(const Board &board) {
-    _key = ZERO;
+    _key[countkey] = ZERO;
     for (auto pt : {  PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING}){
         U64 blackPiece = board.getPieces(BLACK, pt);
         U64 whitePiece = board.getPieces(WHITE, pt);
@@ -135,12 +138,20 @@ void ZKey::setFromPieceCounts(const Board &board) {
 }
 
 U64 ZKey::getValue() const {
-  return _key;
+  return _key[mainkey];
 }
 
-void ZKey::movePiece(Color color, PieceType piece, unsigned int from, unsigned int to) {
-  flipPiece(color, piece, from);
-  flipPiece(color, piece, to);
+U64 ZKey::getPawnValue() const{
+  return _key[pawnkey];
+}
+
+U64 ZKey::getCountValue() const{
+  return _key[countkey];
+}
+
+void ZKey::movePiece(KeyType type, Color color, PieceType piece, unsigned int from, unsigned int to) {
+  flipPiece(type, color, piece, from);
+  flipPiece(type, color, piece, to);
 }
 
 void ZKey::pCountAddRemove(Color color, PieceType piece, int cWas, int cNow){
@@ -148,12 +159,12 @@ void ZKey::pCountAddRemove(Color color, PieceType piece, int cWas, int cNow){
     flipPieceCount(color, piece, cNow);
 }
 
-void ZKey::flipPiece(Color color, PieceType piece, unsigned int index) {
-  _key ^= PIECE_KEYS[color][piece][index];
+void ZKey::flipPiece(KeyType type, Color color, PieceType piece, unsigned int index) {
+  _key[type] ^= PIECE_KEYS[color][piece][index];
 }
 
 void ZKey::flipPieceCount(Color color, PieceType pt, int count){
-    _key ^= PIECE_COUNT_KEY[color][pt][count];
+    _key[2] ^= PIECE_COUNT_KEY[color][pt][count];
 }
 
 void ZKey::updateCastlingRights(bool whiteKs, bool whiteQs, bool blackKs, bool blackQs) {
@@ -177,34 +188,30 @@ void ZKey::updateCastlingRights(bool whiteKs, bool whiteQs, bool blackKs, bool b
 
 void ZKey::clearEnPassant() {
   if (_enPassantFile != -1) {
-    _key ^= EN_PASSANT_KEYS[_enPassantFile];
+    _key[mainkey] ^= EN_PASSANT_KEYS[_enPassantFile];
     _enPassantFile = -1;
   }
 }
 
 void ZKey::setEnPassantFile(unsigned int file) {
   _enPassantFile = file;
-  _key ^= EN_PASSANT_KEYS[file];
+  _key[mainkey] ^= EN_PASSANT_KEYS[file];
 }
 
 void ZKey::_flipKsCastle(Color color) {
-  _key ^= KS_CASTLE_KEYS[color];
+  _key[mainkey] ^= KS_CASTLE_KEYS[color];
 }
 
 void ZKey::_flipQsCastle(Color color) {
-  _key ^= QS_CASTLE_KEYS[color];
+  _key[mainkey] ^= QS_CASTLE_KEYS[color];
 }
 
 void ZKey::flipActivePlayer() {
-  _key ^= WHITE_TO_MOVE_KEY;
-}
-
-bool ZKey::operator==(const ZKey &other) {
-  return other.getValue() == _key;
+  _key[mainkey] ^= WHITE_TO_MOVE_KEY;
 }
 
 void ZKey::setpKeyFromString(std::string pseudoFen){
-    _key = ZERO;
+    _key[countkey] = ZERO;
     int pArray[2][6] = {{0}};
     std::string token;
     // Process string and initilize an array;

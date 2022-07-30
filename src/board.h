@@ -211,7 +211,7 @@ class Board {
    *
    * @return The Zobrist Key of this board for its current state.
    */
-  ZKey getZKey() const;
+  U64 getZKey() const;
 
   /**
    * @brief Returns a Zobrist Key for this board that only takes into account
@@ -220,9 +220,9 @@ class Board {
    * @return A Zobrist Key for this board that only takes into account pawn
    * positions
    */
-  ZKey getPawnStructureZKey() const;
+  U64 getPawnStructureZKey() const;
 
-  ZKey getpCountKey() const;
+  U64 getpCountKey() const;
 
   /**
    * @brief Returns the Piece Square Table of this board for its current state.
@@ -355,13 +355,6 @@ class Board {
    * @brief Zobrist key for this board in its current state.
    */
   ZKey _zKey;
-
-  /**
-   * @brief Zobrist key taking into account only pawn positions
-   */
-  ZKey _pawnStructureZkey;
-
-  ZKey _pCountKey;
 
  private:
 

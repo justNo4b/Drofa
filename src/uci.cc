@@ -122,7 +122,7 @@ void setPosition(std::istringstream &is) {
         if ((move.getPieceType() == PAWN) || (move.getFlags() & Move::CAPTURE) ){
           positionHistory = Hist();
         }
-        positionHistory.Add(board.getZKey().getValue());
+        positionHistory.Add(board.getZKey());
         break;
       }
     }

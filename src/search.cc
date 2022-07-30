@@ -250,7 +250,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
     return 0;
   }
 
-  const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
+  const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey());
   int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
   MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashMove, board.getActivePlayer(), 0, 0);
 
@@ -298,7 +298,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
   }
 
   if (!_stop && !(bestMove.getFlags() & Move::NULL_MOVE)) {
-    myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), EXACT, alpha, depth, 0);
+    myHASH->HASH_Store(board.getZKey(), bestMove.getMoveINT(), EXACT, alpha, depth, 0);
     _bestMove = bestMove;
     _bestScore = alpha;
   }
@@ -334,7 +334,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   // Check for threefold repetition draws and 50 - move rule draw
   // cut pV out if we found draw
-  if (board.getHalfmoveClock() >= 100 || _isRepetitionDraw(board.getZKey().getValue(), board.getHalfmoveClock())) {
+  if (board.getHalfmoveClock() >= 100 || _isRepetitionDraw(board.getZKey(), board.getHalfmoveClock())) {
     up_pV->length = 0;
     return (_nodes & 0x7);
   }
@@ -352,7 +352,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
     // Check transposition table cache
   // If TT is causing a cuttoff, we update move ordering stuff
-  const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
+  const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey());
   if (probedHASHentry.Flag != NONE){
     TTmove = true;
     hashedMove = Move(probedHASHentry.move);
@@ -417,7 +417,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // Drofa track NMP_failure to use for extending decisions
   if (isPrune && depth >= 3 && pMove != 0 && statEVAL >= beta + std::max(0, 120 - 20 * depth) && board.isThereMajorPiece()){
           Board movedBoard = board;
-          _posHist.Add(board.getZKey().getValue());
+          _posHist.Add(board.getZKey());
           _sStack.AddNullMove(getOppositeColor(board.getActivePlayer()));
           movedBoard.doNool();
           int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((statEVAL - beta) / 128, 4);
@@ -474,7 +474,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
                 // if it holds, do proper reduced search
                 if(qScore >= pcBeta){
-                    _posHist.Add(board.getZKey().getValue());
+                    _posHist.Add(board.getZKey());
                     _sStack.AddMove(move);
 
                     int sScore = -_negaMax(movedBoard, &thisPV, depth - 4, -pcBeta, -pcBeta + 1, false, !cutNode);
@@ -521,7 +521,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
     Board movedBoard = board;
     movedBoard.doMove(move);
-    myHASH->HASH_Prefetch(movedBoard.getZKey().getValue());
+    myHASH->HASH_Prefetch(movedBoard.getZKey());
     bool doLMR = false;
 
       if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
@@ -584,7 +584,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               tDepth++;
             }
 
-        _posHist.Add(board.getZKey().getValue());
+        _posHist.Add(board.getZKey());
         _sStack.AddMove(move);
 
         // 8. LATE MOVE REDUCTIONS
@@ -687,7 +687,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
           // Add a new tt entry for this node
           if (!_stop && !sing){
-            myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
+            myHASH->HASH_Store(board.getZKey(), move.getMoveINT(), BETA, score, depth, ply);
           }
           // we updated beta and in the pVNode so we should update our pV
           if (pvNode && !_stop){
@@ -735,7 +735,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   // Store bestScore in transposition table
   if (!_stop && !sing && alpha > alphaOrig){
-        myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), EXACT, alpha, depth, ply);
+        myHASH->HASH_Store(board.getZKey(), bestMove.getMoveINT(), EXACT, alpha, depth, ply);
   }
 
   return alpha;
@@ -763,7 +763,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
   // Check transposition table cache
   // If TT is causing a cuttoff, we update move ordering stuff
-  const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
+  const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey());
   if (probedHASHentry.Flag != NONE){
     if (!pvNode){
       int hashScore = probedHASHentry.score;
@@ -805,7 +805,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
     Board movedBoard = board;
     movedBoard.doMove(move);
-    myHASH->HASH_Prefetch(movedBoard.getZKey().getValue());
+    myHASH->HASH_Prefetch(movedBoard.getZKey());
       if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
 
           int score = -_qSearch(movedBoard, -beta, -alpha);
@@ -813,7 +813,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
           if (score >= beta) {
             // Add a new tt entry for this node
             if (!_stop){
-                myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, 0, MAX_PLY);
+                myHASH->HASH_Store(board.getZKey(), move.getMoveINT(), BETA, score, 0, MAX_PLY);
             }
             return beta;
           }

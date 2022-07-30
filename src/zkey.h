@@ -36,6 +36,8 @@ class ZKey {
    * @return The value of this ZKey
    */
   U64 getValue() const;
+  U64 getPawnValue() const;
+  U64 getCountValue() const;
 
   /**
    * @brief Updates the ZKey such that the given piece has been moved between the given squares.
@@ -45,7 +47,7 @@ class ZKey {
    * @param from   Square to move from
    * @param to     Square to move to
    */
-  void movePiece(Color, PieceType, unsigned int, unsigned int);
+  void movePiece(KeyType, Color, PieceType, unsigned int, unsigned int);
 
   /**
    * @brief Flips the value of the piece with the given color and PieceType on the given square in the ZKey.
@@ -56,7 +58,7 @@ class ZKey {
    * @param piece  Type of piece to flip
    * @param index  Square to flip piece on (little endian rank-file mapping)
    */
-  void flipPiece(Color, PieceType, unsigned int);
+  void flipPiece(KeyType, Color, PieceType, unsigned int);
 
   /**
    * @brief flipping Zkey for a given piece count
@@ -115,19 +117,12 @@ class ZKey {
    */
   void setpKeyFromString(const std::string);
 
-  /**
-   * @brief Compare Zobrist keys
-   *
-   * @param other ZKey to compare
-   * @return true if the two ZKeys have the same value, false otherwise
-   */
-  bool operator==(const ZKey &);
-
  private:
   /**
    * @brief The current value of the Zobrist key.
+   * Key 0 is the main one, 1 - pawn, 2 - count
    */
-  U64 _key;
+  U64 _key[3];
 
   /**
    * @name Functions that flip castling rights for each color.

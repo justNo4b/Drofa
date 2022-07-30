@@ -164,6 +164,12 @@ enum PieceType {
   KING
 };
 
+enum KeyType{
+    mainkey,
+    pawnkey,
+    countkey
+  };
+
 const int DEFAULT_SEARCH_DEPTH = 15;
 const int MAX_SEARCH_DEPTH = 64;
 const int PHASE_WEIGHT_SUM = 24;

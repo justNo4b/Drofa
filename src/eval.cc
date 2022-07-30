@@ -602,7 +602,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
 inline int Eval::probePawnStructure(const Board & board, Color color, evalBits * eB){
   // Pawn structure
   int pScore = 0;
-  pawn_HASH_Entry pENTRY  = myHASH->pHASH_Get(board.getPawnStructureZKey().getValue());
+  pawn_HASH_Entry pENTRY  = myHASH->pHASH_Get(board.getPawnStructureZKey());
 
   #ifndef _TUNE_
   if (pENTRY.posKey != 0){
@@ -615,7 +615,7 @@ inline int Eval::probePawnStructure(const Board & board, Color color, evalBits *
   #endif
   {
     pScore += evaluatePAWNS(board, WHITE, eB) - evaluatePAWNS(board, BLACK, eB);
-    myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB->Passers[WHITE], eB->Passers[BLACK], pScore);
+    myHASH->pHASH_Store(board.getPawnStructureZKey(), eB->Passers[WHITE], eB->Passers[BLACK], pScore);
     return color == WHITE ? pScore : -pScore;
   }
 }
@@ -985,10 +985,10 @@ int Eval::evaluateMain(const Board &board, Color color) {
 int Eval::evaluate(const Board &board, Color color){
 
     // Probe eval hash
-    U64 index = board.getpCountKey().getValue() & (EG_HASH_SIZE - 1);
+    U64 index = board.getpCountKey() & (EG_HASH_SIZE - 1);
     egEvalFunction spEval = myEvalHash[index].eFunction;
 
-    if (myEvalHash[index].key == board.getpCountKey().getValue() && spEval != nullptr){
+    if (myEvalHash[index].key == board.getpCountKey() && spEval != nullptr){
         return spEval(board, color);
     }
 
