@@ -12,8 +12,17 @@ int Eval::evaluateDraw(const Board &board, Color color){
     return 0;
 }
 
-int Eval::evaluateEndgame(const Board &board, Color color){
-    return 0;
+int Eval::evaluateMinor_vs_Pawns(const Board &board, Color color){
+    int s = Eval::evaluateMain(board, color);
+    Color other = getOppositeColor(color);
+    // Use main evaluation. However if side with lone knight is 'winning'
+    // Squish its score down by diving 128
+
+    s = (s > 0 && ((board.getPieces(color, KNIGHT) | board.getPieces(color, BISHOP)) != 0)) ? s / 128 :
+        (s < 0 && ((board.getPieces(other, KNIGHT) | board.getPieces(other, BISHOP)) != 0)) ? s / 128 :
+        s;
+
+    return s;
 }
 
 int Eval::evaluateQueen_vs_X(const Board &board, Color color){
@@ -86,6 +95,12 @@ void Eval::initEG(){
     egHashAdd("kb/KN", &evaluateDraw);
     // R vs R is also a draw
     egHashAdd("kr/KR", &evaluateDraw);
+    // KB vs KP -> use special eval (draw unless pawns have advantage)
+    egHashAdd("kb/KP", &evaluateMinor_vs_Pawns);
+    egHashAdd("kp/KB", &evaluateMinor_vs_Pawns);
+    // KN vs KP -> use special eval (draw unless pawns have advantage)
+    egHashAdd("kn/KP", &evaluateMinor_vs_Pawns);
+    egHashAdd("kp/KN", &evaluateMinor_vs_Pawns);
     // King vs King + two knights is a draw
     egHashAdd("k/KNN", &evaluateDraw);
     egHashAdd("knn/K", &evaluateDraw);
