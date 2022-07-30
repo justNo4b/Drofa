@@ -989,7 +989,7 @@ int Eval::evaluate(const Board &board, Color color){
     egEvalFunction spEval = myEvalHash[index].eFunction;
 
     if (myEvalHash[index].key == board.getpCountKey().getValue() && spEval != nullptr){
-        return spEval();
+        return spEval(board, color);
     }
 
 

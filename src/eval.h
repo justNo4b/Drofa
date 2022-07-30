@@ -425,7 +425,9 @@ int evaluateMain(const Board &, Color);
 
 int evaluateEndgame(const Board &, Color);
 
-int evaluateDraw();
+int evaluateDraw(const Board &board, Color color);
+int evaluateQueen_vs_X(const Board &board, Color color);
+int evaluateHugeAdvantage(const Board &board, Color color);
 
 
 inline void egHashAdd(std::string, egEvalFunction);

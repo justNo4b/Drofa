@@ -8,7 +8,7 @@
 egEvalEntry myEvalHash [EG_HASH_SIZE];
 
 
-int Eval::evaluateDraw(){
+int Eval::evaluateDraw(const Board &board, Color color){
     return 0;
 }
 
@@ -16,6 +16,34 @@ int Eval::evaluateEndgame(const Board &board, Color color){
     return 0;
 }
 
+int Eval::evaluateQueen_vs_X(const Board &board, Color color){
+    int s = EASY_WIN_SCORE;
+
+    // for Q vs X -> X is other non-pawn piece
+    // increase eval for keeping kings close and keeping weaker king closer to the edge
+
+    // 1. Quick glance at PSQT to decide who is winning
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
+    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    int weakKing   = _bitscanForward(board.getPieces(weak, KING));
+    int strongKing = _bitscanForward(board.getPieces(getOppositeColor(weak), KING));
+
+    // 2. Apply bonuses and penalties
+    s += 8 - Eval::detail::DISTANCE[weakKing][strongKing];
+    s += 8 - _endgedist(weakKing);
+
+    // 3. LoneKingBonus - add some eval if weak side has no pieces
+    // Otherwise it wont pick up material
+    s += 100 * (_popCount(board.getAllPieces(weak)) == 1);
+
+    // if sideToMove is Losing, reverse sign
+    return weak != color ? s : -s;
+}
+
+int Eval::evaluateHugeAdvantage(const Board &board, Color color){
+    int s = MINIMAL_WON_SCORE;
+    return s;
+}
 
 inline void Eval::egHashAdd(std::string psFen, egEvalFunction ef){
     ZKey key;
@@ -42,6 +70,13 @@ void Eval::initEG(){
     // King vs King + Knight = insufficient material
     egHashAdd("kn/K", &evaluateDraw);
     egHashAdd("k/KN", &evaluateDraw);
+    // King vs King + Rook   = win;
+    egHashAdd("kr/K", &evaluateQueen_vs_X);
+    egHashAdd("k/KR", &evaluateQueen_vs_X);
+    // King vs King + Queen  = win
+    egHashAdd("kq/K", &evaluateQueen_vs_X);
+    egHashAdd("k/KQ", &evaluateQueen_vs_X);
+    // ToDo KPK
 
     // 4-man eval
     // Obviously KN vs KB etc is draw also
@@ -63,6 +98,14 @@ void Eval::initEG(){
     // Same for R vs N
     egHashAdd("kn/KR", &evaluateDraw);
     egHashAdd("kr/KN", &evaluateDraw);
+    // Trivial win for Q vs (R or B or N)
+    egHashAdd("kq/KB", &evaluateQueen_vs_X);
+    egHashAdd("kb/KQ", &evaluateQueen_vs_X);
+    egHashAdd("kq/KN", &evaluateQueen_vs_X);
+    egHashAdd("kn/KQ", &evaluateQueen_vs_X);
+    egHashAdd("kq/KR", &evaluateQueen_vs_X);
+    egHashAdd("kr/KQ", &evaluateQueen_vs_X);
+
 
     // 5-man eval
     // lets say
