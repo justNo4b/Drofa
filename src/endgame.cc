@@ -140,6 +140,10 @@ inline void Eval::egHashAdd(std::string psFen, egEvalFunction ef){
     ZKey key;
     key.setpKeyFromString(psFen);
     U64 index = key.getValue() & (EG_HASH_SIZE - 1);
+    if (myEvalHash[index].eFunction != nullptr){
+        std::cout << "error collision on " << psFen << std::endl;
+        exit(0);
+    }
     myEvalHash[index] = egEvalEntry(key.getValue(), ef);
 }
 
@@ -186,9 +190,6 @@ void Eval::initEG(){
     egHashAdd("kn/KP", &evaluateMinor_vs_Pawns);
     egHashAdd("kp/KN", &evaluateMinor_vs_Pawns);
     // King vs King + two knights is a draw
-    egHashAdd("k/KNN", &evaluateDraw);
-    egHashAdd("knn/K", &evaluateDraw);
-    // same if losing side has a minors
     egHashAdd("k/KNN", &evaluateDraw);
     egHashAdd("knn/K", &evaluateDraw);
     // Assume R vs B is always draw
