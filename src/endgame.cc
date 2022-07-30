@@ -49,6 +49,88 @@ int Eval::evaluateQueen_vs_X(const Board &board, Color color){
     return weak != color ? s : -s;
 }
 
+int Eval::evaluateQueen_vs_Pawn(const Board &board, Color color){
+    int s = 0;
+
+    // 1. Quick glance at PSQT to decide who is winning
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
+    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    int weakKing   = _bitscanForward(board.getPieces(weak, KING));
+    int strongKing = _bitscanForward(board.getPieces(getOppositeColor(weak), KING));
+    int weakPawn   = _bitscanForward(board.getPieces(weak, PAWN));
+
+    int  pRank = _relrank(weakPawn, weak);
+    bool pDrawFiles = board.getPieces(weak, PAWN) & (FILE_A | FILE_C | FILE_F | FILE_H);
+    s += 8 -  Eval::detail::DISTANCE[weakKing][strongKing];
+
+    // Position is won, unless pawn isnt on a7, c7, f7, h7, with own king nearby
+    // TODO -> more accurate eval, including distance of strong king
+    // remember that rank mapping is starting from 0
+    if (pRank != 6 ||
+        !pDrawFiles ||
+        Eval::detail::DISTANCE[weakKing][weakPawn] != 1){
+            s += MINIMAL_WON_SCORE;
+        }
+
+    // in case drawish position, return distance between kings
+    return weak != color ? s : -s;
+}
+
+// so far rudimentary version, covers only edge pawn
+// as it need to properly eval KBP/K etc
+int Eval::evaluateKingPawn_vs_King(const Board &board, Color color){
+    int s = 0;
+
+    // 1. Glance at Eval to decide who is winning
+    s = Eval::evaluateMain(board, color);
+    Color weak  = s > 0 ? getOppositeColor(color) : color;
+    Color strong = getOppositeColor(weak);
+
+    U64 strongPawns = board.getPieces(strong, PAWN);
+    bool allSidePawns = ((strongPawns & (~FILE_A)) != 0) ||
+                        ((strongPawns & (~FILE_H)) != 0);
+
+    if (allSidePawns && (detail::PASSED_PAWN_MASKS[strong][_bitscanForward(strongPawns)] & board.getPieces(weak, KING))){
+        s = s / 512;
+    }
+
+    return s;
+}
+
+int Eval::evaluateBishopPawn_vs_KP(const Board &board, Color color){
+    int s = 0;
+
+    // 1. Glance at Eval to decide who is winning
+    s = Eval::evaluateMain(board, color);
+    Color weak  = s > 0 ? getOppositeColor(color) : color;
+    Color strong = getOppositeColor(weak);
+    int weakKing   = _bitscanForward(board.getPieces(weak, KING));
+    // We do generalistic eval here (including enemy pawns etc)
+    // Scale eval down massively in case for corner bishop case
+    U64 strongPawns = board.getPieces(strong, PAWN);
+    bool allSidePawns = ((strongPawns & (~FILE_A)) != 0) ||
+                        ((strongPawns & (~FILE_H)) != 0);
+
+    // if all strong pawns are on one side line, check square of the bishop
+    if (allSidePawns){
+        int pCol = _col(_bitscanForward(strongPawns));
+
+        U64 queeningSquare = strong == WHITE ? detail::FILES[pCol] & RANK_8 :
+                                               detail::FILES[pCol] & RANK_1;
+
+        // if queeningSquare is unreacheable by bishop
+        // and weak king is control it, return scale eval to the oblivion
+        // TODO: evaluate properly in case of race for a suare
+        if ((_popCount((board.getPieces(strong, BISHOP) | queeningSquare) & WHITE_SQUARES) == 1) &&
+            Eval::detail::DISTANCE[weakKing][_bitscanForward(queeningSquare)] <= 1){
+                s = s / 512;
+            }
+    }
+
+    // as we only scaling existing eval, no need to reverse sign
+    return s;
+}
+
 int Eval::evaluateHugeAdvantage(const Board &board, Color color){
     int s = MINIMAL_WON_SCORE;
     return s;
@@ -85,7 +167,9 @@ void Eval::initEG(){
     // King vs King + Queen  = win
     egHashAdd("kq/K", &evaluateQueen_vs_X);
     egHashAdd("k/KQ", &evaluateQueen_vs_X);
-    // ToDo KPK
+    // ToDo KPK, so far only edge case
+    egHashAdd("kp/K", &evaluateKingPawn_vs_King);
+    egHashAdd("k/KP", &evaluateKingPawn_vs_King);
 
     // 4-man eval
     // Obviously KN vs KB etc is draw also
@@ -120,6 +204,14 @@ void Eval::initEG(){
     egHashAdd("kn/KQ", &evaluateQueen_vs_X);
     egHashAdd("kq/KR", &evaluateQueen_vs_X);
     egHashAdd("kr/KQ", &evaluateQueen_vs_X);
+    // Can be a fortress with Q vs P
+    egHashAdd("kq/KP", &evaluateQueen_vs_Pawn);
+    egHashAdd("kp/KQ", &evaluateQueen_vs_Pawn);
+    // TODO: R vs Pawn
+
+    // Bishop+Pawn vs King
+    egHashAdd("kbp/K", &evaluateBishopPawn_vs_KP);
+    egHashAdd("k/KBP", &evaluateBishopPawn_vs_KP);
 
 
     // 5-man eval
@@ -130,4 +222,18 @@ void Eval::initEG(){
     // King, Rook, Knight vs King and Rook
     egHashAdd("krn/KR", &evaluateDraw);
     egHashAdd("kr/KRN", &evaluateDraw);
+    // Minor vs Pawns endgamee
+    egHashAdd("kb/KPP", &evaluateMinor_vs_Pawns);
+    egHashAdd("kpp/KB", &evaluateMinor_vs_Pawns);
+    // Minor vs Pawns endgamee
+    egHashAdd("kn/KPP", &evaluateMinor_vs_Pawns);
+    egHashAdd("kpp/KN", &evaluateMinor_vs_Pawns);
+    // BishopPawn vs Pawn
+    egHashAdd("kbp/KP", &evaluateBishopPawn_vs_KP);
+    egHashAdd("kp/KBP", &evaluateBishopPawn_vs_KP);
+    // BishopPawnPawn vs King
+    egHashAdd("kbpp/K", &evaluateBishopPawn_vs_KP);
+    egHashAdd("k/KBPP", &evaluateBishopPawn_vs_KP);
+    // Queen vs Rook Pawn
+
 }

@@ -428,6 +428,9 @@ int evaluateDraw(const Board &board, Color color);
 int evaluateQueen_vs_X(const Board &board, Color color);
 int evaluateHugeAdvantage(const Board &board, Color color);
 int evaluateMinor_vs_Pawns(const Board &board, Color color);
+int evaluateQueen_vs_Pawn(const Board &board, Color color);
+int evaluateBishopPawn_vs_KP(const Board &board, Color color);
+int evaluateKingPawn_vs_King(const Board &board, Color color);
 
 
 inline void egHashAdd(std::string, egEvalFunction);
