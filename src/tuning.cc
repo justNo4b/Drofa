@@ -248,12 +248,17 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.BishopGenOutJump[WHITE] - ft.BishopGenOutJump[BLACK];
     coeff[i++] = ft.KnightProtOutJump[WHITE] - ft.KnightProtOutJump[BLACK];
     coeff[i++] = ft.KnightGenOutJump[WHITE] - ft.KnightGenOutJump[BLACK];
+    coeff[i++] = ft.BishopAttOutBishop[WHITE] - ft.BishopAttOutBishop[BLACK];
+    coeff[i++] = ft.BishopAttOutKnight[WHITE] - ft.BishopAttOutKnight[BLACK];
+    coeff[i++] = ft.KnightAttOutBishop[WHITE] - ft.KnightAttOutBishop[BLACK];
+    coeff[i++] = ft.KnightAttOutKnight[WHITE] - ft.KnightAttOutKnight[BLACK];
     coeff[i++] = ft.MinorBehindPawn[WHITE] - ft.MinorBehindPawn[BLACK];
     coeff[i++] = ft.MinorBehindPasser[WHITE] - ft.MinorBehindPasser[BLACK];
     coeff[i++] = ft.MinorBlockOwn[WHITE] - ft.MinorBlockOwn[BLACK];
     coeff[i++] = ft.MinorBlockOwnPassed[WHITE] - ft.MinorBlockOwnPassed[BLACK];
     coeff[i++] = ft.RookTensionLine[WHITE] - ft.RookTensionLine[BLACK];
     coeff[i++] = ft.RookRammedLine[WHITE] - ft.RookRammedLine[BLACK];
+    coeff[i++] = ft.RookRestrictKing[WHITE] - ft.RookRestrictKing[BLACK];
     coeff[i++] = ft.KingAheadPasser[WHITE] - ft.KingAheadPasser[BLACK];
     coeff[i++] = ft.KingEqualPasser[WHITE] - ft.KingEqualPasser[BLACK];
     coeff[i++] = ft.KingBehindPasser[WHITE] - ft.KingBehindPasser[BLACK];
@@ -333,6 +338,10 @@ void InitCoefficients(featureCoeff coeff){
 
     for (int j = 0; j < 4; j++){
         coeff[i++] = ft.QueenAttackedBy[j][WHITE] - ft.QueenAttackedBy[j][BLACK];
+    }
+
+    for (int j = 0; j < 5; j++){
+        coeff[i++] = ft.KnightCheckingFork[j][WHITE] - ft.KnightCheckingFork[j][BLACK];
     }
 
     for (int j = 0; j < 8; j++){

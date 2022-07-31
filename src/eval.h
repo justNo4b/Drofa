@@ -142,6 +142,14 @@ const int KNIGHT_POS_PROUTPOST_JUMP = gS(8,6);
 
 const int KNIGHT_POS_GENOUTPOST_JUMP = gS(7,8);
 
+const int BISHOP_ATT_OUTPOSTED_BISHOP = gS(0,0);
+
+const int BISHOP_ATT_OUTPOSTED_KNIGHT = gS(0,0);
+
+const int KNIGHT_ATT_OUTPOSTED_BISHOP = gS(0,0);
+
+const int KNIGHT_ATT_OUTPOSTED_KNIGHT = gS(0,0);
+
 const int MINOR_BEHIND_PAWN = gS(4,7);
 
 const int MINOR_BEHIND_PASSER = gS(8,-2);
@@ -153,6 +161,8 @@ const int MINOR_BLOCK_OWN_PASSER = gS(0,-5);
 const int ROOK_LINE_TENSION = gS(20,-4);
 
 const int ROOK_RAMMED_LINE = gS(-7,-9);
+
+const int ROOK_RESTRICT_KING = gS(0,0);
 
 const int KING_AHEAD_PASSER = gS(-11,14);
 
@@ -262,6 +272,10 @@ const int ROOK_ATTACKED_BY[4] = {
 
 const int QUEEN_ATTACKED_BY[4] = {
            gS(0,0), gS(61,36), gS(39,20), gS(42,44),
+};
+
+const int KNIGHT_CHECKING_FORK[5] = {
+            gS(0,0), gS(0,0), gS(0,0), gS(0,0), gS(0,0),
 };
 
 const int KING_PAWN_SHIELD_KS[8] = {

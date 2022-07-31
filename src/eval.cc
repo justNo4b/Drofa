@@ -393,6 +393,15 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
     if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
 
+    // Evaluate rook restricting enemy king
+    if (((ONE << square) & SEMI_SIDE_RANKS) &&
+        ((ONE << enemyKingSquare) & SIDE_RANKS) &&
+        (kingAttack > 0) &&
+        (std::abs(_row(square) - _row(enemyKingSquare)) == 1)){
+          s += ROOK_RESTRICT_KING;
+          if (TRACK) ft.RookRestrictKing[color]++;
+        }
+
     // Open/semiopen file detection
     // we differentiate between open/semiopen based on
     // if there are enemys protected outpost here
@@ -424,7 +433,9 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
 
   U64 pieces = board.getPieces(color, BISHOP);
   Color otherColor = getOppositeColor(color);
-  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
+  U64 outpostedMinors  = eB->PossibleProtOutposts[!color] & (board.getPieces(otherColor, BISHOP) | board.getPieces(otherColor, KNIGHT));
+  U64 addToMobAlways   = board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK) | outpostedMinors;
+  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~addToMobAlways;
   int enemyKingSquare = _bitscanForward(board.getPieces(otherColor, KING));
 
   // Bishop pair
@@ -459,9 +470,16 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       eB->AttackedSquares[color] |= attackBitBoard;
 
       // BishopAttackMinor
-      U64 BishopAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
+      U64 BishopAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard & ~outpostedMinors;
       s += MINOR_ATTACKED_BY[BISHOP] * _popCount(BishopAttackMinor);
       if (TRACK) ft.MinorAttackedBy[BISHOP][color] += _popCount(BishopAttackMinor);
+
+      // Bishop Attack outPosted pieces
+      s += BISHOP_ATT_OUTPOSTED_BISHOP * _popCount(attackBitBoard & outpostedMinors & board.getPieces(otherColor, BISHOP));
+      if (TRACK) ft.BishopAttOutBishop[color] += _popCount(attackBitBoard & outpostedMinors & board.getPieces(otherColor, BISHOP));
+
+      s += BISHOP_ATT_OUTPOSTED_KNIGHT * _popCount(attackBitBoard & outpostedMinors & board.getPieces(otherColor, KNIGHT));
+      if (TRACK) ft.BishopAttOutKnight[color] += _popCount(attackBitBoard & outpostedMinors & board.getPieces(otherColor, KNIGHT));
 
       //BishopAttackRook
       s += ROOK_ATTACKED_BY[BISHOP] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
@@ -518,7 +536,9 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
   int s = 0;
   U64 pieces = board.getPieces(color, KNIGHT);
   Color otherColor = getOppositeColor(color);
-  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
+  U64 outpostedMinors  = eB->PossibleProtOutposts[!color] & (board.getPieces(otherColor, BISHOP) | board.getPieces(otherColor, KNIGHT));
+  U64 addToMobAlways   = board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK) | outpostedMinors;
+  U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~addToMobAlways;
   int enemyKingSquare = _bitscanForward(board.getPieces(otherColor, KING));
 
   // Apply penalty for each Knight attacked by opponents pawn
@@ -543,9 +563,16 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       eB->AttackedSquares[color] |= attackBitBoard;
 
       // KnightAttackMinor
-      U64 KnightAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard;
+      U64 KnightAttackMinor = (board.getPieces(otherColor, KNIGHT) | board.getPieces(otherColor, BISHOP)) & attackBitBoard & ~outpostedMinors;
       s += MINOR_ATTACKED_BY[KNIGHT] * _popCount(KnightAttackMinor);
       if (TRACK) ft.MinorAttackedBy[KNIGHT][color] += _popCount(KnightAttackMinor);
+
+      // Knight Attack outPosted pieces
+      s += KNIGHT_ATT_OUTPOSTED_BISHOP * _popCount(attackBitBoard & outpostedMinors & board.getPieces(otherColor, BISHOP));
+      if (TRACK) ft.KnightAttOutBishop[color] += _popCount(attackBitBoard & outpostedMinors & board.getPieces(otherColor, BISHOP));
+
+      s += KNIGHT_ATT_OUTPOSTED_KNIGHT * _popCount(attackBitBoard & outpostedMinors & board.getPieces(otherColor, KNIGHT));
+      if (TRACK) ft.KnightAttOutKnight[color] += _popCount(attackBitBoard & outpostedMinors & board.getPieces(otherColor, KNIGHT));
 
       //RookAttackRook
       s += ROOK_ATTACKED_BY[KNIGHT] * _popCount(attackBitBoard & board.getPieces(otherColor, ROOK));
@@ -555,12 +582,34 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       // If Knight attacking squares near enemy king
       // Adjust our kind Danger code
       int kingAttack = _popCount(attackBitBoard & eB->EnemyKingZone[color]);
-      int kingChecks = _popCount(attackBitBoard & board.getAttacksForSquare(KNIGHT, getOppositeColor(color), enemyKingSquare));
+      U64 knightKingChecks = attackBitBoard & board.getAttacksForSquare(KNIGHT, getOppositeColor(color), enemyKingSquare);
+      int kingChecks = _popCount(knightKingChecks);
       if (kingAttack > 0 || kingChecks > 0){
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[KNIGHT];
         eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[KNIGHT];
       }
+
+      // See if our Knight can fork King + Major on the next move
+      while (knightKingChecks){
+        int checkFrom = _popLsb(knightKingChecks);
+        U64 checkTargets = Attacks::getNonSlidingAttacks(KNIGHT, checkFrom, WHITE);
+        // Cheap hack for knight protection
+        if ((checkTargets & board.getPieces(otherColor, KNIGHT)) == 0){
+          s += KNIGHT_CHECKING_FORK[QUEEN] * _popCount(checkTargets & board.getPieces(otherColor, QUEEN));
+          if (TRACK) ft.KnightCheckingFork[QUEEN][color] += _popCount(checkTargets & board.getPieces(otherColor, QUEEN));
+
+          s += KNIGHT_CHECKING_FORK[ROOK] * _popCount(checkTargets & board.getPieces(otherColor, ROOK));
+          if (TRACK) ft.KnightCheckingFork[ROOK][color] += _popCount(checkTargets & board.getPieces(otherColor, ROOK));
+
+          s += KNIGHT_CHECKING_FORK[BISHOP] * _popCount(checkTargets & board.getPieces(otherColor, BISHOP));
+          if (TRACK) ft.KnightCheckingFork[BISHOP][color] += _popCount(checkTargets & board.getPieces(otherColor, BISHOP));
+
+          s += KNIGHT_CHECKING_FORK[PAWN] * _popCount(checkTargets & board.getPieces(otherColor, PAWN) & ~eB->EnemyPawnAttackMap[color]);
+          if (TRACK) ft.KnightCheckingFork[PAWN][color] += _popCount(checkTargets & board.getPieces(otherColor, PAWN) & ~eB->EnemyPawnAttackMap[color]);
+        }
+      }
+
 
       // See if a Knight is attacking an enemy unprotected pawn
       s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));

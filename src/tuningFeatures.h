@@ -5,7 +5,7 @@
 #include "eval.h"
 #include "outposts.h"
 
-#define BIG_FEATURE_NUMBER (69)
+#define BIG_FEATURE_NUMBER (75)
 
 enum TuningType{
     ALL,
@@ -43,12 +43,17 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("BISHOP_POS_GENOUTPOST_JUMP", false, &Eval::BISHOP_POS_GENOUTPOST_JUMP, 1, 1, ALL),
     tFeature("KNIGHT_POS_PROUTPOST_JUMP", false, &Eval::KNIGHT_POS_PROUTPOST_JUMP, 1, 1, ALL),
     tFeature("KNIGHT_POS_GENOUTPOST_JUMP", false, &Eval::KNIGHT_POS_GENOUTPOST_JUMP, 1, 1, ALL),
+    tFeature("BISHOP_ATT_OUTPOSTED_BISHOP", false, &Eval::BISHOP_ATT_OUTPOSTED_BISHOP, 1, 1, ALL),
+    tFeature("BISHOP_ATT_OUTPOSTED_KNIGHT", false, &Eval::BISHOP_ATT_OUTPOSTED_KNIGHT, 1, 1, ALL),
+    tFeature("KNIGHT_ATT_OUTPOSTED_BISHOP", false, &Eval::KNIGHT_ATT_OUTPOSTED_BISHOP, 1, 1, ALL),
+    tFeature("KNIGHT_ATT_OUTPOSTED_KNIGHT", false, &Eval::KNIGHT_ATT_OUTPOSTED_KNIGHT, 1, 1, ALL),
     tFeature("MINOR_BEHIND_PAWN", false, &Eval::MINOR_BEHIND_PAWN, 1, 1, ALL),
     tFeature("MINOR_BEHIND_PASSER", false, &Eval::MINOR_BEHIND_PASSER, 1, 1, ALL),
     tFeature("MINOR_BLOCK_OWN_PAWN", false, &Eval::MINOR_BLOCK_OWN_PAWN, 1, 1, ALL),
     tFeature("MINOR_BLOCK_OWN_PASSER", false, &Eval::MINOR_BLOCK_OWN_PASSER, 1, 1, ALL),
     tFeature("ROOK_LINE_TENSION", false, &Eval::ROOK_LINE_TENSION, 1, 1, ALL),
     tFeature("ROOK_RAMMED_LINE", false, &Eval::ROOK_RAMMED_LINE, 1, 1, ALL),
+    tFeature("ROOK_RESTRICT_KING", false, &Eval::ROOK_RESTRICT_KING, 1, 1, ALL),
     tFeature("KING_AHEAD_PASSER", false, &Eval::KING_AHEAD_PASSER, 1, 1, ALL),
     tFeature("KING_EQUAL_PASSER", false, &Eval::KING_EQUAL_PASSER, 1, 1, ALL),
     tFeature("KING_BEHIND_PASSER", false, &Eval::KING_BEHIND_PASSER, 1, 1, ALL),
@@ -75,6 +80,7 @@ tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("MINOR_ATTACKED_BY", true, Eval::MINOR_ATTACKED_BY, 4, 10, ALL),
     tFeature("ROOK_ATTACKED_BY", true, Eval::ROOK_ATTACKED_BY, 4, 10, ALL),
     tFeature("QUEEN_ATTACKED_BY", true, Eval::QUEEN_ATTACKED_BY, 4, 10, ALL),
+    tFeature("KNIGHT_CHECKING_FORK", true, Eval::KNIGHT_CHECKING_FORK, 5, 10, ALL),
     tFeature("KING_PAWN_SHIELD_KS", true, Eval::KING_PAWN_SHIELD_KS, 8, 4, ALL),
     tFeature("KING_PAWN_SHIELD_QS", true, Eval::KING_PAWN_SHIELD_QS, 8, 4, ALL),
     tFeature("BISHOP_MOBILITY", true, Eval::BISHOP_MOBILITY, 14, 7, ALL),
