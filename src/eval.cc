@@ -590,27 +590,6 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
         eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[KNIGHT];
       }
 
-      // See if our Knight can fork King + Major on the next move
-      while (knightKingChecks){
-        int checkFrom = _popLsb(knightKingChecks);
-        U64 checkTargets = Attacks::getNonSlidingAttacks(KNIGHT, checkFrom, WHITE);
-        // Cheap hack for knight protection
-        if ((checkTargets & board.getPieces(otherColor, KNIGHT)) == 0){
-          s += KNIGHT_CHECKING_FORK[QUEEN] * _popCount(checkTargets & board.getPieces(otherColor, QUEEN));
-          if (TRACK) ft.KnightCheckingFork[QUEEN][color] += _popCount(checkTargets & board.getPieces(otherColor, QUEEN));
-
-          s += KNIGHT_CHECKING_FORK[ROOK] * _popCount(checkTargets & board.getPieces(otherColor, ROOK));
-          if (TRACK) ft.KnightCheckingFork[ROOK][color] += _popCount(checkTargets & board.getPieces(otherColor, ROOK));
-
-          s += KNIGHT_CHECKING_FORK[BISHOP] * _popCount(checkTargets & board.getPieces(otherColor, BISHOP));
-          if (TRACK) ft.KnightCheckingFork[BISHOP][color] += _popCount(checkTargets & board.getPieces(otherColor, BISHOP));
-
-          s += KNIGHT_CHECKING_FORK[PAWN] * _popCount(checkTargets & board.getPieces(otherColor, PAWN) & ~eB->EnemyPawnAttackMap[color]);
-          if (TRACK) ft.KnightCheckingFork[PAWN][color] += _popCount(checkTargets & board.getPieces(otherColor, PAWN) & ~eB->EnemyPawnAttackMap[color]);
-        }
-      }
-
-
       // See if a Knight is attacking an enemy unprotected pawn
       s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
       if (TRACK) ft.HangingPiece[PAWN][color] += _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
