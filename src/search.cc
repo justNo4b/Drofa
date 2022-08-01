@@ -575,7 +575,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             board.isEndGamePosition() &&
             move.isItPasserPush(board) &&
             probedHASHentry.move != move.getMoveINT()){
-              tDepth += 1;
+              tDepth += 1 + failedNull;
             }
 
         // 6.3 Last capture extention
@@ -585,7 +585,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             board.isEndGamePosition() &&
             move.getCapturedPieceType() != PAWN &&
             probedHASHentry.move != move.getMoveINT()){
-              tDepth++;
+              tDepth += failedNull;
             }
 
         _posHist.Add(board.getZKey().getValue());
@@ -715,7 +715,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             // memcpy - (куда, откуда, длина)
             std::memcpy(up_pV->pVmoves + 1, thisPV.pVmoves, sizeof(int) * thisPV.length);
           }
-
         }else{
           // Beta was not beaten and we dont improve alpha in this case we lower our search history values
           int dBonus = std::max(0, depth - (statEVAL < alpha) - (!TTmove && depth >= 4));
