@@ -443,8 +443,7 @@ void Board::_removePiece(Color color, PieceType pieceType, int squareIndex) {
     _pawnStructureZkey.flipPiece(color, PAWN, squareIndex);
   }
 
-  int c = _popCount(getPieces(color, pieceType));
-  _pCountKey.pCountAddRemove(color, pieceType, c, c + 1);
+  _pCountKey.flipPieceCount(color, pieceType, _popCount(getPieces(color, pieceType)) + 1);
   _zKey.flipPiece(color, pieceType, squareIndex);
   _pst.removePiece(color, pieceType, squareIndex);
 }
@@ -458,8 +457,7 @@ void Board::_addPiece(Color color, PieceType pieceType, int squareIndex) {
 
   _occupied |= square;
 
-  int c = _popCount(getPieces(color, pieceType));
-  _pCountKey.pCountAddRemove(color, pieceType, c, c - 1);
+  _pCountKey.flipPieceCount(color, pieceType, _popCount(getPieces(color, pieceType)));
   _zKey.flipPiece(color, pieceType, squareIndex);
   _pst.addPiece(color, pieceType, squareIndex);
 }

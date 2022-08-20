@@ -129,8 +129,14 @@ void ZKey::setFromPieceCounts(const Board &board) {
     for (auto pt : {  PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING}){
         U64 blackPiece = board.getPieces(BLACK, pt);
         U64 whitePiece = board.getPieces(WHITE, pt);
-        flipPieceCount(WHITE, pt, _popCount(whitePiece));
-        flipPieceCount(BLACK, pt, _popCount(blackPiece));
+
+        for (int j = 0 ; j <= _popCount(whitePiece); j++){
+            flipPieceCount(WHITE, pt, j);
+        }
+        for (int j = 0; j <= _popCount(blackPiece); j++){
+            flipPieceCount(BLACK, pt, j);
+        }
+
     }
 }
 
@@ -141,11 +147,6 @@ U64 ZKey::getValue() const {
 void ZKey::movePiece(Color color, PieceType piece, unsigned int from, unsigned int to) {
   flipPiece(color, piece, from);
   flipPiece(color, piece, to);
-}
-
-void ZKey::pCountAddRemove(Color color, PieceType piece, int cWas, int cNow){
-    flipPieceCount(color, piece, cWas);
-    flipPieceCount(color, piece, cNow);
 }
 
 void ZKey::flipPiece(Color color, PieceType piece, unsigned int index) {
@@ -241,8 +242,13 @@ void ZKey::setpKeyFromString(std::string pseudoFen){
     }
     // Set a key
     for (auto pt : {  PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING}){
-        flipPieceCount(WHITE, pt, pArray[WHITE][pt]);
-        flipPieceCount(BLACK, pt, pArray[BLACK][pt]);
+        for (int j = 0; j <= pArray[WHITE][pt]; j++){
+            flipPieceCount(WHITE, pt, j);
+        }
+
+        for (int j = 0; j <= pArray[BLACK][pt]; j++){
+            flipPieceCount(BLACK, pt, j);
+        }
     }
 
 }

@@ -71,8 +71,6 @@ class ZKey {
    */
   void flipActivePlayer();
 
-  void pCountAddRemove(Color, PieceType, int, int);
-
   /**
    * @brief Clears all en passant information in the ZKey.
    */
