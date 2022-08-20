@@ -166,14 +166,14 @@ void Eval::initEG(){
     egHashAdd("kn/K", &evaluateDraw);
     egHashAdd("k/KN", &evaluateDraw);
     // King vs King + Rook   = win;
-    egHashAdd("kr/K", &evaluateQueen_vs_X);
-    egHashAdd("k/KR", &evaluateQueen_vs_X);
+    //egHashAdd("kr/K", &evaluateQueen_vs_X);
+    //egHashAdd("k/KR", &evaluateQueen_vs_X);
     // King vs King + Queen  = win
-    egHashAdd("kq/K", &evaluateQueen_vs_X);
-    egHashAdd("k/KQ", &evaluateQueen_vs_X);
+    //egHashAdd("kq/K", &evaluateQueen_vs_X);
+    //egHashAdd("k/KQ", &evaluateQueen_vs_X);
     // ToDo KPK, so far only edge case
-    egHashAdd("kp/K", &evaluateKingPawn_vs_King);
-    egHashAdd("k/KP", &evaluateKingPawn_vs_King);
+    //egHashAdd("kp/K", &evaluateKingPawn_vs_King);
+    //egHashAdd("k/KP", &evaluateKingPawn_vs_King);
 
     // 4-man eval
     // Obviously KN vs KB etc is draw also
@@ -184,11 +184,11 @@ void Eval::initEG(){
     // R vs R is also a draw
     egHashAdd("kr/KR", &evaluateDraw);
     // KB vs KP -> use special eval (draw unless pawns have advantage)
-    egHashAdd("kb/KP", &evaluateMinor_vs_Pawns);
-    egHashAdd("kp/KB", &evaluateMinor_vs_Pawns);
+    //egHashAdd("kb/KP", &evaluateMinor_vs_Pawns);
+    //egHashAdd("kp/KB", &evaluateMinor_vs_Pawns);
     // KN vs KP -> use special eval (draw unless pawns have advantage)
-    egHashAdd("kn/KP", &evaluateMinor_vs_Pawns);
-    egHashAdd("kp/KN", &evaluateMinor_vs_Pawns);
+    //egHashAdd("kn/KP", &evaluateMinor_vs_Pawns);
+    //egHashAdd("kp/KN", &evaluateMinor_vs_Pawns);
     // King vs King + two knights is a draw
     egHashAdd("k/KNN", &evaluateDraw);
     egHashAdd("knn/K", &evaluateDraw);
@@ -199,20 +199,20 @@ void Eval::initEG(){
     egHashAdd("kn/KR", &evaluateDraw);
     egHashAdd("kr/KN", &evaluateDraw);
     // Trivial win for Q vs (R or B or N)
-    egHashAdd("kq/KB", &evaluateQueen_vs_X);
-    egHashAdd("kb/KQ", &evaluateQueen_vs_X);
-    egHashAdd("kq/KN", &evaluateQueen_vs_X);
-    egHashAdd("kn/KQ", &evaluateQueen_vs_X);
-    egHashAdd("kq/KR", &evaluateQueen_vs_X);
-    egHashAdd("kr/KQ", &evaluateQueen_vs_X);
+    //egHashAdd("kq/KB", &evaluateQueen_vs_X);
+    //egHashAdd("kb/KQ", &evaluateQueen_vs_X);
+    //egHashAdd("kq/KN", &evaluateQueen_vs_X);
+    //egHashAdd("kn/KQ", &evaluateQueen_vs_X);
+    //egHashAdd("kq/KR", &evaluateQueen_vs_X);
+    //egHashAdd("kr/KQ", &evaluateQueen_vs_X);
     // Can be a fortress with Q vs P
-    egHashAdd("kq/KP", &evaluateQueen_vs_Pawn);
-    egHashAdd("kp/KQ", &evaluateQueen_vs_Pawn);
+    //egHashAdd("kq/KP", &evaluateQueen_vs_Pawn);
+    //egHashAdd("kp/KQ", &evaluateQueen_vs_Pawn);
     // TODO: R vs Pawn
 
     // Bishop+Pawn vs King
-    egHashAdd("kbp/K", &evaluateBishopPawn_vs_KP);
-    egHashAdd("k/KBP", &evaluateBishopPawn_vs_KP);
+    //egHashAdd("kbp/K", &evaluateBishopPawn_vs_KP);
+    //egHashAdd("k/KBP", &evaluateBishopPawn_vs_KP);
 
 
     // 5-man eval
@@ -224,17 +224,17 @@ void Eval::initEG(){
     egHashAdd("krn/KR", &evaluateDraw);
     egHashAdd("kr/KRN", &evaluateDraw);
     // Minor vs Pawns endgamee
-    egHashAdd("kb/KPP", &evaluateMinor_vs_Pawns);
-    egHashAdd("kpp/KB", &evaluateMinor_vs_Pawns);
+    //egHashAdd("kb/KPP", &evaluateMinor_vs_Pawns);
+    //egHashAdd("kpp/KB", &evaluateMinor_vs_Pawns);
     // Minor vs Pawns endgamee
-    egHashAdd("kn/KPP", &evaluateMinor_vs_Pawns);
-    egHashAdd("kpp/KN", &evaluateMinor_vs_Pawns);
+    //egHashAdd("kn/KPP", &evaluateMinor_vs_Pawns);
+    //egHashAdd("kpp/KN", &evaluateMinor_vs_Pawns);
     // BishopPawn vs Pawn
-    egHashAdd("kbp/KP", &evaluateBishopPawn_vs_KP);
-    egHashAdd("kp/KBP", &evaluateBishopPawn_vs_KP);
+    //egHashAdd("kbp/KP", &evaluateBishopPawn_vs_KP);
+    //egHashAdd("kp/KBP", &evaluateBishopPawn_vs_KP);
     // BishopPawnPawn vs King
-    egHashAdd("kbpp/K", &evaluateBishopPawn_vs_KP);
-    egHashAdd("k/KBPP", &evaluateBishopPawn_vs_KP);
+    //egHashAdd("kbpp/K", &evaluateBishopPawn_vs_KP);
+    //egHashAdd("k/KBPP", &evaluateBishopPawn_vs_KP);
     // Queen vs Rook Pawn
 
 }
