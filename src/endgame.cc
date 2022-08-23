@@ -13,8 +13,8 @@ int Eval::evaluateDraw(const Board &board, Color color){
 }
 
 int Eval::evaluateRookMinor_Rook(const Board &board, Color color){
-    // while this endgame is a draw, there a small chances to win it against
-    // an uncarefull opponent
+    // While this endgame is usually a draw, there a small chances to win it
+    // According to syzygy ~20% of such positions is a win
     int s = DRAW_WITH_ADVANTAGE;
 
     // Grab PSQT to determine a losing side
@@ -24,10 +24,14 @@ int Eval::evaluateRookMinor_Rook(const Board &board, Color color){
     int weakKing   = _bitscanForward(board.getPieces(weak, KING));
     int strongKing = _bitscanForward(board.getPieces(getOppositeColor(weak), KING));
 
+    // 2. Apply bonuses and penalties
+    // The only real way to lose is to get mated, so penalize being on the edge and with enemy king near
+    s += 8 - Eval::detail::DISTANCE[weakKing][strongKing];
+    s += 8 - _endgedist(weakKing);
 
+    // if sideToMove is Losing, reverse sign
+    return weak != color ? s : -s;
 
-
-    return s;
 }
 
 inline void Eval::egHashAdd(std::string psFen, egEvalFunction ef){
@@ -77,9 +81,14 @@ void Eval::initEG(){
     // 5-man eval
     // lets say
     // King, Rook, Bishop vs King and Rook
-    egHashAdd("krb/KR", &evaluateDraw);
-    egHashAdd("kr/KRB", &evaluateDraw);
+    egHashAdd("krb/KR", &evaluateRookMinor_Rook);
+    egHashAdd("kr/KRB", &evaluateRookMinor_Rook);
     // King, Rook, Knight vs King and Rook
-    egHashAdd("krn/KR", &evaluateDraw);
-    egHashAdd("kr/KRN", &evaluateDraw);
+    egHashAdd("krn/KR", &evaluateRookMinor_Rook);
+    egHashAdd("kr/KRN", &evaluateRookMinor_Rook);
+    // Obvious minors draws
+    egHashAdd("knn/KN", &evaluateDraw);
+    egHashAdd("kn/KNN", &evaluateDraw);
+    egHashAdd("kbb/KB", &evaluateDraw);
+    egHashAdd("kb/KBB", &evaluateDraw);
 }
