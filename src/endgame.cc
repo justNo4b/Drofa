@@ -18,9 +18,12 @@ int Eval::evaluateRookMinor_Rook(const Board &board, Color color){
     int s = DRAW_WITH_ADVANTAGE;
 
     // Grab PSQT to determine a losing side
+    // 1. Quick glance at PSQT to decide who is winning
     int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
-    Color weakColor   = psqt < 0 ? color :  getOppositeColor(color);
-    Color strongColor = getOppositeColor(strongColor);
+    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    int weakKing   = _bitscanForward(board.getPieces(weak, KING));
+    int strongKing = _bitscanForward(board.getPieces(getOppositeColor(weak), KING));
+
 
 
 
