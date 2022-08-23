@@ -6,7 +6,6 @@
 #include "eval.h"
 #include "transptable.h"
 #include "tuning.h"
-#include "endgame.h"
 
 extern HASH * myHASH;
 extern posFeatured ft;
