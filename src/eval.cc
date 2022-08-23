@@ -970,10 +970,6 @@ inline int Eval::evaluateMain(const Board &board, Color color) {
   int score = 0;
   Color otherColor = getOppositeColor(color);
 
-  if (IsItDeadDraw(board, color)){
-    return 0;
-  }
-
   if (TRACK){
     ft.MaterialValue[PAWN][color]+= _popCount(board.getPieces(color, PAWN));
     ft.MaterialValue[PAWN][otherColor]+= _popCount(board.getPieces(otherColor, PAWN));
