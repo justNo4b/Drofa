@@ -6,9 +6,11 @@
 #include "eval.h"
 #include "transptable.h"
 #include "tuning.h"
+#include "endgame.h"
 
 extern HASH * myHASH;
 extern posFeatured ft;
+extern egEvalEntry myEvalHash[];
 
 int MATERIAL_VALUES_TUNABLE[6] = {
         [PAWN] = 0,
@@ -97,6 +99,7 @@ U64 Eval::detail::KING_PAWN_MASKS[2][2][8] = {
 
 
 void Eval::init() {
+  initEG();
   // Initialize passed pawn masks
   for (int square = 0; square < 64; square++) {
 
@@ -963,7 +966,7 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
   return final_eval;
 }
 
-int Eval::evaluate(const Board &board, Color color) {
+inline int Eval::evaluateMain(const Board &board, Color color) {
 
   int score = 0;
   Color otherColor = getOppositeColor(color);
@@ -1032,7 +1035,16 @@ int Eval::evaluate(const Board &board, Color color) {
   return final_eval + TEMPO;
 }
 
-int Eval::evalTestSuite(const Board &board, Color color)
-{
-  return 0;
+int Eval::evaluate(const Board &board, Color color){
+
+    // Probe eval hash
+    U64 index = board.getpCountKey().getValue() & (EG_HASH_SIZE - 1);
+    egEvalFunction spEval = myEvalHash[index].eFunction;
+
+    if (myEvalHash[index].key == board.getpCountKey().getValue() && spEval != nullptr){
+        return spEval(board, color);
+    }
+
+
+    return evaluateMain(board, color);
 }

@@ -418,14 +418,16 @@ void init();
  * @param color Color to evaluate advantage of
  * @return Advantage of the given color in centipawns
  */
+inline int evaluateMain(const Board &, Color);
+
 int evaluate(const Board &, Color);
 
-/**
- * @brief Basically template function for testing various eval features.
- *  As I use it, it calls once before search.
- *
- */
-int evalTestSuite(const Board &, Color);
+
+void initEG();
+
+inline void egHashAdd(std::string , egEvalFunction);
+
+int evaluateDraw(const Board &, Color);
 
 /**
  * @brief Returns the value of the given PieceType used for evaluation
