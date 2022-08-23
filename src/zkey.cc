@@ -4,11 +4,14 @@
 #include <random>
 #include <climits>
 #include <iostream>
+#include <sstream>
 
 const unsigned int ZKey::PRNG_KEY = 0xDEADBEEF;
 
 U64 ZKey::PIECE_KEYS[2][6][64];
 U64 ZKey::EN_PASSANT_KEYS[8];
+
+U64 ZKey::PIECE_COUNT_KEY[2][6][11];
 
 U64 ZKey::KS_CASTLE_KEYS[2];
 U64 ZKey::QS_CASTLE_KEYS[2];
@@ -36,6 +39,14 @@ void ZKey::init() {
       PIECE_KEYS[BLACK][pieceType][square] = dist(mt);
     }
   }
+
+  for (int pt = 0; pt < 6; pt++){
+    for (int num = 0; num < 11; num++){
+        PIECE_COUNT_KEY[WHITE][pt][num] = dist(mt);
+        PIECE_COUNT_KEY[BLACK][pt][num] = dist(mt);
+    }
+  }
+
 }
 
 ZKey::ZKey() {
@@ -113,6 +124,22 @@ void ZKey::setFromPawnStructure(const Board &board) {
   }
 }
 
+void ZKey::setFromPieceCounts(const Board &board) {
+    _key = ZERO;
+    for (auto pt : {  PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING}){
+        U64 blackPiece = board.getPieces(BLACK, pt);
+        U64 whitePiece = board.getPieces(WHITE, pt);
+
+        for (int j = 0 ; j <= _popCount(whitePiece); j++){
+            flipPieceCount(WHITE, pt, j);
+        }
+        for (int j = 0; j <= _popCount(blackPiece); j++){
+            flipPieceCount(BLACK, pt, j);
+        }
+
+    }
+}
+
 U64 ZKey::getValue() const {
   return _key;
 }
@@ -124,6 +151,10 @@ void ZKey::movePiece(Color color, PieceType piece, unsigned int from, unsigned i
 
 void ZKey::flipPiece(Color color, PieceType piece, unsigned int index) {
   _key ^= PIECE_KEYS[color][piece][index];
+}
+
+void ZKey::flipPieceCount(Color color, PieceType pt, int count){
+    _key ^= PIECE_COUNT_KEY[color][pt][count];
 }
 
 void ZKey::updateCastlingRights(bool whiteKs, bool whiteQs, bool blackKs, bool blackQs) {
@@ -171,4 +202,53 @@ void ZKey::flipActivePlayer() {
 
 bool ZKey::operator==(const ZKey &other) {
   return other.getValue() == _key;
+}
+
+void ZKey::setpKeyFromString(std::string pseudoFen){
+    _key = ZERO;
+    int pArray[2][6] = {{0}};
+    std::string token;
+    // Process string and initilize an array;
+    std::istringstream pfStream(pseudoFen);
+    pfStream >> token;
+    for (auto currChar : token) {
+      switch (currChar) {
+        case 'p': pArray[BLACK][PAWN]++;
+          break;
+        case 'r': pArray[BLACK][ROOK]++;
+          break;
+        case 'n': pArray[BLACK][KNIGHT]++;
+          break;
+        case 'b': pArray[BLACK][BISHOP]++;
+          break;
+        case 'q': pArray[BLACK][QUEEN]++;
+          break;
+        case 'k': pArray[BLACK][KING]++;
+          break;
+        case 'P': pArray[WHITE][PAWN]++;
+          break;
+        case 'R': pArray[WHITE][ROOK]++;
+          break;
+        case 'N': pArray[WHITE][KNIGHT]++;
+          break;
+        case 'B': pArray[WHITE][BISHOP]++;
+          break;
+        case 'Q': pArray[WHITE][QUEEN]++;
+          break;
+        case 'K': pArray[WHITE][KING]++;
+          break;
+        case '/': break;
+        }
+    }
+    // Set a key
+    for (auto pt : {  PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING}){
+        for (int j = 0; j <= pArray[WHITE][pt]; j++){
+            flipPieceCount(WHITE, pt, j);
+        }
+
+        for (int j = 0; j <= pArray[BLACK][pt]; j++){
+            flipPieceCount(BLACK, pt, j);
+        }
+    }
+
 }

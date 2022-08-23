@@ -118,6 +118,10 @@ ZKey Board::getPawnStructureZKey() const {
   return _pawnStructureZkey;
 }
 
+ZKey Board::getpCountKey() const {
+    return _pCountKey;
+}
+
 PSquareTable Board::getPSquareTable() const {
   return _pst;
 }
@@ -354,6 +358,7 @@ void Board::setToFen(std::string fenString) {
   _gameClock = _gameClock * 2;
 
 
+  // set up phase
   _phase = PHASE_WEIGHT_SUM;
 
   for (auto pieceType : {ROOK, KNIGHT, BISHOP, QUEEN}) {
@@ -367,6 +372,7 @@ void Board::setToFen(std::string fenString) {
   _updateNonPieceBitBoards();
   _zKey = ZKey(*this);
   _pawnStructureZkey.setFromPawnStructure(*this);
+  _pCountKey.setFromPieceCounts(*this);
 
   _pst = PSquareTable(*this);
 }
@@ -437,6 +443,7 @@ void Board::_removePiece(Color color, PieceType pieceType, int squareIndex) {
     _pawnStructureZkey.flipPiece(color, PAWN, squareIndex);
   }
 
+  _pCountKey.flipPieceCount(color, pieceType, _popCount(getPieces(color, pieceType)) + 1);
   _zKey.flipPiece(color, pieceType, squareIndex);
   _pst.removePiece(color, pieceType, squareIndex);
 }
@@ -450,6 +457,7 @@ void Board::_addPiece(Color color, PieceType pieceType, int squareIndex) {
 
   _occupied |= square;
 
+  _pCountKey.flipPieceCount(color, pieceType, _popCount(getPieces(color, pieceType)));
   _zKey.flipPiece(color, pieceType, squareIndex);
   _pst.addPiece(color, pieceType, squareIndex);
 }
