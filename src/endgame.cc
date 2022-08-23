@@ -12,6 +12,21 @@ int Eval::evaluateDraw(const Board &board, Color color){
     return 0;
 }
 
+int Eval::evaluateRookMinor_Rook(const Board &board, Color color){
+    // while this endgame is a draw, there a small chances to win it against
+    // an uncarefull opponent
+    int s = DRAW_WITH_ADVANTAGE;
+
+    // Grab PSQT to determine a losing side
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
+    Color weakColor   = psqt < 0 ? color :  getOppositeColor(color);
+    Color strongColor = getOppositeColor(strongColor);
+
+
+
+    return s;
+}
+
 inline void Eval::egHashAdd(std::string psFen, egEvalFunction ef){
     ZKey key;
     key.setpKeyFromString(psFen);

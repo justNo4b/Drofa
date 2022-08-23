@@ -429,6 +429,7 @@ void initEG();
 inline void egHashAdd(std::string , egEvalFunction);
 
 int evaluateDraw(const Board &, Color);
+int evaluateRookMinor_Rook(const Board &, Color);
 
 /**
  * @brief Returns the value of the given PieceType used for evaluation
@@ -466,17 +467,6 @@ evalBits Setupbits(const Board &);
  * adjust base safety value for some types of shields
  */
 inline int kingShieldSafety(const Board &, Color, evalBits *);
-
-/**
- * @brief This function takes number of each pieceType count for each
- * side and (assuming best play) returns if the position is deadDraw
- *
- * Returns true is position is drawn, returns false if there is some play left.
- * Based on Vice function.
- *
- */
-inline bool IsItDeadDraw (const Board &, Color);
-
 
 /**
  * @brief Function evaluate piece-pawns interactions for given color

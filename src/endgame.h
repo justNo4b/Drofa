@@ -26,6 +26,7 @@ const int EASY_WIN_SCORE         =  9500;
 const int CONFIDENT_WIN_SCORE    =  8500;
 
 const int DRAW_ZONE_ABS = 20;
+const int DRAW_WITH_ADVANTAGE = 10;
 
 
 
