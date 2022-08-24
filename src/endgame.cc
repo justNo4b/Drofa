@@ -87,7 +87,13 @@ void Eval::initEG(){
     // King vs King + Knight = insufficient material
     egHashAdd("kn/K", &evaluateDraw);
     egHashAdd("k/KN", &evaluateDraw);
-
+    // King vs King + Rook   = win;
+    egHashAdd("kr/K", &evaluateQueen_vs_X);
+    egHashAdd("k/KR", &evaluateQueen_vs_X);
+    // King vs King + Queen  = win
+    egHashAdd("kq/K", &evaluateQueen_vs_X);
+    egHashAdd("k/KQ", &evaluateQueen_vs_X);
+    // ToDo KPK
 
     // 4-man eval
     // Obviously KN vs KB etc is draw also
@@ -95,8 +101,9 @@ void Eval::initEG(){
     egHashAdd("kb/KB", &evaluateDraw);
     egHashAdd("kn/KB", &evaluateDraw);
     egHashAdd("kb/KN", &evaluateDraw);
-    // R vs R is also a draw
+    // R vs R and Q vs Q is also a draw
     egHashAdd("kr/KR", &evaluateDraw);
+    egHashAdd("kq/KQ", &evaluateDraw);
     // King vs King + two knights is a draw
     egHashAdd("k/KNN", &evaluateDraw);
     egHashAdd("knn/K", &evaluateDraw);
