@@ -58,6 +58,33 @@ int Eval::evaluateQueen_vs_X(const Board &board, Color color){
     return weak != color ? s : -s;
 }
 
+int Eval::evaluateQueen_vs_Pawn(const Board &board, Color color){
+    int s = 0;
+
+    // 1. Quick glance at PSQT to decide who is winning
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
+    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    int weakKing   = _bitscanForward(board.getPieces(weak, KING));
+    int strongKing = _bitscanForward(board.getPieces(getOppositeColor(weak), KING));
+    int weakPawn   = _bitscanForward(board.getPieces(weak, PAWN));
+
+    int  pRank = _relrank(weakPawn, weak);
+    bool pDrawFiles = board.getPieces(weak, PAWN) & (FILE_A | FILE_C | FILE_F | FILE_H);
+    s += 8 -  Eval::detail::DISTANCE[weakKing][strongKing];
+
+    // Position is won, unless pawn isnt on a7, c7, f7, h7, with own king nearby
+    // TODO -> more accurate eval, including distance of strong king
+    // remember that rank mapping is starting from 0
+    if (pRank != 6 ||
+        !pDrawFiles ||
+        Eval::detail::DISTANCE[weakKing][weakPawn] != 1){
+            s += MINIMAL_WON_SCORE;
+        }
+
+    // in case drawish position, return distance between kings
+    return weak != color ? s : -s;
+}
+
 inline void Eval::egHashAdd(std::string psFen, egEvalFunction ef){
     ZKey key;
     key.setpKeyFromString(psFen);
@@ -114,6 +141,9 @@ void Eval::initEG(){
     egHashAdd("kn/KQ", &evaluateQueen_vs_X);
     egHashAdd("kq/KR", &evaluateQueen_vs_X);
     egHashAdd("kr/KQ", &evaluateQueen_vs_X);
+    // Not so clear with Q vs P
+    egHashAdd("kq/KP", &evaluateQueen_vs_Pawn);
+    egHashAdd("kp/KQ", &evaluateQueen_vs_Pawn);
 
 
     // 5-man eval
