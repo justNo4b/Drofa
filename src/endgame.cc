@@ -100,6 +100,13 @@ void Eval::initEG(){
     // King vs King + two knights is a draw
     egHashAdd("k/KNN", &evaluateDraw);
     egHashAdd("knn/K", &evaluateDraw);
+    // Trivial win for Q vs (R or B or N)
+    egHashAdd("kq/KB", &evaluateQueen_vs_X);
+    egHashAdd("kb/KQ", &evaluateQueen_vs_X);
+    egHashAdd("kq/KN", &evaluateQueen_vs_X);
+    egHashAdd("kn/KQ", &evaluateQueen_vs_X);
+    egHashAdd("kq/KR", &evaluateQueen_vs_X);
+    egHashAdd("kr/KQ", &evaluateQueen_vs_X);
 
 
     // 5-man eval
