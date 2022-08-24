@@ -34,6 +34,30 @@ int Eval::evaluateRookMinor_Rook(const Board &board, Color color){
 
 }
 
+int Eval::evaluateQueen_vs_X(const Board &board, Color color){
+    int s = EASY_WIN_SCORE;
+
+    // for Q vs X -> X is other non-pawn piece
+    // increase eval for keeping kings close and keeping weaker king closer to the edge
+
+    // 1. Quick glance at PSQT to decide who is winning
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
+    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    int weakKing   = _bitscanForward(board.getPieces(weak, KING));
+    int strongKing = _bitscanForward(board.getPieces(getOppositeColor(weak), KING));
+
+    // 2. Apply bonuses and penalties
+    s += 8 - Eval::detail::DISTANCE[weakKing][strongKing];
+    s += 8 - _endgedist(weakKing);
+
+    // 3. LoneKingBonus - add some eval if weak side has no pieces
+    // Otherwise it wont pick up material
+    s += 100 * (_popCount(board.getAllPieces(weak)) == 1);
+
+    // if sideToMove is Losing, reverse sign
+    return weak != color ? s : -s;
+}
+
 inline void Eval::egHashAdd(std::string psFen, egEvalFunction ef){
     ZKey key;
     key.setpKeyFromString(psFen);

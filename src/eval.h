@@ -430,6 +430,7 @@ inline void egHashAdd(std::string , egEvalFunction);
 
 int evaluateDraw(const Board &, Color);
 int evaluateRookMinor_Rook(const Board &, Color);
+int evaluateQueen_vs_X(const Board &, Color);
 
 /**
  * @brief Returns the value of the given PieceType used for evaluation
