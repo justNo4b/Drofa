@@ -474,6 +474,7 @@ inline int kingShieldSafety(const Board &, Color, evalBits *);
  */
 inline bool IsItDeadDraw (const Board &, Color);
 
+inline int winnableEndgame(const Board &, Color, evalBits *, int);
 
 /**
  * @brief Function evaluate piece-pawns interactions for given color

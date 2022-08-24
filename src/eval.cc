@@ -917,6 +917,26 @@ inline int Eval::kingDanger(Color color, const evalBits * eB){
   return gS(std::max(0, attackScore), 0);
 }
 
+inline int Eval::winnableEndgame(const Board & board, Color color, evalBits * eB, int score){
+  int s = 0;
+  int eGpart = egS(score);
+
+  int sign   = eGpart == 0 ? 0 :
+               eGpart > 0  ? 1 :
+               -1;
+
+  Color otherColor = getOppositeColor(color);
+  U64 pawnsTotal = board.getPieces(color, PAWN) | board.getPieces(otherColor, PAWN);
+
+  bool pawnsBothFlanks =  ((pawnsTotal & KING_SIDE) != 0) && ((pawnsTotal & QUEEN_SIDE) != 0);
+
+  int winnable = -1 * (!pawnsBothFlanks * 35);
+  s = gS(0, sign * std::max(winnable, -abs(eGpart)));
+
+  return s;
+
+}
+
 inline int Eval::TaperAndScale(const Board &board, Color color, int score){
 
   // Calculation of the phase value
@@ -1025,6 +1045,8 @@ int Eval::evaluate(const Board &board, Color color) {
   // Transform obtained safety score into game score
   score +=  kingDanger(color, &eB)
           - kingDanger(otherColor, &eB);
+
+  score += winnableEndgame(board, color, &eB, score);
 
   // Taper and Scale obtained score
   int final_eval = TaperAndScale(board, color, score);
