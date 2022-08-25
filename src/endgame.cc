@@ -27,7 +27,7 @@ int Eval::evaluateRookMinor_Rook(const Board &board, Color color){
     // 2. Apply bonuses and penalties
     // The only real way to lose is to get mated, so penalize being on the edge and with enemy king near
     s += 8 - Eval::detail::DISTANCE[weakKing][strongKing];
-    s += 8 - _endgedist(weakKing);
+    s += 8 - _edgedist(weakKing);
 
     // if sideToMove is Losing, reverse sign
     return weak != color ? s : -s;
@@ -48,7 +48,7 @@ int Eval::evaluateQueen_vs_X(const Board &board, Color color){
 
     // 2. Apply bonuses and penalties
     s += 8 - Eval::detail::DISTANCE[weakKing][strongKing];
-    s += 8 - _endgedist(weakKing);
+    s += 8 - _edgedist(weakKing);
 
     // 3. LoneKingBonus - add some eval if weak side has no pieces
     // Otherwise it wont pick up material
@@ -56,6 +56,101 @@ int Eval::evaluateQueen_vs_X(const Board &board, Color color){
 
     // if sideToMove is Losing, reverse sign
     return weak != color ? s : -s;
+}
+
+int Eval::evaluateRook_vs_Bishop(const Board &board, Color color){
+    // This endgame is very drawish
+    // Only about 18% of positions are win.
+    int s = 0;
+    // 1. Quick glance at PSQT to decide who is winning
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
+    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    int weakKing   = _bitscanForward(board.getPieces(weak, KING));
+    int strongKing = _bitscanForward(board.getPieces(getOppositeColor(weak), KING));
+
+    // 1. Punish positions where king is on the edge
+    s += 21 - 7 * _edgedist(weakKing);
+    // 2. Small bonus for our king being close to the enemy
+    s += 7 - Eval::detail::DISTANCE[weakKing][strongKing];
+    // 2. If king is on the edge, do additional penalty if king is close to the corner same color as bishop
+    if (WHITE_SQUARES & board.getPieces(weak, BISHOP)){
+        s += 10 * (Eval::detail::DISTANCE[weakKing][a8] <= 1);
+        s += 10 * (Eval::detail::DISTANCE[weakKing][h1] <= 1);
+    }else{
+        s += 10 * (Eval::detail::DISTANCE[weakKing][a1] <= 1);
+        s += 10 * (Eval::detail::DISTANCE[weakKing][h8] <= 1);
+    }
+
+    // if sideToMove is Losing, reverse sign
+    return weak != color ? s : -s;
+}
+
+int Eval::evaluateRook_vs_Knight(const Board &board, Color color){
+    // This endgame is somewhat winnable if king and knight are far apart
+    // About 30% of positions are won
+    int s = DRAW_WITH_ADVANTAGE;
+
+    // 1. Quick glance at PSQT to decide who is winning
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
+    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    int weakKing   = _bitscanForward(board.getPieces(weak, KING));
+    int weakKnight = _bitscanForward(board.getPieces(weak, KNIGHT));
+
+    // 2. There are two basic patterns in a win - we want weak king to be in a side
+    // And king and knight far apart (even better if knight is on the edge also)
+    s += 12 - 4 * _edgedist(weakKing);
+    int kn_distance = Eval::detail::DISTANCE[weakKing][weakKnight];
+    s += (kn_distance - 1) * 6;
+    if (kn_distance >= 3 && _edgedist(weakKnight) <= 1) s += 6;
+
+    // if sideToMove is Losing, reverse sign
+    return weak != color ? s : -s;
+}
+
+int Eval::evaluateRook_vs_Pawn(const Board &board, Color color){
+    // Quite tricky endgame to evaluate presicely
+    // Draw + weakside win is about 20% here
+    int s = 0;
+
+    // 1. Quick glance at PSQT to decide who is winning
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
+    Color weak     = psqt > 0 ? getOppositeColor(color) : color;
+    Color strong   = getOppositeColor(weak);
+    int weakKing   = _bitscanForward(board.getPieces(weak, KING));
+    int weakPawn   = _bitscanForward(board.getPieces(weak, PAWN));
+    int strongKing = _bitscanForward(board.getPieces(strong, KING));
+    int strongRook = _bitscanForward(board.getPieces(strong, ROOK));
+
+    // 2. If strong king is on the path of the pawn, it is always a win.
+    if (Eval::detail::PASSED_PAWN_MASKS[weak][weakPawn] & board.getPieces(strong, KING)){
+        s = MINIMAL_WON_SCORE;
+        // adjust it with king - pawn distance to ensure pawn will get captured
+        s += 8 - Eval::detail::DISTANCE[weakPawn][strongKing];
+    }// 3. Position is also won when enemy king is far from own pawn and our rook (so it cant win a tempo)
+    else if ((Eval::detail::DISTANCE[weakPawn][weakKing] >= 3 + (weak == color)) &&
+              Eval::detail::DISTANCE[strongRook][weakKing] >= 3){
+        s = MINIMAL_WON_SCORE;
+        // adjust it with king - pawn distance to ensure pawn will get captured
+        s += 8 - Eval::detail::DISTANCE[weakPawn][strongKing];
+    } // 4. Draw case: strong king is far away AND behind, pawn is advanced,
+      // weak king is supporting it
+    else if (Eval::detail::DISTANCE[weakPawn][weakKing] == 1 &&
+             (Eval::detail::DISTANCE[weakPawn][strongKing] > 2 + (strong == color)) &&
+             _relrank(weakPawn, weak) > 3 &&
+             _relrank(strongKing, weak) < _relrank(weakPawn, weak)){
+
+        s = 20 - Eval::detail::DISTANCE[weakPawn][strongKing];
+    } // result is unclear, but likely to be drawish
+    else {
+        s = 100 - 8 * (Eval::detail::DISTANCE[strongKing][weakPawn] - // 1
+                       Eval::detail::DISTANCE[weakKing][weakPawn] -   // 7
+                       (8 - _relrank(weakPawn, weak)));
+    }
+
+
+    // if sideToMove is Losing, reverse sign
+    return weak != color ? s : -s;
+
 }
 
 int Eval::evaluateQueen_vs_Pawn(const Board &board, Color color){
@@ -144,7 +239,14 @@ void Eval::initEG(){
     // Not so clear with Q vs P
     egHashAdd("kq/KP", &evaluateQueen_vs_Pawn);
     egHashAdd("kp/KQ", &evaluateQueen_vs_Pawn);
-
+    // Rook vs Minors
+    egHashAdd("kr/KN", &evaluateRook_vs_Knight);
+    egHashAdd("kn/KR", &evaluateRook_vs_Knight);
+    egHashAdd("kr/KB", &evaluateRook_vs_Bishop);
+    egHashAdd("kb/KR", &evaluateRook_vs_Bishop);
+    // Rook vs Pawns
+    egHashAdd("kr/KP", &evaluateRook_vs_Pawn);
+    egHashAdd("kp/KR", &evaluateRook_vs_Pawn);
 
     // 5-man eval
     // lets say

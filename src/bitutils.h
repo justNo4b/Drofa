@@ -111,8 +111,10 @@ inline int _col(int square) {
   return square % 8;
 }
 
-inline int _endgedist(int square){
-  return (square % 8 < 4) ? (square % 8) : (7 - (square % 8));
+inline int _edgedist(int square){
+    int cw = ((square % 8 < 4) ? (square % 8) : (7 - (square % 8)));
+    int rw = ((square / 8 < 4) ? (square / 8) : (7 - (square / 8)));
+  return std::min(cw, rw);
 }
 
 inline int _relrank(int square, Color color){

@@ -633,7 +633,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     int forwardSqv = color == WHITE ? square + 8 : square - 8;
     int relSqv = color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square];
     int pawnCol = _col(square);
-    int edgeDistance = _endgedist(square);
+    int edgeDistance = (square % 8 < 4) ? (square % 8) : (7 - (square % 8));
     int r = color == WHITE ? _row(square) : 7 - _row(square);
 
     if (TRACK){
