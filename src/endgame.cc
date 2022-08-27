@@ -180,6 +180,40 @@ int Eval::evaluateQueen_vs_Pawn(const Board &board, Color color){
     return weak != color ? s : -s;
 }
 
+int Eval::evaluateBishopPawn_vs_Bishop(const Board &board, Color color){
+    // This endgame is drawish, if weak side was able to secure
+    // with a king square on the pawns path that is inaccessible by bishop
+    // Simply unwinnable when OCB
+    int s = evaluateMain(board, color);
+
+    // 1. OCB endgame.
+    bool isOCB = _popCount((board.getPieces(color, BISHOP) | board.getPieces(getOppositeColor(color), BISHOP)) & WHITE_SQUARES) == 1;
+
+    if (isOCB) return s / 128;
+
+    // 2. Check if king is in perfect defensive position
+    Color weak     = s > 0 ? getOppositeColor(color) : color;
+    Color strong   = getOppositeColor(weak);
+    int strongPawn = _bitscanForward(board.getPieces(strong, PAWN));
+    U64 pawnPath   = Eval::detail::FORWARD_BITS[strong][strongPawn];
+
+    // If weak king and strong bishop are on the opposite colors
+    // and king is on the pawn path scale eval down
+    if ((_popCount((board.getPieces(weak, KING) | board.getPieces(strong, BISHOP)) & WHITE_SQUARES) == 1) &&
+        ((pawnPath & board.getPieces(weak, KING)) != 0)){
+            return s / 128;
+        }
+
+    return s;
+}
+
+int Eval::evaluateBishopPawn_vs_Knight(const Board &board, Color color){
+    // This endgame is drawish, if weak side was able to secure
+    // with a king square on the pawns path that is inaccessible by bishop
+
+    return 0;
+}
+
 inline void Eval::egHashAdd(std::string psFen, egEvalFunction ef){
     ZKey key;
     key.setpKeyFromString(psFen);
@@ -261,4 +295,7 @@ void Eval::initEG(){
     egHashAdd("kn/KNN", &evaluateDraw);
     egHashAdd("kbb/KB", &evaluateDraw);
     egHashAdd("kb/KBB", &evaluateDraw);
+    // Common endgames
+    egHashAdd("kbp/KB", &evaluateBishopPawn_vs_Bishop);
+    egHashAdd("kb/KBP", &evaluateBishopPawn_vs_Bishop);
 }
