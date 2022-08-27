@@ -426,7 +426,7 @@ int evaluate(const Board &, Color);
 
 void initEG();
 
-inline void egHashAdd(std::string , egEvalFunction);
+inline void egHashAdd(std::string , egEvalFunction, egEntryType);
 
 int evaluateDraw(const Board &, Color);
 int evaluateRookMinor_Rook(const Board &, Color);

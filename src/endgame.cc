@@ -3,7 +3,6 @@
 #include "attacks.h"
 #include "movegen.h"
 #include "endgame.h"
-#include "eval.h"
 
 egEvalEntry myEvalHash [EG_HASH_SIZE];
 
@@ -184,15 +183,16 @@ int Eval::evaluateBishopPawn_vs_Bishop(const Board &board, Color color){
     // This endgame is drawish, if weak side was able to secure
     // with a king square on the pawns path that is inaccessible by bishop
     // Simply unwinnable when OCB
-    int s = evaluateMain(board, color);
+    int scale = 1;
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
 
     // 1. OCB endgame.
     bool isOCB = _popCount((board.getPieces(color, BISHOP) | board.getPieces(getOppositeColor(color), BISHOP)) & WHITE_SQUARES) == 1;
 
-    if (isOCB) s = s / 128;
+    if (isOCB) scale = 128;
 
     // 2. Check if king is in perfect defensive position
-    Color weak     = s > 0 ? getOppositeColor(color) : color;
+    Color weak     = psqt > 0 ? getOppositeColor(color) : color;
     Color strong   = getOppositeColor(weak);
     int strongPawn = _bitscanForward(board.getPieces(strong, PAWN));
     U64 pawnPath   = Eval::detail::FORWARD_BITS[strong][strongPawn];
@@ -201,20 +201,22 @@ int Eval::evaluateBishopPawn_vs_Bishop(const Board &board, Color color){
     // and king is on the pawn path scale eval down
     if ((_popCount((board.getPieces(weak, KING) | board.getPieces(strong, BISHOP)) & WHITE_SQUARES) == 1) &&
         ((pawnPath & board.getPieces(weak, KING)) != 0)){
-            s =  s / 128;
+            scale = 128;
         }
 
-    return s;
+    return scale;
 }
 
 int Eval::evaluateBishopPawn_vs_Knight(const Board &board, Color color){
     // This endgame is drawish, if weak side was able to secure
     // with a king square on the pawns path that is inaccessible by bishop
     // Simply unwinnable when OCB
-    int s = evaluateMain(board, color);
+    int scale = 1;
+
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
 
     // 2. Check if king is in perfect defensive position
-    Color weak     = s > 0 ? getOppositeColor(color) : color;
+    Color weak     = psqt > 0 ? getOppositeColor(color) : color;
     Color strong   = getOppositeColor(weak);
     int strongPawn = _bitscanForward(board.getPieces(strong, PAWN));
     U64 pawnPath   = Eval::detail::FORWARD_BITS[strong][strongPawn];
@@ -223,13 +225,13 @@ int Eval::evaluateBishopPawn_vs_Knight(const Board &board, Color color){
     // and king is on the pawn path scale eval down
     if ((_popCount((board.getPieces(weak, KING) | board.getPieces(strong, BISHOP)) & WHITE_SQUARES) == 1) &&
         ((pawnPath & board.getPieces(weak, KING)) != 0)){
-            s = s / 128;
+            scale = 128;
         }
 
-    return s;
+    return scale;
 }
 
-inline void Eval::egHashAdd(std::string psFen, egEvalFunction ef){
+inline void Eval::egHashAdd(std::string psFen, egEvalFunction ef, egEntryType et){
     ZKey key;
     key.setpKeyFromString(psFen);
     U64 index = key.getValue() & (EG_HASH_SIZE - 1);
@@ -237,7 +239,7 @@ inline void Eval::egHashAdd(std::string psFen, egEvalFunction ef){
         std::cout << "error collision on " << psFen << std::endl;
         exit(0);
     }
-    myEvalHash[index] = egEvalEntry(key.getValue(), ef);
+    myEvalHash[index] = egEvalEntry(key.getValue(), ef, et);
 }
 
 void Eval::initEG(){
@@ -249,70 +251,70 @@ void Eval::initEG(){
 
     // Add some generic draws
     // 0. 2-man (KvsK) is draw
-    egHashAdd("k/K", &evaluateDraw);
+    egHashAdd("k/K", &evaluateDraw, RETURN_SCORE);
 
     // 3-man eval:
     // King vs King + Bishop = insufficient material
-    egHashAdd("kb/K", &evaluateDraw);
-    egHashAdd("k/KB", &evaluateDraw);
+    egHashAdd("kb/K", &evaluateDraw, RETURN_SCORE);
+    egHashAdd("k/KB", &evaluateDraw, RETURN_SCORE);
     // King vs King + Knight = insufficient material
-    egHashAdd("kn/K", &evaluateDraw);
-    egHashAdd("k/KN", &evaluateDraw);
+    egHashAdd("kn/K", &evaluateDraw, RETURN_SCORE);
+    egHashAdd("k/KN", &evaluateDraw, RETURN_SCORE);
     // King vs King + Rook   = win;
-    egHashAdd("kr/K", &evaluateQueen_vs_X);
-    egHashAdd("k/KR", &evaluateQueen_vs_X);
+    egHashAdd("kr/K", &evaluateQueen_vs_X, RETURN_SCORE);
+    egHashAdd("k/KR", &evaluateQueen_vs_X, RETURN_SCORE);
     // King vs King + Queen  = win
-    egHashAdd("kq/K", &evaluateQueen_vs_X);
-    egHashAdd("k/KQ", &evaluateQueen_vs_X);
+    egHashAdd("kq/K", &evaluateQueen_vs_X, RETURN_SCORE);
+    egHashAdd("k/KQ", &evaluateQueen_vs_X, RETURN_SCORE);
     // ToDo KPK
 
     // 4-man eval
     // Obviously KN vs KB etc is draw also
-    egHashAdd("kn/KN", &evaluateDraw);
-    egHashAdd("kb/KB", &evaluateDraw);
-    egHashAdd("kn/KB", &evaluateDraw);
-    egHashAdd("kb/KN", &evaluateDraw);
+    egHashAdd("kn/KN", &evaluateDraw, RETURN_SCORE);
+    egHashAdd("kb/KB", &evaluateDraw, RETURN_SCORE);
+    egHashAdd("kn/KB", &evaluateDraw, RETURN_SCORE);
+    egHashAdd("kb/KN", &evaluateDraw, RETURN_SCORE);
     // R vs R and Q vs Q is also a draw
-    egHashAdd("kr/KR", &evaluateDraw);
-    egHashAdd("kq/KQ", &evaluateDraw);
+    egHashAdd("kr/KR", &evaluateDraw, RETURN_SCORE);
+    egHashAdd("kq/KQ", &evaluateDraw, RETURN_SCORE);
     // King vs King + two knights is a draw
-    egHashAdd("k/KNN", &evaluateDraw);
-    egHashAdd("knn/K", &evaluateDraw);
+    egHashAdd("k/KNN", &evaluateDraw, RETURN_SCORE);
+    egHashAdd("knn/K", &evaluateDraw, RETURN_SCORE);
     // Trivial win for Q vs (R or B or N)
-    egHashAdd("kq/KB", &evaluateQueen_vs_X);
-    egHashAdd("kb/KQ", &evaluateQueen_vs_X);
-    egHashAdd("kq/KN", &evaluateQueen_vs_X);
-    egHashAdd("kn/KQ", &evaluateQueen_vs_X);
-    egHashAdd("kq/KR", &evaluateQueen_vs_X);
-    egHashAdd("kr/KQ", &evaluateQueen_vs_X);
+    egHashAdd("kq/KB", &evaluateQueen_vs_X, RETURN_SCORE);
+    egHashAdd("kb/KQ", &evaluateQueen_vs_X, RETURN_SCORE);
+    egHashAdd("kq/KN", &evaluateQueen_vs_X, RETURN_SCORE);
+    egHashAdd("kn/KQ", &evaluateQueen_vs_X, RETURN_SCORE);
+    egHashAdd("kq/KR", &evaluateQueen_vs_X, RETURN_SCORE);
+    egHashAdd("kr/KQ", &evaluateQueen_vs_X, RETURN_SCORE);
     // Not so clear with Q vs P
-    egHashAdd("kq/KP", &evaluateQueen_vs_Pawn);
-    egHashAdd("kp/KQ", &evaluateQueen_vs_Pawn);
+    egHashAdd("kq/KP", &evaluateQueen_vs_Pawn, RETURN_SCORE);
+    egHashAdd("kp/KQ", &evaluateQueen_vs_Pawn, RETURN_SCORE);
     // Rook vs Minors
-    egHashAdd("kr/KN", &evaluateRook_vs_Knight);
-    egHashAdd("kn/KR", &evaluateRook_vs_Knight);
-    egHashAdd("kr/KB", &evaluateRook_vs_Bishop);
-    egHashAdd("kb/KR", &evaluateRook_vs_Bishop);
+    egHashAdd("kr/KN", &evaluateRook_vs_Knight, RETURN_SCORE);
+    egHashAdd("kn/KR", &evaluateRook_vs_Knight, RETURN_SCORE);
+    egHashAdd("kr/KB", &evaluateRook_vs_Bishop, RETURN_SCORE);
+    egHashAdd("kb/KR", &evaluateRook_vs_Bishop, RETURN_SCORE);
     // Rook vs Pawns
-    egHashAdd("kr/KP", &evaluateRook_vs_Pawn);
-    egHashAdd("kp/KR", &evaluateRook_vs_Pawn);
+    egHashAdd("kr/KP", &evaluateRook_vs_Pawn, RETURN_SCORE);
+    egHashAdd("kp/KR", &evaluateRook_vs_Pawn, RETURN_SCORE);
 
     // 5-man eval
     // lets say
     // King, Rook, Bishop vs King and Rook
-    egHashAdd("krb/KR", &evaluateRookMinor_Rook);
-    egHashAdd("kr/KRB", &evaluateRookMinor_Rook);
+    egHashAdd("krb/KR", &evaluateRookMinor_Rook, RETURN_SCORE);
+    egHashAdd("kr/KRB", &evaluateRookMinor_Rook, RETURN_SCORE);
     // King, Rook, Knight vs King and Rook
-    egHashAdd("krn/KR", &evaluateRookMinor_Rook);
-    egHashAdd("kr/KRN", &evaluateRookMinor_Rook);
+    egHashAdd("krn/KR", &evaluateRookMinor_Rook, RETURN_SCORE);
+    egHashAdd("kr/KRN", &evaluateRookMinor_Rook, RETURN_SCORE);
     // Obvious minors draws
-    egHashAdd("knn/KN", &evaluateDraw);
-    egHashAdd("kn/KNN", &evaluateDraw);
-    egHashAdd("kbb/KB", &evaluateDraw);
-    egHashAdd("kb/KBB", &evaluateDraw);
+    egHashAdd("knn/KN", &evaluateDraw, RETURN_SCORE);
+    egHashAdd("kn/KNN", &evaluateDraw, RETURN_SCORE);
+    egHashAdd("kbb/KB", &evaluateDraw, RETURN_SCORE);
+    egHashAdd("kb/KBB", &evaluateDraw, RETURN_SCORE);
     // Common endgames
-    egHashAdd("kbp/KB", &evaluateBishopPawn_vs_Bishop);
-    egHashAdd("kb/KBP", &evaluateBishopPawn_vs_Bishop);
-    egHashAdd("kbp/KN", &evaluateBishopPawn_vs_Knight);
-    egHashAdd("kn/KBP", &evaluateBishopPawn_vs_Knight);
+    egHashAdd("kbp/KB", &evaluateBishopPawn_vs_Bishop, RETURN_SCALE);
+    egHashAdd("kb/KBP", &evaluateBishopPawn_vs_Bishop, RETURN_SCALE);
+    egHashAdd("kbp/KN", &evaluateBishopPawn_vs_Knight, RETURN_SCALE);
+    egHashAdd("kn/KBP", &evaluateBishopPawn_vs_Knight, RETURN_SCALE);
 }

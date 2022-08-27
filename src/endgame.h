@@ -9,12 +9,18 @@
 
 typedef int (*egEvalFunction) (const Board &board, Color color);
 
+enum egEntryType{
+    RETURN_SCORE,
+    RETURN_SCALE
+};
+
 struct egEvalEntry{
     U64            key;
     egEvalFunction eFunction;
+    egEntryType    evalType;
 
-    egEvalEntry(): key(0), eFunction(nullptr)  {};
-    egEvalEntry(U64 k, egEvalFunction ef): key(k), eFunction(ef) {};
+    egEvalEntry(): key(0), eFunction(nullptr), evalType(RETURN_SCALE)  {};
+    egEvalEntry(U64 k, egEvalFunction ef, egEntryType et): key(k), eFunction(ef), evalType(et) {};
 };
 
 // constant scores

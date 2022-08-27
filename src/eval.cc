@@ -985,12 +985,15 @@ int Eval::evaluate(const Board &board, Color color){
 
     // Probe eval hash
     U64 index = board.getpCountKey().getValue() & (EG_HASH_SIZE - 1);
-    egEvalFunction spEval = myEvalHash[index].eFunction;
+    egEvalFunction spEval   = myEvalHash[index].eFunction;
+    egEntryType    spevType = myEvalHash[index].evalType;
+    int            egResult = 1;
 
     if (myEvalHash[index].key == board.getpCountKey().getValue() && spEval != nullptr){
-        return spEval(board, color);
+        egResult = spEval(board, color);
+        if (spevType == RETURN_SCORE) return egResult;
     }
 
 
-    return evaluateMain(board, color);
+    return evaluateMain(board, color) / egResult;
 }
