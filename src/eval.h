@@ -439,6 +439,9 @@ int evaluateBishopPawn_vs_Bishop(const Board &, Color);
 int evaluateBishopPawn_vs_Knight(const Board &, Color);
 int evaluateQueen_vs_RookPawn(const Board &, Color);
 int evaluateRookPawn_vs_Bishop(const Board &, Color);
+int evaluateHugeAdvantage(const Board &, Color);
+int evaluateBN_Mating(const Board &, Color);
+int evaluateKnights_vs_Pawn(const Board &, Color);
 
 /**
  * @brief Returns the value of the given PieceType used for evaluation

@@ -57,6 +57,82 @@ int Eval::evaluateQueen_vs_X(const Board &board, Color color){
     return weak != color ? s : -s;
 }
 
+int Eval::evaluateHugeAdvantage(const Board &board, Color color){
+    int s = EASY_WIN_SCORE;
+
+    // This function will evaluate huge advantage wins, such as QQ, QR, RR, etc
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
+    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    Color strong   = getOppositeColor(weak);
+    int weakKing   = _bitscanForward(board.getPieces(weak, KING));
+    int strongKing = _bitscanForward(board.getPieces(strong, KING));
+
+    // 2. Apply bonuses and penalties
+    s += 8 - Eval::detail::DISTANCE[weakKing][strongKing];
+    s += 8 - _edgedist(weakKing);
+
+    // 3. Bonuses for extra pieces
+    s += _popCount(board.getPieces(strong, QUEEN)) * egS(MATERIAL_VALUES[QUEEN]);
+    s += _popCount(board.getPieces(strong, ROOK)) * egS(MATERIAL_VALUES[ROOK]) * 3; // for fun prefer RR >> QR >> QQ
+    s += _popCount(board.getPieces(strong, BISHOP)) * egS(MATERIAL_VALUES[BISHOP]);
+    s += _popCount(board.getPieces(strong, KNIGHT)) * egS(MATERIAL_VALUES[KNIGHT]);
+
+    // if sideToMove is Losing, reverse sign
+    return weak != color ? s : -s;
+
+}
+
+int Eval::evaluateBN_Mating(const Board &board, Color color){
+    int s = CONFIDENT_WIN_SCORE;
+
+    // 1. Galnce at PSQT, to see who is winning
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
+    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    Color strong   = getOppositeColor(weak);
+    int weakKing   = _bitscanForward(board.getPieces(weak, KING));
+    int strongKing = _bitscanForward(board.getPieces(strong, KING));
+    int cSq1       = 0;
+    int cSq2       = 0;
+
+    // 2. Find which square we should force weak king in
+    if (board.getPieces(strong, BISHOP) & WHITE_SQUARES){
+        cSq1 = h1;
+        cSq2 = a8;
+    }else{
+        cSq1 = h8;
+        cSq2 = a1;
+    }
+
+    // 3. Apply bonuses and penalties
+    int closeCorner = std::min(Eval::detail::DISTANCE[weakKing][cSq1], Eval::detail::DISTANCE[weakKing][cSq2]);
+    s += 8 - Eval::detail::DISTANCE[weakKing][strongKing];
+    s += 64 - closeCorner * closeCorner;
+
+    // if sideToMove is Losing, reverse sign
+    return weak != color ? s : -s;
+}
+
+int Eval::evaluateKnights_vs_Pawn(const Board &board, Color color){
+    // Drawish, but mating is possible if pawns isnt too far advanced.
+    int s = DRAW_WITH_ADVANTAGE;
+
+    // 1. Galnce at PSQT, to see who is winning
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
+    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    Color strong   = getOppositeColor(weak);
+    int weakKing   = _bitscanForward(board.getPieces(weak, KING));
+    int strongKing = _bitscanForward(board.getPieces(strong, KING));
+    int weakPawn   = _bitscanForward(board.getPieces(weak, PAWN));
+
+    // Evaluate higher when king is on the edge, and lower for each step pawn is closer to promotion
+    s += 64 - _edgedist(weakKing) * _edgedist(weakKing);
+    s += 8 - Eval::detail::DISTANCE[weakKing][strongKing];
+    s -= 49 - _relrank(weakPawn, weak) * _relrank(weakPawn, weak);
+
+    // if sideToMove is Losing, reverse sign
+    return weak != color ? s : -s;
+}
+
 int Eval::evaluateRook_vs_Bishop(const Board &board, Color color){
     // This endgame is very drawish
     // Only about 18% of positions are win.
@@ -364,6 +440,33 @@ void Eval::initEG(){
     egHashAdd("kp/KR", &evaluateRook_vs_Pawn, RETURN_SCORE);
     // ToDo - > lone minor vs pawns scaling (in main eval)
 
+    //Some easy wins with huge advantage
+    egHashAdd("kqq/K", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("k/KQQ", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("kqr/K", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("k/KQR", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("kqb/K", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("k/KQB", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("kqn/K", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("k/KQN", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("kqp/K", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("k/KQP", &evaluateHugeAdvantage, RETURN_SCORE);
+
+    egHashAdd("krr/K", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("k/KRR", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("krb/K", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("k/KRB", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("krn/K", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("k/KRN", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("krp/K", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("k/KRP", &evaluateHugeAdvantage, RETURN_SCORE);
+
+    egHashAdd("kbb/K", &evaluateHugeAdvantage, RETURN_SCORE);
+    egHashAdd("k/KBB", &evaluateHugeAdvantage, RETURN_SCORE);
+
+    egHashAdd("kbn/K", &evaluateBN_Mating, RETURN_SCORE);
+    egHashAdd("k/KBN", &evaluateBN_Mating, RETURN_SCORE);
+
     // 5-man eval
     // lets say
     // King, Rook, Bishop vs King and Rook
@@ -388,4 +491,7 @@ void Eval::initEG(){
     // Evaluate RP vs B fortress
     egHashAdd("krp/KB", &evaluateRookPawn_vs_Bishop, RETURN_SCALE);
     egHashAdd("kb/KRP", &evaluateRookPawn_vs_Bishop, RETURN_SCALE);
+    // Evaluate NN vs P winning chances
+    //egHashAdd("knn/KP", &evaluateKnights_vs_Pawn, RETURN_SCORE);
+    //egHashAdd("kp/KNN", &evaluateKnights_vs_Pawn, RETURN_SCORE);
 }
