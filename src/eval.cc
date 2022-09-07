@@ -877,7 +877,8 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
   int phase         = board.getPhase();
 
   // adjust EG eval based on pawns left
-  int StrongPawn = egS(score) > 0 ? _popCount(board.getPieces(color, PAWN)) : _popCount(board.getPieces(otherColor, PAWN));
+  Color strong   = egS(score) > 0 ? color : otherColor;
+  int StrongPawn = _popCount(board.getPieces(strong, PAWN));
   int Scale = std::min(EG_SCALE_NORMAL, EG_SCALE_MINIMAL + EG_SCALE_PAWN * StrongPawn);
 
 
@@ -912,6 +913,15 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
           if (TRACK) ft.Scale = BOTH_SCALE_KNIGHT_OCB;
         }
   }
+
+  // correct score for positions where winning side has no pawns and only a minor piece
+  if (StrongPawn == 0 &&
+      board.getPieces(strong, QUEEN) == 0 &&
+      board.getPieces(strong, ROOK) == 0  &&
+      _popCount(board.getAllPieces(strong)) == 2){
+        final_eval = final_eval * BOTH_SCALE_ZERO / BOTH_SCALE_NORMAL;
+        if (TRACK) ft.Scale = BOTH_SCALE_ZERO;
+      }
 
   return final_eval;
 }

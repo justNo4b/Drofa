@@ -4,11 +4,11 @@
     1) Улучшить оценку позиции
         a) EndgameEval
             KP_K
-            KBP_K
             KRP_K
-            KM_KPs
 
+            // нужно KPK
             KNN_KP
+            KBP_K
 
         b) Оценка возможности выйграть эншпиль
         с) KP-NN
