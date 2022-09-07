@@ -371,6 +371,72 @@ int Eval::evaluateRookPawn_vs_Bishop(const Board &board, Color color){
     return scale;
 }
 
+int Eval::evaluateRookPawn_vs_Rook(const Board &board, Color color){
+    int scale = 1;
+    // Very difficult endgames.
+    // Here we try to cover a few basic cases
+
+    // 1. Quick glance at PSQT to decide who is winning
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
+    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    Color strong = getOppositeColor(weak);
+    int weakKing    = _bitscanForward(board.getPieces(weak, KING));
+    int weakRook    = _bitscanForward(board.getPieces(weak, ROOK));
+    int strongPawn  = _bitscanForward(board.getPieces(strong, PAWN));
+    U64 qSquareBB   = detail::FORWARD_BITS[strong][strongPawn] & PROMOTION_RANK[strong];
+
+    // 1. Drawish rule -> Philidor defence
+    // If pawn is not advanced, place rook at 6th rank and king on pawn path for a draw
+
+    if ((_relrank(strongPawn, strong) < 5) &&
+        (_relrank(weakRook, strong) == 5) &&
+        (_relrank(weakKing, strong) > 5) &&
+        (detail::PASSED_PAWN_MASKS[strong][strongPawn] & board.getPieces(weak, KING))){
+            scale = 128;
+    }
+
+    // 2. Drawish rule -> checks from the back
+    // If our king is covering Q square and pawn on the 6th with enemy king behind own pawn
+    // try to check from behind
+    if ((_relrank(strongPawn, strong) == 5) &&
+        (_relrank(weakRook, strong) <= 1) &&
+        (_relrank(weakKing, strong) > 5) &&
+        (detail::PASSED_PAWN_MASKS[strong][strongPawn] & board.getPieces(weak, KING))){
+            scale = 128;
+    }
+
+    // 3. If the weak king is in front of a pawn, and pawn is not a far passer
+    // it is a draw very likely
+    if ((_relrank(strongPawn, strong) <= 3) &&
+        (detail::FORWARD_BITS[strong][strongPawn] & board.getPieces(weak, KING))){
+        scale = 8;
+    }
+
+    // 4. Depends on side to move for pawn on the 7th
+    // If strong side is to move, they win, otherwise draw
+    if ((_relrank(strongPawn, strong) == 6) &&
+        (_relrank(weakRook, strong) <= 1) &&
+        (qSquareBB & board.getPieces(weak, KING)) &&
+        (color == weak)){
+            scale = 128;
+    }
+
+    // 4. When a pawn is on 7th with own rook in front of it,
+    // it is a draw when we attack pawn from the back and our king is safe from check_into_Promo
+    if((_relrank(strongPawn, strong) == 6) &&
+       (detail::FORWARD_BITS[strong][strongPawn] & board.getPieces(strong, ROOK)) &&
+       (detail::FORWARD_BITS[weak][strongPawn] & board.getPieces(weak, ROOK)) &&
+       (qSquareBB & SIDE_FILES) &&
+       (_relrank(weakKing, strong) == 6) &&
+       ((FILE_B | FILE_G | SIDE_FILES) & board.getPieces(weak, KING))
+       ){
+            scale = 128;
+    }
+
+    return scale;
+
+}
+
 inline void Eval::egHashAdd(std::string psFen, egEvalFunction ef, egEntryType et){
     ZKey key;
     key.setpKeyFromString(psFen);
@@ -494,4 +560,7 @@ void Eval::initEG(){
     // Evaluate NN vs P winning chances
     //egHashAdd("knn/KP", &evaluateKnights_vs_Pawn, RETURN_SCORE);
     //egHashAdd("kp/KNN", &evaluateKnights_vs_Pawn, RETURN_SCORE);
+    // Evaluate RP vs R endgames
+    egHashAdd("krp/KR", &evaluateRookPawn_vs_Rook, RETURN_SCALE);
+    egHashAdd("kr/KRP", &evaluateRookPawn_vs_Rook, RETURN_SCALE);
 }

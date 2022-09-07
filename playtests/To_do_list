@@ -4,7 +4,6 @@
     1) Улучшить оценку позиции
         a) EndgameEval
             KP_K
-            KRP_K
 
             // нужно KPK
             KNN_KP
