@@ -231,6 +231,70 @@ int Eval::evaluateBishopPawn_vs_Knight(const Board &board, Color color){
     return scale;
 }
 
+int Eval::evaluateQueen_vs_RookPawn(const Board &board, Color color){
+    // This endgame is hard to win so we assume basic scale is /2 here
+    int scale = 2;
+
+    // Standart fortress position:
+    // pawn on 2nd, Rook is defended by pawn, Kind is near a pawn in the back
+    // make sure opponent king cant reach backline
+
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
+    Color weak     = psqt > 0 ? getOppositeColor(color) : color;
+    Color strong   = getOppositeColor(weak);
+    int weakKing   = _bitscanForward(board.getPieces(weak, KING));
+    int strongKing = _bitscanForward(board.getPieces(strong, KING));
+    int weakPawn   = _bitscanForward(board.getPieces(weak, PAWN));
+
+    if (_relrank(weakPawn, weak) == 1 &&
+        _relrank(weakKing, weak) <= 1 &&
+        _relrank(strongKing, weak) >= 2 &&
+        detail::DISTANCE[weakPawn][weakKing] == 1 &&
+        detail::OUTPOST_PROTECTION[strong][weakPawn] & board.getPieces(weak, ROOK)){
+            scale = 128;
+        }
+
+    return scale;
+}
+
+int Eval::evaluateRookPawn_vs_Bishop(const Board &board, Color color){
+    // This is generally a win, but there are a few fortress positions
+    // They involve far-advanced H or A pawn and bishop of the opposite color
+    // of quening square
+    int scale = 1;
+
+    // 1. Quick glance at PSQT to decide who is winning
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
+    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    Color strong = getOppositeColor(weak);
+    int strongPawn  = _bitscanForward(board.getPieces(strong, PAWN));
+    int weakKing    = _bitscanForward(board.getPieces(weak, KING));
+    U64 bishAttacks = Attacks::detail::_getBishopAttacks(_bitscanForward(board.getPieces(weak, BISHOP)), 0);
+    U64 qSquareBB   = detail::FORWARD_BITS[strong][strongPawn] & PROMOTION_RANK[strong];
+
+    // 1. Fortress is achieved if Pawn is on 6th rank, on A or H files
+    // King is in the corner, to stop a pawn and bishop is controlling Pawn path
+    if (_relrank(strongPawn, strong) == 5 &&
+        (board.getPieces(strong, PAWN) & (FILE_H | FILE_A)) &&
+        (detail::FORWARD_BITS[strong][strongPawn] & board.getPieces(weak, KING)) &&
+        (detail::FORWARD_BITS[strong][strongPawn] & bishAttacks) &&
+        (_popCount((board.getPieces(weak, BISHOP) | qSquareBB) & WHITE_SQUARES) == 1)){
+            scale = 128;
+        }
+    // 2. On the fifth rank with pretty much same conditions (use relaxed condition for a king) there is often a fortress
+    // but it is not guaranteed.
+    // We scale eval down here, but to be higher than RvsB, to ensure it is actually will try to win this
+    if (_relrank(strongPawn, strong) == 4 &&
+        (board.getPieces(strong, PAWN) & (FILE_H | FILE_A)) &&
+        (detail::DISTANCE[strongPawn][weakKing] <= 3) &&
+        (detail::DISTANCE[_bitscanForward(qSquareBB)][weakKing] <= 2) &&
+        (_popCount((board.getPieces(weak, BISHOP) | qSquareBB) & WHITE_SQUARES) == 1)){
+        scale = 4;
+    }
+
+    return scale;
+}
+
 inline void Eval::egHashAdd(std::string psFen, egEvalFunction ef, egEntryType et){
     ZKey key;
     key.setpKeyFromString(psFen);
@@ -298,6 +362,7 @@ void Eval::initEG(){
     // Rook vs Pawns
     egHashAdd("kr/KP", &evaluateRook_vs_Pawn, RETURN_SCORE);
     egHashAdd("kp/KR", &evaluateRook_vs_Pawn, RETURN_SCORE);
+    // ToDo - > lone minor vs pawns scaling (in main eval)
 
     // 5-man eval
     // lets say
@@ -317,4 +382,10 @@ void Eval::initEG(){
     egHashAdd("kb/KBP", &evaluateBishopPawn_vs_Bishop, RETURN_SCALE);
     egHashAdd("kbp/KN", &evaluateBishopPawn_vs_Knight, RETURN_SCALE);
     egHashAdd("kn/KBP", &evaluateBishopPawn_vs_Knight, RETURN_SCALE);
+    // Evaluate Q vs RP fortress
+    egHashAdd("krp/KQ", &evaluateQueen_vs_RookPawn, RETURN_SCALE);
+    egHashAdd("kq/KRP", &evaluateQueen_vs_RookPawn, RETURN_SCALE);
+    // Evaluate RP vs B fortress
+    egHashAdd("krp/KB", &evaluateRookPawn_vs_Bishop, RETURN_SCALE);
+    egHashAdd("kb/KRP", &evaluateRookPawn_vs_Bishop, RETURN_SCALE);
 }

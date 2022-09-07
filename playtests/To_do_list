@@ -3,6 +3,20 @@
 Задачи основные:
     1) Улучшить оценку позиции
         a) EndgameEval
+            KP_K
+            KBP_K
+            KRP_K
+            KM_KPs
+
+            KNN_KP
+            KBB_K
+            KBN_K
+            KQQ_K
+            KQR_K
+            KQB_K
+            KQN_K
+            KQP_K
+
         b) Оценка возможности выйграть эншпиль
         с) KP-NN
     3) MultyThreading
