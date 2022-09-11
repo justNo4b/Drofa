@@ -437,6 +437,19 @@ int Eval::evaluateRookPawn_vs_Rook(const Board &board, Color color){
 
 }
 
+int Eval::evaluateKingPawn_vs_King(const Board &board, Color color){
+    int s = 0;
+    // 1. Quick glance at PSQT to decide who is winning
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
+    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+
+    // Evaluate with the help of a bitbase
+    s = Bitbase::eval_by_kpk(board, getOppositeColor(weak));
+
+    // Score negation is already handled inside bitbase code
+    return s;
+}
+
 inline void Eval::egHashAdd(std::string psFen, egEvalFunction ef, egEntryType et){
     ZKey key;
     key.setpKeyFromString(psFen);
@@ -472,7 +485,9 @@ void Eval::initEG(){
     // King vs King + Queen  = win
     egHashAdd("kq/K", &evaluateQueen_vs_X, RETURN_SCORE);
     egHashAdd("k/KQ", &evaluateQueen_vs_X, RETURN_SCORE);
-    // ToDo KPK
+    // KPK is evaluated by bitbase (basically Stash code for Bitbase)
+    egHashAdd("kp/K", &evaluateKingPawn_vs_King, RETURN_SCORE);
+    egHashAdd("k/KP", &evaluateKingPawn_vs_King, RETURN_SCORE);
 
     // 4-man eval
     // Obviously KN vs KB etc is draw also

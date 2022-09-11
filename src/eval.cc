@@ -135,6 +135,11 @@ void Eval::init() {
 
     }
   }
+
+  // Init KPK bitbase
+  // It should be initialized after rest of the Eval as some const are used in the
+  // bitbase creation
+  Bitbase::init_kpk();
 }
 
 evalBits Eval::Setupbits(const Board &board){

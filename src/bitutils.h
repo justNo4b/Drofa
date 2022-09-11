@@ -125,4 +125,8 @@ inline int _mir(int square){
   return square ^ 56;
 }
 
+inline U64 _sqBB(int square){
+    return (ONE << square);
+}
+
 #endif
