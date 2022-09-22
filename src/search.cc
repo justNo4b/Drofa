@@ -243,8 +243,6 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
 
   _sStack.AddEval(board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer()));
 
-    std::cout << Eval::evaluate(board, board.getActivePlayer()) << std::endl;
-
   // If no legal moves are available, just return, setting bestmove to a null move
   if (legalMoves->empty()) {
     _bestMove = Move();
