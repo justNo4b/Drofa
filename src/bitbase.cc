@@ -12,8 +12,8 @@ uint8_t KPK_Bitbase[KPK_SIZE / 8];
 // see https://github.com/mhouppin/stash-bot
 
 inline uint Bitbase::kpk_get_index(Color color, int bKing, int wKing, int pawn){
-    return ((uint)wKing | ((unsigned int)bKing << 6) | ((unsigned int)color << 12)
-         | ((unsigned int)_col(pawn) << 13) | ((unsigned int)(6 - _row(pawn)) << 15));
+    return ((uint)wKing | ((uint)bKing << 6) | ((uint)color << 12)
+         | ((uint)_col(pawn) << 13) | ((uint)(6 - _row(pawn)) << 15));
 }
 
 bool Bitbase::kpk_is_winning(Color color, int bKing, int wKing, int pawn){
@@ -142,18 +142,17 @@ void Bitbase::init_kpk(){
 
 
 int Bitbase::eval_by_kpk(const Board &board, Color winningSide){
-    int winningKing = board.getPieces(winningSide, KING);
+    int winningKing = _bitscanForward(board.getPieces(winningSide, KING));
     int winningPawn = _bitscanForward(board.getPieces(winningSide, PAWN));
-    int losingKing = board.getPieces(getOppositeColor(winningSide), KING);
+    int losingKing  = _bitscanForward(board.getPieces(getOppositeColor(winningSide), KING));
     Color us = winningSide == board.getActivePlayer() ? WHITE : BLACK;
 
     winningKing = normalize_square(board, winningSide, winningKing);
     winningPawn = normalize_square(board, winningSide, winningPawn);
     losingKing = normalize_square(board, winningSide, losingKing);
 
-
     int score = kpk_is_winning(us, losingKing, winningKing, winningPawn)
-                        ? CONFIDENT_WIN_SCORE + _relrank(winningPawn, winningSide) * 3
+                        ? CONFIDENT_WIN_SCORE + _relrank(_bitscanForward(board.getPieces(winningSide, PAWN)), winningSide) * 3
                         : 0;
 
     return (winningSide == board.getActivePlayer() ? score : -score);

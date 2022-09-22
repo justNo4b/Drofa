@@ -52,7 +52,7 @@ const int DRAW_WITH_ADVANTAGE    = 10;
 
 inline int normalize_square(const Board &board, Color winning, int sqv){
 
- if (_row(_bitscanForward(board.getPieces(winning, PAWN))) >= 4){
+ if (_col(_bitscanForward(board.getPieces(winning, PAWN))) >= 4){
     sqv ^= 7;
  }
 
