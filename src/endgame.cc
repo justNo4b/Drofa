@@ -126,8 +126,8 @@ int Eval::evaluateKnights_vs_Pawn(const Board &board, Color color){
 
     // Evaluate higher when king is on the edge, and lower for each step pawn is closer to promotion
     s += 64 - _edgedist(weakKing) * _edgedist(weakKing);
-    s += 8 - Eval::detail::DISTANCE[weakKing][strongKing];
-    s -= 49 - _relrank(weakPawn, weak) * _relrank(weakPawn, weak);
+    s += 49 - Eval::detail::DISTANCE[weakKing][strongKing] * Eval::detail::DISTANCE[weakKing][strongKing];
+    s -= 10 * _relrank(weakPawn, weak);
 
     // if sideToMove is Losing, reverse sign
     return weak != color ? s : -s;
@@ -572,8 +572,8 @@ void Eval::initEG(){
     egHashAdd("krp/KB", &evaluateRookPawn_vs_Bishop, RETURN_SCALE);
     egHashAdd("kb/KRP", &evaluateRookPawn_vs_Bishop, RETURN_SCALE);
     // Evaluate NN vs P winning chances
-    //egHashAdd("knn/KP", &evaluateKnights_vs_Pawn, RETURN_SCORE);
-    //egHashAdd("kp/KNN", &evaluateKnights_vs_Pawn, RETURN_SCORE);
+    egHashAdd("knn/KP", &evaluateKnights_vs_Pawn, RETURN_SCORE);
+    egHashAdd("kp/KNN", &evaluateKnights_vs_Pawn, RETURN_SCORE);
     // Evaluate RP vs R endgames
     egHashAdd("krp/KR", &evaluateRookPawn_vs_Rook, RETURN_SCALE);
     egHashAdd("kr/KRP", &evaluateRookPawn_vs_Rook, RETURN_SCALE);
