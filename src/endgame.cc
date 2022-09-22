@@ -19,7 +19,7 @@ int Eval::evaluateRookMinor_Rook(const Board &board, Color color){
     // Grab PSQT to determine a losing side
     // 1. Quick glance at PSQT to decide who is winning
     int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
-    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    Color weak = egS(psqt) > 0 ? getOppositeColor(color) : color;
     int weakKing   = _bitscanForward(board.getPieces(weak, KING));
     int strongKing = _bitscanForward(board.getPieces(getOppositeColor(weak), KING));
 
@@ -41,7 +41,7 @@ int Eval::evaluateQueen_vs_X(const Board &board, Color color){
 
     // 1. Quick glance at PSQT to decide who is winning
     int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
-    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    Color weak = egS(psqt) > 0 ? getOppositeColor(color) : color;
     int weakKing   = _bitscanForward(board.getPieces(weak, KING));
     int strongKing = _bitscanForward(board.getPieces(getOppositeColor(weak), KING));
 
@@ -62,7 +62,7 @@ int Eval::evaluateHugeAdvantage(const Board &board, Color color){
 
     // This function will evaluate huge advantage wins, such as QQ, QR, RR, etc
     int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
-    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    Color weak = egS(psqt) > 0 ? getOppositeColor(color) : color;
     Color strong   = getOppositeColor(weak);
     int weakKing   = _bitscanForward(board.getPieces(weak, KING));
     int strongKing = _bitscanForward(board.getPieces(strong, KING));
@@ -87,7 +87,7 @@ int Eval::evaluateBN_Mating(const Board &board, Color color){
 
     // 1. Galnce at PSQT, to see who is winning
     int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
-    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    Color weak = egS(psqt) > 0 ? getOppositeColor(color) : color;
     Color strong   = getOppositeColor(weak);
     int weakKing   = _bitscanForward(board.getPieces(weak, KING));
     int strongKing = _bitscanForward(board.getPieces(strong, KING));
@@ -118,7 +118,7 @@ int Eval::evaluateKnights_vs_Pawn(const Board &board, Color color){
 
     // 1. Galnce at PSQT, to see who is winning
     int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
-    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    Color weak = egS(psqt) > 0 ? getOppositeColor(color) : color;
     Color strong   = getOppositeColor(weak);
     int weakKing   = _bitscanForward(board.getPieces(weak, KING));
     int strongKing = _bitscanForward(board.getPieces(strong, KING));
@@ -139,7 +139,7 @@ int Eval::evaluateRook_vs_Bishop(const Board &board, Color color){
     int s = 0;
     // 1. Quick glance at PSQT to decide who is winning
     int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
-    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    Color weak = egS(psqt) > 0 ? getOppositeColor(color) : color;
     int weakKing   = _bitscanForward(board.getPieces(weak, KING));
     int strongKing = _bitscanForward(board.getPieces(getOppositeColor(weak), KING));
 
@@ -167,7 +167,7 @@ int Eval::evaluateRook_vs_Knight(const Board &board, Color color){
 
     // 1. Quick glance at PSQT to decide who is winning
     int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
-    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    Color weak = egS(psqt) > 0 ? getOppositeColor(color) : color;
     int weakKing   = _bitscanForward(board.getPieces(weak, KING));
     int weakKnight = _bitscanForward(board.getPieces(weak, KNIGHT));
 
@@ -189,7 +189,7 @@ int Eval::evaluateRook_vs_Pawn(const Board &board, Color color){
 
     // 1. Quick glance at PSQT to decide who is winning
     int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
-    Color weak     = psqt > 0 ? getOppositeColor(color) : color;
+    Color weak     = egS(psqt) > 0 ? getOppositeColor(color) : color;
     Color strong   = getOppositeColor(weak);
     int weakKing   = _bitscanForward(board.getPieces(weak, KING));
     int weakPawn   = _bitscanForward(board.getPieces(weak, PAWN));
@@ -233,7 +233,7 @@ int Eval::evaluateQueen_vs_Pawn(const Board &board, Color color){
 
     // 1. Quick glance at PSQT to decide who is winning
     int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
-    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    Color weak = egS(psqt) > 0 ? getOppositeColor(color) : color;
     int weakKing   = _bitscanForward(board.getPieces(weak, KING));
     int strongKing = _bitscanForward(board.getPieces(getOppositeColor(weak), KING));
     int weakPawn   = _bitscanForward(board.getPieces(weak, PAWN));
@@ -268,7 +268,7 @@ int Eval::evaluateBishopPawn_vs_Bishop(const Board &board, Color color){
     if (isOCB) scale = 128;
 
     // 2. Check if king is in perfect defensive position
-    Color weak     = psqt > 0 ? getOppositeColor(color) : color;
+    Color weak     = egS(psqt) > 0 ? getOppositeColor(color) : color;
     Color strong   = getOppositeColor(weak);
     int strongPawn = _bitscanForward(board.getPieces(strong, PAWN));
     U64 pawnPath   = Eval::detail::FORWARD_BITS[strong][strongPawn];
@@ -292,7 +292,7 @@ int Eval::evaluateBishopPawn_vs_Knight(const Board &board, Color color){
     int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
 
     // 2. Check if king is in perfect defensive position
-    Color weak     = psqt > 0 ? getOppositeColor(color) : color;
+    Color weak     = egS(psqt) > 0 ? getOppositeColor(color) : color;
     Color strong   = getOppositeColor(weak);
     int strongPawn = _bitscanForward(board.getPieces(strong, PAWN));
     U64 pawnPath   = Eval::detail::FORWARD_BITS[strong][strongPawn];
@@ -316,7 +316,7 @@ int Eval::evaluateQueen_vs_RookPawn(const Board &board, Color color){
     // make sure opponent king cant reach backline
 
     int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
-    Color weak     = psqt > 0 ? getOppositeColor(color) : color;
+    Color weak     = egS(psqt) > 0 ? getOppositeColor(color) : color;
     Color strong   = getOppositeColor(weak);
     int weakKing   = _bitscanForward(board.getPieces(weak, KING));
     int strongKing = _bitscanForward(board.getPieces(strong, KING));
@@ -341,7 +341,7 @@ int Eval::evaluateRookPawn_vs_Bishop(const Board &board, Color color){
 
     // 1. Quick glance at PSQT to decide who is winning
     int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
-    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    Color weak = egS(psqt) > 0 ? getOppositeColor(color) : color;
     Color strong = getOppositeColor(weak);
     int strongPawn  = _bitscanForward(board.getPieces(strong, PAWN));
     int weakKing    = _bitscanForward(board.getPieces(weak, KING));
@@ -378,7 +378,7 @@ int Eval::evaluateRookPawn_vs_Rook(const Board &board, Color color){
 
     // 1. Quick glance at PSQT to decide who is winning
     int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
-    Color weak = psqt > 0 ? getOppositeColor(color) : color;
+    Color weak = egS(psqt) > 0 ? getOppositeColor(color) : color;
     Color strong = getOppositeColor(weak);
     int weakKing    = _bitscanForward(board.getPieces(weak, KING));
     int weakRook    = _bitscanForward(board.getPieces(weak, ROOK));
@@ -441,10 +441,9 @@ int Eval::evaluateKingPawn_vs_King(const Board &board, Color color){
     int s = 0;
     // 1. Quick glance at PSQT to decide who is winning
     int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
-    Color weak = psqt > 0 ? getOppositeColor(color) : color;
-
+    Color strong = egS(psqt) > 0 ? color : getOppositeColor(color);
     // Evaluate with the help of a bitbase
-    s = Bitbase::eval_by_kpk(board, getOppositeColor(weak));
+    s = Bitbase::eval_by_kpk(board, strong);
 
     // Score negation is already handled inside bitbase code
     return s;
