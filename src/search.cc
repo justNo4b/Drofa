@@ -324,6 +324,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   Move hashedMove = Move(0);
   pV   thisPV = pV();
   Color behindColor = _sStack.sideBehind;
+  bool isPmQuietCounter = (pMoveScore >= 50000 && pMoveScore <= 200000);
 
   // Check if we are out of time
   if (_stop || _checkLimits()) {
@@ -524,7 +525,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           && board.Calculate_SEE(move) < -51 * depth) continue;
 
       // 6. Prune quiet moves with poor CMH on the tips of the tree
-      if (depth <= 3 && isQuiet && cmHistory <= -4096 * depth) continue;
+      if (depth <= 3 && isQuiet && cmHistory <= (-4096 * (depth - isPmQuietCounter))) continue;
     }
 
     Board movedBoard = board;
@@ -687,8 +688,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // Add this move as a new killer move and update history if move is quiet
           _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * (statEVAL < alpha)));
           // Award counter-move history additionally if we refuted special quite previous move
-          if (pMoveScore >= 50000 && pMoveScore <= 200000)
-            _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
+          if (isPmQuietCounter) _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
           // Add a new tt entry for this node
           if (!_stop && !sing){
             myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
