@@ -439,9 +439,9 @@ int Eval::evaluateRookPawn_vs_Rook(const Board &board, Color color){
 
 int Eval::evaluateKingPawn_vs_King(const Board &board, Color color){
     int s = 0;
-    // 1. Quick glance at PSQT to decide who is winning
-    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
-    Color strong = egS(psqt) > 0 ? color : getOppositeColor(color);
+    // 1. For KPK winning side is the side with a pawn.
+    // Galncing at PSQT can be unreliable here
+    Color strong = board.getPieces(color, PAWN) > 0 ? color : getOppositeColor(color);
     // Evaluate with the help of a bitbase
     s = Bitbase::eval_by_kpk(board, strong);
 
