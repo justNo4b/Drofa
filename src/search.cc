@@ -543,7 +543,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         //
         // 6.0 InCheck extention
         // Extend when the side to move is in check
-        if (AreWeInCheck){
+        if (AreWeInCheck && !TTmove){
           tDepth++;
         }
 
@@ -551,8 +551,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // At high depth if we have the TT move, and we are certain
         // that non other moves are even close to it, extend this move
         // At low depth use statEval instead of search (Kimmys idea)
-        if (!AreWeInCheck &&
-            TTmove &&
+        if (TTmove &&
             probedHASHentry.depth >= depth - 2 &&
             probedHASHentry.move == move.getMoveINT() &&
             abs(probedHASHentry.score) < WON_IN_X / 4){
