@@ -83,7 +83,7 @@ int Eval::evaluateHugeAdvantage(const Board &board, Color color){
 }
 
 int Eval::evaluateBN_Mating(const Board &board, Color color){
-    int s = CONFIDENT_WIN_SCORE;
+    int s = 600;
 
     // 1. Galnce at PSQT, to see who is winning
     int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
@@ -555,6 +555,7 @@ void Eval::initEG(){
     // ToDo - > lone minor vs pawns scaling (in main eval)
 
     //Some easy wins with huge advantage
+    /* So far causing bugs in some drawn pVs, so commend out
     egHashAdd("kqq/K", &evaluateHugeAdvantage, RETURN_SCORE);
     egHashAdd("k/KQQ", &evaluateHugeAdvantage, RETURN_SCORE);
     egHashAdd("kqr/K", &evaluateHugeAdvantage, RETURN_SCORE);
@@ -577,6 +578,7 @@ void Eval::initEG(){
 
     egHashAdd("kbb/K", &evaluateHugeAdvantage, RETURN_SCORE);
     egHashAdd("k/KBB", &evaluateHugeAdvantage, RETURN_SCORE);
+    */
 
     egHashAdd("kbn/K", &evaluateBN_Mating, RETURN_SCORE);
     egHashAdd("k/KBN", &evaluateBN_Mating, RETURN_SCORE);
