@@ -48,7 +48,7 @@ const U64 RANK_8 = 0xff00000000000000ull;
 */
 const int LOST_SCORE = -30000;
 const int NOSCORE = 32666;
-const int WON_IN_X = 30000 - 50;
+const int WON_IN_X = 30000 - MAX_INT_PLY;
 const int MAX_GAME_PLY = 2048;
 
 /**

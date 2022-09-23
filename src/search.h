@@ -176,6 +176,13 @@ class Search {
 
   inline bool _isRepetitionDraw(U64, int);
 
+  inline int _ttAdjustScore(int hashScore){
+    if (abs(hashScore) > WON_IN_X){
+        hashScore = (hashScore > 0) ? (hashScore - MAX_PLY) :  (hashScore + MAX_PLY);
+      }
+    return hashScore;
+  };
+
   /**
    * @brief Root negamax function.
    *
