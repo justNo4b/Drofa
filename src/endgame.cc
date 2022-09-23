@@ -133,6 +133,40 @@ int Eval::evaluateKnights_vs_Pawn(const Board &board, Color color){
     return weak != color ? s : -s;
 }
 
+int Eval::evaluateBishopPawn_vs_KP(const Board &board, Color color){
+    int scale = 1;
+
+    // 1. Galnce at PSQT, to see who is winning
+    int psqt = board.getPSquareTable().getScore(color) - board.getPSquareTable().getScore(getOppositeColor(color));
+    Color weak = egS(psqt) > 0 ? getOppositeColor(color) : color;
+    Color strong   = getOppositeColor(weak);
+    int weakKing   = _bitscanForward(board.getPieces(weak, KING));
+    // We do generalistic eval here (including enemy pawns etc)
+    // Scale eval down massively in case for corner bishop case
+    U64 strongPawns = board.getPieces(strong, PAWN);
+    bool allSidePawns = ((strongPawns & (~FILE_A)) != 0) ||
+                        ((strongPawns & (~FILE_H)) != 0);
+
+    // if all strong pawns are on one side line, check square of the bishop
+    if (allSidePawns){
+        int pCol = _col(_bitscanForward(strongPawns));
+
+        U64 queeningSquare = strong == WHITE ? Eval::detail::FILES[pCol] & RANK_8 :
+                                               Eval::detail::FILES[pCol] & RANK_1;
+
+        // if queeningSquare is unreacheable by bishop
+        // and weak king is control it, return scale eval to the oblivion
+        // TODO: evaluate properly in case of race for a suare
+        if ((_popCount((board.getPieces(strong, BISHOP) | queeningSquare) & WHITE_SQUARES) == 1) &&
+            Eval::detail::DISTANCE[weakKing][_bitscanForward(queeningSquare)] <= 1){
+                scale = 64 * (2 - Eval::detail::DISTANCE[weakKing][_bitscanForward(queeningSquare)]);
+            }
+    }
+
+    // as we only scaling existing eval, no need to reverse sign
+    return scale;
+}
+
 int Eval::evaluateRook_vs_Bishop(const Board &board, Color color){
     // This endgame is very drawish
     // Only about 18% of positions are win.
@@ -547,6 +581,10 @@ void Eval::initEG(){
     egHashAdd("kbn/K", &evaluateBN_Mating, RETURN_SCORE);
     egHashAdd("k/KBN", &evaluateBN_Mating, RETURN_SCORE);
 
+    // KBPvsK corner pawn
+    egHashAdd("kbp/K", &evaluateBishopPawn_vs_KP, RETURN_SCALE);
+    egHashAdd("k/KBP", &evaluateBishopPawn_vs_KP, RETURN_SCALE);
+
     // 5-man eval
     // lets say
     // King, Rook, Bishop vs King and Rook
@@ -577,4 +615,7 @@ void Eval::initEG(){
     // Evaluate RP vs R endgames
     egHashAdd("krp/KR", &evaluateRookPawn_vs_Rook, RETURN_SCALE);
     egHashAdd("kr/KRP", &evaluateRookPawn_vs_Rook, RETURN_SCALE);
+    //Some KBPvsKP
+    egHashAdd("kbp/KP", &evaluateBishopPawn_vs_KP, RETURN_SCALE);
+    egHashAdd("kp/KBP", &evaluateBishopPawn_vs_KP, RETURN_SCALE);
 }
