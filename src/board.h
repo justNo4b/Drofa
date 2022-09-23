@@ -222,6 +222,8 @@ class Board {
    */
   ZKey getPawnStructureZKey() const;
 
+  ZKey getpCountKey() const;
+
   /**
    * @brief Returns the Piece Square Table of this board for its current state.
    *
@@ -322,7 +324,6 @@ class Board {
    */
   int _SEE_cost[6] = {100, 500, 300, 300, 1000, 10000};
 
-
   int _phase;
 
   /**
@@ -359,6 +360,8 @@ class Board {
    * @brief Zobrist key taking into account only pawn positions
    */
   ZKey _pawnStructureZkey;
+
+  ZKey _pCountKey;
 
  private:
 

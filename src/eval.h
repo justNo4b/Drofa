@@ -4,6 +4,7 @@
 #include "defs.h"
 #include "movegen.h"
 #include "bitutils.h"
+#include "endgame.h"
 
 #define gS(opS, egS) (int)((unsigned int)(opS) << 16) + (egS)
 #define opS(gS) (int16_t)((uint16_t)((unsigned)((gS) + 0x8000) >> 16))
@@ -85,6 +86,7 @@ extern U64 KING_PAWN_MASKS[2][2][8];
   const int BOTH_SCALE_OCB = 2;
   const int BOTH_SCALE_ROOK_OCB = 3;
   const int BOTH_SCALE_KNIGHT_OCB = 3;
+  const int BOTH_SCALE_ZERO = 0;
   /**@}*/
 
 /**
@@ -418,14 +420,32 @@ void init();
  * @param color Color to evaluate advantage of
  * @return Advantage of the given color in centipawns
  */
+inline int evaluateMain(const Board &, Color);
+
 int evaluate(const Board &, Color);
 
-/**
- * @brief Basically template function for testing various eval features.
- *  As I use it, it calls once before search.
- *
- */
-int evalTestSuite(const Board &, Color);
+
+void initEG();
+
+inline void egHashAdd(std::string , egEvalFunction, egEntryType);
+
+int evaluateDraw(const Board &, Color);
+int evaluateRookMinor_Rook(const Board &, Color);
+int evaluateQueen_vs_X(const Board &, Color);
+int evaluateQueen_vs_Pawn(const Board &, Color);
+int evaluateRook_vs_Bishop(const Board &, Color);
+int evaluateRook_vs_Knight(const Board &, Color);
+int evaluateRook_vs_Pawn(const Board &, Color);
+int evaluateBishopPawn_vs_Bishop(const Board &, Color);
+int evaluateBishopPawn_vs_Knight(const Board &, Color);
+int evaluateQueen_vs_RookPawn(const Board &, Color);
+int evaluateRookPawn_vs_Bishop(const Board &, Color);
+int evaluateHugeAdvantage(const Board &, Color);
+int evaluateBN_Mating(const Board &, Color);
+int evaluateKnights_vs_Pawn(const Board &, Color);
+int evaluateRookPawn_vs_Rook(const Board &, Color);
+int evaluateKingPawn_vs_King(const Board &, Color);
+int evaluateBishopPawn_vs_KP(const Board &, Color);
 
 /**
  * @brief Returns the value of the given PieceType used for evaluation
@@ -463,17 +483,6 @@ evalBits Setupbits(const Board &);
  * adjust base safety value for some types of shields
  */
 inline int kingShieldSafety(const Board &, Color, evalBits *);
-
-/**
- * @brief This function takes number of each pieceType count for each
- * side and (assuming best play) returns if the position is deadDraw
- *
- * Returns true is position is drawn, returns false if there is some play left.
- * Based on Vice function.
- *
- */
-inline bool IsItDeadDraw (const Board &, Color);
-
 
 /**
  * @brief Function evaluate piece-pawns interactions for given color

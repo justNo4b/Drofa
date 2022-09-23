@@ -9,6 +9,7 @@
 
 extern HASH * myHASH;
 extern posFeatured ft;
+extern egEvalEntry myEvalHash[];
 
 int MATERIAL_VALUES_TUNABLE[6] = {
         [PAWN] = 0,
@@ -97,6 +98,7 @@ U64 Eval::detail::KING_PAWN_MASKS[2][2][8] = {
 
 
 void Eval::init() {
+  initEG();
   // Initialize passed pawn masks
   for (int square = 0; square < 64; square++) {
 
@@ -133,6 +135,11 @@ void Eval::init() {
 
     }
   }
+
+  // Init KPK bitbase
+  // It should be initialized after rest of the Eval as some const are used in the
+  // bitbase creation
+  Bitbase::init_kpk();
 }
 
 evalBits Eval::Setupbits(const Board &board){
@@ -187,55 +194,6 @@ void Eval::SetupTuning(PieceType piece, int value){
 int Eval::getMaterialValue(int phase, PieceType pieceType) {
   return phase == OPENING ? opS(MATERIAL_VALUES[pieceType])
                           : egS(MATERIAL_VALUES[pieceType]);
-}
-
-inline bool Eval::IsItDeadDraw (const Board &board, Color color){
-  Color otherColor = getOppositeColor(color);
-
-  // если есть хоть одна пешка или королева, то играем
-  if ((board.getPieces(color, QUEEN) | board.getPieces(otherColor, QUEEN)) ||
-      (board.getPieces(color, PAWN) | board.getPieces(otherColor, PAWN))){
-    return false;
-  }
-
-  int ownBishop = _popCount(board.getPieces(color, BISHOP));
-  int oppBishop = _popCount(board.getPieces(otherColor, BISHOP));
-  int ownKnight = _popCount(board.getPieces(color, KNIGHT));
-  int oppKnight = _popCount(board.getPieces(otherColor, KNIGHT));
-  int ownRook   = _popCount(board.getPieces(color, ROOK));
-  int oppRook   = _popCount(board.getPieces(otherColor, ROOK));
-
-  if (!(board.getPieces(color, ROOK) | board.getPieces(otherColor, ROOK))){ // нет пешек, нет королев, нет ладей
-    if (!(board.getPieces(color, BISHOP) | board.getPieces(otherColor, BISHOP))){  // нет пешек, ладей, слонов.
-        if (_popCount(board.getPieces(color, KNIGHT)) < 3 && _popCount(board.getPieces(otherColor, KNIGHT)) < 3){ // меньше 2х коней = ничья
-          return true;
-        }
-    } else if (!(board.getPieces(color, KNIGHT) | board.getPieces(otherColor, KNIGHT))){ // нет пешек, королев, ладей, коней
-        if (abs(ownBishop - oppBishop) < 2){
-          return true;
-        }
-    } else if ((ownKnight < 3 && ownBishop == 0) || (ownBishop == 1 &&  ownKnight == 0)){
-      if ((oppKnight < 3 && oppBishop == 0)||(oppBishop == 1 && oppKnight == 0)){
-        return true;
-      }
-    }
-  } else {                             // ладьи есть
-    if (ownRook == 1 && oppRook == 1){
-      if (ownKnight + ownBishop < 2 && oppKnight + oppBishop < 2){    // тут немного криво, так как BR vs R выигрывают
-        return true;
-      }
-    } else if (ownRook == 1 && oppRook == 0){
-      if (ownKnight + ownBishop == 0 && oppKnight + oppBishop > 1){
-        return true;
-      }
-    } else if (oppRook == 1 && ownRook == 0){
-      if (oppKnight + oppBishop == 0 && ownKnight + ownBishop > 1){
-        return true;
-      }
-    }
-  }
-
-  return false;
 }
 
 inline int Eval::kingShieldSafety(const Board &board, Color color, evalBits * eB){
@@ -680,7 +638,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     int forwardSqv = color == WHITE ? square + 8 : square - 8;
     int relSqv = color == WHITE ? REFLECTED_SQUARE[_mir(square)] : REFLECTED_SQUARE[square];
     int pawnCol = _col(square);
-    int edgeDistance = _endgedist(square);
+    int edgeDistance = (square % 8 < 4) ? (square % 8) : (7 - (square % 8));
     int r = color == WHITE ? _row(square) : 7 - _row(square);
 
     if (TRACK){
@@ -924,7 +882,8 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
   int phase         = board.getPhase();
 
   // adjust EG eval based on pawns left
-  int StrongPawn = egS(score) > 0 ? _popCount(board.getPieces(color, PAWN)) : _popCount(board.getPieces(otherColor, PAWN));
+  Color strong   = egS(score) > 0 ? color : otherColor;
+  int StrongPawn = _popCount(board.getPieces(strong, PAWN));
   int Scale = std::min(EG_SCALE_NORMAL, EG_SCALE_MINIMAL + EG_SCALE_PAWN * StrongPawn);
 
 
@@ -960,17 +919,22 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
         }
   }
 
+  // correct score for positions where winning side has no pawns and only a minor piece
+  if (StrongPawn == 0 &&
+      board.getPieces(strong, QUEEN) == 0 &&
+      board.getPieces(strong, ROOK) == 0  &&
+      _popCount(board.getAllPieces(strong)) == 2){
+        final_eval = final_eval * BOTH_SCALE_ZERO / BOTH_SCALE_NORMAL;
+        if (TRACK) ft.Scale = BOTH_SCALE_ZERO;
+      }
+
   return final_eval;
 }
 
-int Eval::evaluate(const Board &board, Color color) {
+inline int Eval::evaluateMain(const Board &board, Color color) {
 
   int score = 0;
   Color otherColor = getOppositeColor(color);
-
-  if (IsItDeadDraw(board, color)){
-    return 0;
-  }
 
   if (TRACK){
     ft.MaterialValue[PAWN][color]+= _popCount(board.getPieces(color, PAWN));
@@ -1032,7 +996,19 @@ int Eval::evaluate(const Board &board, Color color) {
   return final_eval + TEMPO;
 }
 
-int Eval::evalTestSuite(const Board &board, Color color)
-{
-  return 0;
+int Eval::evaluate(const Board &board, Color color){
+
+    // Probe eval hash
+    U64 index = board.getpCountKey().getValue() & (EG_HASH_SIZE - 1);
+    egEvalFunction spEval   = myEvalHash[index].eFunction;
+    egEntryType    spevType = myEvalHash[index].evalType;
+    int            egResult = 1;
+
+    if (myEvalHash[index].key == board.getpCountKey().getValue() && spEval != nullptr){
+        egResult = spEval(board, color);
+        if (spevType == RETURN_SCORE) return egResult;
+    }
+
+
+    return evaluateMain(board, color) / egResult;
 }

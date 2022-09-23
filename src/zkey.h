@@ -59,6 +59,12 @@ class ZKey {
   void flipPiece(Color, PieceType, unsigned int);
 
   /**
+   * @brief flipping Zkey for a given piece count
+   *
+   */
+  void flipPieceCount(Color, PieceType, int);
+
+  /**
    * @brief Flips the value of the active player in the ZKey
    *
    * If the active color is black, this method changes it to white, and vica-versa.
@@ -96,8 +102,20 @@ class ZKey {
   void setFromPawnStructure(const Board&);
 
   /**
-   * @brief Compare Zobrist keys 
-   * 
+   * @brief Sets Zkey from the given board, but only considering piece counts
+   *
+   */
+  void setFromPieceCounts(const Board&);
+
+  /**
+   * @brief sets pCount-based ZKey from pseudo-fen
+   * needed for EG evaluation initializing
+   */
+  void setpKeyFromString(const std::string);
+
+  /**
+   * @brief Compare Zobrist keys
+   *
    * @param other ZKey to compare
    * @return true if the two ZKeys have the same value, false otherwise
    */
@@ -139,6 +157,12 @@ class ZKey {
    * values to xor into _key for each color, piece type and square.
    */
   static U64 PIECE_KEYS[2][6][64];
+
+  /**
+   * @brief Array indexed by [color][PieceType][PieceNumber]
+   * Used to form a key for EG_Eval calculations
+   */
+  static U64 PIECE_COUNT_KEY[2][6][11];
 
   /**
    * @brief Pseudo-random keys to xor into _key for each en passant file
