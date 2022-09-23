@@ -472,6 +472,7 @@ int getMaterialValue(int, PieceType);
    inline int evaluatePAWNS(const Board &, Color, evalBits *);
    inline int evaluateKING(const Board &, Color, evalBits *);
    inline int probePawnStructure(const Board &, Color, evalBits *);
+   inline int winnableEndgame(const Board &, Color, evalBits *, int);
 
   /**@}*/
 
