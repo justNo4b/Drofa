@@ -943,8 +943,10 @@ inline int Eval::winnableEndgame(const Board & board, Color color, evalBits * eB
   U64 pawnsTotal = board.getPieces(color, PAWN) | board.getPieces(otherColor, PAWN);
 
   bool pawnsBothFlanks =  ((pawnsTotal & KING_SIDE) != 0) && ((pawnsTotal & QUEEN_SIDE) != 0);
+  bool pawnEndgame     =  ((board.getAllPieces(WHITE) ^ board.getPieces(WHITE, KING) ^ board.getPieces(WHITE, PAWN)) == 0) &&
+                          ((board.getAllPieces(BLACK) ^ board.getPieces(BLACK, KING) ^ board.getPieces(BLACK, PAWN)) == 0);
 
-  int winnable = -1 * (!pawnsBothFlanks * 35);
+  int winnable = -1 * (!(pawnsBothFlanks || pawnEndgame) * 35);
   s = gS(0, sign * std::max(winnable, -abs(eGpart)));
 
   return s;
