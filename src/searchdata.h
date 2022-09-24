@@ -4,15 +4,18 @@
 #include "defs.h"
 #include "move.h"
 
+#define MoveToIndx(mInt) ((mInt & 0x7)  + ((mInt  >> 15) & 0x3f) * 6)
+
 struct SEARCH_Data
 {
     int     statEval  [MAX_INT_PLY];
+    int     cmhIndx   [MAX_INT_PLY];
     Move    moves     [MAX_INT_PLY];
     int8_t  ply;
     Color   sideBehind;
     bool    nmpTree;
 
-    SEARCH_Data() : statEval {0}, moves {0}, ply(0), sideBehind(WHITE), nmpTree(false) {};
+    SEARCH_Data() : statEval {0}, cmhIndx{0}, moves {0}, ply(0), sideBehind(WHITE), nmpTree(false) {};
 
     void AddEval(int e){
         statEval[ply] = e;
@@ -20,11 +23,13 @@ struct SEARCH_Data
 
     void AddMove(Move m){
         moves[ply] = m;
+        cmhIndx[ply] = MoveToIndx(m.getMoveINT());
         ply++;
     };
 
     void AddNullMove(Color sB){
         moves[ply] = Move();
+        cmhIndx[ply] = MoveToIndx(0);
         ply++;
         sideBehind = sB;
         nmpTree = true;

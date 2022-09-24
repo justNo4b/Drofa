@@ -321,6 +321,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   int pMove =  _sStack.moves[ply - 1].getMoveINT();
   int ppMove = ply > 1 ? _sStack.moves[ply - 2].getMoveINT() : 0;
   int pMoveScore = _sStack.moves[ply - 1].getValue();
+  int  pMoveIndx  = _sStack.cmhIndx[ply - 1];
+  int  ppMoveIndx = _sStack.cmhIndx[ply - 2];
   int alphaOrig = alpha;
   int statEVAL = 0;
   Move hashedMove = Move(0);
@@ -497,8 +499,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   int  LegalMoveCount = 0;
   int  qCount = 0;
   bool singularExists = false;
-  int  pMoveIndx  = (pMove & 0x7)  + ((pMove  >> 15) & 0x3f) * 6;
-  int  ppMoveIndx = (ppMove & 0x7) + ((ppMove >> 15) & 0x3f) * 6;
 
   while (movePicker.hasNext()) {
     Move move = movePicker.getNext();
