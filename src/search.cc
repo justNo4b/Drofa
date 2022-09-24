@@ -723,7 +723,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), dBonus);
             _orderingInfo.decrementCounterHistory(board.getActivePlayer(), pMoveIndx, move.getPieceType(), move.getTo(), dBonus);
           }else{
-            _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), dBonus + failedNull);
+            _orderingInfo.decrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), dBonus + (failedNull && move.getValue() > 300000));
           }
         }
       }
