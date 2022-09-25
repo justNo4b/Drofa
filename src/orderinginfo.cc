@@ -27,7 +27,7 @@ void OrderingInfo::clearChildrenKillers(int ply){
 void OrderingInfo::updateCounterMove(Color color, int counteredMove, int counterMove, int depth){
   int pType = counteredMove & 0x7;
   int to = (counteredMove >> 15) & 0x3f;
-  if (_counterMove[color][pType][to].depth < depth){
+  if (_counterMove[color][pType][to].depth < 2 * depth){
     _counterMove[color][pType][to].move = counterMove;
     _counterMove[color][pType][to].depth = depth;
   }
