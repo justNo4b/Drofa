@@ -218,7 +218,7 @@ inline void Search::_updateBeta(bool isQuiet, const Move move, Color color, int 
 	if (isQuiet) {
     _orderingInfo.updateKillers(ply, move);
     _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
-    _orderingInfo.updateCounterMove(color, pMove, move.getMoveINT());
+    _orderingInfo.updateCounterMove(color, pMove, move.getMoveINT(), depth);
     _orderingInfo.incrementCounterHistory(color, pMove, move.getPieceType(), move.getTo(), 2 * depth);
   }else{
     _orderingInfo.incrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), depth);

@@ -24,16 +24,19 @@ void OrderingInfo::clearChildrenKillers(int ply){
   _killer2[ply + 2] = 0;
 }
 
-void OrderingInfo::updateCounterMove(Color color, int counteredMove, int counterMove){
+void OrderingInfo::updateCounterMove(Color color, int counteredMove, int counterMove, int depth){
   int pType = counteredMove & 0x7;
   int to = (counteredMove >> 15) & 0x3f;
-  _counterMove[color][pType][to] = counterMove;
+  if (_counterMove[color][pType][to].depth < depth){
+    _counterMove[color][pType][to].move = counterMove;
+    _counterMove[color][pType][to].depth = depth;
+  }
 }
 
 int OrderingInfo::getCounterMoveINT(Color color, int pMove) const{
   int type = pMove & 0x7;
   int to = (pMove >> 15) & 0x3f;
-  return _counterMove[color][type][to];
+  return _counterMove[color][type][to].move;
 }
 
 // currently use formula clamps history between (-16384 and 16384)

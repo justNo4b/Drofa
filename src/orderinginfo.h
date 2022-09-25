@@ -71,7 +71,7 @@ class OrderingInfo {
    * @param counterMove Move that rejected counteredMove
    *
    */
-  void updateCounterMove(Color, int , int);
+  void updateCounterMove(Color, int , int, int);
 
   /**
    * @brief Gets CounterMove using last move made in the position as info
@@ -136,6 +136,13 @@ class OrderingInfo {
 
  private:
 
+  struct counterData
+  {
+    int     move;
+    uint8_t depth;
+  };
+
+
   /**
    * @brief Array of first killer moves by ply
    */
@@ -167,7 +174,7 @@ class OrderingInfo {
    * made on the previous ply (cause beta - cutoff)
    * Indexed by [OppositeColor][PieceType][to_square] of the move they countered
    */
-  int _counterMove[2][6][64];
+  counterData _counterMove[2][6][64];
 };
 
 #endif
