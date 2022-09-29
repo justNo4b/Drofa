@@ -79,7 +79,7 @@ U64 Board::getMobilityForSquare(PieceType pieceType, Color color, int square, U6
       return 0;
     case ROOK:
       own = own ^  getPieces(color, ROOK) ^ getPieces (color, QUEEN);
-      scan =  getPieces(color, ROOK) | getPieces (color, QUEEN);
+      scan =  getPieces(color, ROOK) | getPieces (color, QUEEN) | getPieces(getOppositeColor(color), QUEEN);
       attacks = _getRookMobilityForSquare(square, own, scan);
       break;
     case KNIGHT:
@@ -87,7 +87,7 @@ U64 Board::getMobilityForSquare(PieceType pieceType, Color color, int square, U6
       break;
     case BISHOP:
       own = own ^ getPieces (color, QUEEN) ^ getPieces (color, BISHOP);
-      scan = getPieces (color, QUEEN) | getPieces (color, BISHOP);
+      scan = getPieces (color, QUEEN) | getPieces (color, BISHOP) | getPieces(getOppositeColor(color), QUEEN);
       attacks = _getBishopMobilityForSquare(square, own, scan);
       break;
     case QUEEN:
