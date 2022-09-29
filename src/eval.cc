@@ -867,6 +867,13 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
   if (board.getActivePlayer() == color) eB->KingAttackPower[color] += ATTACK_TEMPO;
 
+  U64 kingOnside = _col(ourKingSquare) < 3 ? (FILE_A | FILE_B | FILE_C) :
+                   _col(ourKingSquare) > 4 ? (FILE_F | FILE_G | FILE_H) :
+                   (FILE_C | FILE_D | FILE_E |FILE_F);
+  int sideAttack = _popCount(eB->AttackedSquares[color] & kingOnside & FIGHTING_AREA);
+  eB->KingAttackPower[color] += 2 * sideAttack * sideAttack;
+
+
   return s;
 }
 
