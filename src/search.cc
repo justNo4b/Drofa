@@ -324,7 +324,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   bool ttMoveQuiet  = false;
   bool nmpTree      = _sStack.nmpTree;
   bool failNullNode = false;
-  bool pMoveSpQuiet = (pMoveScore >= 50000 && pMoveScore <= 200000);
+  bool pMoveSpQuiet = (pMoveScore >= COUNTER_BASE_SCORE && pMoveScore <= KILLER1_BASE_SCORE);
   Move hashedMove   = Move(0);
   Move bestMove     = Move(0);
   pV   thisPV       = pV();

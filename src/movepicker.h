@@ -5,6 +5,14 @@
 #include "board.h"
 #include "orderinginfo.h"
 
+#define CAPTURE_BASE_SCORE       (400000)
+#define PROMOTION_BASE_SCORE     (300000)
+#define KILLER1_BASE_SCORE       (200000)
+#define KILLER2_BASE_SCORE       (150000)
+#define COUNTER_BASE_SCORE       (50000)
+#define QUIET_BASE_SCORE         (0)
+#define BAD_CAPTURE_SCORE        (-16384)
+
 /**
  * @brief Abstract base class for an object that picks moves from a move list in an optimal order.
  *
@@ -55,13 +63,12 @@ class MovePicker {
    * @brief Bonuses applied to specific move types.
    * @{
    */
-  static const int CAPTURE_BONUS      = 400000;
-  static const int PROMOTION_BONUS    = 300000;
-  static const int KILLER1_BONUS      = 200000;
-  static const int KILLER2_BONUS      = 150000;
-  static const int COUNTERMOVE_BONUS  = 50000;
-  static const int QUIET_BONUS        = 0;
-  static const int BAD_CAPTURE        =-16384;
+  static const int CAPTURE_BONUS      = CAPTURE_BASE_SCORE;
+  static const int KILLER1_BONUS      = KILLER1_BASE_SCORE;
+  static const int KILLER2_BONUS      = KILLER2_BASE_SCORE;
+  static const int COUNTERMOVE_BONUS  = COUNTER_BASE_SCORE;
+  static const int QUIET_BONUS        = QUIET_BASE_SCORE;
+  static const int BAD_CAPTURE        = BAD_CAPTURE_SCORE;
   const int PROMOTION_SORT[6] = {0, 0, 100000, -50000, 300000, 0};
   /**@}*/
 
