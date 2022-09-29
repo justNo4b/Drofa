@@ -461,11 +461,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                 break;
             }
 
-            // skip quiet TT moves
-            if (move == probedHASHentry.move && move.isQuiet()){
-                continue;
-            }
-
             // make a move
             Board movedBoard = board;
             movedBoard.doMove(move);
