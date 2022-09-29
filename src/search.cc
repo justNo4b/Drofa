@@ -324,6 +324,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   bool ttMoveQuiet  = false;
   bool nmpTree      = _sStack.nmpTree;
   bool failNullNode = false;
+  bool improving    = false;
   bool pMoveSpQuiet = (pMoveScore >= COUNTER_BASE_SCORE && pMoveScore <= KILLER1_BASE_SCORE);
   Move hashedMove   = Move(0);
   Move bestMove     = Move(0);
@@ -377,18 +378,13 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
   // Statically evaluate our position
-  // Do the Evaluation, unless we are in check
-  if (inCheckNode) {
-    _sStack.AddEval(NOSCORE);
-  }else {
-    nodeEval = Eval::evaluate(board, board.getActivePlayer());
-    _sStack.AddEval(nodeEval);
-  }
+  // Do the Evaluation, unless we are in check, add info to for further use
+  nodeEval = inCheckNode ? NOSCORE : Eval::evaluate(board, board.getActivePlayer());
+  _sStack.AddEval(nodeEval);
 
   // Check if we are improving
   // The idea is if we are not improving in this line we probably can prune a bit more
-  bool improving = false;
-  if (ply > 2) improving = !inCheckNode && nodeEval > _sStack.statEval[ply - 2];
+  if (ply >= 2) improving = !inCheckNode && nodeEval > _sStack.statEval[ply - 2];
 
   // Clear Killers for the children node
   _orderingInfo.clearChildrenKillers(ply);
@@ -456,16 +452,14 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         while (movePicker.hasNext()){
             Move move = movePicker.getNext();
 
-            // exit when there is no more captures
-            if (move.getValue() <= 300000){
+            // exit when there is no more captures or Q promotions
+            if (move.getValue() <= PROMOTION_BASE_SCORE){
                 movePicker.refreshPicker();
                 break;
             }
 
             // skip quiet TT moves
-            if (move == ttEntry.move && move.isQuiet()){
-                continue;
-            }
+            if (move == ttEntry.move && move.isQuiet()) continue;
 
             // make a move
             Board movedBoard = board;
