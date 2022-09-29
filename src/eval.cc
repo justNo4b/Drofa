@@ -870,7 +870,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   U64 kingOnside = _col(ourKingSquare) < 3 ? (FILE_A | FILE_B | FILE_C) :
                    _col(ourKingSquare) > 4 ? (FILE_F | FILE_G | FILE_H) :
                    (FILE_C | FILE_D | FILE_E |FILE_F);
-  int sideAttack = _popCount(eB->AttackedSquares[color] & kingOnside & FIGHTING_AREA);
+  int sideAttack = _popCount(eB->AttackedSquares[color] & kingOnside & FIGHTING_AREA & ~eB->AttackedSquares[otherColor]);
   eB->KingAttackPower[color] += sideAttack * sideAttack / 4;
 
 
