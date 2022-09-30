@@ -59,13 +59,9 @@ class OrderingInfo {
 
   void decrementCapHistory(PieceType, PieceType, int, int);
 
-  void incrementCounterHistory(Color, int, PieceType, int, int);
+  void incrementCounterHistory(Color, int, int, PieceType, int, int);
 
-  void decrementCounterHistory(Color, int, PieceType, int, int);
-
-  void incrementFollowHistory(Color, int, PieceType, int, int);
-
-  void decrementFollowHistory(Color, int, PieceType, int, int);
+  void decrementCounterHistory(Color, int, int, PieceType, int, int);
 
   /**
    * @brief Update countermove.
