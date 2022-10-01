@@ -101,6 +101,8 @@
       const int MTG_CYC_INCR   = 10;
       const int MTG_NO_INCR    = 40;
 
+      const int SAFETY_MARGIN  = 20;
+
 
     /**@}*/
 

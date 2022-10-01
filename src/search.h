@@ -174,7 +174,7 @@ class Search {
    */
   inline void _updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ply, int depth);
 
-  inline bool _isRepetitionDraw(U64, int);
+  inline bool _isRepetitionFiftyDraw(Board);
 
   inline int _ttAdjustScore(int hashScore){
     if (abs(hashScore) > WON_IN_X){

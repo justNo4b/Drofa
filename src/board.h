@@ -276,7 +276,7 @@ class Board {
    *
    * Used in the NULL_MOVE routine as soft zugzwang detection
    */
-  bool isThereMajorPiece() const;
+  bool isThereMajorPiece(Color) const;
 
   /**
    * @brief return true if we are currently in the mid-endgame Position

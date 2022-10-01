@@ -462,9 +462,8 @@ void Board::_addPiece(Color color, PieceType pieceType, int squareIndex) {
   _pst.addPiece(color, pieceType, squareIndex);
 }
 
-bool Board:: isThereMajorPiece() const {
-  Color active = getActivePlayer();
-  return (_popCount(_allPieces[active] ^ _pieces[active][PAWN] ^ _pieces[active][KING]) > 0);
+bool Board:: isThereMajorPiece(Color color) const {
+  return (_popCount(_allPieces[color] ^ _pieces[color][PAWN] ^ _pieces[color][KING]) > 0);
 }
 
 bool Board:: isEndGamePosition() const {

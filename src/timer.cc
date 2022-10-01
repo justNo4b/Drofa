@@ -37,14 +37,14 @@ void Timer::_setupTimer(Color color, int movenum){
           int div = ourIncrement != 0 ? MTG_CYC_INCR : MTG_NO_INCR;
           _timeAllocated = ourTime / div + ourIncrement;
       }
-      _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - 10);
+      _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - SAFETY_MARGIN);
     } else {
       // when movetogo is specified, use different coefficients
 
       tCoefficient = CYCL_T_WIDTH_A / pow((CYCL_T_WIDTH + pow((movenum - CYCL_T_MOVE), 2)), 1.5);
       _timeAllocated = ourTime * tCoefficient;
       if (movenum > CYCL_CRIT_MOVE) _timeAllocated = ourTime / MTG_CYC_INCR + ourIncrement;
-      _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - 10);
+      _timeAllocated = std::min(_timeAllocated, ourTime + ourIncrement - SAFETY_MARGIN);
     }
 
     // Depth is infinity in a timed search (ends when time runs out)
