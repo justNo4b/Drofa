@@ -309,7 +309,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
 int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int beta, bool sing, bool cutNode) {
 
   _nodes++;
-  bool AreWeInCheck;
+  bool inCheckNode;
   bool pvNode = alpha != beta - 1;
   bool TTmove = false;
   bool quietTT = false;
@@ -320,7 +320,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   int pMove = _sStack.moves[ply - 1].getMoveINT();
   int pMoveScore = _sStack.moves[ply - 1].getValue();
   int alphaOrig = alpha;
-  int statEVAL = 0;
+  int nodeEval = NOSCORE;
   Move hashedMove = Move(0);
   pV   thisPV = pV();
   Color behindColor = _sStack.sideBehind;
@@ -341,11 +341,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
   // Check our InCheck status
-  AreWeInCheck = board.colorIsInCheck(board.getActivePlayer());
+  inCheckNode = board.colorIsInCheck(board.getActivePlayer());
 
   // Go into the QSearch if depth is 0 and we are not in check
   // Cut out pV and update our seldepth before dropping into qSearch
-  if ((depth <= 0 && !AreWeInCheck) || ply >= MAX_PLY) {
+  if ((depth <= 0 && !inCheckNode) || ply >= MAX_PLY) {
     _selDepth = std::max(ply, _selDepth);
     up_pV->length = 0;
     return _qSearch(board, alpha, beta);
@@ -376,30 +376,25 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   // Statically evaluate our position
   // Do the Evaluation, unless we are in check or prev move was NULL
-  // If last Move was Null, just negate prev eval and add 2x tempo bonus (10)
-  if (AreWeInCheck) {
-    _sStack.AddEval(NOSCORE);
-  }else {
-    statEVAL = Eval::evaluate(board, board.getActivePlayer());
-    _sStack.AddEval(statEVAL);
-  }
+  nodeEval = inCheckNode ? NOSCORE :  Eval::evaluate(board, board.getActivePlayer());
+  _sStack.AddEval(nodeEval);
 
   // Check if we are improving
   // The idea is if we are not improving in this line we probably can prune a bit more
   bool improving = false;
-  if (ply > 2) improving = !AreWeInCheck && statEVAL > _sStack.statEval[ply - 2];
+  if (ply >= 2) improving = !inCheckNode && nodeEval > _sStack.statEval[ply - 2];
 
   // Clear Killers for the children node
   _orderingInfo.clearChildrenKillers(ply);
 
   // Check if we are doing pre-move pruning techniques
   // We do not do them InCheck, in pvNodes and when proving singularity
-  bool isPrune = !pvNode && !AreWeInCheck && !sing;
+  bool isPrune = !pvNode && !inCheckNode && !sing;
 
   // 1. RAZORING
   // In the very leaf nodes (d == 1) with stat eval << beta we can assume that no
   // Quiet move can beat it and drop to the QSearch immidiately
-  if (isPrune && depth == 1 && (statEVAL + RAZORING_MARGIN < beta)){
+  if (isPrune && depth == 1 && (nodeEval + RAZORING_MARGIN < beta)){
         return _qSearch(board, alpha, beta);
       }
 
@@ -407,7 +402,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // The idea is so if we are very far ahead of beta at low
   // depth, we can just return estimated eval (eval - margin),
   // because beta probably will be beaten
-  if (isPrune && depth < 6 && ((statEVAL - REVF_MOVE_CONST * depth + 100 * improving) >= beta)){
+  if (isPrune && depth < 6 && ((nodeEval - REVF_MOVE_CONST * depth + 100 * improving) >= beta)){
       return beta;
   }
 
@@ -416,12 +411,12 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // No nmp in pvNode, InCheck, when doing singular, or just after Null move was made
   // Use SF-like conditional of requsting Eval being higher than beta at low depth
   // Drofa track NMP_failure to use for extending decisions
-  if (isPrune && depth >= 3 && pMove != 0 && statEVAL >= beta + std::max(0, 120 - 20 * depth) && board.isThereMajorPiece()){
+  if (isPrune && depth >= 3 && pMove != 0 && nodeEval >= beta + std::max(0, 120 - 20 * depth) && board.isThereMajorPiece()){
           Board movedBoard = board;
           _posHist.Add(board.getZKey().getValue());
           _sStack.AddNullMove(getOppositeColor(board.getActivePlayer()));
           movedBoard.doNool();
-          int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((statEVAL - beta) / 128, 4);
+          int fDepth = depth - NULL_MOVE_REDUCTION - depth / 4 - std::min((nodeEval - beta) / 128, 4);
           int score = -_negaMax(movedBoard, &thisPV, fDepth , -beta, -beta +1, false, false);
           _posHist.Remove();
           _sStack.RemoveNull(behindColor, nmpTree);
@@ -543,7 +538,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         //
         // 6.0 InCheck extention
         // Extend when the side to move is in check
-        if (AreWeInCheck){
+        if (inCheckNode){
           tDepth++;
         }
 
@@ -551,7 +546,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // At high depth if we have the TT move, and we are certain
         // that non other moves are even close to it, extend this move
         // At low depth use statEval instead of search (Kimmys idea)
-        if (!AreWeInCheck &&
+        if (!inCheckNode &&
             TTmove &&
             probedHASHentry.depth >= depth - 2 &&
             probedHASHentry.move == move.getMoveINT() &&
@@ -559,7 +554,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               int sDepth = depth / 2;
               int sBeta = probedHASHentry.score - depth * 2;
               Board sBoard = board;
-              int score = depth > 8 ? _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, true, cutNode) : statEVAL;
+              int score = depth > 8 ? _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, true, cutNode) : nodeEval;
               if (sBeta > score){
                 tDepth += 1 + (failedNull && depth > 8);
                 singularExists = true;
@@ -607,7 +602,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           reduction += isQuiet;
 
           //reduce more when side to move is in check
-          reduction += AreWeInCheck;
+          reduction += inCheckNode;
 
           // Reduce more for late quiets if TTmove exists and it is non-Quiet move
           reduction += isQuiet && !quietTT && TTmove;
@@ -686,7 +681,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // Beta cutoff
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
-          _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * (statEVAL < alpha)));
+          _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * (nodeEval < alpha)));
           // Award counter-move history additionally if we refuted special quite previous move
           if (isPmQuietCounter) _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
           // Add a new tt entry for this node
@@ -718,7 +713,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
         }else{
           // Beta was not beaten and we dont improve alpha in this case we lower our search history values
-          int dBonus = std::max(0, depth - (statEVAL < alpha) - (!TTmove && depth >= 4) + (pMoveScore < -8192));
+          int dBonus = std::max(0, depth - (nodeEval < alpha) - (!TTmove && depth >= 4) + (pMoveScore < -8192));
           if (isQuiet){
             _orderingInfo.decrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), dBonus);
             _orderingInfo.decrementCounterHistory(board.getActivePlayer(), pMoveIndx, move.getPieceType(), move.getTo(), dBonus);
@@ -732,7 +727,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   // Check for checkmate and stalemate
   if (LegalMoveCount == 0) {
-    score = AreWeInCheck ? LOST_SCORE + ply : 0; // LOST_SCORE = checkmate, 0 = stalemate (draw)
+    score = inCheckNode ? LOST_SCORE + ply : 0; // LOST_SCORE = checkmate, 0 = stalemate (draw)
     up_pV->length = 0;
     return score;
   }
