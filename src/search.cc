@@ -669,7 +669,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         bool lessThanAlpha = inCheckNode ? (alpha > 0) : (nodeEval < alpha);
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
-          bool lessThanAlpha = inCheckNode ? (alpha > 0) : (nodeEval < alpha);
           _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * lessThanAlpha));
           // Award counter-move history additionally if we refuted special quite previous move
           if (pMoveSpQuiet) _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
