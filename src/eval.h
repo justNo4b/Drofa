@@ -101,6 +101,10 @@ extern U64 KING_PAWN_MASKS[2][2][8];
       -70, -20, 0, 100, 150, 200
   };
 
+  const int PIECE_PRESSURE[6] = {
+      3, 10, 7, 15, 17, 0
+  };
+
   const int PIECE_ATTACK_POWER[6] = {
         0, 24, 50, 26, 47, 0
   };
@@ -109,7 +113,7 @@ extern U64 KING_PAWN_MASKS[2][2][8];
         0, 22, 16, 92, 26, 0
   };
 
-  const int COUNT_TO_POWER[8] = {0, 0, 51, 83, 102, 111, 122, 128};
+  const int COUNT_TO_POWER[8] = {16, 24, 51, 83, 102, 111, 122, 128};
   const int COUNT_TO_POWER_DIVISOR = 128;
   /**@}*/
 

@@ -287,7 +287,10 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[QUEEN];
       eB->KingAttackPower[color] += (kingChecksCount - KingFaceChecksCount) * PIECE_CHECK_POWER[QUEEN];
       eB->KingAttackPower[color] += KingFaceChecksCount * QUEEN_FACE_CHECK;
-    }
+    }else{
+        bool isPressure = (eB->EnemyKingZone[color] & board.getAttacksForSquare(QUEEN, color, square));
+        eB->KingAttackPower[color] += PIECE_PRESSURE[QUEEN] * isPressure;
+      }
 
     // Save our attacks for further use
     eB->AttackedSquares[color] |= attackBitBoard;
@@ -345,7 +348,10 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
       eB->KingAttackers[color]++;
       eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[ROOK];
       eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[ROOK];
-    }
+    }else{
+        bool isPressure = (eB->EnemyKingZone[color] & board.getAttacksForSquare(ROOK, color, square));
+        eB->KingAttackPower[color] += PIECE_PRESSURE[ROOK] * isPressure;
+      }
 
     // See if a Rook is attacking an enemy unprotected pawn
     s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
@@ -443,6 +449,9 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[BISHOP];
         eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[BISHOP];
+      }else{
+        bool isPressure = (eB->EnemyKingZone[color] & board.getAttacksForSquare(BISHOP, color, square));
+        eB->KingAttackPower[color] += PIECE_PRESSURE[BISHOP] * isPressure;
       }
 
       // See if a Bishop is attacking an enemy unprotected pawn
@@ -518,6 +527,9 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
         eB->KingAttackers[color]++;
         eB->KingAttackPower[color] += kingAttack * PIECE_ATTACK_POWER[KNIGHT];
         eB->KingAttackPower[color] += kingChecks * PIECE_CHECK_POWER[KNIGHT];
+      }else{
+        bool isPressure = (eB->EnemyKingZone[color] & board.getAttacksForSquare(KNIGHT, color, square));
+        eB->KingAttackPower[color] += PIECE_PRESSURE[KNIGHT] * isPressure;
       }
 
       // See if a Knight is attacking an enemy unprotected pawn
@@ -866,6 +878,11 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   int unContested = _popCount(eB->AttackedSquares[color] & eB->EnemyKingZone[color] & ~eB->AttackedSquares[otherColor]);
   eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
   if (board.getActivePlayer() == color) eB->KingAttackPower[color] += ATTACK_TEMPO;
+
+
+  bool isPressure = (eB->EnemyKingZone[color] & eB->EnemyPawnAttackMap[otherColor]);
+  eB->KingAttackPower[color] += PIECE_PRESSURE[PAWN] * isPressure;
+
 
   return s;
 }
