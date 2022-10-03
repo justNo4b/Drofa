@@ -871,10 +871,11 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 }
 
 inline int Eval::kingDanger(const Board &board, Color color, const evalBits * eB){
-  int ctpMultimplier =  COUNT_TO_POWER[std::min(7, eB->KingAttackers[color])];
+  int attackerCount  = std::min(7, eB->KingAttackers[color]);
+  int ctpMultimplier =  COUNT_TO_POWER[attackerCount];
 
   U64 fullRam = (board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN);
-  if (eB->RammedCount >= 3 && _popCount(fullRam & EXT_MIDDLE_FILES) >= 2) ctpMultimplier += 18;
+  if (eB->RammedCount >= 3 && _popCount(fullRam & EXT_MIDDLE_FILES) >= 2) ctpMultimplier += COUNT_TO_POWER_RAMMED[attackerCount];
 
   int attackScore = eB->KingAttackPower[color] * ctpMultimplier / COUNT_TO_POWER_DIVISOR;
   return gS(std::max(0, attackScore), 0);
