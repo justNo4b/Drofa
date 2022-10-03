@@ -45,21 +45,6 @@
     int _ourTimeLeft;
 
     /**
-     * @brief We keep track of times we prolonged thought
-     * during the search. It is important to not prolong a more
-     * than one in a row in order not to lose on time.
-     *
-     */
-    bool _wasThoughtProlonged;
-
-    /**
-     *  @brief We track how much time we spended while
-     *  searching last ply. It is used to estimate how much time
-     *  we grant engine when search be prolonged.
-     */
-    int _lastPlyTime;
-
-    /**
      * @brief Depth of this search in plys
      */
     int _searchDepth;

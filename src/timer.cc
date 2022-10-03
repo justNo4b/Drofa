@@ -4,7 +4,6 @@
 
 Timer::Timer(Limits l, Color color, int movenum){
     _limits = l;
-    _wasThoughtProlonged = false;
     if (_limits.infinite) { // Infinite search
         _searchDepth = INF;
         _timeAllocated = INF;
@@ -57,42 +56,20 @@ bool Timer::checkLimits(U64 nodes){
 
   if (_limits.nodes != 0 && (nodes >= _limits.nodes)) return true;
 
-  // when searching at a time control we will try to use time efficiatnly.
-  // If we already started the search, but it took way longer than expected
-  // we actually do not want to lose all of our effort
-  // So we check if we have enough time to actually finish it
-  // If we have much time left, we will allocate some more
-  // time to finish search and set a flag that search was prolonged
-  // so we didnt prolong it again.
-
-  if (_wasThoughtProlonged && elapsed >= (_timeAllocated)){
-    return true;
-  } else  if (elapsed >= (_timeAllocated)){
-
-    // if we have so much time left that we supposedly
-    // can search last ply ~25 times at least
-    // we can prolong thought here.
-    if (_ourTimeLeft > _lastPlyTime * 20 + 30 ){
-      _timeAllocated += _lastPlyTime * 2;
-      _wasThoughtProlonged = true;
-      return false;
-    }else{
+  if (elapsed >= (_timeAllocated)){
       return true;
     }
 
-  }
 
   return false;
 }
 
 void Timer::startIteration(){
     _start = std::chrono::steady_clock::now();
-    _lastPlyTime = 0;
 }
 
 bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes){
     int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
-    _lastPlyTime =  elapsed - _lastPlyTime;
 
     double nodesConfidance = bestNodes * 100.0 / totalNodes;
     // clamp coeff between 25 and 75
@@ -102,11 +79,8 @@ bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes){
 
     double nodesCoeff = 1.0 + (50.0 - nodesConfidance) / 50.0;
 
-
-
-
     *elapsedTime = elapsed;
-    if (_wasThoughtProlonged ||  (elapsed >= (_timeAllocated * nodesCoeff * 0.5))){
+    if (elapsed >= (_timeAllocated * nodesCoeff * 0.5)){
         return true;
     }
 
