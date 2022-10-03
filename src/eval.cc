@@ -870,8 +870,13 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   return s;
 }
 
-inline int Eval::kingDanger(Color color, const evalBits * eB){
-  int attackScore = eB->KingAttackPower[color] * COUNT_TO_POWER[std::min(7, eB->KingAttackers[color])] / COUNT_TO_POWER_DIVISOR;
+inline int Eval::kingDanger(const Board &board, Color color, const evalBits * eB){
+  int ctpMultimplier =  COUNT_TO_POWER[std::min(7, eB->KingAttackers[color])];
+
+  U64 fullRam = (board.getPieces(BLACK, PAWN) >> 8) & board.getPieces(WHITE, PAWN);
+  if (eB->RammedCount >= 3 && _popCount(fullRam & EXT_MIDDLE_FILES) >= 2) ctpMultimplier += 18;
+
+  int attackScore = eB->KingAttackPower[color] * ctpMultimplier / COUNT_TO_POWER_DIVISOR;
   return gS(std::max(0, attackScore), 0);
 }
 
@@ -987,8 +992,8 @@ inline int Eval::evaluateMain(const Board &board, Color color) {
           - kingShieldSafety(board, otherColor, &eB);
 
   // Transform obtained safety score into game score
-  score +=  kingDanger(color, &eB)
-          - kingDanger(otherColor, &eB);
+  score +=  kingDanger(board, color, &eB)
+          - kingDanger(board, otherColor, &eB);
 
   // Taper and Scale obtained score
   int final_eval = TaperAndScale(board, color, score);
