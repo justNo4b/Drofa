@@ -267,6 +267,10 @@ const int QUEEN_ATTACKED_BY[4] = {
            gS(0,0), gS(55,28), gS(33,13), gS(50,46),
 };
 
+const int KNIGHT_CHECKING_FORK[5] = {
+           gS(4,12), gS(10,12), gS(0,0), gS(2,5), gS(5,3),
+};
+
 const int KING_PAWN_SHIELD_KS[8] = {
            gS(-9,-5), gS(5,7), gS(1,15), gS(-7,0),
            gS(-7,2), gS(-17,-8), gS(-3,16), gS(-6,-2),
