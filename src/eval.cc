@@ -384,6 +384,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
   Color otherColor = getOppositeColor(color);
   U64 mobZoneAdjusted  = eB->EnemyPawnAttackMap[color] & ~(board.getPieces(otherColor, QUEEN) | board.getPieces(otherColor, ROOK));
   int enemyKingSquare = _bitscanForward(board.getPieces(otherColor, KING));
+  U64 ourKingSquare   = _bitscanForward(board.getPieces(color, KING));
 
   // Bishop pair
   if (_popCount(pieces) > 1){
@@ -434,6 +435,14 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       // Bishop Attack Queen
       s += QUEEN_ATTACKED_BY[BISHOP] * _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
       if (TRACK) ft.QueenAttackedBy[BISHOP][color] += _popCount(attackBitBoard & board.getPieces(otherColor, QUEEN));
+
+      if (detail::DISTANCE[ourKingSquare][square] == 1){
+        int cDist = _col(ourKingSquare) - _col(square) + 1;
+        int rDist = _row(ourKingSquare) - _row(square) + 1;
+        s += BISHOP_KING_POSITION[rDist + 3 * cDist];
+        if (TRACK) ft.BishopKingPosition[cDist][color]++;
+      }
+
 
       // If Bishop attacking squares near enemy king
       // Adjust our kind Danger code

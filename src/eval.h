@@ -246,6 +246,12 @@ const int ROOK_SEMI_FILE_BONUS[2] = {
            gS(9,0), gS(15,0),
 };
 
+const int BISHOP_KING_POSITION[9] = {
+           gS(-3,0), gS(5,4), gS(6,0),
+           gS(0,0), gS(0,0), gS(0,0),
+           gS(0,0), gS(0,0), gS(0,0),
+};
+
 /**
  * @brief indexed by [pieceType]
  * Evaluate OUR pieces attacked by an enemy pawn
