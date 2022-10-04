@@ -507,7 +507,7 @@ inline int TaperAndScale(const Board &, Color, int);
  * @brief Transform danger score accumulated in other functions in
  *        a score used for an evaluation
  */
-inline int kingDanger(Color, const evalBits *);
+inline int kingDanger(const Board &, Color, const evalBits *);
 
 /**
  * @brief Set value for a MATERIAL_VALUES_TUNABLE array
