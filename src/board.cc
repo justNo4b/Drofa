@@ -203,6 +203,13 @@ bool Board::getQsCastlingRights(Color color) const {
   }
 }
 
+bool Board::sideCanCastle(Color color) const {
+    switch (color) {
+        case WHITE: return _castlingRights & 0x3;
+        default: return _castlingRights & 0xC;
+  }
+}
+
 std::string Board::getStringRep() const {
   std::string stringRep = "8  ";
   int rank = 8;

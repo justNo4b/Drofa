@@ -115,7 +115,9 @@ extern U64 KING_PAWN_MASKS[2][2][8];
 
 const int TEMPO = 10;
 
-const int KING_HIGH_DANGER = gS(-42,-55);
+const int KING_HIGH_DANGER = gS(-46,-53);
+
+const int KING_HD_CAN_CASTLE = gS(20,3);
 
 const int KING_MED_DANGER = gS(-30,-24);
 

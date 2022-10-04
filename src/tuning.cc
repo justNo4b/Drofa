@@ -234,6 +234,7 @@ void InitCoefficients(featureCoeff coeff){
     // Basicall we calculate if feature difference, so we dont hold it if it is 0
     // and to take less space to hold it in general
     coeff[i++] = ft.KingHighDanger[WHITE] - ft.KingHighDanger[BLACK];
+    coeff[i++] = ft.KingHdCanCastle[WHITE] - ft.KingHdCanCastle[BLACK];
     coeff[i++] = ft.KingMedDanger[WHITE] - ft.KingMedDanger[BLACK];
     coeff[i++] = ft.KingLowDanger[WHITE] - ft.KingLowDanger[BLACK];
     coeff[i++] = ft.BishopPair[WHITE] - ft.BishopPair[BLACK];

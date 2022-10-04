@@ -129,6 +129,9 @@ class Board {
   bool getQsCastlingRights(Color) const;
   /**@}*/
 
+  bool sideCanCastle(Color) const;
+
+
   /**
    * @brief Returns true if the given color is in check, false otherwise.
    *

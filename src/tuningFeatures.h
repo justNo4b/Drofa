@@ -5,7 +5,7 @@
 #include "eval.h"
 #include "outposts.h"
 
-#define BIG_FEATURE_NUMBER (69)
+#define BIG_FEATURE_NUMBER (70)
 
 enum TuningType{
     ALL,
@@ -29,6 +29,7 @@ struct tFeature {
 
 tFeature myFeatures [BIG_FEATURE_NUMBER] = {
     tFeature("KING_HIGH_DANGER", false, &Eval::KING_HIGH_DANGER, 1, 1, ALL),
+    tFeature("KING_HD_CAN_CASTLE", false, &Eval::KING_HD_CAN_CASTLE, 1, 1, ALL),
     tFeature("KING_MED_DANGER", false, &Eval::KING_MED_DANGER, 1, 1, ALL),
     tFeature("KING_LOW_DANGER", false, &Eval::KING_LOW_DANGER, 1, 1, ALL),
     tFeature("BISHOP_PAIR_BONUS", false, &Eval::BISHOP_PAIR_BONUS, 1, 1, ALL),

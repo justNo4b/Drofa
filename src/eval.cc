@@ -222,9 +222,15 @@ inline int Eval::kingShieldSafety(const Board &board, Color color, evalBits * eB
     }
 
     if (cSide == NoCastle){
-      if (TRACK) ft.KingHighDanger[color]++;
-      eB->KingAttackPower[otherColor] += (-1 * opS(KING_HIGH_DANGER));
-      return KING_HIGH_DANGER;
+        int csValue = KING_HIGH_DANGER;
+        if (TRACK) ft.KingHighDanger[color]++;
+
+        if (board.sideCanCastle(color)){
+            csValue += KING_HD_CAN_CASTLE;
+            if (TRACK) ft.KingHdCanCastle[color]++;
+        }
+        eB->KingAttackPower[otherColor] += (-1 * opS(csValue));
+        return csValue;
     }
     // Cycle through all masks, if one of them is true,
     // Apply bonus for safety and score
