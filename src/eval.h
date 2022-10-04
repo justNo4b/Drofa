@@ -123,7 +123,9 @@ const int KING_LOW_DANGER = gS(54,-78);
 
 const int BISHOP_PAIR_BONUS = gS(22,62);
 
-const int DOUBLED_PAWN_PENALTY = gS(-4,-24);
+const int DOUBLED_PAWN_PENALTY = gS(-5,-26);
+
+const int CAN_BE_UNDOUBLED = gS(0,4);
 
 const int ISOLATED_PAWN_PENALTY = gS(-3,-6);
 

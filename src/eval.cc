@@ -689,12 +689,18 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     }
 
 
-
     // add penalties for the doubled pawns
     if (_popCount(tmpPawns & detail::FILES[pawnCol]) > 0 &&
         !((ONE << square) & eB->EnemyPawnAttackMap[color])){
-      if (TRACK) ft.PawnDoubled[color]++;
-      s += DOUBLED_PAWN_PENALTY;
+
+        // try to see if we can potentially undouble
+        if (detail::NEIGHBOR_FILES[pawnCol] & otherPawns){
+            if (TRACK) ft.CanUndouble[color]++;
+            s += CAN_BE_UNDOUBLED;
+        }
+
+        if (TRACK) ft.PawnDoubled[color]++;
+        s += DOUBLED_PAWN_PENALTY;
     }
 
     // score a pawn if it is isolated

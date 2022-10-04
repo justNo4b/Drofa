@@ -21,6 +21,7 @@ struct posFeatured{
     int KingMedDanger[2];
     int KingLowDanger[2];
     int PawnDoubled[2];
+    int CanUndouble[2];
     int PawnIsolated[2];
     int PawnBlocked[2];
     int PassersBlocked[2];
@@ -123,7 +124,7 @@ struct tEntry {
   const std::string TUNING_DATA        = "LiChessBOOK.txt";
   const int         TUNING_POS_COUNT   = 7153653; //9996883 42484641
   const int         TUNING_THREADS     = 16;
-  const int         TUNING_TERMS_COUNT = 928;
+  const int         TUNING_TERMS_COUNT = 929;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
   const int         TUNIGN_PRINT       = 25;
