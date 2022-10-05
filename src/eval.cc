@@ -938,16 +938,26 @@ inline int Eval::winnableEndgame(const Board & board, Color color, evalBits * eB
   int sign   = eGpart == 0 ? 0 :
                eGpart > 0  ? 1 :
                -1;
-
   Color otherColor = getOppositeColor(color);
+
+  Color losingSide = eGpart < 0 ? color : otherColor;
+  Color winingSide = getOppositeColor(losingSide);
+
   U64 pawnsTotal = board.getPieces(color, PAWN) | board.getPieces(otherColor, PAWN);
+  int loserAdvancedPawn = losingSide == WHITE ? _bitscanReverse(board.getPieces(losingSide, PAWN))
+                                              : _bitscanForward(board.getPieces(losingSide, PAWN));
+  int winningKing = _bitscanForward(board.getPieces(winingSide, KING));
+
+  bool infiltration = _relrank(winningKing, winingSide) >= _relrank(loserAdvancedPawn, winingSide);
 
   bool pawnsBothFlanks =  ((pawnsTotal & KING_SIDE) != 0) && ((pawnsTotal & QUEEN_SIDE) != 0);
+
   bool pawnEndgame     =  ((board.getAllPieces(WHITE) ^ board.getPieces(WHITE, KING) ^ board.getPieces(WHITE, PAWN)) == 0) &&
                           ((board.getAllPieces(BLACK) ^ board.getPieces(BLACK, KING) ^ board.getPieces(BLACK, PAWN)) == 0);
 
-  int winnable = !pawnsBothFlanks * PAWNS_NOT_BOTH_PENALTY
-                 + pawnEndgame * PAWN_ENDGAME_BONUS;
+  int winnable = !pawnsBothFlanks * PAWNS_NOT_BOTH_PENALTY +
+                  pawnEndgame * PAWN_ENDGAME_BONUS +
+                  !infiltration * (-42);
 
   s = gS(0, sign * std::max(winnable, -abs(eGpart)));
 
