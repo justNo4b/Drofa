@@ -102,7 +102,7 @@ extern U64 KING_PAWN_MASKS[2][2][8];
   };
 
   const int PIECE_PRESSURE[6] = {
-      3, 10, 7, 15, 17, 0
+      2, 34, 27, 68, 25, 0
   };
 
   const int PIECE_ATTACK_POWER[6] = {
