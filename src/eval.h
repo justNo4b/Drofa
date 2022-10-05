@@ -185,61 +185,62 @@ const int KING_PAWNLESS_FLANG = gS(-11,-66);
  * @brief Various array terms, related to the evaluation of the pawns
  */
 const int PASSED_PAWN_RANKS[7] = {
-           gS(0,0), gS(-9,-9), gS(-6,4), gS(-2,39),
-           gS(26,50), gS(20,73), gS(37,95),
+           gS(0,0), gS(-9,-8), gS(-5,5), gS(-1,40),
+           gS(27,49), gS(21,70), gS(35,94),
 };
 
 const int PASSED_PAWN_FILES[4] = {
-           gS(-2,20), gS(-3,16), gS(0,5), gS(2,-4),
+           gS(-2,19), gS(-2,15), gS(0,5), gS(2,-4),
 };
 
 const int PASSED_PAWN_FREE[7] = {
            gS(0,0), gS(-7,8), gS(-11,2), gS(-8,5),
-           gS(-3,12), gS(-5,36), gS(56,27),
+           gS(-3,12), gS(-4,37), gS(55,29),
 };
 
 const int PASSED_PAWN_POS_ADVANCE[7] = {
            gS(0,0), gS(4,5), gS(5,1), gS(6,13),
-           gS(0,33), gS(14,86), gS(59,115),
+           gS(0,34), gS(11,87), gS(58,115),
 };
 
 const int PASSED_PASSED_DISTANCE[8] = {
-           gS(-4,-25), gS(15,-1), gS(-2,-18), gS(-7,-9),
+           gS(-3,-26), gS(14,0), gS(-2,-17), gS(-6,-9),
            gS(-9,-6), gS(-19,-10), gS(-18,-15), gS(-17,-18),
 };
 
 const int KING_PASSER_DISTANCE_FRIENDLY[8] = {
-           gS(0,0), gS(4,34), gS(-9,27), gS(-7,11),
-           gS(-3,1), gS(2,-2), gS(14,-3), gS(9,-2),
+           gS(0,0), gS(4,34), gS(-8,27), gS(-7,11),
+           gS(-3,0), gS(2,-2), gS(14,-3), gS(9,-2),
 };
 
 const int KING_PASSER_DISTANCE_ENEMY[8] = {
-           gS(0,0), gS(-49,1), gS(19,-20), gS(0,1),
-           gS(1,14), gS(-3,22), gS(-4,25), gS(-14,23),
+           gS(0,0), gS(-48,0), gS(21,-21), gS(0,1),
+           gS(0,13), gS(-3,21), gS(-4,25), gS(-14,23),
 };
 
 const int KNIGHT_PASSER_DISTANCE_ENEMY[4] = {
-           gS(-7,-13), gS(3,1), gS(5,11), gS(11,22),
+           gS(-7,-13), gS(2,1), gS(4,12), gS(10,22),
 };
 
 const int CANDIDATE_PASSED_PAWN[7] = {
-           gS(0,0), gS(-26,-5), gS(-17,6), gS(-4,18),
-           gS(18,40), gS(25,62), gS(0,0),
+           gS(0,0), gS(-26,-5), gS(-17,5), gS(-4,17),
+           gS(18,40), gS(27,63), gS(0,0),
 };
 
 const int CANDIDATE_PASSED_PAWN_FILES[4] = {
-           gS(8,23), gS(3,15), gS(0,7), gS(4,0),
+           gS(7,23), gS(3,15), gS(0,7), gS(4,0),
 };
 
 const int BACKWARD_PAWN[7] = {
            gS(0,0), gS(-7,-1), gS(3,-4), gS(-1,-8),
-           gS(1,-3), gS(0,0), gS(0,0),
+           gS(1,-2), gS(0,0), gS(0,0),
 };
 
 const int BACKWARD_OPEN_PAWN[7] = {
-           gS(0,0), gS(-19,-17), gS(-12,-14), gS(-14,-5),
-           gS(2,-1), gS(0,0), gS(0,0),
+           gS(0,0), gS(-19,-16), gS(-12,-14), gS(-14,-5),
+           gS(2,0), gS(0,0), gS(0,0),
 };
+
 
 /**
  * @brief Bonuses given to a player for each rook on an Open and SemiOpen file
