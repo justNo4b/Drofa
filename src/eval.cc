@@ -948,7 +948,7 @@ inline int Eval::winnableEndgame(const Board & board, Color color, evalBits * eB
                                               : _bitscanForward(board.getPieces(losingSide, PAWN));
   int winningKing = _bitscanForward(board.getPieces(winingSide, KING));
 
-  bool infiltration = _relrank(winningKing, winingSide) > _relrank(loserAdvancedPawn, winingSide);
+  bool infiltration = _relrank(winningKing, winingSide) >= _relrank(loserAdvancedPawn, winingSide);
 
   bool pawnsBothFlanks =  ((pawnsTotal & KING_SIDE) != 0) && ((pawnsTotal & QUEEN_SIDE) != 0);
 
@@ -957,7 +957,7 @@ inline int Eval::winnableEndgame(const Board & board, Color color, evalBits * eB
 
   int winnable = !pawnsBothFlanks * PAWNS_NOT_BOTH_PENALTY +
                   pawnEndgame * PAWN_ENDGAME_BONUS +
-                  !infiltration * (-21);
+                  !infiltration * (-12);
 
   s = gS(0, sign * std::max(winnable, -abs(eGpart)));
 
