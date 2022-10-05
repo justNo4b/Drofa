@@ -90,6 +90,14 @@ extern U64 KING_PAWN_MASKS[2][2][8];
   /**@}*/
 
 /**
+ * @brief Various constants used for Winnability calculation
+  * @{
+  */
+    const int PAWNS_NOT_BOTH_PENALTY = -35;
+    const int PAWN_ENDGAME_BONUS = 53;
+  /**@}*/
+
+/**
  * @brief Various constants used for KingSafety calculation
   * @{
   */
