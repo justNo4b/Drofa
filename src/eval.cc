@@ -946,7 +946,9 @@ inline int Eval::winnableEndgame(const Board & board, Color color, evalBits * eB
   bool pawnEndgame     =  ((board.getAllPieces(WHITE) ^ board.getPieces(WHITE, KING) ^ board.getPieces(WHITE, PAWN)) == 0) &&
                           ((board.getAllPieces(BLACK) ^ board.getPieces(BLACK, KING) ^ board.getPieces(BLACK, PAWN)) == 0);
 
-  int winnable = -1 * (!(pawnsBothFlanks || pawnEndgame) * 35);
+  int winnable = - !pawnsBothFlanks * 35
+                 + pawnEndgame * 53;
+
   s = gS(0, sign * std::max(winnable, -abs(eGpart)));
 
   return s;
