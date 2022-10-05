@@ -564,7 +564,12 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
                 tDepth += 1 + (failedNull && depth > 8);
                 singularExists = true;
                 // update histories because move is singular
-                _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, depth);
+                if (isQuiet) {
+                    _orderingInfo.incrementHistory(board.getActivePlayer(), move.getFrom(), move.getTo(), depth);
+                    _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
+                }else{
+                    _orderingInfo.incrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), depth);
+                }
               }
             }
 
