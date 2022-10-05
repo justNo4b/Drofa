@@ -845,7 +845,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
       // 3. Free passer evaluation
       // Add bonus for each passed pawn that has no piece blocking its advance
       // rank - based evaluation
-      if ((detail::FORWARD_BITS[color][square] & pieces) == ZERO){
+      if ((detail::FORWARD_BITS[color][square] & board.getAllPieces(otherColor)) == ZERO){
         s += PASSED_PAWN_FREE[r];
         if (TRACK) ft.PassedPawnFree[r][color]++;
       }
