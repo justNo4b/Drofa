@@ -563,6 +563,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               if (sBeta > score){
                 tDepth += 1 + (failedNull && depth > 8);
                 singularExists = true;
+                // update histories because move is singular
+                _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, depth);
               }
             }
 
