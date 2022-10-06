@@ -948,11 +948,11 @@ inline int Eval::winnableEndgame(const Board & board, Color color, evalBits * eB
 
   int whiteKing = _bitscanForward(board.getPieces(WHITE, KING));
   int blackKing = _bitscanForward(board.getPieces(BLACK, KING));
-  bool holdingOpposition = (_row(blackKing) - _row(whiteKing) > 0) && (abs(_col(whiteKing) - _col(blackKing)) <= 1);
+  int outflanking = abs(_col(whiteKing) - _col(blackKing)) + (_row(whiteKing) - _row(blackKing));
 
   int winnable = !pawnsBothFlanks * PAWNS_NOT_BOTH_PENALTY
                  + pawnEndgame * PAWN_ENDGAME_BONUS
-                 - 35 * (!pawnsBothFlanks && holdingOpposition);
+                 + 3 * outflanking;
 
   s = gS(0, sign * std::max(winnable, -abs(eGpart)));
 
