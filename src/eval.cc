@@ -952,7 +952,7 @@ inline int Eval::winnableEndgame(const Board & board, Color color, evalBits * eB
 
   int winnable = !pawnsBothFlanks * PAWNS_NOT_BOTH_PENALTY
                  + pawnEndgame * PAWN_ENDGAME_BONUS
-                 + 7 * outflanking;
+                 + 4 * outflanking;
 
   s = gS(0, sign * std::max(winnable, -abs(eGpart)));
 
