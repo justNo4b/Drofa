@@ -11,31 +11,6 @@ int PSquareTable::PAWN_ADJUSTMENTS[2][2][64];
 
 void PSquareTable::init() {
 
-    for (int i = 0; i < 64; i++){
-      PIECE_VALUES[BLACK][KING][i] = Eval::KING_PSQT_BLACK[i];
-      PIECE_VALUES[WHITE][KING][i] = Eval::KING_PSQT_BLACK[_mir(i)];
-
-      PIECE_VALUES[BLACK][PAWN][i] = Eval::PAWN_PSQT_BLACK[i];
-      PIECE_VALUES[WHITE][PAWN][i] = Eval::PAWN_PSQT_BLACK[_mir(i)];
-
-      PIECE_VALUES[BLACK][ROOK][i] = Eval::ROOK_PSQT_BLACK[i];
-      PIECE_VALUES[WHITE][ROOK][i] = Eval::ROOK_PSQT_BLACK[_mir(i)];
-
-      PIECE_VALUES[BLACK][KNIGHT][i] = Eval::KNIGHT_PSQT_BLACK[i];
-      PIECE_VALUES[WHITE][KNIGHT][i] = Eval::KNIGHT_PSQT_BLACK[_mir(i)];
-
-      PIECE_VALUES[BLACK][BISHOP][i] = Eval::BISHOP_PSQT_BLACK[i];
-      PIECE_VALUES[WHITE][BISHOP][i] = Eval::BISHOP_PSQT_BLACK[_mir(i)];
-
-      PIECE_VALUES[BLACK][QUEEN][i] = Eval::QUEEN_PSQT_BLACK[i];
-      PIECE_VALUES[WHITE][QUEEN][i] = Eval::QUEEN_PSQT_BLACK[_mir(i)];
-
-      PAWN_ADJUSTMENTS[BLACK][0][i] = Eval::PAWN_PSQT_BLACK_IS_OWN_QUEEN[i];
-      PAWN_ADJUSTMENTS[WHITE][0][i] = Eval::PAWN_PSQT_BLACK_IS_OWN_QUEEN[_mir(i)];
-
-      PAWN_ADJUSTMENTS[BLACK][1][i] = Eval::PAWN_PSQT_BLACK_IS_ENEMY_QUEEN[i];
-      PAWN_ADJUSTMENTS[WHITE][1][i] = Eval::PAWN_PSQT_BLACK_IS_ENEMY_QUEEN[_mir(i)];
-    }
 }
 
 PSquareTable::PSquareTable() = default;
@@ -57,24 +32,13 @@ PSquareTable::PSquareTable(const Board &board) {
 }
 
 void PSquareTable::addPiece(Color color, PieceType pieceType, unsigned int square) {
-  _scores[color] += PIECE_VALUES[color][pieceType][square];
-  _scores[color] += Eval::MATERIAL_VALUES[pieceType];
-
-  _pawnScores[color][0] += PAWN_ADJUSTMENTS[color][0][square] * (pieceType == PAWN);
-  _pawnScores[color][1] += PAWN_ADJUSTMENTS[color][1][square] * (pieceType == PAWN);
 }
 
 void PSquareTable::removePiece(Color color, PieceType pieceType, unsigned int square) {
-  _scores[color] -= PIECE_VALUES[color][pieceType][square];
-  _scores[color] -= Eval::MATERIAL_VALUES[pieceType];
-
-  _pawnScores[color][0] -= PAWN_ADJUSTMENTS[color][0][square] * (pieceType == PAWN);
-  _pawnScores[color][1] -= PAWN_ADJUSTMENTS[color][1][square] * (pieceType == PAWN);
 }
 
 void PSquareTable::movePiece(Color color, PieceType pieceType, unsigned int fromSquare, unsigned int toSquare) {
-  removePiece(color, pieceType, fromSquare);
-  addPiece(color, pieceType, toSquare);
+
 }
 
 int PSquareTable::getScore(Color color) {
