@@ -10,18 +10,12 @@
 #define opS(gS) (int16_t)((uint16_t)((unsigned)((gS) + 0x8000) >> 16))
 #define egS(gS) (int16_t)((uint16_t)((unsigned)((gS))))
 
-struct evalBits{
-    U64 EnemyPawnAttackMap[2];
-    U64 PossibleProtOutposts[2];
-    U64 PossibleGenOutposts[2];
-    U64 EnemyKingZone[2];
-    U64 Passers[2];
-    U64 AttackedSquares[2];
-    U64 AttackedByKing[2];
-    int RammedCount;
-    int KingAttackers[2];
-    int KingAttackPower[2];
-};
+
+// define stuff for NNUE
+
+#define INPUT_SIZE   (64 * 6 * 2)
+#define HIDDEN_SIZE  (128)
+#define OUTPUT_SIZE  (1)
 
 enum CastleSide {
     KingSide,
@@ -127,34 +121,6 @@ int evaluateBishopPawn_vs_KP(const Board &, Color);
  * @return The value of the given PieceType used for evaluation purposes
  */
 int getMaterialValue(int, PieceType);
-
-/**
- * @brief This function analyses king shield safety.
- * it returns simple overall score gS() and
- * adjust base safety value for some types of shields
- */
-inline int kingShieldSafety(const Board &, Color, evalBits *);
-
-/**
- * @brief Function evaluate piece-pawns interactions for given color
- * Includes:
- * 1. Blocked Pawns
- * 2. Minors shielded by pawns
- * 3. Threats by pawn push
- */
-inline int PiecePawnInteraction(const Board &, Color, evalBits *);
-
-/**
- * @brief Taper evaluation between Opening and Endgame and scale it
- * if there is some specific endgame position
- */
-inline int TaperAndScale(const Board &, Color, int);
-
-/**
- * @brief Transform danger score accumulated in other functions in
- *        a score used for an evaluation
- */
-inline int kingDanger(Color, const evalBits *);
 
 /**
  * @brief Set value for a MATERIAL_VALUES_TUNABLE array
