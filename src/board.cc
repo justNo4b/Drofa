@@ -134,59 +134,11 @@ bool Board::colorIsInCheck(Color color) const {
     return false;
   }
 
-  return _squareUnderAttack(getOppositeColor(color), kingSquare);
+  return squareUnderAttack(getOppositeColor(color), kingSquare);
 }
 
 int Board::getHalfmoveClock() const {
   return _halfmoveClock;
-}
-
-bool Board::whiteCanCastleKs() const {
-  if (!getKsCastlingRights(WHITE)) {
-    return false;
-  }
-
-  U64 passThroughSquares = (ONE << f1) | (ONE << g1);
-  bool squaresOccupied = passThroughSquares & _occupied;
-  bool squaresAttacked = _squareUnderAttack(BLACK, f1) || _squareUnderAttack(BLACK, g1);
-
-  return !colorIsInCheck(WHITE) && !squaresOccupied && !squaresAttacked;
-}
-
-bool Board::whiteCanCastleQs() const {
-  if (!getQsCastlingRights(WHITE)) {
-    return false;
-  }
-
-  U64 inbetweenSquares = (ONE << c1) | (ONE << d1) | (ONE << b1);
-  bool squaresOccupied = inbetweenSquares & _occupied;
-  bool squaresAttacked = _squareUnderAttack(BLACK, d1) || _squareUnderAttack(BLACK, c1);
-
-  return !colorIsInCheck(WHITE) && !squaresOccupied && !squaresAttacked;
-}
-
-bool Board::blackCanCastleKs() const {
-  if (!getKsCastlingRights(BLACK)) {
-    return false;
-  }
-
-  U64 passThroughSquares = (ONE << f8) | (ONE << g8);
-  bool squaresOccupied = passThroughSquares & _occupied;
-  bool squaresAttacked = _squareUnderAttack(WHITE, f8) || _squareUnderAttack(WHITE, g8);
-
-  return !colorIsInCheck(BLACK) && !squaresOccupied && !squaresAttacked;
-}
-
-bool Board::blackCanCastleQs() const {
-  if (!getQsCastlingRights(BLACK)) {
-    return false;
-  }
-
-  U64 inbetweenSquares = (ONE << b8) | (ONE << c8) | (ONE << d8);
-  bool squaresOccupied = inbetweenSquares & _occupied;
-  bool squaresAttacked = _squareUnderAttack(WHITE, c8) || _squareUnderAttack(WHITE, d8);
-
-  return !colorIsInCheck(BLACK) && !squaresOccupied && !squaresAttacked;
 }
 
 bool Board::getKsCastlingRights(Color color) const {
@@ -201,6 +153,10 @@ bool Board::getQsCastlingRights(Color color) const {
     case WHITE: return _castlingRights & (ONE << a1);
     default: return _castlingRights & (ONE << a8);
   }
+}
+
+U64 Board:: getCastlingRightsColored(Color color) const {
+    return color == WHITE ? _castlingRights & RANK_1 : _castlingRights & RANK_8;
 }
 
 std::string Board::getStringRep() const {
@@ -656,24 +612,20 @@ void Board::doMove(Move move) {
     // Move capturing piece
     _movePiece(_activePlayer, move.getPieceType(), from, to);
   } else if (flags & Move::KSIDE_CASTLE) {
-    // Move the king
-    _movePiece(_activePlayer, KING, from, to);
-
-    // Move the correct rook
     if (_activePlayer == WHITE) {
-      _movePiece(WHITE, ROOK, h1, f1);
+      _movePiece(WHITE, ROOK, to, f1);
+      _movePiece(WHITE, KING, from, g1);
     } else {
-      _movePiece(BLACK, ROOK, h8, f8);
+      _movePiece(BLACK, ROOK, to, f8);
+      _movePiece(BLACK, KING, from, g8);
     }
   } else if (flags & Move::QSIDE_CASTLE) {
-    // Move the king
-    _movePiece(_activePlayer, KING, from, to);
-
-    // Move the correct rook
     if (_activePlayer == WHITE) {
-      _movePiece(WHITE, ROOK, a1, d1);
+      _movePiece(WHITE, ROOK, to, d1);
+      _movePiece(WHITE, KING, from, c1);
     } else {
-      _movePiece(BLACK, ROOK, a8, d8);
+      _movePiece(BLACK, ROOK, to, d8);
+      _movePiece(BLACK, KING, from, c8);
     }
   } else if (flags & Move::EN_PASSANT) {
     // Remove the correct pawn
@@ -726,7 +678,7 @@ void Board:: doNool(){
   _activePlayer = getInactivePlayer();
 }
 
-bool Board::_squareUnderAttack(Color color, int squareIndex) const {
+bool Board::squareUnderAttack(Color color, int squareIndex) const {
   // Check for pawn, knight and king attacks
   if (Attacks::getNonSlidingAttacks(PAWN, squareIndex, getOppositeColor(color)) & getPieces(color, PAWN)) return true;
   if (Attacks::getNonSlidingAttacks(KNIGHT, squareIndex) & getPieces(color, KNIGHT)) return true;

@@ -77,35 +77,6 @@ class Board {
 
   int _getGameClock() const;
 
-
-  /**
-   * @brief Returns true if white can castle kingside, false otherwise.
-   *
-   * @return true if white can castle kingside, false otherwise.
-   */
-  bool whiteCanCastleKs() const;
-
-  /**
-   * @brief Returns true if white can castle queenside, false otherwise.
-   *
-   * @return true if white can castle queenside, false otherwise.
-   */
-  bool whiteCanCastleQs() const;
-
-  /**
-   * @brief Returns true if black can castle kingside, false otherwise.
-   *
-   * @return true if black can castle queenside, false otherwise.
-   */
-  bool blackCanCastleKs() const;
-
-  /**
-   * @brief Returns true if black can castle queenside, false otherwise.
-   *
-   * @return true if black can castle queenside, false otherwise.
-   */
-  bool blackCanCastleQs() const;
-
   /**
     * @name Methods to query castling rights
     * @brief Returns true/false if the given color has the castling right
@@ -128,6 +99,7 @@ class Board {
     */
   bool getKsCastlingRights(Color) const;
   bool getQsCastlingRights(Color) const;
+  U64  getCastlingRightsColored(Color) const;
   /**@}*/
 
   /**
@@ -256,6 +228,7 @@ class Board {
    * @return           A bitboard containing all of the squares that a piece of the specified piece type and color could move to.
    */
   U64 getAttacksForSquare(PieceType, Color, int) const;
+  bool squareUnderAttack(Color, int) const;
 
 
   /**
@@ -405,7 +378,6 @@ class Board {
    * @param  squareIndex  Square to check (little endian rank file mapping)
    * @return True if the square is under attack, false otherwise
    */
-  bool _squareUnderAttack(Color, int) const;
   U64  _squareAttackedBy(Color, int)  const;
   U64  _squareAttackedByRook(Color, int, U64) const;
   U64  _squareAttackedByBishop(Color, int, U64) const;
