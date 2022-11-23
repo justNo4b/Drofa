@@ -69,6 +69,7 @@ void initOptions() {
   optionsMap["BookPath"] = Option("book.bin", &loadBook);
   optionsMap["Hash"] = Option(MIN_HASH, MIN_HASH, MAX_HASH, &changeTTsize);
   optionsMap["Threads"] = Option(MIN_THREADS, MIN_THREADS, MAX_THREADS, &changeThreadsNumber);
+  optionsMap["UCI_Chess960"] = Option(false);
 
 
   // Options for tuning is defined here.
@@ -106,7 +107,7 @@ void setPosition(std::istringstream &is) {
       fen += token + " ";
     }
 
-    board.setToFen(fen);
+    board.setToFen(fen, (optionsMap["UCI_Chess960"].getValue() == "true"));
   }
 
   while (is >> token) {

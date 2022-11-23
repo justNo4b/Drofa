@@ -30,7 +30,7 @@ class Board {
    *
    * @param fen Fen string to set the board to
    */
-  Board(std::string);
+  Board(std::string, bool);
 
   /**
    * @brief Returns a pretty human readable string representation of this board.
@@ -54,8 +54,9 @@ class Board {
    * @brief Sets this board to the specified FEN string.
    *
    * @param fenString FEN string to set the board to.
+   * @param isFrc     is this FRC position
    */
-  void setToFen(std::string);
+  void setToFen(std::string, bool);
 
   /**
    * @brief Performs the specified move on this board.
@@ -325,6 +326,8 @@ class Board {
   int _SEE_cost[6] = {100, 500, 300, 300, 1000, 10000};
 
   int _phase;
+
+  bool _frc;
 
   /**
    * @brief Array indexed by [color][piecetype] of piece bitboards

@@ -5,11 +5,11 @@
 #include <sstream>
 
 Board::Board() {
-  setToFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    setToFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", false);
 }
 
-Board::Board(std::string fen) {
-  setToFen(fen);
+Board::Board(std::string fen, bool isFrc) {
+  setToFen(fen, isFrc);
 }
 
 U64 Board::getPieces(Color color, PieceType pieceType) const {
@@ -286,10 +286,11 @@ void Board::_clearBitBoards() {
   _occupied = ZERO;
 }
 
-void Board::setToFen(std::string fenString) {
+void Board::setToFen(std::string fenString, bool isFrc) {
   std::istringstream fenStream(fenString);
   std::string token;
   _gameClock = 0;
+  _frc = isFrc;
 
   _clearBitBoards();
 
@@ -780,7 +781,7 @@ void Board::_updateCastlingRightsForMove(Move move) {
 }
 
 void Board::setToStartPos() {
-  setToFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  setToFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", false);
 }
 
 U64 Board::_getWhitePawnAttacksForSquare(int square) const {

@@ -23,7 +23,7 @@ void myBench(){
 
     for (int i = 0; i < BENCH_POS_NUMBER; i++){
         int curNodes = 0;
-        board = Board(BENCH_POSITION[i]);
+        board = Board(BENCH_POSITION[i], false);
         search = std::make_shared<Search>(board, limits, history, myOrdering, false);
         search->iterDeep();
         curNodes = search->getNodes();
@@ -44,7 +44,7 @@ void myBench(){
 
 void testSEE(){
     for (int j = 0; j < 9; j++){
-        Board board = Board(SEE_POSITION[j]);
+        Board board = Board(SEE_POSITION[j], false);
         Move move = SEE_MOVE[j];
         int i = board.Calculate_SEE(move);
         std::cout << i << std::endl;
