@@ -225,7 +225,7 @@ void perftDivide(int depth) {
 
 void printEngineInfo() {
   std::cout << "id name Drofa " << VER_MAJ << "." << VER_MIN << "." << VER_PATCH << std::endl;
-  std::cout << "id authors Rhys Rustad-Elliott and Alexander Litov" << std::endl;
+  std::cout << "id author Rhys Rustad-Elliott and Alexander Litov" << std::endl;
 #ifdef _TUNE_
   std::cout << "This is _TUNE_ build, it can be slower" << std::endl;
 #endif
