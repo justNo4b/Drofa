@@ -62,12 +62,12 @@ inline int normalize_square(const Board &board, Color winning, int sqv){
 namespace Bitbase{
 
 
-inline uint kpk_get_index(Color, int, int, int);
+inline unsigned int kpk_get_index(Color, int, int, int);
 
 bool kpk_is_winning(Color, int, int, int);
 
 
-void kpk_set(kpk_position*, uint);
+void kpk_set(kpk_position*, unsigned int);
 void kpk_classify(kpk_position *, kpk_position *);
 void init_kpk();
 
