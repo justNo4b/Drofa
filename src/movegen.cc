@@ -202,7 +202,6 @@ void MoveGen::_genKingMoves(const Board &board, Color color, U64 king, U64 attac
     while (castlingRights)
     {
         int rookSquare = _popLsb(castlingRights);
-        std::cout << rookSquare << std::endl;
         U64 inBetween  = Eval::detail::IN_BETWEEN[kingIndex][rookSquare];
         int toCastle    = color == WHITE ? rookSquare > kingIndex ? g1 : c1
                                          : rookSquare > kingIndex ? g8 : c8;
