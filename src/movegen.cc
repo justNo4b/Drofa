@@ -220,7 +220,7 @@ void MoveGen::_genKingMoves(const Board &board, Color color, U64 king, U64 attac
         }
         Move::Flag flag = rookSquare > kingIndex ? Move::KSIDE_CASTLE : Move::QSIDE_CASTLE;
 
-        if (!pathAttacked) _moves.push_back(Move(kingIndex, toCastle, KING, flag));
+        if (!pathAttacked) _moves.push_back(Move(kingIndex, rookSquare, KING, flag));
     }
 }
 
