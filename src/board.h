@@ -77,6 +77,8 @@ class Board {
 
   int _getGameClock() const;
 
+  U64 getCastlingRightsColored(Color) const;
+
 
   /**
    * @brief Returns true if white can castle kingside, false otherwise.
@@ -224,6 +226,7 @@ class Board {
   ZKey getPawnStructureZKey() const;
 
   ZKey getpCountKey() const;
+  bool squareUnderAttack(Color, int) const;
 
   /**
    * @brief Returns the Piece Square Table of this board for its current state.
@@ -405,7 +408,6 @@ class Board {
    * @param  squareIndex  Square to check (little endian rank file mapping)
    * @return True if the square is under attack, false otherwise
    */
-  bool _squareUnderAttack(Color, int) const;
   U64  _squareAttackedBy(Color, int)  const;
   U64  _squareAttackedByRook(Color, int, U64) const;
   U64  _squareAttackedByBishop(Color, int, U64) const;
