@@ -392,7 +392,7 @@ class Board {
    * - Bit 2 - Black kingside
    * - Bit 3 - Black queenside
    */
-  unsigned char _castlingRights;
+  U64 _castlingRights;
 
 
   /**

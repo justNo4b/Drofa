@@ -191,15 +191,15 @@ bool Board::blackCanCastleQs() const {
 
 bool Board::getKsCastlingRights(Color color) const {
   switch (color) {
-    case WHITE: return _castlingRights & 0x1;
-    default: return _castlingRights & 0x4;
+    case WHITE: return _castlingRights & (ONE << h1);
+    default: return _castlingRights & (ONE << h8);
   }
 }
 
 bool Board::getQsCastlingRights(Color color) const {
   switch (color) {
-    case WHITE: return _castlingRights & 0x2;
-    default: return _castlingRights & 0x8;
+    case WHITE: return _castlingRights & (ONE << a1);
+    default: return _castlingRights & (ONE << a8);
   }
 }
 
@@ -337,13 +337,45 @@ void Board::setToFen(std::string fenString, bool isFrc) {
   _castlingRights = 0;
   for (auto currChar : token) {
     switch (currChar) {
-      case 'K': _castlingRights |= 0x1;
+      case 'K': _castlingRights |= (ONE << h1);
         break;
-      case 'Q': _castlingRights |= 0x2;
+      case 'Q': _castlingRights |= (ONE << a1);
         break;
-      case 'k': _castlingRights |= 0x4;
+      case 'k': _castlingRights |= (ONE << h8);
         break;
-      case 'q': _castlingRights |= 0x8;
+      case 'q': _castlingRights |= (ONE << a8);
+        break;
+      case 'A': _castlingRights |= (ONE << a1);
+        break;
+      case 'a': _castlingRights |= (ONE << a8);
+        break;
+      case 'B': _castlingRights |= (ONE << b1);
+        break;
+      case 'b': _castlingRights |= (ONE << b8);
+        break;
+      case 'C': _castlingRights |= (ONE << c1);
+        break;
+      case 'c': _castlingRights |= (ONE << c8);
+        break;
+      case 'D': _castlingRights |= (ONE << d1);
+        break;
+      case 'd': _castlingRights |= (ONE << d8);
+        break;
+      case 'E': _castlingRights |= (ONE << e1);
+        break;
+      case 'e': _castlingRights |= (ONE << e8);
+        break;
+      case 'F': _castlingRights |= (ONE << f1);
+        break;
+      case 'f': _castlingRights |= (ONE << f8);
+        break;
+      case 'G': _castlingRights |= (ONE << g1);
+        break;
+      case 'g': _castlingRights |= (ONE << g8);
+        break;
+      case 'H': _castlingRights |= (ONE << h1);
+        break;
+      case 'h': _castlingRights |= (ONE << h8);
         break;
     }
   }
@@ -748,36 +780,19 @@ void Board::_updateCastlingRightsForMove(Move move) {
   // Update castling flags if rooks have been captured
   if (flags & Move::CAPTURE) {
     // Update castling rights if a rook was captured
-    switch (move.getTo()) {
-      case a1: _castlingRights &= ~0x2;
-        break;
-      case h1: _castlingRights &= ~0x1;
-        break;
-      case a8: _castlingRights &= ~0x8;
-        break;
-      case h8: _castlingRights &= ~0x4;
-        break;
-    }
+    _castlingRights &= ~(ONE << move.getTo());
   }
 
-  // Update castling flags if rooks or kings have moved
-  switch (move.getFrom()) {
-    case e1: _castlingRights &= ~0x3;
-      break;
-    case e8: _castlingRights &= ~0xC;
-      break;
-    case a1: _castlingRights &= ~0x2;
-      break;
-    case h1: _castlingRights &= ~0x1;
-      break;
-    case a8: _castlingRights &= ~0x8;
-      break;
-    case h8: _castlingRights &= ~0x4;
-      break;
+  // Update castling flags if king have moved
+  if (move.getPieceType() == KING){
+    if(_row(move.getFrom()) == 0) _castlingRights &= ~RANK_1;
+    if(_row(move.getFrom()) == 7) _castlingRights &= ~RANK_8;
   }
 
-  _zKey.updateCastlingRights(getKsCastlingRights(WHITE),
-                             getQsCastlingRights(WHITE), getKsCastlingRights(BLACK), getQsCastlingRights(BLACK));
+  // Update flasgs if rook have moved
+  _castlingRights &= ~ (ONE << move.getFrom());
+
+  _zKey.updateCastlingRights(getKsCastlingRights(WHITE), getQsCastlingRights(WHITE), getKsCastlingRights(BLACK), getQsCastlingRights(BLACK));
 }
 
 void Board::setToStartPos() {

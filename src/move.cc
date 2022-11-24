@@ -100,6 +100,19 @@ std::string Move::getNotation() const {
   int fromIndex = getFrom();
   int toIndex = getTo();
 
+  // special notation for non-FRC castling
+  if (getFlags() & KSIDE_CASTLE){
+     std::string moveNotation = indexToNotation(fromIndex);
+     moveNotation += _row(fromIndex) == 0 ? "g1" : "g8";
+     return moveNotation;
+
+  }else if (getFlags() & QSIDE_CASTLE){
+    std::string moveNotation = indexToNotation(fromIndex);
+    moveNotation += _row(fromIndex) == 0 ? "c1" : "c8";
+    return moveNotation;
+  }
+
+
   std::string moveNotation = indexToNotation(fromIndex) + indexToNotation(toIndex);
 
   if (getFlags() & PROMOTION) {
