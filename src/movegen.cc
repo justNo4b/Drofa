@@ -195,26 +195,31 @@ void MoveGen::_genKingMoves(const Board &board, Color color, U64 king, U64 attac
     U64 moves = board.getAttacksForSquare(KING, board.getActivePlayer(), kingIndex);
     _addMoves(board, kingIndex, KING, moves, attackable);
 
+    // return if we under check
+    if (board.colorIsInCheck(color)) return;
     // Add Castlings
-    switch (color)
-    {
-    case WHITE:
-        if (board.whiteCanCastleKs()) {
-            _moves.push_back(Move(e1, g1, KING, Move::KSIDE_CASTLE));
-        }
-        if (board.whiteCanCastleQs()) {
-            _moves.push_back(Move(e1, c1, KING, Move::QSIDE_CASTLE));
-        }
-        break;
+    U64 castlingRights = board.getCastlingRightsColored(color);
 
-    case BLACK:
-        if (board.blackCanCastleKs()) {
-            _moves.push_back(Move(e8, g8, KING, Move::KSIDE_CASTLE));
+    while(castlingRights){
+        int rookSquare  = _popLsb(castlingRights);
+        int toCastle    = color == WHITE ? rookSquare > kingIndex ? g1 : c1
+                                         : rookSquare > kingIndex ? g8 : c8;
+        U64 rookToKing  = Eval::detail::IN_BETWEEN[kingIndex][rookSquare];
+        U64 kingJumpSq  = Eval::detail::IN_BETWEEN[kingIndex][toCastle] | (ONE << toCastle);
+
+        if (rookToKing & board.getOccupied()) continue;
+        bool pathAttacked = false;
+
+        while (kingJumpSq)
+        {
+            int sq = _popLsb(kingJumpSq);
+            if (board.squareUnderAttack(getOppositeColor(color), sq)){
+                pathAttacked = true;
+                break;
+                }
         }
-        if (board.blackCanCastleQs()) {
-            _moves.push_back(Move(e8, c8, KING, Move::QSIDE_CASTLE));
-        }
-        break;
+        Move::Flag flag = rookSquare > kingIndex ? Move::KSIDE_CASTLE : Move::QSIDE_CASTLE;
+        if (!pathAttacked) _moves.push_back(Move(kingIndex, toCastle, KING, flag));
     }
 }
 

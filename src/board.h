@@ -296,6 +296,9 @@ class Board {
    */
   int getPhase() const;
 
+  bool squareUnderAttack(Color, int) const;
+  U64  getCastlingRightsColored(Color) const;
+
  private:
   /**
    * @name Attack bitboard generation functions.
@@ -405,7 +408,6 @@ class Board {
    * @param  squareIndex  Square to check (little endian rank file mapping)
    * @return True if the square is under attack, false otherwise
    */
-  bool _squareUnderAttack(Color, int) const;
   U64  _squareAttackedBy(Color, int)  const;
   U64  _squareAttackedByRook(Color, int, U64) const;
   U64  _squareAttackedByBishop(Color, int, U64) const;
