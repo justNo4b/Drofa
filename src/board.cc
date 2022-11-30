@@ -650,24 +650,22 @@ void Board::doMove(Move move) {
     // Move capturing piece
     _movePiece(_activePlayer, move.getPieceType(), from, to);
   } else if (flags & Move::KSIDE_CASTLE) {
-    // Move the king
-    _movePiece(_activePlayer, KING, from, to);
-
     // Move the correct rook
     if (_activePlayer == WHITE) {
-      _movePiece(WHITE, ROOK, h1, f1);
+      _movePiece(_activePlayer, KING, from, g1);
+      _movePiece(WHITE, ROOK, to, f1);
     } else {
-      _movePiece(BLACK, ROOK, h8, f8);
+      _movePiece(_activePlayer, KING, from, g8);
+      _movePiece(BLACK, ROOK, to, f8);
     }
   } else if (flags & Move::QSIDE_CASTLE) {
-    // Move the king
-    _movePiece(_activePlayer, KING, from, to);
-
     // Move the correct rook
     if (_activePlayer == WHITE) {
-      _movePiece(WHITE, ROOK, a1, d1);
+      _movePiece(_activePlayer, KING, from, c1);
+      _movePiece(WHITE, ROOK, to, d1);
     } else {
-      _movePiece(BLACK, ROOK, a8, d8);
+      _movePiece(_activePlayer, KING, from, c8);
+      _movePiece(BLACK, ROOK, to, d8);
     }
   } else if (flags & Move::EN_PASSANT) {
     // Remove the correct pawn

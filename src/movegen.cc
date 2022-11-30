@@ -195,10 +195,11 @@ void MoveGen::_genKingMoves(const Board &board, Color color, U64 king, U64 attac
     U64 moves = board.getAttacksForSquare(KING, board.getActivePlayer(), kingIndex);
     _addMoves(board, kingIndex, KING, moves, attackable);
 
-    // return if we under check
-    if (board.colorIsInCheck(color)) return;
     // Add Castlings
     U64 castlingRights = board.getCastlingRightsColored(color);
+
+    // return if we under check
+    if (board.colorIsInCheck(color)) castlingRights = 0;
 
     while(castlingRights){
         int rookSquare  = _popLsb(castlingRights);
@@ -219,7 +220,7 @@ void MoveGen::_genKingMoves(const Board &board, Color color, U64 king, U64 attac
                 }
         }
         Move::Flag flag = rookSquare > kingIndex ? Move::KSIDE_CASTLE : Move::QSIDE_CASTLE;
-        if (!pathAttacked) _moves.push_back(Move(kingIndex, toCastle, KING, flag));
+        if (!pathAttacked) _moves.push_back(Move(kingIndex, rookSquare, KING, flag));
     }
 }
 
