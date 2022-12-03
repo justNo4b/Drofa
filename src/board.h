@@ -296,6 +296,8 @@ class Board {
    */
   int getPhase() const;
 
+  bool getFrcMode() const;
+
   bool squareUnderAttack(Color, int) const;
   U64  getCastlingRightsColored(Color) const;
 

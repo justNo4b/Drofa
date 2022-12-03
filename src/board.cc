@@ -846,3 +846,7 @@ int Board::_getGameClock() const{
 int Board::getPhase() const{
   return ((std::max(0, _phase) * MAX_PHASE) + (PHASE_WEIGHT_SUM / 2)) / PHASE_WEIGHT_SUM;
 }
+
+ bool Board::getFrcMode() const{
+    return _frc;
+ }

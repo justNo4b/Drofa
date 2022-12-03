@@ -30,7 +30,7 @@ void myBench(){
         nodes_total += curNodes;
         myHASH->HASH_Clear();
         myOrdering->clearAllHistory();
-        printf("Position [# %2d] Best: %6s %5i cp  Nodes: %12i", i + 1,search->getBestMove().getNotation().c_str(),
+        printf("Position [# %2d] Best: %6s %5i cp  Nodes: %12i", i + 1,search->getBestMove().getNotation(board.getFrcMode()).c_str(),
                  search->getBestScore(), curNodes);
         std::cout << std::endl;
     }

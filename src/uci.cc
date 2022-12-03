@@ -10,7 +10,7 @@
 extern HASH         * myHASH;
 extern OrderingInfo * myOrdering;
 
-int myTHREADSCOUNT = 1;
+int  myTHREADSCOUNT = 1;
 
 OrderingInfo  * cOrdering[MAX_THREADS];
 Search        * cSearch[MAX_THREADS];
@@ -118,7 +118,7 @@ void setPosition(std::istringstream &is) {
     MoveGen movegen(board, false);
     MoveList * moves = movegen.getMoves();
     for (auto &move : *moves) {
-      if (move.getNotation() == token) {
+      if (move.getNotation((optionsMap["UCI_Chess960"].getValue() == "true")) == token) {
         board.doMove(move);
         if ((move.getPieceType() == PAWN) || (move.getFlags() & Move::CAPTURE) ){
           positionHistory = Hist();
@@ -132,7 +132,7 @@ void setPosition(std::istringstream &is) {
 
 void pickBestMove() {
   if (optionsMap["OwnBook"].getValue() == "true" && book.inBook(board)) {
-    std::cout << "bestmove " << book.getMove(board).getNotation() << std::endl;
+    std::cout << "bestmove " << book.getMove(board).getNotation(board.getFrcMode()) << std::endl;
   } else {
     search->iterDeep();
   }
@@ -213,7 +213,7 @@ void perftDivide(int depth) {
     unsigned long long perftRes = perft(movedBoard, depth - 1);
     total += perftRes;
 
-    std::cout << move.getNotation() << ": " << perftRes << std::endl;
+    std::cout << move.getNotation(board.getFrcMode()) << ": " << perftRes << std::endl;
   }
   auto end = std::chrono::steady_clock::now();
   std::chrono::duration<double> elapsed = end - start;
@@ -310,7 +310,7 @@ void loop() {
       MoveGen movegen(board, false);
       MoveList * moves = movegen.getMoves();
       for (auto &move : *moves) {
-        std::cout << move.getNotation() << " ";
+        std::cout << move.getNotation(board.getFrcMode()) << " ";
       }
       std::cout << std::endl;
     } else if (token == "perft") {

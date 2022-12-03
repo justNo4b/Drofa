@@ -163,7 +163,7 @@ class Move {
    * @brief Return a UCI compliant string representation of this move.
    * @return A UCI compliant string representation of this move.
    */
-  std::string getNotation() const;
+  std::string getNotation(bool = true) const;
 
   /**
    * @brief Returns the index of a square on the chess board given its algebraic notation.

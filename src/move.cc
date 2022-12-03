@@ -91,7 +91,7 @@ void Move::setFlag(Flag flag) {
   _move = _move | (flag << 21);
 }
 
-std::string Move::getNotation() const {
+std::string Move::getNotation(bool isFrc) const {
   // Special case for null moves
   if (getFlags() & NULL_MOVE) {
     return NULL_MOVE_NOTATION;
@@ -101,12 +101,12 @@ std::string Move::getNotation() const {
   int toIndex = getTo();
 
   // special notation for non-FRC castling
-  if (getFlags() & KSIDE_CASTLE){
+  if ((getFlags() & KSIDE_CASTLE) && !isFrc){
      std::string moveNotation = indexToNotation(fromIndex);
      moveNotation += _row(fromIndex) == 0 ? "g1" : "g8";
      return moveNotation;
 
-  }else if (getFlags() & QSIDE_CASTLE){
+  }else if ((getFlags() & QSIDE_CASTLE) && !isFrc){
     std::string moveNotation = indexToNotation(fromIndex);
     moveNotation += _row(fromIndex) == 0 ? "c1" : "c8";
     return moveNotation;
