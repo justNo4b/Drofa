@@ -77,59 +77,6 @@ class Board {
 
   int _getGameClock() const;
 
-
-  /**
-   * @brief Returns true if white can castle kingside, false otherwise.
-   *
-   * @return true if white can castle kingside, false otherwise.
-   */
-  bool whiteCanCastleKs() const;
-
-  /**
-   * @brief Returns true if white can castle queenside, false otherwise.
-   *
-   * @return true if white can castle queenside, false otherwise.
-   */
-  bool whiteCanCastleQs() const;
-
-  /**
-   * @brief Returns true if black can castle kingside, false otherwise.
-   *
-   * @return true if black can castle queenside, false otherwise.
-   */
-  bool blackCanCastleKs() const;
-
-  /**
-   * @brief Returns true if black can castle queenside, false otherwise.
-   *
-   * @return true if black can castle queenside, false otherwise.
-   */
-  bool blackCanCastleQs() const;
-
-  /**
-    * @name Methods to query castling rights
-    * @brief Returns true/false if the given color has the castling right
-    *
-    * These methods return true if the provided color has the given castling
-    * right. Note that these return values represent potential future
-    * castling and don't necessarily indicate that white/black can castle
-    * immediately.
-    *
-    * For example, getKsCastlingRight(WHITE) returning true implies that
-    * white has the right to castle given that white is not in check,
-    * there are no pieces between the white king and white kingside rook
-    * and none of the squares between the white king and white kingside
-    * rook are under attack.
-    *
-    * Phrased another way, getKsCastlingRight(WHITE) returning true means
-    * that neither the white king nor the white kingside rook have yet moved.
-    *
-    * @{
-    */
-  bool getKsCastlingRights(Color) const;
-  bool getQsCastlingRights(Color) const;
-  /**@}*/
-
   /**
    * @brief Returns true if the given color is in check, false otherwise.
    *
@@ -300,6 +247,7 @@ class Board {
 
   bool squareUnderAttack(Color, int) const;
   U64  getCastlingRightsColored(Color) const;
+  U64 getCastlingRights() const;
 
  private:
   /**
@@ -390,15 +338,8 @@ class Board {
 
   /**
    * @brief Castling rights
-   *
-   * Stored as 4 bits:
-   * - Bit 0 - White kingside
-   * - Bit 1 - White queenside
-   * - Bit 2 - Black kingside
-   * - Bit 3 - Black queenside
    */
   U64 _castlingRights;
-
 
   /**
    * @brief Determines if the given square is under attack by the given color.

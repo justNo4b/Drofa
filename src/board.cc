@@ -135,68 +135,6 @@ int Board::getHalfmoveClock() const {
   return _halfmoveClock;
 }
 
-bool Board::whiteCanCastleKs() const {
-  if (!getKsCastlingRights(WHITE)) {
-    return false;
-  }
-
-  U64 passThroughSquares = (ONE << f1) | (ONE << g1);
-  bool squaresOccupied = passThroughSquares & _occupied;
-  bool squaresAttacked = squareUnderAttack(BLACK, f1) || squareUnderAttack(BLACK, g1);
-
-  return !colorIsInCheck(WHITE) && !squaresOccupied && !squaresAttacked;
-}
-
-bool Board::whiteCanCastleQs() const {
-  if (!getQsCastlingRights(WHITE)) {
-    return false;
-  }
-
-  U64 inbetweenSquares = (ONE << c1) | (ONE << d1) | (ONE << b1);
-  bool squaresOccupied = inbetweenSquares & _occupied;
-  bool squaresAttacked = squareUnderAttack(BLACK, d1) || squareUnderAttack(BLACK, c1);
-
-  return !colorIsInCheck(WHITE) && !squaresOccupied && !squaresAttacked;
-}
-
-bool Board::blackCanCastleKs() const {
-  if (!getKsCastlingRights(BLACK)) {
-    return false;
-  }
-
-  U64 passThroughSquares = (ONE << f8) | (ONE << g8);
-  bool squaresOccupied = passThroughSquares & _occupied;
-  bool squaresAttacked = squareUnderAttack(WHITE, f8) || squareUnderAttack(WHITE, g8);
-
-  return !colorIsInCheck(BLACK) && !squaresOccupied && !squaresAttacked;
-}
-
-bool Board::blackCanCastleQs() const {
-  if (!getQsCastlingRights(BLACK)) {
-    return false;
-  }
-
-  U64 inbetweenSquares = (ONE << b8) | (ONE << c8) | (ONE << d8);
-  bool squaresOccupied = inbetweenSquares & _occupied;
-  bool squaresAttacked = squareUnderAttack(WHITE, c8) || squareUnderAttack(WHITE, d8);
-
-  return !colorIsInCheck(BLACK) && !squaresOccupied && !squaresAttacked;
-}
-
-bool Board::getKsCastlingRights(Color color) const {
-  switch (color) {
-    case WHITE: return _castlingRights & (ONE << h1);
-    default: return _castlingRights & (ONE << h8);
-  }
-}
-
-bool Board::getQsCastlingRights(Color color) const {
-  switch (color) {
-    case WHITE: return _castlingRights & (ONE << a1);
-    default: return _castlingRights & (ONE << a8);
-  }
-}
-
 std::string Board::getStringRep() const {
   std::string stringRep = "8  ";
   int rank = 8;
@@ -739,6 +677,10 @@ U64 Board::getCastlingRightsColored(Color color) const {
     return color == WHITE ? _castlingRights & RANK_1 : _castlingRights & RANK_8;
 }
 
+U64 Board::getCastlingRights() const{
+    return _castlingRights;
+}
+
 U64 Board::_squareAttackedBy(Color color, int squareIndex) const {
   // Check for pawn, knight and king attacks
   U64 Attackers;
@@ -772,6 +714,7 @@ U64 Board::_squareAttackedByBishop(Color color, int square, U64 occupied) const{
 
 void Board::_updateCastlingRightsForMove(Move move) {
   unsigned int flags = move.getFlags();
+  U64 oldCastlingRights = _castlingRights;
 
   // Update castling flags if rooks have been captured
   if (flags & Move::CAPTURE) {
@@ -788,7 +731,7 @@ void Board::_updateCastlingRightsForMove(Move move) {
   // Update flasgs if rook have moved
   _castlingRights &= ~ (ONE << move.getFrom());
 
-  _zKey.updateCastlingRights(getKsCastlingRights(WHITE), getQsCastlingRights(WHITE), getKsCastlingRights(BLACK), getQsCastlingRights(BLACK));
+  _zKey.updateCastlingRights(oldCastlingRights ,_castlingRights);
 }
 
 void Board::setToStartPos() {
