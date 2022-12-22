@@ -268,10 +268,12 @@ void Board::setToFen(std::string fenString, bool isFrc) {
   fenStream >> token;
   _castlingRights = 0;
   for (auto currChar : token) {
+    U64 rook = 0;
+    int king = 0;
     switch (currChar) {
       case 'K':
-        U64 rook = _pieces[WHITE][ROOK];
-        int king = _popLsb(_pieces[WHITE][KING]);
+        rook = _pieces[WHITE][ROOK];
+        king = _bitscanForward(_pieces[WHITE][KING]);
         while (rook)
         {
             int sq = _popLsb(rook);
@@ -279,8 +281,8 @@ void Board::setToFen(std::string fenString, bool isFrc) {
         }
         break;
       case 'Q':
-        U64 rook = _pieces[WHITE][ROOK];
-        int king = _popLsb(_pieces[WHITE][KING]);
+        rook = _pieces[WHITE][ROOK];
+        king = _bitscanForward(_pieces[WHITE][KING]);
         while (rook)
         {
             int sq = _popLsb(rook);
@@ -288,8 +290,8 @@ void Board::setToFen(std::string fenString, bool isFrc) {
         }
         break;
       case 'k':
-        U64 rook = _pieces[BLACK][ROOK];
-        int king = _popLsb(_pieces[BLACK][KING]);
+        rook = _pieces[BLACK][ROOK];
+        king = _bitscanForward(_pieces[BLACK][KING]);
         while (rook)
         {
             int sq = _popLsb(rook);
@@ -297,8 +299,8 @@ void Board::setToFen(std::string fenString, bool isFrc) {
         }
         break;
       case 'q':
-        U64 rook = _pieces[BLACK][ROOK];
-        int king = _popLsb(_pieces[BLACK][KING]);
+        rook = _pieces[BLACK][ROOK];
+        king = _bitscanForward(_pieces[BLACK][KING]);
         while (rook)
         {
             int sq = _popLsb(rook);
