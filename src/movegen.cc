@@ -205,10 +205,14 @@ void MoveGen::_genKingMoves(const Board &board, Color color, U64 king, U64 attac
         int rookSquare  = _popLsb(castlingRights);
         int toCastle    = color == WHITE ? rookSquare > kingIndex ? g1 : c1
                                          : rookSquare > kingIndex ? g8 : c8;
+        int toRook      = color == WHITE ? rookSquare > kingIndex ? f1 : d1
+                                         : rookSquare > kingIndex ? f8 : d8;
         U64 rookToKing  = Eval::detail::IN_BETWEEN[kingIndex][rookSquare];
         U64 kingJumpSq  = Eval::detail::IN_BETWEEN[kingIndex][toCastle] | (ONE << toCastle);
 
-        if (rookToKing & board.getOccupied()) continue;
+        // both rookToKing AND king Jump AND Rook landing must be free !!!!
+        U64 toBeFree = rookToKing | kingJumpSq | (ONE << toRook);
+        if (toBeFree & board.getOccupied()) continue;
         bool pathAttacked = false;
 
         while (kingJumpSq)

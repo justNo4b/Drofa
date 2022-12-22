@@ -269,45 +269,41 @@ void Board::setToFen(std::string fenString, bool isFrc) {
   _castlingRights = 0;
   for (auto currChar : token) {
     switch (currChar) {
-      case 'K': _castlingRights |= (ONE << h1);
+      case 'K':
+        U64 rook = _pieces[WHITE][ROOK];
+        int king = _popLsb(_pieces[WHITE][KING]);
+        while (rook)
+        {
+            int sq = _popLsb(rook);
+            if (sq > king) _castlingRights |= (ONE << sq);
+        }
         break;
-      case 'Q': _castlingRights |= (ONE << a1);
+      case 'Q':
+        U64 rook = _pieces[WHITE][ROOK];
+        int king = _popLsb(_pieces[WHITE][KING]);
+        while (rook)
+        {
+            int sq = _popLsb(rook);
+            if (sq < king) _castlingRights |= (ONE << sq);
+        }
         break;
-      case 'k': _castlingRights |= (ONE << h8);
+      case 'k':
+        U64 rook = _pieces[BLACK][ROOK];
+        int king = _popLsb(_pieces[BLACK][KING]);
+        while (rook)
+        {
+            int sq = _popLsb(rook);
+            if (sq > king) _castlingRights |= (ONE << sq);
+        }
         break;
-      case 'q': _castlingRights |= (ONE << a8);
-        break;
-      case 'A': _castlingRights |= (ONE << a1);
-        break;
-      case 'a': _castlingRights |= (ONE << a8);
-        break;
-      case 'B': _castlingRights |= (ONE << b1);
-        break;
-      case 'b': _castlingRights |= (ONE << b8);
-        break;
-      case 'C': _castlingRights |= (ONE << c1);
-        break;
-      case 'c': _castlingRights |= (ONE << c8);
-        break;
-      case 'D': _castlingRights |= (ONE << d1);
-        break;
-      case 'd': _castlingRights |= (ONE << d8);
-        break;
-      case 'E': _castlingRights |= (ONE << e1);
-        break;
-      case 'e': _castlingRights |= (ONE << e8);
-        break;
-      case 'F': _castlingRights |= (ONE << f1);
-        break;
-      case 'f': _castlingRights |= (ONE << f8);
-        break;
-      case 'G': _castlingRights |= (ONE << g1);
-        break;
-      case 'g': _castlingRights |= (ONE << g8);
-        break;
-      case 'H': _castlingRights |= (ONE << h1);
-        break;
-      case 'h': _castlingRights |= (ONE << h8);
+      case 'q':
+        U64 rook = _pieces[BLACK][ROOK];
+        int king = _popLsb(_pieces[BLACK][KING]);
+        while (rook)
+        {
+            int sq = _popLsb(rook);
+            if (sq < king) _castlingRights |= (ONE << sq);
+        }
         break;
     }
   }
