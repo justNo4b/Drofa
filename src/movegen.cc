@@ -197,7 +197,6 @@ void MoveGen::_genKingMoves(const Board &board, Color color, U64 king, U64 attac
 
     // Add Castlings
     U64 castlingRights = board.getCastlingRightsColored(color);
-
     // return if we under check
     if (board.colorIsInCheck(color)) castlingRights = 0;
 

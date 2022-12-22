@@ -307,6 +307,8 @@ void Board::setToFen(std::string fenString, bool isFrc) {
             if (sq < king) _castlingRights |= (ONE << sq);
         }
         break;
+      case 'A': _castlingRights |= (ONE << a1);
+        break;
       case 'a': _castlingRights |= (ONE << a8);
         break;
       case 'B': _castlingRights |= (ONE << b1);
@@ -407,7 +409,7 @@ PieceType Board::getPieceAtSquare(Color color, int squareIndex) const {
 }
 
 void Board::_movePiece(Color color, PieceType pieceType, int from, int to) {
-  U64 squareMask =  (ONE << to) | (ONE << from);
+  U64 squareMask = to != from ? (ONE << to) | (ONE << from) : 0;
 
   _pieces[color][pieceType] ^= squareMask;
   _allPieces[color] ^= squareMask;
