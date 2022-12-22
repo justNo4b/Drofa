@@ -212,6 +212,8 @@ void MoveGen::_genKingMoves(const Board &board, Color color, U64 king, U64 attac
 
         // both rookToKing AND king Jump AND Rook landing must be free !!!!
         U64 toBeFree = rookToKing | kingJumpSq | (ONE << toRook);
+        toBeFree = toBeFree & ~(ONE << kingIndex);
+        toBeFree = toBeFree & ~(ONE << rookSquare);
         if (toBeFree & board.getOccupied()) continue;
         bool pathAttacked = false;
 
