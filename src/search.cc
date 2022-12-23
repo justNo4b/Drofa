@@ -109,7 +109,7 @@ void Search::iterDeep() {
 
     }
 
-  if (_logUci) std::cout << "bestmove " << getBestMove().getNotation() << std::endl;
+  if (_logUci) std::cout << "bestmove " << getBestMove().getNotation(_initialBoard.getFrcMode()) << std::endl;
 
   if (_logUci){
 
@@ -154,7 +154,7 @@ MoveList Search::_getPv() {
 void Search::_logUciInfo(const MoveList &pv, int depth, int bestScore, U64 nodes, int elapsed) {
   std::string pvString;
   for (auto move : pv) {
-    pvString += move.getNotation() + " ";
+    pvString += move.getNotation(_initialBoard.getFrcMode()) + " ";
   }
 
   std::string scoreString;

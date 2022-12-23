@@ -299,10 +299,13 @@ U64 Book::hashBoard(const Board &board) {
   }
 
   // Castles
-  hash = board.getKsCastlingRights(WHITE) ? hash ^ RANDOM_CASTLE[0] : hash;
-  hash = board.getQsCastlingRights(WHITE) ? hash ^ RANDOM_CASTLE[1] : hash;
-  hash = board.getKsCastlingRights(BLACK) ? hash ^ RANDOM_CASTLE[2] : hash;
-  hash = board.getQsCastlingRights(BLACK) ? hash ^ RANDOM_CASTLE[3] : hash;
+  // Book expected to be used for classical chess only
+  U64 castles = board.getCastlingRights();
+
+  hash = (castles & (ONE << h1)) ? hash ^ RANDOM_CASTLE[0] : hash;
+  hash = (castles & (ONE << a1)) ? hash ^ RANDOM_CASTLE[1] : hash;
+  hash = (castles & (ONE << h8)) ? hash ^ RANDOM_CASTLE[2] : hash;
+  hash = (castles & (ONE << a8)) ? hash ^ RANDOM_CASTLE[3] : hash;
 
   // Enpassant
   if (board.getEnPassant() != ZERO) {

@@ -49,6 +49,7 @@ U64 Eval::detail::CONNECTED_MASK[64];
 U64 Eval::detail::OUTPOST_PROTECTION[2][64];
 U64 Eval::detail::KINGZONE[2][64];
 U64 Eval::detail::FORWARD_BITS[2][64];
+U64 Eval::detail::IN_BETWEEN[64][64];
 U64 Eval::detail::KING_PAWN_MASKS[2][2][8] = {
         [WHITE] = {
           [0] = {
@@ -104,8 +105,16 @@ void Eval::init() {
 
     detail::CONNECTED_MASK[square] = ((ONE << (square + 1)) & ~FILE_A) | ((ONE << (square - 1)) & ~FILE_H);
 
-    for (int i =0; i < 64; i++){
+    for (int i = 0; i < 64; i++){
       detail::DISTANCE[square][i] = std::max(abs(_col(square) - _col(i)), abs(_row(square) - _row(i)));
+
+      if (Attacks::getSlidingAttacks(BISHOP, square, 0) & (ONE << i)){
+        detail::IN_BETWEEN[square][i] = (Attacks::getSlidingAttacks(BISHOP, square, ONE << i) & Attacks::getSlidingAttacks(BISHOP, i, ONE << square));
+      }else if (Attacks::getSlidingAttacks(ROOK, square, 0) & (ONE << i)){
+        detail::IN_BETWEEN[square][i] =  (Attacks::getSlidingAttacks(ROOK, square, ONE << i) & Attacks::getSlidingAttacks(ROOK, i, ONE << square));
+      }else{
+        detail::IN_BETWEEN[square][i] = 0;
+      }
     }
 
     for (auto color : { WHITE, BLACK }) {

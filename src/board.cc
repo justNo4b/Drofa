@@ -5,11 +5,11 @@
 #include <sstream>
 
 Board::Board() {
-  setToFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    setToFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", false);
 }
 
-Board::Board(std::string fen) {
-  setToFen(fen);
+Board::Board(std::string fen, bool isFrc) {
+  setToFen(fen, isFrc);
 }
 
 U64 Board::getPieces(Color color, PieceType pieceType) const {
@@ -128,79 +128,11 @@ PSquareTable Board::getPSquareTable() const {
 
 bool Board::colorIsInCheck(Color color) const {
   int kingSquare = _bitscanForward(getPieces(color, KING));
-
-  // Don't choke in testing scenarios where there is no king
-  if (kingSquare == -1) {
-    return false;
-  }
-
-  return _squareUnderAttack(getOppositeColor(color), kingSquare);
+  return squareUnderAttack(getOppositeColor(color), kingSquare);
 }
 
 int Board::getHalfmoveClock() const {
   return _halfmoveClock;
-}
-
-bool Board::whiteCanCastleKs() const {
-  if (!getKsCastlingRights(WHITE)) {
-    return false;
-  }
-
-  U64 passThroughSquares = (ONE << f1) | (ONE << g1);
-  bool squaresOccupied = passThroughSquares & _occupied;
-  bool squaresAttacked = _squareUnderAttack(BLACK, f1) || _squareUnderAttack(BLACK, g1);
-
-  return !colorIsInCheck(WHITE) && !squaresOccupied && !squaresAttacked;
-}
-
-bool Board::whiteCanCastleQs() const {
-  if (!getQsCastlingRights(WHITE)) {
-    return false;
-  }
-
-  U64 inbetweenSquares = (ONE << c1) | (ONE << d1) | (ONE << b1);
-  bool squaresOccupied = inbetweenSquares & _occupied;
-  bool squaresAttacked = _squareUnderAttack(BLACK, d1) || _squareUnderAttack(BLACK, c1);
-
-  return !colorIsInCheck(WHITE) && !squaresOccupied && !squaresAttacked;
-}
-
-bool Board::blackCanCastleKs() const {
-  if (!getKsCastlingRights(BLACK)) {
-    return false;
-  }
-
-  U64 passThroughSquares = (ONE << f8) | (ONE << g8);
-  bool squaresOccupied = passThroughSquares & _occupied;
-  bool squaresAttacked = _squareUnderAttack(WHITE, f8) || _squareUnderAttack(WHITE, g8);
-
-  return !colorIsInCheck(BLACK) && !squaresOccupied && !squaresAttacked;
-}
-
-bool Board::blackCanCastleQs() const {
-  if (!getQsCastlingRights(BLACK)) {
-    return false;
-  }
-
-  U64 inbetweenSquares = (ONE << b8) | (ONE << c8) | (ONE << d8);
-  bool squaresOccupied = inbetweenSquares & _occupied;
-  bool squaresAttacked = _squareUnderAttack(WHITE, c8) || _squareUnderAttack(WHITE, d8);
-
-  return !colorIsInCheck(BLACK) && !squaresOccupied && !squaresAttacked;
-}
-
-bool Board::getKsCastlingRights(Color color) const {
-  switch (color) {
-    case WHITE: return _castlingRights & 0x1;
-    default: return _castlingRights & 0x4;
-  }
-}
-
-bool Board::getQsCastlingRights(Color color) const {
-  switch (color) {
-    case WHITE: return _castlingRights & 0x2;
-    default: return _castlingRights & 0x8;
-  }
 }
 
 std::string Board::getStringRep() const {
@@ -286,10 +218,11 @@ void Board::_clearBitBoards() {
   _occupied = ZERO;
 }
 
-void Board::setToFen(std::string fenString) {
+void Board::setToFen(std::string fenString, bool isFrc) {
   std::istringstream fenStream(fenString);
   std::string token;
   _gameClock = 0;
+  _frc = isFrc;
 
   _clearBitBoards();
 
@@ -335,14 +268,76 @@ void Board::setToFen(std::string fenString) {
   fenStream >> token;
   _castlingRights = 0;
   for (auto currChar : token) {
+    U64 rook = 0;
+    int king = 0;
     switch (currChar) {
-      case 'K': _castlingRights |= 0x1;
+      case 'K':
+        rook = _pieces[WHITE][ROOK];
+        king = _bitscanForward(_pieces[WHITE][KING]);
+        while (rook)
+        {
+            int sq = _popLsb(rook);
+            if (sq > king) _castlingRights |= (ONE << sq);
+        }
         break;
-      case 'Q': _castlingRights |= 0x2;
+      case 'Q':
+        rook = _pieces[WHITE][ROOK];
+        king = _bitscanForward(_pieces[WHITE][KING]);
+        while (rook)
+        {
+            int sq = _popLsb(rook);
+            if (sq < king) _castlingRights |= (ONE << sq);
+        }
         break;
-      case 'k': _castlingRights |= 0x4;
+      case 'k':
+        rook = _pieces[BLACK][ROOK];
+        king = _bitscanForward(_pieces[BLACK][KING]);
+        while (rook)
+        {
+            int sq = _popLsb(rook);
+            if (sq > king) _castlingRights |= (ONE << sq);
+        }
         break;
-      case 'q': _castlingRights |= 0x8;
+      case 'q':
+        rook = _pieces[BLACK][ROOK];
+        king = _bitscanForward(_pieces[BLACK][KING]);
+        while (rook)
+        {
+            int sq = _popLsb(rook);
+            if (sq < king) _castlingRights |= (ONE << sq);
+        }
+        break;
+      case 'A': _castlingRights |= (ONE << a1);
+        break;
+      case 'a': _castlingRights |= (ONE << a8);
+        break;
+      case 'B': _castlingRights |= (ONE << b1);
+        break;
+      case 'b': _castlingRights |= (ONE << b8);
+        break;
+      case 'C': _castlingRights |= (ONE << c1);
+        break;
+      case 'c': _castlingRights |= (ONE << c8);
+        break;
+      case 'D': _castlingRights |= (ONE << d1);
+        break;
+      case 'd': _castlingRights |= (ONE << d8);
+        break;
+      case 'E': _castlingRights |= (ONE << e1);
+        break;
+      case 'e': _castlingRights |= (ONE << e8);
+        break;
+      case 'F': _castlingRights |= (ONE << f1);
+        break;
+      case 'f': _castlingRights |= (ONE << f8);
+        break;
+      case 'G': _castlingRights |= (ONE << g1);
+        break;
+      case 'g': _castlingRights |= (ONE << g8);
+        break;
+      case 'H': _castlingRights |= (ONE << h1);
+        break;
+      case 'h': _castlingRights |= (ONE << h8);
         break;
     }
   }
@@ -414,7 +409,7 @@ PieceType Board::getPieceAtSquare(Color color, int squareIndex) const {
 }
 
 void Board::_movePiece(Color color, PieceType pieceType, int from, int to) {
-  U64 squareMask =  (ONE << to) | (ONE << from);
+  U64 squareMask = to != from ? (ONE << to) | (ONE << from) : 0;
 
   _pieces[color][pieceType] ^= squareMask;
   _allPieces[color] ^= squareMask;
@@ -623,24 +618,22 @@ void Board::doMove(Move move) {
     // Move capturing piece
     _movePiece(_activePlayer, move.getPieceType(), from, to);
   } else if (flags & Move::KSIDE_CASTLE) {
-    // Move the king
-    _movePiece(_activePlayer, KING, from, to);
-
     // Move the correct rook
     if (_activePlayer == WHITE) {
-      _movePiece(WHITE, ROOK, h1, f1);
+      _movePiece(_activePlayer, KING, from, g1);
+      _movePiece(WHITE, ROOK, to, f1);
     } else {
-      _movePiece(BLACK, ROOK, h8, f8);
+      _movePiece(_activePlayer, KING, from, g8);
+      _movePiece(BLACK, ROOK, to, f8);
     }
   } else if (flags & Move::QSIDE_CASTLE) {
-    // Move the king
-    _movePiece(_activePlayer, KING, from, to);
-
     // Move the correct rook
     if (_activePlayer == WHITE) {
-      _movePiece(WHITE, ROOK, a1, d1);
+      _movePiece(_activePlayer, KING, from, c1);
+      _movePiece(WHITE, ROOK, to, d1);
     } else {
-      _movePiece(BLACK, ROOK, a8, d8);
+      _movePiece(_activePlayer, KING, from, c8);
+      _movePiece(BLACK, ROOK, to, d8);
     }
   } else if (flags & Move::EN_PASSANT) {
     // Remove the correct pawn
@@ -693,7 +686,7 @@ void Board:: doNool(){
   _activePlayer = getInactivePlayer();
 }
 
-bool Board::_squareUnderAttack(Color color, int squareIndex) const {
+bool Board::squareUnderAttack(Color color, int squareIndex) const {
   // Check for pawn, knight and king attacks
   if (Attacks::getNonSlidingAttacks(PAWN, squareIndex, getOppositeColor(color)) & getPieces(color, PAWN)) return true;
   if (Attacks::getNonSlidingAttacks(KNIGHT, squareIndex) & getPieces(color, KNIGHT)) return true;
@@ -708,6 +701,14 @@ bool Board::_squareUnderAttack(Color color, int squareIndex) const {
   if (_getRookAttacksForSquare(squareIndex, ZERO) & rooksQueens) return true;
 
   return false;
+}
+
+U64 Board::getCastlingRightsColored(Color color) const {
+    return color == WHITE ? _castlingRights & RANK_1 : _castlingRights & RANK_8;
+}
+
+U64 Board::getCastlingRights() const{
+    return _castlingRights;
 }
 
 U64 Board::_squareAttackedBy(Color color, int squareIndex) const {
@@ -743,44 +744,28 @@ U64 Board::_squareAttackedByBishop(Color color, int square, U64 occupied) const{
 
 void Board::_updateCastlingRightsForMove(Move move) {
   unsigned int flags = move.getFlags();
+  U64 oldCastlingRights = _castlingRights;
 
   // Update castling flags if rooks have been captured
   if (flags & Move::CAPTURE) {
     // Update castling rights if a rook was captured
-    switch (move.getTo()) {
-      case a1: _castlingRights &= ~0x2;
-        break;
-      case h1: _castlingRights &= ~0x1;
-        break;
-      case a8: _castlingRights &= ~0x8;
-        break;
-      case h8: _castlingRights &= ~0x4;
-        break;
-    }
+    _castlingRights &= ~(ONE << move.getTo());
   }
 
-  // Update castling flags if rooks or kings have moved
-  switch (move.getFrom()) {
-    case e1: _castlingRights &= ~0x3;
-      break;
-    case e8: _castlingRights &= ~0xC;
-      break;
-    case a1: _castlingRights &= ~0x2;
-      break;
-    case h1: _castlingRights &= ~0x1;
-      break;
-    case a8: _castlingRights &= ~0x8;
-      break;
-    case h8: _castlingRights &= ~0x4;
-      break;
+  // Update castling flags if king have moved
+  if (move.getPieceType() == KING){
+    if(_row(move.getFrom()) == 0) _castlingRights &= ~RANK_1;
+    if(_row(move.getFrom()) == 7) _castlingRights &= ~RANK_8;
   }
 
-  _zKey.updateCastlingRights(getKsCastlingRights(WHITE),
-                             getQsCastlingRights(WHITE), getKsCastlingRights(BLACK), getQsCastlingRights(BLACK));
+  // Update flasgs if rook have moved
+  _castlingRights &= ~ (ONE << move.getFrom());
+
+  _zKey.updateCastlingRights(oldCastlingRights ,_castlingRights);
 }
 
 void Board::setToStartPos() {
-  setToFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  setToFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", false);
 }
 
 U64 Board::_getWhitePawnAttacksForSquare(int square) const {
@@ -834,3 +819,7 @@ int Board::_getGameClock() const{
 int Board::getPhase() const{
   return ((std::max(0, _phase) * MAX_PHASE) + (PHASE_WEIGHT_SUM / 2)) / PHASE_WEIGHT_SUM;
 }
+
+ bool Board::getFrcMode() const{
+    return _frc;
+ }

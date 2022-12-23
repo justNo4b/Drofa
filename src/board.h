@@ -30,7 +30,7 @@ class Board {
    *
    * @param fen Fen string to set the board to
    */
-  Board(std::string);
+  Board(std::string, bool);
 
   /**
    * @brief Returns a pretty human readable string representation of this board.
@@ -54,8 +54,9 @@ class Board {
    * @brief Sets this board to the specified FEN string.
    *
    * @param fenString FEN string to set the board to.
+   * @param isFrc     is this FRC position
    */
-  void setToFen(std::string);
+  void setToFen(std::string, bool);
 
   /**
    * @brief Performs the specified move on this board.
@@ -75,59 +76,6 @@ class Board {
 
 
   int _getGameClock() const;
-
-
-  /**
-   * @brief Returns true if white can castle kingside, false otherwise.
-   *
-   * @return true if white can castle kingside, false otherwise.
-   */
-  bool whiteCanCastleKs() const;
-
-  /**
-   * @brief Returns true if white can castle queenside, false otherwise.
-   *
-   * @return true if white can castle queenside, false otherwise.
-   */
-  bool whiteCanCastleQs() const;
-
-  /**
-   * @brief Returns true if black can castle kingside, false otherwise.
-   *
-   * @return true if black can castle queenside, false otherwise.
-   */
-  bool blackCanCastleKs() const;
-
-  /**
-   * @brief Returns true if black can castle queenside, false otherwise.
-   *
-   * @return true if black can castle queenside, false otherwise.
-   */
-  bool blackCanCastleQs() const;
-
-  /**
-    * @name Methods to query castling rights
-    * @brief Returns true/false if the given color has the castling right
-    *
-    * These methods return true if the provided color has the given castling
-    * right. Note that these return values represent potential future
-    * castling and don't necessarily indicate that white/black can castle
-    * immediately.
-    *
-    * For example, getKsCastlingRight(WHITE) returning true implies that
-    * white has the right to castle given that white is not in check,
-    * there are no pieces between the white king and white kingside rook
-    * and none of the squares between the white king and white kingside
-    * rook are under attack.
-    *
-    * Phrased another way, getKsCastlingRight(WHITE) returning true means
-    * that neither the white king nor the white kingside rook have yet moved.
-    *
-    * @{
-    */
-  bool getKsCastlingRights(Color) const;
-  bool getQsCastlingRights(Color) const;
-  /**@}*/
 
   /**
    * @brief Returns true if the given color is in check, false otherwise.
@@ -295,6 +243,12 @@ class Board {
    */
   int getPhase() const;
 
+  bool getFrcMode() const;
+
+  bool squareUnderAttack(Color, int) const;
+  U64  getCastlingRightsColored(Color) const;
+  U64 getCastlingRights() const;
+
  private:
   /**
    * @name Attack bitboard generation functions.
@@ -325,6 +279,8 @@ class Board {
   int _SEE_cost[6] = {100, 500, 300, 300, 1000, 10000};
 
   int _phase;
+
+  bool _frc;
 
   /**
    * @brief Array indexed by [color][piecetype] of piece bitboards
@@ -382,15 +338,8 @@ class Board {
 
   /**
    * @brief Castling rights
-   *
-   * Stored as 4 bits:
-   * - Bit 0 - White kingside
-   * - Bit 1 - White queenside
-   * - Bit 2 - Black kingside
-   * - Bit 3 - Black queenside
    */
-  unsigned char _castlingRights;
-
+  U64 _castlingRights;
 
   /**
    * @brief Determines if the given square is under attack by the given color.
@@ -402,7 +351,6 @@ class Board {
    * @param  squareIndex  Square to check (little endian rank file mapping)
    * @return True if the square is under attack, false otherwise
    */
-  bool _squareUnderAttack(Color, int) const;
   U64  _squareAttackedBy(Color, int)  const;
   U64  _squareAttackedByRook(Color, int, U64) const;
   U64  _squareAttackedByBishop(Color, int, U64) const;
