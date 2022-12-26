@@ -182,7 +182,7 @@ const int KING_ATTACK_PAWN = gS(9,38);
 
 const int KING_PAWNLESS_FLANG = gS(-11,-66);
 
-const int FRC_CORNER_BISHOP = gS(-39,-45);
+const int FRC_CORNER_BISHOP = gS(-15,-22);
 
 /**
  * @brief Various array terms, related to the evaluation of the pawns
