@@ -416,6 +416,23 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
         ft.BishopPsqtBlack[relSqv][color]++;
       }
 
+      if (board.getFrcMode() == true){
+        // FRC corner bishop patch
+        // Most stupid implementation cause i`m lazy
+        if (color == WHITE && square == a1 && ((ONE << b2) & board.getPieces(color, PAWN)) && (((ONE << b3) & board.getPieces(otherColor, PAWN)))){
+            s += FRC_CORNER_BISHOP;
+        }
+        if (color == WHITE && square == h1 && ((ONE << g2) & board.getPieces(color, PAWN)) && (((ONE << g3) & board.getPieces(otherColor, PAWN)))){
+            s += FRC_CORNER_BISHOP;
+        }
+        if (color == BLACK && square == a8 && ((ONE << b7) & board.getPieces(color, PAWN)) && (((ONE << b6) & board.getPieces(otherColor, PAWN)))){
+            s += FRC_CORNER_BISHOP;
+        }
+        if (color == BLACK && square == h8 && ((ONE << g7) & board.getPieces(color, PAWN)) && (((ONE << g6) & board.getPieces(otherColor, PAWN)))){
+            s += FRC_CORNER_BISHOP;
+        }
+      }
+
       // Mobility
       // Bishops mobility are scanning through bishops and queens
       U64 attackBitBoard = board.getMobilityForSquare(BISHOP, color, square, mobZoneAdjusted);
