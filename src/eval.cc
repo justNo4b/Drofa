@@ -593,12 +593,15 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
 
   if (((file & ourPawns) == 0) && ((file & enemyPawns) == 0)){
     s += KING_OPEN_FILE;
+    eB->KingAttackPower[otherColor] += -1 * opS(KING_OPEN_FILE);
     if (TRACK) ft.KingOpenFile[color]++;
   } else if ((file & ourPawns) == 0){
     s += KING_OWN_SEMI_FILE;
+    eB->KingAttackPower[otherColor] += -1 * opS(KING_OWN_SEMI_FILE);
     if (TRACK) ft.KingSemiOwnFile[color]++;
   } else if ((file & enemyPawns) == 0){
     s += KING_ENEMY_SEMI_LINE;
+    eB->KingAttackPower[otherColor] += -1 * opS(KING_ENEMY_SEMI_LINE);
     if (TRACK) ft.KingSemiEnemyFile[color]++;
   }
 
