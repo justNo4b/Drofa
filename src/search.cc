@@ -526,6 +526,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
       // 6. Prune quiet moves with poor CMH on the tips of the tree
       if (depth <= 3 && isQuiet && cmHistory <= (-4096 * (depth - isPmQuietCounter))) continue;
+
+      if (depth == 1 && !isQuiet && moveHistory < -8192) break;
     }
 
     Board movedBoard = board;
