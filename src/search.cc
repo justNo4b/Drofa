@@ -797,9 +797,9 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   while (movePicker.hasNext()) {
     Move move = movePicker.getNext();
 
-    // in qSearch if Value < 0 it means it is a bad capture
+    // in qSearch if Value < -2 it means it is a bad capture
     // and we should prune it
-    if (move.getValue() < 0){
+    if (move.getValue() < -2){
       break;
     }
 
