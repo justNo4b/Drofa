@@ -87,6 +87,7 @@ void Search::iterDeep() {
                 aspAlpha = std::max(aspAlpha - aspDelta, LOST_SCORE);
             }else if( score >= aspBeta){
                 aspBeta  = std::min(aspBeta + aspDelta, -LOST_SCORE);
+                if (abs(score) < WON_IN_X / 2) currDepth = currDepth - 1;
             }else{
                 break;
             }
