@@ -34,7 +34,9 @@ void MovePicker::_scoreMoves(const Board *board) {
       }
       move.setValue(value);
     } else if (move.getFlags() & Move::PROMOTION) {
-      move.setValue(PROMOTION_SORT[move.getPromotionPieceType()]);
+        int see = _ply == MAX_PLY ? board->Calculate_SEE(move) : 0;
+        int value = see < 0 ? BAD_PROMOTION[move.getPromotionPieceType()] : PROMOTION_SORT[move.getPromotionPieceType()];
+        move.setValue(value);
     } else if (moveINT == Killer1) {
       move.setValue(KILLER1_BONUS);
     } else if (moveINT == Killer2) {
