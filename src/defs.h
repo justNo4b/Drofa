@@ -113,6 +113,8 @@ const U64 WHITE_SQUARES = 0x55AA55AA55AA55AA;
  * @name Other helpfull bitboards
  */
 const U64 CENTER            = (ONE << e4) | (ONE << e5) | (ONE << d4) | (ONE << d5);
+const U64 KING_SIDE         = FILE_E | FILE_F | FILE_G | FILE_H;
+const U64 QUEEN_SIDE        = FILE_A | FILE_B | FILE_C | FILE_D;
 const U64 FIGHTING_AREA     = RANK_3 | RANK_4 | RANK_5 | RANK_6;
 const U64 SIDE_FILES        = FILE_A | FILE_H;
 const U64 EXT_MIDDLE_FILES  = FILE_C | FILE_D | FILE_E | FILE_F;

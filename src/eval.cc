@@ -49,6 +49,7 @@ U64 Eval::detail::CONNECTED_MASK[64];
 U64 Eval::detail::OUTPOST_PROTECTION[2][64];
 U64 Eval::detail::KINGZONE[2][64];
 U64 Eval::detail::FORWARD_BITS[2][64];
+U64 Eval::detail::IN_BETWEEN[64][64];
 U64 Eval::detail::KING_PAWN_MASKS[2][2][8] = {
         [WHITE] = {
           [0] = {
@@ -104,8 +105,16 @@ void Eval::init() {
 
     detail::CONNECTED_MASK[square] = ((ONE << (square + 1)) & ~FILE_A) | ((ONE << (square - 1)) & ~FILE_H);
 
-    for (int i =0; i < 64; i++){
+    for (int i = 0; i < 64; i++){
       detail::DISTANCE[square][i] = std::max(abs(_col(square) - _col(i)), abs(_row(square) - _row(i)));
+
+      if (Attacks::getSlidingAttacks(BISHOP, square, 0) & (ONE << i)){
+        detail::IN_BETWEEN[square][i] = (Attacks::getSlidingAttacks(BISHOP, square, ONE << i) & Attacks::getSlidingAttacks(BISHOP, i, ONE << square));
+      }else if (Attacks::getSlidingAttacks(ROOK, square, 0) & (ONE << i)){
+        detail::IN_BETWEEN[square][i] =  (Attacks::getSlidingAttacks(ROOK, square, ONE << i) & Attacks::getSlidingAttacks(ROOK, i, ONE << square));
+      }else{
+        detail::IN_BETWEEN[square][i] = 0;
+      }
     }
 
     for (auto color : { WHITE, BLACK }) {
@@ -936,6 +945,29 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
   return final_eval;
 }
 
+inline int Eval::winnableEndgame(const Board & board, Color color, evalBits * eB, int score){
+  int s = 0;
+  int eGpart = egS(score);
+
+  int sign   = eGpart == 0 ? 0 :
+               eGpart > 0  ? 1 :
+               -1;
+
+  Color otherColor = getOppositeColor(color);
+  U64 pawnsTotal = board.getPieces(color, PAWN) | board.getPieces(otherColor, PAWN);
+
+  bool pawnsBothFlanks =  ((pawnsTotal & KING_SIDE) != 0) && ((pawnsTotal & QUEEN_SIDE) != 0);
+  bool pawnEndgame     =  ((board.getAllPieces(WHITE) ^ board.getPieces(WHITE, KING) ^ board.getPieces(WHITE, PAWN)) == 0) &&
+                          ((board.getAllPieces(BLACK) ^ board.getPieces(BLACK, KING) ^ board.getPieces(BLACK, PAWN)) == 0);
+
+  int winnable = !pawnsBothFlanks * PAWNS_NOT_BOTH_PENALTY
+                 + pawnEndgame * PAWN_ENDGAME_BONUS;
+
+  s = gS(0, sign * std::max(winnable, -abs(eGpart)));
+
+  return s;
+}
+
 inline int Eval::evaluateMain(const Board &board, Color color) {
 
   int score = 0;
@@ -994,6 +1026,8 @@ inline int Eval::evaluateMain(const Board &board, Color color) {
   // Transform obtained safety score into game score
   score +=  kingDanger(board, color, &eB)
           - kingDanger(board, otherColor, &eB);
+
+  score += winnableEndgame(board, color, &eB, score);
 
   // Taper and Scale obtained score
   int final_eval = TaperAndScale(board, color, score);

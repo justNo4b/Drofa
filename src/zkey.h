@@ -71,6 +71,8 @@ class ZKey {
    */
   void flipActivePlayer();
 
+  void flipCRight(int);
+
   /**
    * @brief Clears all en passant information in the ZKey.
    */
@@ -87,13 +89,8 @@ class ZKey {
 
   /**
    * @brief Updates the castling rights in the ZKey.
-   *
-   * @param whiteKs White kingside castling right
-   * @param whiteQs White queenside castling right
-   * @param blackKs Black kingside castling right
-   * @param blackQs Black queenside castling right
    */
-  void updateCastlingRights(bool, bool, bool, bool);
+  void updateCastlingRights(U64, U64);
 
   /**
    * @brief Sets this ZKey from the given board, taking into account only pawn
@@ -128,35 +125,17 @@ class ZKey {
   U64 _key;
 
   /**
-   * @name Functions that flip castling rights for each color.
-   *
-   * @{
-   */
-  void _flipKsCastle(Color);
-  void _flipQsCastle(Color);
-  /**@}*/
-
-  /**
    * @brief Current en passant file
    */
   int _enPassantFile;
-
-  /**
-   * @name Current castling rights
-   *
-   * @{
-   */
-  bool _whiteKs;
-  bool _whiteQs;
-  bool _blackKs;
-  bool _blackQs;
-  /**@}*/
 
   /**
    * @brief Array indexed by [Color][PieceType][SquareIndex] of pseudo-random
    * values to xor into _key for each color, piece type and square.
    */
   static U64 PIECE_KEYS[2][6][64];
+
+  static U64 CASTLE_RIGHTS_KEYS[64];
 
   /**
    * @brief Array indexed by [color][PieceType][PieceNumber]
@@ -168,15 +147,6 @@ class ZKey {
    * @brief Pseudo-random keys to xor into _key for each en passant file
    */
   static U64 EN_PASSANT_KEYS[8];
-
-  /**
-   * @name King and queenside castling keys indexed by [Color]
-   *
-   * @{
-   */
-  static U64 KS_CASTLE_KEYS[2];
-  static U64 QS_CASTLE_KEYS[2];
-  /**@}*/
 
   /**
    * @brief Key to xor into _key when it's white's turn to move.

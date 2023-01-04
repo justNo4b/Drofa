@@ -109,7 +109,7 @@ void Search::iterDeep() {
 
     }
 
-  if (_logUci) std::cout << "bestmove " << getBestMove().getNotation() << std::endl;
+  if (_logUci) std::cout << "bestmove " << getBestMove().getNotation(_initialBoard.getFrcMode()) << std::endl;
 
   if (_logUci){
 
@@ -154,7 +154,7 @@ MoveList Search::_getPv() {
 void Search::_logUciInfo(const MoveList &pv, int depth, int bestScore, U64 nodes, int elapsed) {
   std::string pvString;
   for (auto move : pv) {
-    pvString += move.getNotation() + " ";
+    pvString += move.getNotation(_initialBoard.getFrcMode()) + " ";
   }
 
   std::string scoreString;
@@ -516,7 +516,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       // 5. LATE MOVE PRUNING
       // If we made many quiet moves in the position already
       // we suppose other moves wont improve our situation
-      if (qCount > _lmp_Array[depth][(improving || pvNode)]) break;
+      if ((qCount > _lmp_Array[depth][(improving || pvNode)]) && (moveHistory + cmHistory <= 0)) break;
 
       // 6. SEE pruning of quiet moves
       // At shallow depth prune highlyish -negative SEE-moves

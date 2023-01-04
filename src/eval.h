@@ -51,6 +51,7 @@ extern U64 KINGZONE[2][64];
 extern U64 PAWN_DUOS [64];
 extern U64 DISTANCE[64][64];
 extern U64 FORWARD_BITS[2][64];
+extern U64 IN_BETWEEN[64][64];
 
 /**
  * @brief Array of masks indexed by [Color][square] containing all squares that
@@ -87,6 +88,14 @@ extern U64 KING_PAWN_MASKS[2][2][8];
   const int BOTH_SCALE_ROOK_OCB = 3;
   const int BOTH_SCALE_KNIGHT_OCB = 3;
   const int BOTH_SCALE_ZERO = 0;
+  /**@}*/
+
+/**
+ * @brief Various constants used for Winnability calculation
+  * @{
+  */
+    const int PAWNS_NOT_BOTH_PENALTY = -35;
+    const int PAWN_ENDGAME_BONUS = 53;
   /**@}*/
 
 /**
@@ -472,6 +481,7 @@ int getMaterialValue(int, PieceType);
    inline int evaluatePAWNS(const Board &, Color, evalBits *);
    inline int evaluateKING(const Board &, Color, evalBits *);
    inline int probePawnStructure(const Board &, Color, evalBits *);
+   inline int winnableEndgame(const Board &, Color, evalBits *, int);
 
   /**@}*/
 

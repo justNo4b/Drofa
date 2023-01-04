@@ -11,17 +11,17 @@ uint8_t KPK_Bitbase[KPK_SIZE / 8];
 // Bitbase code is basically copy-paste (with some minor semantic changes) of the Stash code
 // see https://github.com/mhouppin/stash-bot
 
-inline uint Bitbase::kpk_get_index(Color color, int bKing, int wKing, int pawn){
-    return ((uint)wKing | ((uint)bKing << 6) | ((uint)color << 12)
-         | ((uint)_col(pawn) << 13) | ((uint)(6 - _row(pawn)) << 15));
+inline unsigned int Bitbase::kpk_get_index(Color color, int bKing, int wKing, int pawn){
+    return ((unsigned int)wKing | ((unsigned int)bKing << 6) | ((unsigned int)color << 12)
+         | ((unsigned int)_col(pawn) << 13) | ((unsigned int)(6 - _row(pawn)) << 15));
 }
 
 bool Bitbase::kpk_is_winning(Color color, int bKing, int wKing, int pawn){
-    uint index = kpk_get_index (color, bKing, wKing, pawn);
+    unsigned int index = kpk_get_index (color, bKing, wKing, pawn);
     return (KPK_Bitbase[index >> 3] & (1 << (index & 7)));
 }
 
-void Bitbase::kpk_set(kpk_position *bPosition, uint index){
+void Bitbase::kpk_set(kpk_position *bPosition, unsigned int index){
     const int wKing     = (int) (index & 0x3F);
     const int bKing     = (int) ((index >> 6) & 0x3F);
     const Color color   = (Color) ((index >> 12) & 1);
@@ -117,7 +117,7 @@ void Bitbase::init_kpk(){
         exit(0);
     }
 
-    uint index;
+    unsigned int index;
     bool repeat;
 
     std::memset(KPK_Bitbase, 0, sizeof(KPK_Bitbase));
