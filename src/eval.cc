@@ -193,6 +193,7 @@ evalBits Eval::Setupbits(const Board &board){
   eB.Passers[0] = 0, eB.Passers[1] = 0;
   eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
   eB.AttackedByKing[0] = 0, eB.AttackedByKing[1] = 0;
+  eB.AttackedByTwo[0] = 0, eB.AttackedByTwo[1] = 0;
   return eB;
 }
 
@@ -299,6 +300,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     }
 
     // Save our attacks for further use
+    eB->AttackedByTwo[color] = eB->AttackedSquares[color] & attackBitBoard;
     eB->AttackedSquares[color] |= attackBitBoard;
   }
 
@@ -331,6 +333,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     if (TRACK) ft.RookMobility[_popCount(attackBitBoard)][color]++;
 
     // Save our attacks for further use
+    eB->AttackedByTwo[color] = eB->AttackedSquares[color] & attackBitBoard;
     eB->AttackedSquares[color] |= attackBitBoard;
 
     // RookAttackMinor
@@ -423,6 +426,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       if (TRACK) ft.BishopMobility[_popCount(attackBitBoard)][color]++;
 
       // Save our attacks for further use
+      eB->AttackedByTwo[color] = eB->AttackedSquares[color] & attackBitBoard;
       eB->AttackedSquares[color] |= attackBitBoard;
 
       // BishopAttackMinor
@@ -507,6 +511,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       if (TRACK) ft.KnigthMobility[_popCount(attackBitBoard)][color]++;
 
       // Save our attacks for further use
+      eB->AttackedByTwo[color] = eB->AttackedSquares[color] & attackBitBoard;
       eB->AttackedSquares[color] |= attackBitBoard;
 
       // KnightAttackMinor

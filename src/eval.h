@@ -17,6 +17,7 @@ struct evalBits{
     U64 EnemyKingZone[2];
     U64 Passers[2];
     U64 AttackedSquares[2];
+    U64 AttackedByTwo[2];
     U64 AttackedByKing[2];
     int RammedCount;
     int KingAttackers[2];
