@@ -18,6 +18,7 @@ struct evalBits{
     U64 Passers[2];
     U64 AttackedSquares[2];
     U64 AttackedByKing[2];
+    U64 AttackedByTwo[2];
     int RammedCount;
     int KingAttackers[2];
     int KingAttackPower[2];
@@ -141,6 +142,8 @@ const int PAWN_BLOCKED = gS(3,16);
 const int PASSER_BLOCKED = gS(6,-1);
 
 const int PAWN_PUSH_THREAT = gS(17,15);
+
+const int ENEMY_SQUARE_CONTROL = gS(5, 1);
 
 const int BISHOP_RAMMED_PENALTY = gS(-4,-3);
 

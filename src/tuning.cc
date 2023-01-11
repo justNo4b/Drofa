@@ -175,7 +175,7 @@ bool InitTuningPositions(tEntry * positionList){
 
 void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
     // 1. Construct position for us.
-    Board b = Board(myFen);
+    Board b = Board(myFen, false);
 
     // 2. Calculate phase-related stuff
     double phase = simplifyPhaseCalculation(b);
@@ -242,6 +242,7 @@ void InitCoefficients(featureCoeff coeff){
     coeff[i++] = ft.PawnBlocked[WHITE] - ft.PawnBlocked[BLACK];
     coeff[i++] = ft.PassersBlocked[WHITE] - ft.PassersBlocked[BLACK];
     coeff[i++] = ft.PawnPushThreat[WHITE] - ft.PawnPushThreat[BLACK];
+    coeff[i++] = ft.EnemySquareControl[WHITE] - ft.EnemySquareControl[BLACK];
     coeff[i++] = ft.BishopRammed[WHITE] - ft.BishopRammed[BLACK];
     coeff[i++] = ft.BishopCenterControl[WHITE] - ft.BishopCenterControl[BLACK];
     coeff[i++] = ft.BishopProtOutJump[WHITE] - ft.BishopProtOutJump[BLACK];

@@ -191,6 +191,7 @@ evalBits Eval::Setupbits(const Board &board){
   eB.KingAttackers[0] = 0, eB.KingAttackers[1] = 0;
   eB.KingAttackPower[0] = START_ATTACK_VALUE, eB.KingAttackPower[1] = START_ATTACK_VALUE;
   eB.Passers[0] = 0, eB.Passers[1] = 0;
+  eB.AttackedByTwo[0] = 0, eB.AttackedByTwo[1] = 0;
   eB.AttackedSquares[0] = 0, eB.AttackedSquares[1] = 0;
   eB.AttackedByKing[0] = 0, eB.AttackedByKing[1] = 0;
   return eB;
@@ -299,6 +300,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     }
 
     // Save our attacks for further use
+    eB->AttackedByTwo[color] = eB->AttackedSquares[color] & attackBitBoard;
     eB->AttackedSquares[color] |= attackBitBoard;
   }
 
@@ -331,6 +333,7 @@ inline int Eval::evaluateROOK(const Board & board, Color color, evalBits * eB){
     if (TRACK) ft.RookMobility[_popCount(attackBitBoard)][color]++;
 
     // Save our attacks for further use
+    eB->AttackedByTwo[color] = eB->AttackedSquares[color] & attackBitBoard;
     eB->AttackedSquares[color] |= attackBitBoard;
 
     // RookAttackMinor
@@ -423,6 +426,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       if (TRACK) ft.BishopMobility[_popCount(attackBitBoard)][color]++;
 
       // Save our attacks for further use
+      eB->AttackedByTwo[color] = eB->AttackedSquares[color] & attackBitBoard;
       eB->AttackedSquares[color] |= attackBitBoard;
 
       // BishopAttackMinor
@@ -507,6 +511,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
       if (TRACK) ft.KnigthMobility[_popCount(attackBitBoard)][color]++;
 
       // Save our attacks for further use
+      eB->AttackedByTwo[color] = eB->AttackedSquares[color] & attackBitBoard;
       eB->AttackedSquares[color] |= attackBitBoard;
 
       // KnightAttackMinor
@@ -578,6 +583,7 @@ inline int Eval::evaluateKING(const Board & board, Color color, evalBits * eB){
   }
 
   // Save our attacks for further use
+  eB->AttackedByTwo[color] = eB->AttackedSquares[color] & attackBitBoard;
   eB->AttackedByKing[color] |= attackBitBoard;
 
   // See if our king is on the Openish-files
@@ -798,6 +804,12 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
                             : ((pawnPush >> 9) & ~FILE_H) | ((pawnPush >> 7) & ~FILE_A);
   s += PAWN_PUSH_THREAT * _popCount(pawnPush & targets);
   if (TRACK) ft.PawnPushThreat[color] += _popCount(pawnPush & targets);
+
+
+  // Evaluate enemy mobility controled by us
+  U64 sqConrol = AllTheirAttacks & ~eB->AttackedByTwo[otherColor] & eB->AttackedByTwo[color];
+  s += ENEMY_SQUARE_CONTROL * _popCount(sqConrol);
+  if (TRACK) ft.EnemySquareControl[color] += _popCount(sqConrol);
 
   // Passer - piece evaluation
 
