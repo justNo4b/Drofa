@@ -807,7 +807,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
 
   // Evaluate enemy mobility controled by us
-  U64 sqConrol = AllTheirAttacks & ~eB->AttackedByTwo[otherColor] & eB->AttackedByTwo[color];
+  U64 sqConrol = AllTheirAttacks & ~eB->AttackedByTwo[otherColor] & ~eB->EnemyPawnAttackMap[color] & eB->AttackedByTwo[color];
   s += ENEMY_SQUARE_CONTROL * _popCount(sqConrol);
   if (TRACK) ft.EnemySquareControl[color] += _popCount(sqConrol);
 
