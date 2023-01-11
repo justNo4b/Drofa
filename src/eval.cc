@@ -6,7 +6,6 @@
 #include "eval.h"
 #include "transptable.h"
 #include "tuning.h"
-#include "kpnn.h"
 
 extern HASH * myHASH;
 extern posFeatured ft;
@@ -738,51 +737,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     }
   }
 
-  s += evaluatePNN(board);
-
   return s;
-}
-
-inline int Eval::evaluatePNN(const Board & board){
-    double output1;
-    double output2;
-    int8_t inputs[N_INPUTS] = {0};
-    double hidden_values[N_HIDDEN];
-
-    // Prepare inputs.
-    // For now very slow, but optimaze later
-    // Can be optimized with hidden activation at least
-    U64 wPawns = board.getPieces(WHITE, PAWN);
-    U64 bPawns = board.getPieces(BLACK, PAWN);
-
-    while (wPawns){
-        int sq = _popLsb(wPawns);
-        inputs[sq] = 1;
-    }
-
-    while (wPawns){
-        int sq = _popLsb(bPawns);
-        inputs[64 + sq] = 1;
-    }
-
-    int total = 0;
-    for (int i = 0; i < N_HIDDEN; i++){
-        for (int j = 0; j < N_INPUTS; j++){
-            hidden_values[i] += inputs[j] * HIDDEN_WEIGHTS[total];
-            total++;
-        }
-        // use sigmoid now
-        hidden_values[i] = sigmoid(hidden_values[i]);
-    }
-
-    // Now calculate output
-    for (int k = 0; k < N_HIDDEN; k++){
-        output1 += hidden_values[k] * OUTPUT_WEIGHTS1[k];
-        output2 += hidden_values[k] * OUTPUT_WEIGHTS2[k];
-    }
-
-    // Make gameScore from opening and endgame values and return
-    return gS((int)output1, (int)output2);
 }
 
 inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits * eB){
