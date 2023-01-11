@@ -7,6 +7,7 @@
 #include "transptable.h"
 #include "tuning.h"
 #include "kpnn.h"
+#include <cstring>
 
 extern HASH * myHASH;
 extern posFeatured ft;
@@ -764,6 +765,8 @@ inline int Eval::evaluatePNN(const Board & board){
         int sq = _popLsb(bPawns);
         inputs[64 + sq] = 1;
     }
+
+    if (TRACK) std::memcpy(std::begin(ft.kpInput), std::begin(inputs), sizeof(inputs));
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){

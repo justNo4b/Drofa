@@ -15,6 +15,8 @@ struct posFeatured{
     //scaling consts
     int Scale;
 
+    int8_t kpInput[128];
+
     // Simple features
     int BishopPair[2];
     int KingHighDanger[2];
@@ -113,6 +115,7 @@ struct tEntry {
     bool stm;
     bool noPawns;
     eTrace *traces;
+    int8_t net[128];
 };
 
 

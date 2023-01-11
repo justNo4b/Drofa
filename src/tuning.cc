@@ -39,11 +39,11 @@ void TunerStart(){
 
     // Check if our number of terms
     // is consistent with number of features
-    CheckFeaturesNumber();
+    //CheckFeaturesNumber();
 
     //Initiate our terms
     tValueHolder currTerms = {{0}};
-    EvalTermInitiate(currTerms);
+    //EvalTermInitiate(currTerms);
 
     // Initialize training data
     // Program will exit if there is smth wrong with our data
@@ -175,7 +175,7 @@ bool InitTuningPositions(tEntry * positionList){
 
 void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
     // 1. Construct position for us.
-    Board b = Board(myFen);
+    Board b = Board(myFen, false);
 
     // 2. Calculate phase-related stuff
     double phase = simplifyPhaseCalculation(b);
@@ -197,8 +197,11 @@ void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
     // So now we can save it
     // InitCoefficients ensures the we do not store features
     // that are zeroed out (i.e bishop pair for both sides)
-    InitCoefficients(newCoeffs);
-    InitETraces(newCoeffs, &positionList[pCount]);
+    //InitCoefficients(newCoeffs);
+    //InitETraces(newCoeffs, &positionList[pCount]);
+
+    //init net inputs
+    std::memcpy(std::begin(positionList[pCount].net), std::begin(ft.kpInput), sizeof(ft.kpInput));
 
     // 5. Save Final evaluation for easier gradient recalculation
     // As we called evaluate() from stm perspective
