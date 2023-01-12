@@ -57,6 +57,8 @@ void TunerStart(){
     tValueHolder currTerms = {{0}};
     //EvalTermInitiate(currTerms);
 
+
+    initializeWeights();
     // Initialize training data
     // Program will exit if there is smth wrong with our data
     if (!InitTuningPositions(entries))
@@ -735,4 +737,23 @@ void mergeGradients(){
         }
     }
 }
+
+
+void initializeWeights(){
+    std::srand(1);
+    for (int i = 0; i < N_HIDDEN; i++){
+        tuneOUTPUT_WEIGHTS[i] = (double) std::rand() / RAND_MAX;
+    }
+
+    int total = 0;
+    for (int i = 0; i < N_HIDDEN; i++){
+        for (int j = 0; j < N_INPUTS; j++){
+            tuneHIDDEN_WEIGHTS[total] += (double) std::rand() / RAND_MAX;
+            total++;
+        }
+    }
+
+    printWeights();
+}
+
 #endif

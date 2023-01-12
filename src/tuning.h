@@ -203,3 +203,5 @@ struct tEntry {
  double propagateForward (tEntry*);
 
  void printWeights();
+
+void initializeWeights();
