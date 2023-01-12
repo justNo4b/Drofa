@@ -18,6 +18,18 @@ posFeatured ft, zero;
 
 #ifdef _TUNE_
 
+double tuneHIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN];
+double tuneOUTPUT_WEIGHTS[N_HIDDEN];
+
+double hidden_values[N_HIDDEN];
+double hidden_sigmas[N_HIDDEN];
+
+double wTweaksHIDDEN[N_INPUTS * N_HIDDEN] = {0};
+double wTweaksOUTPUT[N_HIDDEN] = {0};
+
+double E = 0.001;
+double A = 0.0001;
+
 TuningType FeatureTypeMap[TUNING_TERMS_COUNT];
 
 void TunerStart(){
@@ -55,15 +67,16 @@ void TunerStart(){
 
     std::cout << std::setprecision(16);
 
-    std::cout << "\n Calculating K... " << std::endl;
-    double K = CalculateFactorK(entries);
-    std::cout << "\n Optimal K = " << K << std::endl;
+    //std::cout << "\n Calculating K... " << std::endl;
+    //double K = CalculateFactorK(entries);
+    //std::cout << "\n Optimal K = " << K << std::endl;
     for (int epoch = 0; epoch < TUNIGN_MAX_ITER; epoch++){
 
         // Calculate gradient
         tValueHolder gradient = {{0}};
         CalculateGradient(entries, gradient, diffTerms);
 
+/*
         //adjust stuff
         for (int i = 0; i < TUNING_TERMS_COUNT; i++) {
                 gradTerms[i][OPENING] += pow((TUNING_K / 200.0) * gradient[i][OPENING] / TUNING_POS_COUNT, 2.0);
@@ -72,7 +85,7 @@ void TunerStart(){
                 diffTerms[i][ENDGAME] += (TUNING_K / 200.0) * (gradient[i][ENDGAME] / TUNING_POS_COUNT) * (rate / sqrt(1e-8 + gradTerms[i][ENDGAME]));
         }
 
-
+*/
         // Learning drop rate
         if (epoch % TUNING_L_STEP == 0){
             rate = rate / TUNING_L_DROP;
@@ -80,9 +93,11 @@ void TunerStart(){
         // Print new terms
         if (epoch % TUNIGN_PRINT == 0){
             error = TunedError(entries, diffTerms);
+            printWeights();
             std::cout << "\n\n IterationNum = " + std::to_string(epoch) + " Error: " <<  error;
             std::cout << "\n Printing Terms: \n";
-            PrintTunedParams(currTerms, diffTerms);
+            //PrintTunedParams(currTerms, diffTerms);
+
         }
     }
 
@@ -471,8 +486,17 @@ void InitETraces(featureCoeff coeffs, tEntry* entry){
     }
 }
 
+
+
 void CalculateGradient(tEntry* entries, tValueHolder grad, tValueHolder diff){
 
+    tValueHolder local = {{0}};
+
+    for (int i = 0; i < TUNING_POS_COUNT; i++){
+        UpdateSingleGrad( &entries[i], local, diff);
+    }
+
+/*
     #pragma omp parallel shared(grad)
     {
          tValueHolder local = {{0}};
@@ -486,6 +510,7 @@ void CalculateGradient(tEntry* entries, tValueHolder grad, tValueHolder diff){
                 grad[i][ENDGAME] += local[i][ENDGAME];
             }
     }
+*/
 }
 
 void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
@@ -493,6 +518,9 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
     double sigm = Sigmoid(eval);
     double X = (entry->result - sigm) * sigm * (1.0 - sigm);
 
+    propagateReverse(entry, X * entry->pFactors[ENDGAME]);
+    mergeGradients();
+/*
     double opBase = X * entry->pFactors[OPENING];
     double egBase = X * entry->pFactors[ENDGAME];
     double scale = entry->FinalEvalScale / 4;
@@ -508,6 +536,7 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
         if (FeatureTypeMap[index] == ALL || FeatureTypeMap[index] == EG_ONLY) local[index][ENDGAME] +=  egBase * count * scale;
 
     }
+*/
 }
 
 double Sigmoid(double eval){
@@ -527,6 +556,8 @@ double TuningEval(tEntry* entry, tValueHolder diff){
         opScore += (double) entry->traces[i].count * diff[entry->traces[i].index][OPENING];
         egScore += (double) entry->traces[i].count * diff[entry->traces[i].index][ENDGAME];
     }
+
+    egScore += propagateForward(entry);
 
     double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase)) / 256.0;
 
@@ -612,6 +643,96 @@ void CheckFeaturesNumber(){
         std::cout << "Numbers of terms and features do not match" << std::endl;
         std::cout << "Features(terms): " << c << " Features: " << TUNING_TERMS_COUNT << std::endl;
         exit(1);
+    }
+}
+
+void printWeights(){
+
+    std::cout << std::endl << std::endl;
+    std::cout << "double tuneOUTPUT_WEIGHTS[N_HIDDEN] = {";
+
+    for (int i = 0; i < N_HIDDEN; i++){
+        std::cout << tuneOUTPUT_WEIGHTS[i] << ", ";
+    }
+
+    std::cout << "};" << std::endl;
+
+
+    std::cout << std::endl << std::endl;
+    std::cout << "double tuneHIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN] = {";
+
+    int total = 0;
+    for (int i = 0; i < N_HIDDEN; i++){
+        for (int j = 0; j < N_INPUTS; j++){
+            std::cout << tuneHIDDEN_WEIGHTS[total] << ", ";
+            total++;
+        }
+    }
+
+    std::cout << "};" << std::endl;
+}
+
+
+double propagateForward(tEntry* entry){
+    double output = 0;
+
+    int total = 0;
+    for (int i = 0; i < N_HIDDEN; i++){
+        for (int j = 0; j < N_INPUTS; j++){
+            hidden_values[i] += entry->net[j] * tuneHIDDEN_WEIGHTS[total];
+            total++;
+        }
+        // use sigmoid now
+        hidden_values[i] = Eval::nnSigmoid(hidden_values[i]);
+    }
+
+    // Now calculate output
+    for (int k = 0; k < N_HIDDEN; k++){
+        output += hidden_values[k] * tuneOUTPUT_WEIGHTS[k];
+    }
+
+    return output;
+
+}
+
+void propagateReverse(tEntry* entry, double sigmOut){
+
+    // for hidden - to output
+    // Use sum of (weight * sigmaHigher) for all weights to higher
+    // Only higher now is output
+    for (int i = 0; i < N_HIDDEN; i++){
+        hidden_sigmas[i] = (1 - hidden_values[i]) * hidden_values[i] * (sigmOut * tuneOUTPUT_WEIGHTS[i]);
+        // use Sigmas to calculate grad and upgrade gradient
+        // Grad(AB) = sigmaB * outA => for hidden weights (hidden_output * sigma_result)
+        double grad   = hidden_values[i] * sigmOut;
+        // calculate weight tweak using gradients
+        wTweaksOUTPUT[i] = grad * E + wTweaksOUTPUT[i] * A;
+    }
+
+    // do the same for weights from input to the hidden
+    int total = 0;
+    for (int i = 0; i < N_HIDDEN; i++){
+        for (int j = 0; j < N_INPUTS; j++){
+            double grad = entry->net[j] * hidden_sigmas[i];
+            wTweaksHIDDEN[total] = grad * E + wTweaksHIDDEN[total] * A;
+            total++;
+        }
+    }
+
+}
+
+void mergeGradients(){
+
+    for (int i = 0; i < N_HIDDEN; i++){
+        tuneOUTPUT_WEIGHTS[i] += wTweaksOUTPUT[i];
+    }
+
+    int total = 0;
+    for (int i = 0; i < N_HIDDEN; i++){
+        for (int j = 0; j < N_INPUTS; j++){
+            tuneHIDDEN_WEIGHTS[total] += wTweaksHIDDEN[total];
+            total++;
+        }
     }
 }
 #endif

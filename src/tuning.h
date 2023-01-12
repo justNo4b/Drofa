@@ -129,7 +129,7 @@ struct tEntry {
   const int         TUNING_TERMS_COUNT = 928;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 2500;
-  const int         TUNIGN_PRINT       = 25;
+  const int         TUNIGN_PRINT       = 1;
   const int         TUNING_K_PRECISION = 10;
   const int         TUNING_L_STEP      = 1500;
   const double      TUNING_K           = 3.305061299; //2.829175699;
@@ -195,3 +195,11 @@ struct tEntry {
  int simplifyPhaseCalculation(const Board &board);
 
  void CheckFeaturesNumber();
+
+ void mergeGradients();
+
+ void propagateReverse(tEntry*, double);
+
+ double propagateForward (tEntry*);
+
+ void printWeights();

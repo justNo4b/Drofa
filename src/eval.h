@@ -5,6 +5,12 @@
 #include "movegen.h"
 #include "bitutils.h"
 #include "endgame.h"
+#include "math.h"
+
+// use net Pnet => 128x16x2 => opS /egS outputs
+#define N_INPUTS   (64 * 2)
+#define N_HIDDEN   (8)
+
 
 #define gS(opS, egS) (int)((unsigned int)(opS) << 16) + (egS)
 #define opS(gS) (int16_t)((uint16_t)((unsigned)((gS) + 0x8000) >> 16))
@@ -522,6 +528,10 @@ inline int kingDanger(Color, const evalBits *);
  */
 void SetupTuning(PieceType piece, int value);
 
+
+inline double nnSigmoid(double x){
+    return 1 / (1 + exp(-1 * x));
+}
 };
 
 #endif
