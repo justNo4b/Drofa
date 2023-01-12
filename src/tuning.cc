@@ -99,12 +99,12 @@ void TunerStart(){
             std::cout << "\n\n IterationNum = " + std::to_string(epoch) + " Error: " <<  error << " unshared " << errorU;
             std::cout << "\n Printing Terms: \n";
             //PrintTunedParams(currTerms, diffTerms);
+            printWeights();
 
         }
     }
 
     std::cout << "\n Finishing. Final Parameters: \n" << std::endl;
-    printWeights();
     PrintTunedParams(currTerms, diffTerms);
 
 }
@@ -769,8 +769,6 @@ void initializeWeights(){
             total++;
         }
     }
-
-    printWeights();
 }
 
 #endif
