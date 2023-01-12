@@ -78,6 +78,8 @@ void TunerStart(){
         tValueHolder gradient = {{0}};
         CalculateGradient(entries, gradient, diffTerms);
 
+            mergeGradients();
+
 /*
         //adjust stuff
         for (int i = 0; i < TUNING_TERMS_COUNT; i++) {
@@ -518,10 +520,9 @@ void CalculateGradient(tEntry* entries, tValueHolder grad, tValueHolder diff){
 void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
     double eval = TuningEval(entry, diff);
     double sigm = Sigmoid(eval);
-    double X = (entry->result - sigm) * sigm * (1.0 - sigm);
+    double X = (entry->result - sigm) * sigm * (1.0 - sigm) * (TUNING_K / 200.0);
 
     propagateReverse(entry, X * entry->pFactors[ENDGAME]);
-    mergeGradients();
 /*
     double opBase = X * entry->pFactors[OPENING];
     double egBase = X * entry->pFactors[ENDGAME];
@@ -559,7 +560,10 @@ double TuningEval(tEntry* entry, tValueHolder diff){
         egScore += (double) entry->traces[i].count * diff[entry->traces[i].index][ENDGAME];
     }
 
-    egScore += propagateForward(entry);
+    double net = propagateForward(entry);
+    egScore += net;
+
+    //std::cout << egScore << " net: " << net << std::endl;
 
     double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase)) / 256.0;
 
@@ -708,7 +712,7 @@ void propagateReverse(tEntry* entry, double sigmOut){
         // Grad(AB) = sigmaB * outA => for hidden weights (hidden_output * sigma_result)
         double grad   = hidden_values[i] * sigmOut;
         // calculate weight tweak using gradients
-        wTweaksOUTPUT[i] =  (TUNING_K / 200.0) * grad;
+        wTweaksOUTPUT[i] +=  grad;
     }
 
     // do the same for weights from input to the hidden
@@ -716,7 +720,7 @@ void propagateReverse(tEntry* entry, double sigmOut){
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
             double grad = entry->net[j] * hidden_sigmas[i];
-            wTweaksHIDDEN[total] = (TUNING_K / 200.0) * grad;
+            wTweaksHIDDEN[total] += grad;
             total++;
         }
     }
@@ -726,13 +730,19 @@ void propagateReverse(tEntry* entry, double sigmOut){
 void mergeGradients(){
 
     for (int i = 0; i < N_HIDDEN; i++){
-        tuneOUTPUT_WEIGHTS[i] += wTweaksOUTPUT[i];
+        double momentum = 0.1 * wTweaksOUTPUT[i];
+        double velocity = 0.001 * wTweaksOUTPUT[i] * wTweaksOUTPUT[i];
+        tuneOUTPUT_WEIGHTS[i] += 0.01 * momentum / (sqrtf(velocity) + 1e-8);
+        wTweaksOUTPUT[i] = 0;
     }
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
-            tuneHIDDEN_WEIGHTS[total] += wTweaksHIDDEN[total];
+            double momentum = 0.1 * wTweaksHIDDEN[total];
+            double velocity = 0.001 * wTweaksHIDDEN[total] * wTweaksHIDDEN[total];
+            tuneHIDDEN_WEIGHTS[total] += 0.01 * momentum / (sqrtf(velocity) + 1e-8);
+             wTweaksHIDDEN[total] = 0;
             total++;
         }
     }
@@ -742,13 +752,13 @@ void mergeGradients(){
 void initializeWeights(){
     std::srand(1);
     for (int i = 0; i < N_HIDDEN; i++){
-        tuneOUTPUT_WEIGHTS[i] = (double) std::rand() / RAND_MAX;
+        tuneOUTPUT_WEIGHTS[i] = 0.5 -  ((double) std::rand() / RAND_MAX);
     }
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
-            tuneHIDDEN_WEIGHTS[total] += (double) std::rand() / RAND_MAX;
+            tuneHIDDEN_WEIGHTS[total] += 0.5 - ((double) std::rand() / RAND_MAX);
             total++;
         }
     }
