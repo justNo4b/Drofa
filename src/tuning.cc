@@ -714,7 +714,8 @@ void propagateReverse(tEntry* entry, double sigmOut){
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
             double grad = entry->net[j] * hidden_sigmas[i];
-            wTweaksHIDDEN[total] = grad * E + wTweaksHIDDEN[total] * A;
+            grad = pow((TUNING_K / 200.0) * grad, 2.0);
+            wTweaksHIDDEN[total] = (TUNING_K / 200.0) * grad * (10 / sqrt(1e-8 + grad));
             total++;
         }
     }
