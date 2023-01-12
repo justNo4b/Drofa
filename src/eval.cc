@@ -746,7 +746,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 inline int Eval::evaluatePNN(const Board & board){
     double output;
     int8_t inputs[N_INPUTS] = {0};
-    double hidden_values[N_HIDDEN];
+    double hidden_values[N_HIDDEN] = {0};
 
     // Prepare inputs.
     // For now very slow, but optimaze later
@@ -759,7 +759,7 @@ inline int Eval::evaluatePNN(const Board & board){
         inputs[sq] = 1;
     }
 
-    while (wPawns){
+    while (bPawns){
         int sq = _popLsb(bPawns);
         inputs[64 + sq] = 1;
     }
@@ -767,7 +767,7 @@ inline int Eval::evaluatePNN(const Board & board){
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
-            hidden_values[i] += inputs[j] * HIDDEN_WEIGHTS[total];
+            hidden_values[i] += (double)inputs[j] * HIDDEN_WEIGHTS[total];
             total++;
         }
         // use sigmoid now
@@ -778,6 +778,7 @@ inline int Eval::evaluatePNN(const Board & board){
     for (int k = 0; k < N_HIDDEN; k++){
         output += hidden_values[k] * OUTPUT_WEIGHTS[k];
     }
+
 
     // Make gameScore from opening and endgame values and return
     return gS(0, (int)output);
