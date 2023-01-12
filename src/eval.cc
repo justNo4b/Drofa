@@ -881,7 +881,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
   eB->KingAttackPower[color] += UNCONTESTED_KING_ATTACK[std::min(unContested, 5)];
 
   int doubleAttack = _popCount(eB->AttackedByTwo[color] & eB->EnemyKingZone[color] & ~eB->AttackedSquares[otherColor]);
-  eB->KingAttackPower[color] += -30 + 30 * doubleAttack;
+  eB->KingAttackPower[color] += DOUBLE_KING_ATTACK[std::min(doubleAttack, 5)];
 
   if (board.getActivePlayer() == color) eB->KingAttackPower[color] += ATTACK_TEMPO;
 

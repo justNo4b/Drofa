@@ -111,6 +111,10 @@ extern U64 KING_PAWN_MASKS[2][2][8];
       -70, -20, 0, 100, 150, 200
   };
 
+  const int DOUBLE_KING_ATTACK [6] = {
+      -21, -8, 24, 96, 168, 230
+  };
+
   const int PIECE_ATTACK_POWER[6] = {
         0, 24, 50, 26, 47, 0
   };
