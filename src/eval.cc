@@ -629,6 +629,7 @@ inline int Eval::probePawnStructure(const Board & board, Color color, evalBits *
   #endif
   {
     pScore += evaluatePAWNS(board, WHITE, eB) - evaluatePAWNS(board, BLACK, eB);
+    pScore += evaluatePNN(board);
     myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB->Passers[WHITE], eB->Passers[BLACK], pScore);
     return color == WHITE ? pScore : -pScore;
   }
@@ -738,8 +739,6 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     }
   }
 
-  s += evaluatePNN(board);
-
   return s;
 }
 
@@ -779,6 +778,7 @@ inline int Eval::evaluatePNN(const Board & board){
         output += hidden_values[k] * OUTPUT_WEIGHTS[k];
     }
 
+   // std::cout << output << std::endl;
 
     // Make gameScore from opening and endgame values and return
     return gS(0, (int)output);
