@@ -744,8 +744,7 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 }
 
 inline int Eval::evaluatePNN(const Board & board){
-    double output1;
-    double output2;
+    double output;
     int8_t inputs[N_INPUTS] = {0};
     double hidden_values[N_HIDDEN];
 
@@ -777,12 +776,11 @@ inline int Eval::evaluatePNN(const Board & board){
 
     // Now calculate output
     for (int k = 0; k < N_HIDDEN; k++){
-        output1 += hidden_values[k] * OUTPUT_WEIGHTS1[k];
-        output2 += hidden_values[k] * OUTPUT_WEIGHTS2[k];
+        output += hidden_values[k] * OUTPUT_WEIGHTS[k];
     }
 
     // Make gameScore from opening and endgame values and return
-    return gS((int)output1, (int)output2);
+    return gS(0, (int)output);
 }
 
 inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits * eB){
