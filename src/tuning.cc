@@ -21,6 +21,9 @@ posFeatured ft, zero;
 double tuneHIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN]= {0};
 double tuneOUTPUT_WEIGHTS[N_HIDDEN]= {0};
 
+double momentums[2][N_INPUTS * N_HIDDEN] = {0};
+double velocities[2][N_INPUTS * N_HIDDEN] = {0};
+
 double hidden_values[N_HIDDEN]= {0};
 double hidden_sigmas[N_HIDDEN]= {0};
 
@@ -730,18 +733,18 @@ void propagateReverse(tEntry* entry, double sigmOut){
 void mergeGradients(){
 
     for (int i = 0; i < N_HIDDEN; i++){
-        double momentum = 0.1 * wTweaksOUTPUT[i];
-        double velocity = 0.001 * wTweaksOUTPUT[i] * wTweaksOUTPUT[i];
-        tuneOUTPUT_WEIGHTS[i] += 0.01 * momentum / (sqrtf(velocity) + 1e-8);
+        momentums[0][i] = 0.9 * momentums[0][i] +  0.1 * wTweaksOUTPUT[i];
+        velocities[0][i] = 0.999 * velocities[0][i] + 0.001 * wTweaksOUTPUT[i] * wTweaksOUTPUT[i];
+        tuneOUTPUT_WEIGHTS[i] += 0.01 *  momentums[0][i] / (sqrtf(velocities[0][i]) + 1e-8);
         wTweaksOUTPUT[i] = 0;
     }
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
-            double momentum = 0.1 * wTweaksHIDDEN[total];
-            double velocity = 0.001 * wTweaksHIDDEN[total] * wTweaksHIDDEN[total];
-            tuneHIDDEN_WEIGHTS[total] += 0.01 * momentum / (sqrtf(velocity) + 1e-8);
+            momentums[1][total] = 0.9 * momentums[1][total] + 0.1 * wTweaksHIDDEN[total];
+            velocities[1][total] = 0.999 * velocities[1][total] + 0.001 * wTweaksHIDDEN[total] * wTweaksHIDDEN[total];
+            tuneHIDDEN_WEIGHTS[total] += 0.01 * momentums[1][total] / (sqrtf(velocities[1][total]) + 1e-8);
              wTweaksHIDDEN[total] = 0;
             total++;
         }
