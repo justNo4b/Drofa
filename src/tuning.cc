@@ -21,11 +21,7 @@ posFeatured ft, zero;
 double tuneHIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN]= {0};
 double tuneOUTPUT_WEIGHTS[N_HIDDEN]= {0};
 
-double momentums[2][N_INPUTS * N_HIDDEN] = {0};
-double velocities[2][N_INPUTS * N_HIDDEN] = {0};
-
 double hidden_values[N_HIDDEN]= {0};
-double hidden_sigmas[N_HIDDEN]= {0};
 
 double wTweaksHIDDEN[N_INPUTS * N_HIDDEN] = {0};
 double wTweaksOUTPUT[N_HIDDEN] = {0};
@@ -81,8 +77,6 @@ void TunerStart(){
         tValueHolder gradient = {{0}};
         CalculateGradient(entries, gradient, diffTerms);
 
-            mergeGradients();
-
 /*
         //adjust stuff
         for (int i = 0; i < TUNING_TERMS_COUNT; i++) {
@@ -100,7 +94,6 @@ void TunerStart(){
         // Print new terms
         if (epoch % TUNIGN_PRINT == 0){
             error = TunedError(entries, diffTerms);
-            printWeights();
             std::cout << "\n\n IterationNum = " + std::to_string(epoch) + " Error: " <<  error;
             std::cout << "\n Printing Terms: \n";
             //PrintTunedParams(currTerms, diffTerms);
@@ -109,6 +102,7 @@ void TunerStart(){
     }
 
     std::cout << "\n Finishing. Final Parameters: \n" << std::endl;
+    printWeights();
     PrintTunedParams(currTerms, diffTerms);
 
 }
@@ -523,9 +517,12 @@ void CalculateGradient(tEntry* entries, tValueHolder grad, tValueHolder diff){
 void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
     double eval = TuningEval(entry, diff);
     double sigm = Sigmoid(eval);
-    double X = (entry->result - sigm) * sigm * (1.0 - sigm) * (TUNING_K / 200.0);
+    double X = (entry->result - sigm) * sigm * (1.0 - sigm) * 400;
 
-    propagateReverse(entry, X * entry->pFactors[ENDGAME]);
+    double sigmaOut = X * entry->pFactors[ENDGAME];
+
+    propagateReverse(entry, sigmaOut);
+    mergeGradients();
 /*
     double opBase = X * entry->pFactors[OPENING];
     double egBase = X * entry->pFactors[ENDGAME];
@@ -706,6 +703,7 @@ double propagateForward(tEntry* entry){
 
 void propagateReverse(tEntry* entry, double sigmOut){
 
+    double hidden_sigmas[N_HIDDEN] = {0};
     // for hidden - to output
     // Use sum of (weight * sigmaHigher) for all weights to higher
     // Only higher now is output
@@ -715,7 +713,7 @@ void propagateReverse(tEntry* entry, double sigmOut){
         // Grad(AB) = sigmaB * outA => for hidden weights (hidden_output * sigma_result)
         double grad   = hidden_values[i] * sigmOut;
         // calculate weight tweak using gradients
-        wTweaksOUTPUT[i] +=  grad;
+        wTweaksOUTPUT[i] =  grad + wTweaksOUTPUT[i] * 0.1;
     }
 
     // do the same for weights from input to the hidden
@@ -723,7 +721,7 @@ void propagateReverse(tEntry* entry, double sigmOut){
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
             double grad = entry->net[j] * hidden_sigmas[i];
-            wTweaksHIDDEN[total] += grad;
+            wTweaksHIDDEN[total] = grad + wTweaksHIDDEN[total] * 0.1;
             total++;
         }
     }
@@ -733,19 +731,13 @@ void propagateReverse(tEntry* entry, double sigmOut){
 void mergeGradients(){
 
     for (int i = 0; i < N_HIDDEN; i++){
-        momentums[0][i] = 0.9 * momentums[0][i] +  0.1 * wTweaksOUTPUT[i];
-        velocities[0][i] = 0.999 * velocities[0][i] + 0.001 * wTweaksOUTPUT[i] * wTweaksOUTPUT[i];
-        tuneOUTPUT_WEIGHTS[i] += 0.01 *  momentums[0][i] / (sqrtf(velocities[0][i]) + 1e-8);
-        wTweaksOUTPUT[i] = 0;
+        tuneOUTPUT_WEIGHTS[i] += 0.01 * wTweaksOUTPUT[i];
     }
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
-            momentums[1][total] = 0.9 * momentums[1][total] + 0.1 * wTweaksHIDDEN[total];
-            velocities[1][total] = 0.999 * velocities[1][total] + 0.001 * wTweaksHIDDEN[total] * wTweaksHIDDEN[total];
-            tuneHIDDEN_WEIGHTS[total] += 0.01 * momentums[1][total] / (sqrtf(velocities[1][total]) + 1e-8);
-             wTweaksHIDDEN[total] = 0;
+            tuneHIDDEN_WEIGHTS[total] += 0.01 * wTweaksHIDDEN[total];
             total++;
         }
     }
