@@ -18,11 +18,11 @@ posFeatured ft, zero;
 
 #ifdef _TUNE_
 
-double tuneHIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN];
-double tuneOUTPUT_WEIGHTS[N_HIDDEN];
+double tuneHIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN]= {0};
+double tuneOUTPUT_WEIGHTS[N_HIDDEN]= {0};
 
-double hidden_values[N_HIDDEN];
-double hidden_sigmas[N_HIDDEN];
+double hidden_values[N_HIDDEN]= {0};
+double hidden_sigmas[N_HIDDEN]= {0};
 
 double wTweaksHIDDEN[N_INPUTS * N_HIDDEN] = {0};
 double wTweaksOUTPUT[N_HIDDEN] = {0};
