@@ -706,7 +706,7 @@ void propagateReverse(tEntry* entry, double sigmOut){
         // Grad(AB) = sigmaB * outA => for hidden weights (hidden_output * sigma_result)
         double grad   = hidden_values[i] * sigmOut;
         // calculate weight tweak using gradients
-        wTweaksOUTPUT[i] = grad * E + wTweaksOUTPUT[i] * A;
+        wTweaksOUTPUT[i] =  (TUNING_K / 200.0) * grad;
     }
 
     // do the same for weights from input to the hidden
@@ -714,8 +714,7 @@ void propagateReverse(tEntry* entry, double sigmOut){
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
             double grad = entry->net[j] * hidden_sigmas[i];
-            grad = pow((TUNING_K / 200.0) * grad, 2.0);
-            wTweaksHIDDEN[total] = (TUNING_K / 200.0) * grad * (10 / sqrt(1e-8 + grad));
+            wTweaksHIDDEN[total] = (TUNING_K / 200.0) * grad;
             total++;
         }
     }

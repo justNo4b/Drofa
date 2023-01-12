@@ -124,7 +124,7 @@ struct tEntry {
   * @{
   */
   const std::string TUNING_DATA        = "LiChessBOOK.txt";
-  const int         TUNING_POS_COUNT   = 7153653; //9996883 42484641
+  const int         TUNING_POS_COUNT   = 10000;//7153653; //9996883 42484641
   const int         TUNING_THREADS     = 16;
   const int         TUNING_TERMS_COUNT = 928;
   const int         TUNING_BATCH_SIZE  = 0;
