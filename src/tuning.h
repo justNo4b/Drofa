@@ -185,6 +185,7 @@ struct tEntry {
  double TuningEval(tEntry*, tValueHolder);
 
  double TunedError(tEntry*, tValueHolder);
+  double UnsharedTunedError(tEntry*, tValueHolder);
 
  double StaticError(tEntry *, double);
 

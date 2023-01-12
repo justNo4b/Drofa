@@ -47,6 +47,7 @@ void TunerStart(){
     tValueHolder diffTerms = {{0}}, gradTerms = {{0}};
     double rate  = TUNING_L_RATE;
     double error = 0;
+    double errorU = 0;
 
     // Check if our number of terms
     // is consistent with number of features
@@ -94,7 +95,8 @@ void TunerStart(){
         // Print new terms
         if (epoch % TUNIGN_PRINT == 0){
             error = TunedError(entries, diffTerms);
-            std::cout << "\n\n IterationNum = " + std::to_string(epoch) + " Error: " <<  error;
+            errorU = UnsharedTunedError(entries, diffTerms);
+            std::cout << "\n\n IterationNum = " + std::to_string(epoch) + " Error: " <<  error << " unshared " << errorU;
             std::cout << "\n Printing Terms: \n";
             //PrintTunedParams(currTerms, diffTerms);
 
@@ -582,6 +584,16 @@ double TunedError(tEntry* entries, tValueHolder diff) {
         for (int i = 0; i < TUNING_POS_COUNT; i++)
             total += pow(entries[i].result - Sigmoid(TuningEval(&entries[i], diff)), 2);
     }
+
+    return total / (double) TUNING_POS_COUNT;
+}
+
+double UnsharedTunedError(tEntry* entries, tValueHolder diff) {
+
+    double total = 0.0;
+        for (int i = 0; i < TUNING_POS_COUNT; i++)
+            total += pow(entries[i].result - Sigmoid(TuningEval(&entries[i], diff)), 2);
+
 
     return total / (double) TUNING_POS_COUNT;
 }
