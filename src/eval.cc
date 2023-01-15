@@ -763,22 +763,26 @@ inline int Eval::evaluatePNN(const Board & board){
         inputs[64 + sq] = 1;
     }
 
+    if (TRACK) std::memcpy(std::begin(ft.kpInput), std::begin(inputs), sizeof(inputs));
+
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
             hidden_values[i] += (double)inputs[j] * HIDDEN_WEIGHTS[total];
             total++;
         }
+        // add bias
+        hidden_values[i] += HIDDEN_BIAS[i];
         // use sigmoid now
-        hidden_values[i] = sigmoid(hidden_values[i]);
+        hidden_values[i] = nnSigmoid(hidden_values[i]);
     }
 
     // Now calculate output
     for (int k = 0; k < N_HIDDEN; k++){
         output += hidden_values[k] * OUTPUT_WEIGHTS[k];
     }
-
-   // std::cout << output << std::endl;
+    // add bias
+    output += OUTPUT_BIAS;
 
     // Make gameScore from opening and endgame values and return
     return gS(0, (int)output);
