@@ -773,6 +773,8 @@ inline int Eval::evaluatePNN(const Board & board){
             hidden_values[i] += (double)inputs[j] * HIDDEN_WEIGHTS[total];
             total++;
         }
+        // add bias
+        hidden_values[i] += HIDDEN_BIAS[i];
         // use sigmoid now
         hidden_values[i] = nnSigmoid(hidden_values[i]);
     }
@@ -781,7 +783,8 @@ inline int Eval::evaluatePNN(const Board & board){
     for (int k = 0; k < N_HIDDEN; k++){
         output += hidden_values[k] * OUTPUT_WEIGHTS[k];
     }
-
+    // add bias
+    output += OUTPUT_BIAS;
 
     // Make gameScore from opening and endgame values and return
     return gS(0, (int)output);

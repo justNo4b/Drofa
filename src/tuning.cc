@@ -16,15 +16,20 @@ int eTraceStackSize;
 
 posFeatured ft, zero;
 
-#ifdef _TUNE_
+//#ifdef _TUNE_
 
-double tuneHIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN]= {0};
-double tuneOUTPUT_WEIGHTS[N_HIDDEN]= {0};
+double tuneHIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN] = {0};
+double tuneHIDDEN_BIAS[N_HIDDEN] = {0};
+
+double tuneOUTPUT_WEIGHTS[N_HIDDEN] = {0};
+double tuneOUTPUT_BIAS = 0;
 
 double hidden_values[N_HIDDEN]= {0};
 
 double wTweaksHIDDEN[N_INPUTS * N_HIDDEN] = {0};
 double wTweaksOUTPUT[N_HIDDEN] = {0};
+double wTweakOBias = 0;
+double wTweakHBias[N_HIDDEN] = {0};
 
 double E = 0.001;
 double A = 0.0001;
@@ -667,8 +672,15 @@ void CheckFeaturesNumber(){
 void printWeights(){
 
     std::cout << std::endl << std::endl;
-    std::cout << "double tuneOUTPUT_WEIGHTS[N_HIDDEN] = {";
 
+    std::cout << "double OUTPUT_BIAS = " << tuneOUTPUT_BIAS << ";" << std::endl;
+
+    std::cout << "double HIDDEN_BIAS[N_HIDDEN] = {";
+    for (int i = 0; i < N_HIDDEN; i++){
+        std::cout << tuneHIDDEN_BIAS[i] << ", ";
+    }
+
+    std::cout << "double OUTPUT_WEIGHTS[N_HIDDEN] = {";
     for (int i = 0; i < N_HIDDEN; i++){
         std::cout << tuneOUTPUT_WEIGHTS[i] << ", ";
     }
@@ -677,7 +689,7 @@ void printWeights(){
 
 
     std::cout << std::endl << std::endl;
-    std::cout << "double tuneHIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN] = {";
+    std::cout << "double HIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN] = {";
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
@@ -700,6 +712,9 @@ double propagateForward(tEntry* entry){
             hidden_values[i] += entry->net[j] * tuneHIDDEN_WEIGHTS[total];
             total++;
         }
+        // add bias
+        hidden_values[i] += tuneHIDDEN_BIAS[i];
+
         // use sigmoid now
         hidden_values[i] = Eval::nnSigmoid(hidden_values[i]);
     }
@@ -709,6 +724,8 @@ double propagateForward(tEntry* entry){
         output += hidden_values[k] * tuneOUTPUT_WEIGHTS[k];
     }
 
+    output += tuneOUTPUT_BIAS;
+
     return output;
 
 }
@@ -716,6 +733,10 @@ double propagateForward(tEntry* entry){
 void propagateReverse(tEntry* entry, double sigmOut){
 
     double hidden_sigmas[N_HIDDEN] = {0};
+
+    // For the output bias gradient is just sigmOut
+    wTweakOBias += sigmOut + wTweakOBias * 0.1;
+
     // for hidden - to output
     // Use sum of (weight * sigmaHigher) for all weights to higher
     // Only higher now is output
@@ -726,6 +747,9 @@ void propagateReverse(tEntry* entry, double sigmOut){
         double grad   = hidden_values[i] * sigmOut;
         // calculate weight tweak using gradients
         wTweaksOUTPUT[i] =  grad + wTweaksOUTPUT[i] * 0.1;
+
+        // For hidden biases Grad will be just hiddenSigma
+        wTweakHBias[i] += hidden_sigmas[i] + wTweakHBias[i] * 0.1;
     }
 
     // do the same for weights from input to the hidden
@@ -742,8 +766,12 @@ void propagateReverse(tEntry* entry, double sigmOut){
 
 void mergeGradients(){
 
+    tuneOUTPUT_BIAS += wTweakOBias;
+
     for (int i = 0; i < N_HIDDEN; i++){
         tuneOUTPUT_WEIGHTS[i] += 0.01 * wTweaksOUTPUT[i];
+        // hidden bias
+        tuneHIDDEN_BIAS[i] += 0.01 * wTweakHBias[i];
     }
 
     int total = 0;
@@ -758,8 +786,12 @@ void mergeGradients(){
 
 void initializeWeights(){
     std::srand(1);
+
+    tuneOUTPUT_BIAS = 0.5 -  ((double) std::rand() / RAND_MAX);
+
     for (int i = 0; i < N_HIDDEN; i++){
         tuneOUTPUT_WEIGHTS[i] = 0.5 -  ((double) std::rand() / RAND_MAX);
+        tuneHIDDEN_BIAS[i] = 0.5 -  ((double) std::rand() / RAND_MAX);
     }
 
     int total = 0;
@@ -771,4 +803,4 @@ void initializeWeights(){
     }
 }
 
-#endif
+
