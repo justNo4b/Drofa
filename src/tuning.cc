@@ -110,7 +110,7 @@ void TunerStart(){
     }
 
     std::cout << "\n Finishing. Final Parameters: \n" << std::endl;
-    PrintTunedParams(currTerms, diffTerms);
+    //PrintTunedParams(currTerms, diffTerms);
 
 }
 
