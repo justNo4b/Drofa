@@ -763,8 +763,6 @@ inline int Eval::evaluatePNN(const Board & board){
         inputs[64 + sq] = 1;
     }
 
-    if (TRACK) std::memcpy(std::begin(ft.kpInput), std::begin(inputs), sizeof(inputs));
-
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
@@ -774,7 +772,7 @@ inline int Eval::evaluatePNN(const Board & board){
         // add bias
         hidden_values[i] += HIDDEN_BIAS[i];
         // use sigmoid now
-        hidden_values[i] = nnSigmoid(hidden_values[i]);
+        hidden_values[i] = sigmoid(hidden_values[i]);
     }
 
     // Now calculate output
