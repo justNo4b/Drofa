@@ -16,7 +16,7 @@ int eTraceStackSize;
 
 posFeatured ft, zero;
 
-//#ifdef _TUNE_
+#ifdef _TUNE_
 
 double tuneHIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN] = {0};
 double tuneHIDDEN_BIAS[N_HIDDEN] = {0};
@@ -31,7 +31,7 @@ double wTweaksOUTPUT[N_HIDDEN] = {0};
 double wTweakOBias = 0;
 double wTweakHBias[N_HIDDEN] = {0};
 
-double E = 0.001;
+double E = 0.01;
 double A = 0.0001;
 
 TuningType FeatureTypeMap[TUNING_TERMS_COUNT];
@@ -524,7 +524,7 @@ void CalculateGradient(tEntry* entries, tValueHolder grad, tValueHolder diff){
 void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
     double eval = TuningEval(entry, diff);
     double sigm = Sigmoid(eval);
-    double X = (entry->result - sigm) * sigm * (1.0 - sigm) * 400;
+    double X = (entry->result - sigm) * sigm * (1.0 - sigm) / 400;
 
     double sigmaOut = X * entry->pFactors[ENDGAME];
 
@@ -679,12 +679,12 @@ void printWeights(){
     for (int i = 0; i < N_HIDDEN; i++){
         std::cout << tuneHIDDEN_BIAS[i] << ", ";
     }
+    std::cout << "};" << std::endl;
 
     std::cout << "double OUTPUT_WEIGHTS[N_HIDDEN] = {";
     for (int i = 0; i < N_HIDDEN; i++){
         std::cout << tuneOUTPUT_WEIGHTS[i] << ", ";
     }
-
     std::cout << "};" << std::endl;
 
 
@@ -766,18 +766,22 @@ void propagateReverse(tEntry* entry, double sigmOut){
 
 void mergeGradients(){
 
-    tuneOUTPUT_BIAS += wTweakOBias;
+    tuneOUTPUT_BIAS += 0.01 * wTweakOBias;
+    wTweakOBias = 0;
 
     for (int i = 0; i < N_HIDDEN; i++){
         tuneOUTPUT_WEIGHTS[i] += 0.01 * wTweaksOUTPUT[i];
+        wTweaksOUTPUT[i] = 0;
         // hidden bias
         tuneHIDDEN_BIAS[i] += 0.01 * wTweakHBias[i];
+        wTweakHBias[i] = 0;
     }
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
             tuneHIDDEN_WEIGHTS[total] += 0.01 * wTweaksHIDDEN[total];
+            wTweaksHIDDEN[total] = 0;
             total++;
         }
     }
@@ -785,7 +789,7 @@ void mergeGradients(){
 
 
 void initializeWeights(){
-    std::srand(1);
+    std::srand(5);
 
     tuneOUTPUT_BIAS = 0.5 -  ((double) std::rand() / RAND_MAX);
 
@@ -804,3 +808,4 @@ void initializeWeights(){
 }
 
 
+#endif
