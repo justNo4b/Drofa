@@ -749,6 +749,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   // Check search limits
    _nodes++;
    bool pvNode = alpha != beta - 1;
+   int  legalMoveCount = 0;
 
   if (_stop || _checkLimits()) {
     _stop = true;
@@ -804,13 +805,17 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
     }
 
     // Use Halogen futility variation
-    if (!(move.getFlags() & Move::PROMOTION) && standPat + move.getValue() + DELTA_MOVE_CONST < alpha)
-      break;
+    if (legalMoveCount > 0 &&
+        !(move.getFlags() & Move::PROMOTION) &&
+        standPat + move.getValue() + DELTA_MOVE_CONST < alpha)
+            break;
+
 
     Board movedBoard = board;
     movedBoard.doMove(move);
     myHASH->HASH_Prefetch(movedBoard.getZKey().getValue());
       if (!movedBoard.colorIsInCheck(movedBoard.getInactivePlayer())){
+          legalMoveCount++;
 
           int score = -_qSearch(movedBoard, -beta, -alpha);
 
