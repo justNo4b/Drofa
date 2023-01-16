@@ -529,7 +529,7 @@ void CalculateGradient(tEntry* entries, tValueHolder grad, tValueHolder diff){
 void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
     double eval = TuningEval(entry, diff);
     double sigm = Sigmoid(eval);
-    double X = (entry->result - sigm) * sigm * (1.0 - sigm) * TUNING_K;
+    double X = (entry->result - sigm) * sigm * (1.0 - sigm) * TUNING_K / 400;
 
     double sigmaOut = X * entry->pFactors[OPENING];
 
@@ -774,18 +774,18 @@ void mergeGradients(){
     wTweakOBias[gradient] = wTweakOBias[gradient];
     wTweakOBias[momentum] = 0.9 * wTweakOBias[momentum] + 0.1 * wTweakOBias[gradient];
     wTweakOBias[velocity] = 0.999 * wTweakOBias[velocity] + 0.001 * wTweakOBias[gradient] * wTweakOBias[gradient];
-    tuneOUTPUT_BIAS +=  0.01 *(wTweakOBias[gradient] - 0.001 * wTweakOBias[momentum] / (sqrtf(wTweakOBias[velocity]) + 1e-8));
+    tuneOUTPUT_BIAS +=  0.01 * wTweakOBias[momentum] / (sqrtf(wTweakOBias[velocity]) + 1e-8);
     wTweakOBias[gradient] = 0;
 
     for (int i = 0; i < N_HIDDEN; i++){
         wTweaksOUTPUT[momentum][i] = 0.9 * wTweaksOUTPUT[momentum][i] + 0.1 * wTweaksOUTPUT[gradient][i];
         wTweaksOUTPUT[velocity][i] = 0.999 * wTweaksOUTPUT[velocity][i] + 0.001 * wTweaksOUTPUT[gradient][i] * wTweaksOUTPUT[gradient][i];
-        tuneOUTPUT_WEIGHTS[i]+= 0.01 * (wTweaksOUTPUT[gradient][i] - 0.001 * wTweaksOUTPUT[momentum][i] / (sqrtf(wTweaksOUTPUT[velocity][i]) + 1e-8));
+        tuneOUTPUT_WEIGHTS[i]+= 0.01 * wTweaksOUTPUT[momentum][i] / (sqrtf(wTweaksOUTPUT[velocity][i]) + 1e-8);
         wTweaksOUTPUT[gradient][i] = 0;
         // hidden bias
         wTweakHBias[momentum][i] = 0.9 * wTweakHBias[momentum][i] + 0.1 * wTweakHBias[gradient][i];
         wTweakHBias[velocity][i] = 0.999 * wTweakHBias[velocity][i] + 0.001 * wTweakHBias[gradient][i] * wTweakHBias[gradient][i];
-        tuneHIDDEN_BIAS[i]+= 0.01 * (wTweakHBias[gradient][i] - 0.001 * wTweakHBias[momentum][i] / (sqrtf(wTweakHBias[velocity][i]) + 1e-8));
+        tuneHIDDEN_BIAS[i]+= 0.01 * wTweakHBias[momentum][i] / (sqrtf(wTweakHBias[velocity][i]) + 1e-8);
         wTweakHBias[gradient][i] = 0;
     }
 
@@ -794,7 +794,7 @@ void mergeGradients(){
         for (int j = 0; j < N_INPUTS; j++){
             wTweaksHIDDEN[momentum][total] = 0.9 * wTweaksHIDDEN[momentum][total] + 0.1 * wTweaksHIDDEN[gradient][total];
             wTweaksHIDDEN[velocity][total] = 0.999 * wTweaksHIDDEN[velocity][total] + 0.001 * wTweaksHIDDEN[gradient][total] * wTweaksHIDDEN[gradient][total];
-            tuneHIDDEN_WEIGHTS[total]+= 0.01 * (wTweaksHIDDEN[gradient][total] - 0.001 * wTweaksHIDDEN[momentum][total] / (sqrtf(wTweaksHIDDEN[velocity][total]) + 1e-8));
+            tuneHIDDEN_WEIGHTS[total]+= 0.01 * wTweaksHIDDEN[momentum][total] / (sqrtf(wTweaksHIDDEN[velocity][total]) + 1e-8);
             wTweaksHIDDEN[gradient][total] = 0;
             total++;
         }

@@ -9,7 +9,7 @@
 
 // use net Pnet => 128x16x2 => opS /egS outputs
 #define N_INPUTS   (64 * 2)
-#define N_HIDDEN   (16)
+#define N_HIDDEN   (8)
 
 
 #define gS(opS, egS) (int)((unsigned int)(opS) << 16) + (egS)
