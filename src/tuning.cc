@@ -16,7 +16,7 @@ int eTraceStackSize;
 
 posFeatured ft, zero;
 
-//#ifdef _TUNE_
+#ifdef _TUNE_
 
 double tuneHIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN] = {0};
 double tuneHIDDEN_BIAS[N_HIDDEN] = {0};
@@ -721,7 +721,7 @@ double propagateForward(tEntry* entry){
         hidden_values[i] += tuneHIDDEN_BIAS[i];
 
         // use sigmoid now
-        hidden_values[i] = Eval::nnSigmoid(hidden_values[i]);
+        hidden_values[i] = Eval::relu(hidden_values[i]);
     }
 
     // Now calculate output
@@ -746,7 +746,7 @@ void propagateReverse(tEntry* entry, double sigmOut){
     // Use sum of (weight * sigmaHigher) for all weights to higher
     // Only higher now is output
     for (int i = 0; i < N_HIDDEN; i++){
-        hidden_sigmas[i] = (1 - hidden_values[i]) * hidden_values[i] * (sigmOut * tuneOUTPUT_WEIGHTS[i]);
+        hidden_sigmas[i] = Eval::reluDeriv(hidden_values[i]) * (sigmOut * tuneOUTPUT_WEIGHTS[i]);
         // use Sigmas to calculate grad and upgrade gradient
         // Grad(AB) = sigmaB * outA => for hidden weights (hidden_output * sigma_result)
         double grad   = hidden_values[i] * sigmOut;
@@ -805,25 +805,22 @@ void mergeGradients(){
 void initializeWeights(){
     std::srand(5);
 
-    tuneOUTPUT_BIAS = 400.0 -  (std::rand() % 800);
+    tuneOUTPUT_BIAS = 0.5 -  (std::rand() / RAND_MAX);
 
     for (int i = 0; i < N_HIDDEN; i++){
-        tuneOUTPUT_WEIGHTS[i] = 400 -  (std::rand() % 800);
-        tuneHIDDEN_BIAS[i] = 400 -  (std::rand() % 800);
+        tuneOUTPUT_WEIGHTS[i] = 0.5 -  (std::rand() / RAND_MAX);
+        tuneHIDDEN_BIAS[i] = 0.5 -  (std::rand() / RAND_MAX);
     }
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
-            tuneHIDDEN_WEIGHTS[total] += 400 -  (std::rand() % 800);
+            tuneHIDDEN_WEIGHTS[total] += 0.5 -  (std::rand() / RAND_MAX);
             total++;
         }
     }
 }
 
 
-void shufflePositions(){
 
-}
-
-//#endif
+#endif

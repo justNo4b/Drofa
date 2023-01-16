@@ -532,6 +532,15 @@ void SetupTuning(PieceType piece, int value);
 inline double nnSigmoid(double x){
     return 1 / (1 + exp(-1 * x));
 }
+
+
+inline double relu (double x){
+    return x > 0 ? x : 0;
+}
+
+inline double reluDeriv(double x){
+    return x > 0;
+}
 };
 
 #endif
