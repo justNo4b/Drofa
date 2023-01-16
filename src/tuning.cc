@@ -503,7 +503,7 @@ void CalculateGradient(tEntry* entries, tValueHolder grad, tValueHolder diff){
     for (int i = 0; i < TUNING_POS_COUNT; i++){
         UpdateSingleGrad( &entries[i], local, diff);
     }
-
+    mergeGradients();
 /*
     #pragma omp parallel shared(grad)
     {
@@ -529,7 +529,7 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
     double sigmaOut = X * entry->pFactors[ENDGAME];
 
     propagateReverse(entry, sigmaOut);
-    mergeGradients();
+
 /*
     double opBase = X * entry->pFactors[OPENING];
     double egBase = X * entry->pFactors[ENDGAME];
@@ -735,7 +735,7 @@ void propagateReverse(tEntry* entry, double sigmOut){
     double hidden_sigmas[N_HIDDEN] = {0};
 
     // For the output bias gradient is just sigmOut
-    wTweakOBias += sigmOut + wTweakOBias * 0.1;
+    wTweakOBias += sigmOut;
 
     // for hidden - to output
     // Use sum of (weight * sigmaHigher) for all weights to higher
@@ -746,10 +746,10 @@ void propagateReverse(tEntry* entry, double sigmOut){
         // Grad(AB) = sigmaB * outA => for hidden weights (hidden_output * sigma_result)
         double grad   = hidden_values[i] * sigmOut;
         // calculate weight tweak using gradients
-        wTweaksOUTPUT[i] =  grad + wTweaksOUTPUT[i] * 0.1;
+        wTweaksOUTPUT[i] +=  grad;
 
         // For hidden biases Grad will be just hiddenSigma
-        wTweakHBias[i] += hidden_sigmas[i] + wTweakHBias[i] * 0.1;
+        wTweakHBias[i] += hidden_sigmas[i];
     }
 
     // do the same for weights from input to the hidden
@@ -757,7 +757,7 @@ void propagateReverse(tEntry* entry, double sigmOut){
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
             double grad = entry->net[j] * hidden_sigmas[i];
-            wTweaksHIDDEN[total] = grad + wTweaksHIDDEN[total] * 0.1;
+            wTweaksHIDDEN[total] += grad;
             total++;
         }
     }
@@ -766,22 +766,22 @@ void propagateReverse(tEntry* entry, double sigmOut){
 
 void mergeGradients(){
 
-    tuneOUTPUT_BIAS += 0.01 * wTweakOBias;
-    wTweakOBias = 0;
+    tuneOUTPUT_BIAS +=  wTweakOBias;
+    //wTweakOBias = 0;
 
     for (int i = 0; i < N_HIDDEN; i++){
-        tuneOUTPUT_WEIGHTS[i] += 0.01 * wTweaksOUTPUT[i];
-        wTweaksOUTPUT[i] = 0;
+        tuneOUTPUT_WEIGHTS[i] +=  wTweaksOUTPUT[i];
+        //wTweaksOUTPUT[i] = 0;
         // hidden bias
-        tuneHIDDEN_BIAS[i] += 0.01 * wTweakHBias[i];
-        wTweakHBias[i] = 0;
+        tuneHIDDEN_BIAS[i] +=  wTweakHBias[i];
+        //wTweakHBias[i] = 0;
     }
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
-            tuneHIDDEN_WEIGHTS[total] += 0.01 * wTweaksHIDDEN[total];
-            wTweaksHIDDEN[total] = 0;
+            tuneHIDDEN_WEIGHTS[total] += wTweaksHIDDEN[total];
+            //wTweaksHIDDEN[total] = 0;
             total++;
         }
     }
