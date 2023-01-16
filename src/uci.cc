@@ -51,6 +51,13 @@ void changeThreadsNumber(){
 
   // Change number
   myTHREADSCOUNT = tNum;
+
+  // Create ordering for them
+  if (myTHREADSCOUNT > 1){
+    for (int i = 1; i < myTHREADSCOUNT; i++){
+      cOrdering[i] = new OrderingInfo();
+    }
+  }
 }
 
 #ifdef _TUNE_
@@ -162,8 +169,9 @@ void go(std::istringstream &is) {
       Limits l = limits;
       Hist h = positionHistory;
 
-      // create new search and start
-      cOrdering[i] = new OrderingInfo();
+      // clear killers for every ordering
+      cOrdering[i]->clearKillers();
+      // create search and assign to the thread
       cSearch[i] = new Search(b, l, h, cOrdering[i], false);
       cThread[i] = std::thread(&Search::iterDeep, cSearch[i]);
     }

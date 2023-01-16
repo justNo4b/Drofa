@@ -11,7 +11,6 @@
 
 
 extern int myTHREADSCOUNT;
-extern OrderingInfo   * cOrdering[MAX_THREADS];
 extern Search         * cSearch[MAX_THREADS];
 extern std::thread      cThread[MAX_THREADS];
 extern HASH           * myHASH;
@@ -131,12 +130,6 @@ void Search::iterDeep() {
     for (int i = 1; i < myTHREADSCOUNT; i++){
       delete cSearch[i];
       cSearch[i] = nullptr;
-    }
-
-    //all done, delete excessive OrderingInfos
-    for (int i = 1; i < myTHREADSCOUNT; i++){
-      delete cOrdering[i];
-      cOrdering[i] = nullptr;
     }
 }
 
