@@ -16,7 +16,7 @@ int eTraceStackSize;
 
 posFeatured ft, zero;
 
-#ifdef _TUNE_
+//#ifdef _TUNE_
 
 double tuneHIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN] = {0};
 double tuneHIDDEN_BIAS[N_HIDDEN] = {0};
@@ -26,10 +26,10 @@ double tuneOUTPUT_BIAS = 0;
 
 double hidden_values[N_HIDDEN]= {0};
 
-double wTweaksHIDDEN[N_INPUTS * N_HIDDEN] = {0};
-double wTweaksOUTPUT[N_HIDDEN] = {0};
-double wTweakOBias = 0;
-double wTweakHBias[N_HIDDEN] = {0};
+double wTweaksHIDDEN[3][N_INPUTS * N_HIDDEN] = {0};
+double wTweaksOUTPUT[3][N_HIDDEN] = {0};
+double wTweakOBias[3] = {0};
+double wTweakHBias[3][N_HIDDEN] = {0};
 
 double E = 0.01;
 double A = 0.0001;
@@ -98,10 +98,12 @@ void TunerStart(){
             rate = rate / TUNING_L_DROP;
         }
         // Print new terms
+        errorU = UnsharedTunedError(entries, diffTerms);
+        std::cout << "\n IterationNum = " + std::to_string(epoch) << " unshared " << errorU;
         if (epoch % TUNIGN_PRINT == 0){
             error = TunedError(entries, diffTerms);
             errorU = UnsharedTunedError(entries, diffTerms);
-            std::cout << "\n\n IterationNum = " + std::to_string(epoch) + " Error: " <<  error << " unshared " << errorU;
+            std::cout << "\n IterationNum = " + std::to_string(epoch) << " unshared " << errorU;
             std::cout << "\n Printing Terms: \n";
             //PrintTunedParams(currTerms, diffTerms);
             printWeights();
@@ -502,6 +504,9 @@ void CalculateGradient(tEntry* entries, tValueHolder grad, tValueHolder diff){
 
     for (int i = 0; i < TUNING_POS_COUNT; i++){
         UpdateSingleGrad( &entries[i], local, diff);
+        if (i % 128 == 1){
+                mergeGradients();
+        }
     }
     mergeGradients();
 /*
@@ -524,9 +529,9 @@ void CalculateGradient(tEntry* entries, tValueHolder grad, tValueHolder diff){
 void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
     double eval = TuningEval(entry, diff);
     double sigm = Sigmoid(eval);
-    double X = (entry->result - sigm) * sigm * (1.0 - sigm) / 400;
+    double X = (entry->result - sigm) * sigm * (1.0 - sigm) * TUNING_K;
 
-    double sigmaOut = X * entry->pFactors[ENDGAME];
+    double sigmaOut = X * entry->pFactors[OPENING];
 
     propagateReverse(entry, sigmaOut);
 
@@ -568,7 +573,7 @@ double TuningEval(tEntry* entry, tValueHolder diff){
     }
 
     double net = propagateForward(entry);
-    egScore += net;
+    opScore += net;
 
     //std::cout << egScore << " net: " << net << std::endl;
 
@@ -735,7 +740,7 @@ void propagateReverse(tEntry* entry, double sigmOut){
     double hidden_sigmas[N_HIDDEN] = {0};
 
     // For the output bias gradient is just sigmOut
-    wTweakOBias += sigmOut;
+    wTweakOBias[gradient] += sigmOut;
 
     // for hidden - to output
     // Use sum of (weight * sigmaHigher) for all weights to higher
@@ -746,10 +751,10 @@ void propagateReverse(tEntry* entry, double sigmOut){
         // Grad(AB) = sigmaB * outA => for hidden weights (hidden_output * sigma_result)
         double grad   = hidden_values[i] * sigmOut;
         // calculate weight tweak using gradients
-        wTweaksOUTPUT[i] +=  grad;
+        wTweaksOUTPUT[gradient][i] +=  grad;
 
         // For hidden biases Grad will be just hiddenSigma
-        wTweakHBias[i] += hidden_sigmas[i];
+        wTweakHBias[gradient][i] += hidden_sigmas[i];
     }
 
     // do the same for weights from input to the hidden
@@ -757,7 +762,7 @@ void propagateReverse(tEntry* entry, double sigmOut){
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
             double grad = entry->net[j] * hidden_sigmas[i];
-            wTweaksHIDDEN[total] += grad;
+            wTweaksHIDDEN[gradient][total] += grad;
             total++;
         }
     }
@@ -766,22 +771,31 @@ void propagateReverse(tEntry* entry, double sigmOut){
 
 void mergeGradients(){
 
-    tuneOUTPUT_BIAS +=  wTweakOBias;
-    //wTweakOBias = 0;
+    wTweakOBias[gradient] = wTweakOBias[gradient];
+    wTweakOBias[momentum] = 0.9 * wTweakOBias[momentum] + 0.1 * wTweakOBias[gradient];
+    wTweakOBias[velocity] = 0.999 * wTweakOBias[velocity] + 0.001 * wTweakOBias[gradient] * wTweakOBias[gradient];
+    tuneOUTPUT_BIAS +=  0.01 *(wTweakOBias[gradient] - 0.001 * wTweakOBias[momentum] / (sqrtf(wTweakOBias[velocity]) + 1e-8));
+    wTweakOBias[gradient] = 0;
 
     for (int i = 0; i < N_HIDDEN; i++){
-        tuneOUTPUT_WEIGHTS[i] +=  wTweaksOUTPUT[i];
-        //wTweaksOUTPUT[i] = 0;
+        wTweaksOUTPUT[momentum][i] = 0.9 * wTweaksOUTPUT[momentum][i] + 0.1 * wTweaksOUTPUT[gradient][i];
+        wTweaksOUTPUT[velocity][i] = 0.999 * wTweaksOUTPUT[velocity][i] + 0.001 * wTweaksOUTPUT[gradient][i] * wTweaksOUTPUT[gradient][i];
+        tuneOUTPUT_WEIGHTS[i]+= 0.01 * (wTweaksOUTPUT[gradient][i] - 0.001 * wTweaksOUTPUT[momentum][i] / (sqrtf(wTweaksOUTPUT[velocity][i]) + 1e-8));
+        wTweaksOUTPUT[gradient][i] = 0;
         // hidden bias
-        tuneHIDDEN_BIAS[i] +=  wTweakHBias[i];
-        //wTweakHBias[i] = 0;
+        wTweakHBias[momentum][i] = 0.9 * wTweakHBias[momentum][i] + 0.1 * wTweakHBias[gradient][i];
+        wTweakHBias[velocity][i] = 0.999 * wTweakHBias[velocity][i] + 0.001 * wTweakHBias[gradient][i] * wTweakHBias[gradient][i];
+        tuneHIDDEN_BIAS[i]+= 0.01 * (wTweakHBias[gradient][i] - 0.001 * wTweakHBias[momentum][i] / (sqrtf(wTweakHBias[velocity][i]) + 1e-8));
+        wTweakHBias[gradient][i] = 0;
     }
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
-            tuneHIDDEN_WEIGHTS[total] += wTweaksHIDDEN[total];
-            //wTweaksHIDDEN[total] = 0;
+            wTweaksHIDDEN[momentum][total] = 0.9 * wTweaksHIDDEN[momentum][total] + 0.1 * wTweaksHIDDEN[gradient][total];
+            wTweaksHIDDEN[velocity][total] = 0.999 * wTweaksHIDDEN[velocity][total] + 0.001 * wTweaksHIDDEN[gradient][total] * wTweaksHIDDEN[gradient][total];
+            tuneHIDDEN_WEIGHTS[total]+= 0.01 * (wTweaksHIDDEN[gradient][total] - 0.001 * wTweaksHIDDEN[momentum][total] / (sqrtf(wTweaksHIDDEN[velocity][total]) + 1e-8));
+            wTweaksHIDDEN[gradient][total] = 0;
             total++;
         }
     }
@@ -791,21 +805,25 @@ void mergeGradients(){
 void initializeWeights(){
     std::srand(5);
 
-    tuneOUTPUT_BIAS = 0.5 -  ((double) std::rand() / RAND_MAX);
+    tuneOUTPUT_BIAS = 400.0 -  (std::rand() % 800);
 
     for (int i = 0; i < N_HIDDEN; i++){
-        tuneOUTPUT_WEIGHTS[i] = 0.5 -  ((double) std::rand() / RAND_MAX);
-        tuneHIDDEN_BIAS[i] = 0.5 -  ((double) std::rand() / RAND_MAX);
+        tuneOUTPUT_WEIGHTS[i] = 400 -  (std::rand() % 800);
+        tuneHIDDEN_BIAS[i] = 400 -  (std::rand() % 800);
     }
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
-            tuneHIDDEN_WEIGHTS[total] += 0.5 - ((double) std::rand() / RAND_MAX);
+            tuneHIDDEN_WEIGHTS[total] += 400 -  (std::rand() % 800);
             total++;
         }
     }
 }
 
 
-#endif
+void shufflePositions(){
+
+}
+
+//#endif
