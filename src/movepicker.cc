@@ -3,7 +3,7 @@
 #include "defs.h"
 
 
-MovePicker::MovePicker(const OrderingInfo *orderingInfo, const Board *board, MoveList *moveList, int hMove, Color color, int ply, int pMove){
+MovePicker::MovePicker(const OrderingInfo *orderingInfo, const Board *board, MoveList *moveList, int hMove, Color color, int ply, int pMove, bool isPv){
   _orderingInfo = orderingInfo;
   _moves = moveList;
   _hashMove = hMove;
@@ -12,6 +12,7 @@ MovePicker::MovePicker(const OrderingInfo *orderingInfo, const Board *board, Mov
   _pMove = pMove;
   _currHead = 0;
   _scoreMoves(board);
+  _isPv = isPv;
 }
 
 void MovePicker::_scoreMoves(const Board *board) {
@@ -42,7 +43,7 @@ void MovePicker::_scoreMoves(const Board *board) {
     } else if (moveINT == Counter){
       move.setValue(COUNTERMOVE_BONUS);
     } else { // Quiet
-      move.setValue(_orderingInfo->getHistory(_color, move.getFrom(), move.getTo()) +
+      move.setValue(_orderingInfo->getHistory(_color, move.getFrom(), move.getTo(), _isPv) +
                     _orderingInfo->getCountermoveHistory(_color, pMoveInx, move.getPieceType(), move.getTo()));
     }
   }
