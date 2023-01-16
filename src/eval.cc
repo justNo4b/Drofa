@@ -783,7 +783,7 @@ inline int Eval::evaluatePNN(const Board & board){
     output += OUTPUT_BIAS;
 
     // Make gameScore from opening and endgame values and return
-    return gS(0, (int)output);
+    return gS((int)output, 0);
 }
 
 inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits * eB){
