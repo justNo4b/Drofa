@@ -678,15 +678,15 @@ void printWeights(){
 
     std::cout << std::endl << std::endl;
 
-    std::cout << "double OUTPUT_BIAS = " << round(tuneOUTPUT_BIAS) << ";" << std::endl;
+    std::cout << "int OUTPUT_BIAS = " << round(tuneOUTPUT_BIAS) << ";" << std::endl;
 
-    std::cout << "double HIDDEN_BIAS[N_HIDDEN] = {";
+    std::cout << "int HIDDEN_BIAS[N_HIDDEN] = {";
     for (int i = 0; i < N_HIDDEN; i++){
         std::cout << round(tuneHIDDEN_BIAS[i]) << ", ";
     }
     std::cout << "};" << std::endl;
 
-    std::cout << "double OUTPUT_WEIGHTS[N_HIDDEN] = {";
+    std::cout << "int OUTPUT_WEIGHTS[N_HIDDEN] = {";
     for (int i = 0; i < N_HIDDEN; i++){
         std::cout << round(tuneOUTPUT_WEIGHTS[i]) << ", ";
     }
@@ -694,7 +694,7 @@ void printWeights(){
 
 
     std::cout << std::endl << std::endl;
-    std::cout << "double HIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN] = {";
+    std::cout << "int HIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN] = {";
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
@@ -805,17 +805,17 @@ void mergeGradients(){
 void initializeWeights(){
     std::srand(5);
 
-    tuneOUTPUT_BIAS = 400.0 -  (std::rand() % 800);
+    tuneOUTPUT_BIAS = 5.0 -  (std::rand() % 10);
 
     for (int i = 0; i < N_HIDDEN; i++){
-        tuneOUTPUT_WEIGHTS[i] = 400 -  (std::rand() % 800);
-        tuneHIDDEN_BIAS[i] = 400 -  (std::rand() % 800);
+        tuneOUTPUT_WEIGHTS[i] = 5.0 -  (std::rand() % 10);
+        tuneHIDDEN_BIAS[i] = 5.0 -  (std::rand() % 10);
     }
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
-            tuneHIDDEN_WEIGHTS[total] += 400 -  (std::rand() % 800);
+            tuneHIDDEN_WEIGHTS[total] += 5.0 -  (std::rand() % 10);
             total++;
         }
     }
