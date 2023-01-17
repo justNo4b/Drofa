@@ -504,7 +504,7 @@ void CalculateGradient(tEntry* entries, tValueHolder grad, tValueHolder diff){
 
     for (int i = 0; i < TUNING_POS_COUNT; i++){
         UpdateSingleGrad( &entries[i], local, diff);
-        if (i % 128 == 1){
+        if (i % 64 == 1){
                 mergeGradients();
         }
     }
