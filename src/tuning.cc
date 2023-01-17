@@ -64,6 +64,7 @@ void TunerStart(){
 
 
     initializeWeights();
+
     // Initialize training data
     // Program will exit if there is smth wrong with our data
     if (!InitTuningPositions(entries))
@@ -678,28 +679,28 @@ void printWeights(){
 
     std::cout << std::endl << std::endl;
 
-    std::cout << "double OUTPUT_BIAS = " << tuneOUTPUT_BIAS << ";" << std::endl;
+    std::cout << "int OUTPUT_BIAS = " << (int)tuneOUTPUT_BIAS << ";" << std::endl;
 
-    std::cout << "double HIDDEN_BIAS[N_HIDDEN] = {";
+    std::cout << "int HIDDEN_BIAS[N_HIDDEN] = {";
     for (int i = 0; i < N_HIDDEN; i++){
-        std::cout << tuneHIDDEN_BIAS[i] << ", ";
+        std::cout << (int)tuneHIDDEN_BIAS[i] << ", ";
     }
     std::cout << "};" << std::endl;
 
-    std::cout << "double OUTPUT_WEIGHTS[N_HIDDEN] = {";
+    std::cout << "int OUTPUT_WEIGHTS[N_HIDDEN] = {";
     for (int i = 0; i < N_HIDDEN; i++){
-        std::cout << tuneOUTPUT_WEIGHTS[i] << ", ";
+        std::cout << (int)tuneOUTPUT_WEIGHTS[i] << ", ";
     }
     std::cout << "};" << std::endl;
 
 
     std::cout << std::endl << std::endl;
-    std::cout << "double HIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN] = {";
+    std::cout << "int HIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN] = {";
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
-            std::cout << tuneHIDDEN_WEIGHTS[total] << ", ";
+            std::cout << (int)tuneHIDDEN_WEIGHTS[total] << ", ";
             total++;
         }
     }
