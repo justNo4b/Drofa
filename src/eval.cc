@@ -743,43 +743,35 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 }
 
 inline int Eval::evaluatePNN(const Board & board){
-    double output;
-    int8_t inputs[N_INPUTS] = {0};
+    double output = 0;
     double hidden_values[N_HIDDEN] = {0};
-
-    // Prepare inputs.
-    // For now very slow, but optimaze later
-    // Can be optimized with hidden activation at least
     U64 wPawns = board.getPieces(WHITE, PAWN);
     U64 bPawns = board.getPieces(BLACK, PAWN);
 
     while (wPawns){
         int sq = _popLsb(wPawns);
-        inputs[sq] = 1;
+        // activate only neurons where pawns are
+        for (int i = 0; i < N_HIDDEN; i++){
+            hidden_values[i] += HIDDEN_WEIGHTS[i * N_INPUTS + sq];
+        }
     }
 
     while (bPawns){
         int sq = _popLsb(bPawns);
-        inputs[64 + sq] = 1;
-    }
-
-    int total = 0;
-    for (int i = 0; i < N_HIDDEN; i++){
-        for (int j = 0; j < N_INPUTS; j++){
-            hidden_values[i] += (double)inputs[j] * HIDDEN_WEIGHTS[total];
-            total++;
+        for (int i = 0; i < N_HIDDEN; i++){
+            hidden_values[i] += HIDDEN_WEIGHTS[i * N_INPUTS + sq + 64];
         }
-        // add bias
-        hidden_values[i] += HIDDEN_BIAS[i];
-        // use sigmoid now
-        hidden_values[i] = sigmoid(hidden_values[i]);
     }
 
     // Now calculate output
     for (int k = 0; k < N_HIDDEN; k++){
+        // add bias and apply sigmoid
+        hidden_values[k] +=  HIDDEN_BIAS[k];
+        hidden_values[k] = sigmoid(hidden_values[k]);
+
         output += hidden_values[k] * OUTPUT_WEIGHTS[k];
     }
-    // add bias
+    // add bias to output
     output += OUTPUT_BIAS;
 
     // Make gameScore from opening and endgame values and return
