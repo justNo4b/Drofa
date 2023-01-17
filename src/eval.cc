@@ -743,8 +743,8 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 }
 
 inline int Eval::evaluatePNN(const Board & board){
-    double output = 0;
-    double hidden_values[N_HIDDEN] = {0};
+    int output = 0;
+    int hidden_values[N_HIDDEN] = {0};
     U64 wPawns = board.getPieces(WHITE, PAWN);
     U64 bPawns = board.getPieces(BLACK, PAWN);
 

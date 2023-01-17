@@ -17,8 +17,8 @@ double HIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN] = {374, 172, -286, 386, 195, 321, 27,
 
 
 
-double sigmoid(double x){
-    return 1 / (1 + exp(-1 * x));
+int sigmoid(int x){
+    return (int)( 1 / (1 + exp(-1 * x)));
 }
 
 #endif
