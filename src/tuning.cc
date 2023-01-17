@@ -678,17 +678,17 @@ void printWeights(){
 
     std::cout << std::endl << std::endl;
 
-    std::cout << "double OUTPUT_BIAS = " << tuneOUTPUT_BIAS << ";" << std::endl;
+    std::cout << "double OUTPUT_BIAS = " << round(tuneOUTPUT_BIAS) << ";" << std::endl;
 
     std::cout << "double HIDDEN_BIAS[N_HIDDEN] = {";
     for (int i = 0; i < N_HIDDEN; i++){
-        std::cout << tuneHIDDEN_BIAS[i] << ", ";
+        std::cout << round(tuneHIDDEN_BIAS[i]) << ", ";
     }
     std::cout << "};" << std::endl;
 
     std::cout << "double OUTPUT_WEIGHTS[N_HIDDEN] = {";
     for (int i = 0; i < N_HIDDEN; i++){
-        std::cout << tuneOUTPUT_WEIGHTS[i] << ", ";
+        std::cout << round(tuneOUTPUT_WEIGHTS[i]) << ", ";
     }
     std::cout << "};" << std::endl;
 
@@ -699,7 +699,7 @@ void printWeights(){
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
-            std::cout << tuneHIDDEN_WEIGHTS[total] << ", ";
+            std::cout << round(tuneHIDDEN_WEIGHTS[total]) << ", ";
             total++;
         }
     }
