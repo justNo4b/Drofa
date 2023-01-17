@@ -150,6 +150,10 @@ struct tEntry {
   typedef double tValueHolder[TUNING_TERMS_COUNT][2];
   typedef double featureCoeff[TUNING_TERMS_COUNT];
 
+  // stuff for net training
+  #define NN_BATCH_SIZE        (64)
+  #define BASIC_RANDOM_WEIGHT  (10)
+
 
   #define strFail (std::string::npos)
  /**
@@ -213,3 +217,5 @@ struct tEntry {
  void printWeights();
 
 void initializeWeights();
+
+inline double getRandomWeight();

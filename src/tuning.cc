@@ -504,7 +504,7 @@ void CalculateGradient(tEntry* entries, tValueHolder grad, tValueHolder diff){
 
     for (int i = 0; i < TUNING_POS_COUNT; i++){
         UpdateSingleGrad( &entries[i], local, diff);
-        if (i % 64 == 1){
+        if (i % NN_BATCH_SIZE == 1){
                 mergeGradients();
         }
     }
@@ -801,29 +801,28 @@ void mergeGradients(){
     }
 }
 
+inline double getRandomWeight(){
+    return (BASIC_RANDOM_WEIGHT / 2) - (std::rand() % BASIC_RANDOM_WEIGHT);
+}
+
 
 void initializeWeights(){
-    std::srand(5);
+    std::srand(std::time(NULL));
 
-    tuneOUTPUT_BIAS = 5.0 -  (std::rand() % 10);
+    tuneOUTPUT_BIAS = getRandomWeight();
 
     for (int i = 0; i < N_HIDDEN; i++){
-        tuneOUTPUT_WEIGHTS[i] = 5.0 -  (std::rand() % 10);
-        tuneHIDDEN_BIAS[i] = 5.0 -  (std::rand() % 10);
+        tuneOUTPUT_WEIGHTS[i] = getRandomWeight();
+        tuneHIDDEN_BIAS[i] = getRandomWeight();
     }
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
-            tuneHIDDEN_WEIGHTS[total] += 5.0 -  (std::rand() % 10);
+            tuneHIDDEN_WEIGHTS[total] += getRandomWeight();
             total++;
         }
     }
-}
-
-
-void shufflePositions(){
-
 }
 
 //#endif
