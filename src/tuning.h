@@ -216,6 +216,8 @@ struct tEntry {
 
  void printWeights();
 
-void initializeWeights();
+ void initializeWeights();
 
-inline double getRandomWeight();
+ inline double getRandomWeight();
+
+ void shuffleData(tEntry*);

@@ -694,12 +694,15 @@ void printWeights(){
 
 
     std::cout << std::endl << std::endl;
-    std::cout << "int HIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN] = {";
+    std::cout << "int HIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN] = {\n          ";
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
             std::cout << round(tuneHIDDEN_WEIGHTS[total]) << ", ";
+            if (total != 0 && total % 8 == 0){
+                std::cout << "\n          ";
+            }
             total++;
         }
     }
@@ -822,6 +825,21 @@ void initializeWeights(){
             tuneHIDDEN_WEIGHTS[total] += getRandomWeight();
             total++;
         }
+    }
+}
+
+
+void shuffleData(tEntry* entries){
+
+    tEntry tempEntry;
+    std::srand(std::time(NULL));
+
+    for (int i = 0; i < TUNING_POS_COUNT / NN_BATCH_SIZE; i++ ){
+        int rand1 = std::rand() % TUNING_POS_COUNT;
+        int rand2 = std::rand() % TUNING_POS_COUNT;
+        tempEntry = entries[rand1];
+        entries[rand1] = entries[rand2];
+        entries[rand2] = tempEntry;
     }
 }
 
