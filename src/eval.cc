@@ -748,6 +748,29 @@ inline int Eval::evaluatePNN(const Board & board){
     U64 wPawns = board.getPieces(WHITE, PAWN);
     U64 bPawns = board.getPieces(BLACK, PAWN);
 
+    U64 wDoubl = wPawns & (wPawns << 8);
+    U64 bDoubl = bPawns & (bPawns >> 8);
+
+    while (wDoubl){
+        int sq = _popLsb(wDoubl);
+        int pCol = _col(sq);
+        for (int i = 0; i < N_HIDDEN; i++){
+            hidden_values[i] += HIDDEN_WEIGHTS[i * N_INPUTS + pCol];
+        }
+        // remove potential double passers
+        wDoubl = wDoubl & ~detail::FILES[pCol];
+    }
+
+    while (bDoubl){
+        int sq = _popLsb(bDoubl);
+        int pCol = _col(sq);
+        for (int i = 0; i < N_HIDDEN; i++){
+            hidden_values[i] += HIDDEN_WEIGHTS[i * N_INPUTS + pCol + 56];
+        }
+        // remove potential double passers
+        bDoubl = bDoubl & ~detail::FILES[pCol];
+    }
+
     while (wPawns){
         int sq = _popLsb(wPawns);
         // activate only neurons where pawns are
