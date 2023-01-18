@@ -747,6 +747,8 @@ inline int Eval::evaluatePNN(const Board & board){
     int hidden_values[N_HIDDEN] = {0};
     U64 wPawns = board.getPieces(WHITE, PAWN);
     U64 bPawns = board.getPieces(BLACK, PAWN);
+    int wKing = _bitscanForward(board.getPieces(WHITE, KING));
+    int bKing = _bitscanForward(board.getPieces(BLACK, KING));
 
     while (wPawns){
         int sq = _popLsb(wPawns);
@@ -761,6 +763,12 @@ inline int Eval::evaluatePNN(const Board & board){
         for (int i = 0; i < N_HIDDEN; i++){
             hidden_values[i] += HIDDEN_WEIGHTS[i * N_INPUTS + sq + 64];
         }
+    }
+
+    // Activate king neurons
+    for (int i = 0; i < N_HIDDEN; i++){
+        hidden_values[i] += HIDDEN_WEIGHTS[i * N_INPUTS + wKing + 64 * 2]
+                          + HIDDEN_WEIGHTS[i * N_INPUTS + bKing + 64 * 3];
     }
 
     // Now calculate output
