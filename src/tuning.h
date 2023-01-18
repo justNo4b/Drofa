@@ -151,7 +151,7 @@ struct tEntry {
   typedef double featureCoeff[TUNING_TERMS_COUNT];
 
   // stuff for net training
-  #define NN_BATCH_SIZE        (64)
+  #define NN_BATCH_SIZE        (32)
   #define BASIC_RANDOM_WEIGHT  (10)
 
 
