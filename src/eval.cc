@@ -6,6 +6,7 @@
 #include "eval.h"
 #include "transptable.h"
 #include "tuning.h"
+#include "kpnn.h"
 
 extern HASH * myHASH;
 extern posFeatured ft;
@@ -628,6 +629,7 @@ inline int Eval::probePawnStructure(const Board & board, Color color, evalBits *
   #endif
   {
     pScore += evaluatePAWNS(board, WHITE, eB) - evaluatePAWNS(board, BLACK, eB);
+    pScore += evaluatePNN(board);
     myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB->Passers[WHITE], eB->Passers[BLACK], pScore);
     return color == WHITE ? pScore : -pScore;
   }
@@ -738,6 +740,42 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   }
 
   return s;
+}
+
+inline int Eval::evaluatePNN(const Board & board){
+    int output = 0;
+    int hidden_values[N_HIDDEN] = {0};
+    U64 wPawns = board.getPieces(WHITE, PAWN);
+    U64 bPawns = board.getPieces(BLACK, PAWN);
+
+    while (wPawns){
+        int sq = _popLsb(wPawns);
+        // activate only neurons where pawns are
+        for (int i = 0; i < N_HIDDEN; i++){
+            hidden_values[i] += HIDDEN_WEIGHTS[i * N_INPUTS + sq];
+        }
+    }
+
+    while (bPawns){
+        int sq = _popLsb(bPawns);
+        for (int i = 0; i < N_HIDDEN; i++){
+            hidden_values[i] += HIDDEN_WEIGHTS[i * N_INPUTS + sq + 64];
+        }
+    }
+
+    // Now calculate output
+    for (int k = 0; k < N_HIDDEN; k++){
+        // add bias and apply sigmoid
+        hidden_values[k] +=  HIDDEN_BIAS[k];
+        hidden_values[k] = sigmoid(hidden_values[k]);
+
+        output += hidden_values[k] * OUTPUT_WEIGHTS[k];
+    }
+    // add bias to output
+    output += OUTPUT_BIAS;
+
+    // Make gameScore from opening and endgame values and return
+    return gS(output, 0);
 }
 
 inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits * eB){
