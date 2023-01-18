@@ -234,7 +234,12 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
   MoveList * legalMoves = movegen.getMoves();
   pV rootPV = pV();
 
-  _sStack.AddEval(board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer()));
+  const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
+  int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
+
+  int nodeEval = board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE :
+                 probedHASHentry.Flag != NONE ? probedHASHentry.eval : Eval::evaluate(board, board.getActivePlayer());
+  _sStack.AddEval(nodeEval);
 
   // If no legal moves are available, just return, setting bestmove to a null move
   if (legalMoves->empty()) {
@@ -243,8 +248,6 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
     return 0;
   }
 
-  const HASH_Entry probedHASHentry = myHASH->HASH_Get(board.getZKey().getValue());
-  int hashMove = probedHASHentry.Flag != NONE ? probedHASHentry.move : 0;
   MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashMove, board.getActivePlayer(), 0, 0);
 
   int currScore;
@@ -291,7 +294,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
   }
 
   if (!_stop && !(bestMove.getFlags() & Move::NULL_MOVE)) {
-    myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), EXACT, alpha, depth, 0);
+    myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), nodeEval, EXACT, alpha, depth, 0);
     _bestMove = bestMove;
     _bestScore = alpha;
   }
@@ -373,7 +376,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   if (AreWeInCheck) {
     _sStack.AddEval(NOSCORE);
   }else {
-    statEVAL = Eval::evaluate(board, board.getActivePlayer());
+    statEVAL = probedHASHentry.Flag != NONE ? probedHASHentry.eval : Eval::evaluate(board, board.getActivePlayer());
     _sStack.AddEval(statEVAL);
   }
 
@@ -684,7 +687,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           if (isPmQuietCounter) _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
           // Add a new tt entry for this node
           if (!_stop && !sing){
-            myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
+            myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), statEVAL, BETA, score, depth, ply);
           }
           // we updated beta and in the pVNode so we should update our pV
           if (pvNode && !_stop){
@@ -732,7 +735,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   // Store bestScore in transposition table
   if (!_stop && !sing && alpha > alphaOrig){
-        myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), EXACT, alpha, depth, ply);
+        myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), statEVAL, EXACT, alpha, depth, ply);
   }
 
   return alpha;
@@ -746,16 +749,6 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   if (_stop || _checkLimits()) {
     _stop = true;
     return 0;
-  }
-
-  int standPat = Eval::evaluate(board, board.getActivePlayer());
-
-  if (standPat >= beta) {
-    return beta;
-  }
-
-  if (alpha < standPat) {
-    alpha = standPat;
   }
 
   // Check transposition table cache
@@ -775,6 +768,16 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
         return beta;
       }
     }
+  }
+
+  int standPat = probedHASHentry.Flag != NONE ? probedHASHentry.eval : Eval::evaluate(board, board.getActivePlayer());
+
+  if (standPat >= beta) {
+    return beta;
+  }
+
+  if (alpha < standPat) {
+    alpha = standPat;
   }
 
   MoveGen movegen(board, true);
@@ -810,7 +813,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
           if (score >= beta) {
             // Add a new tt entry for this node
             if (!_stop){
-                myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, 0, MAX_PLY);
+                myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), standPat, BETA, score, 0, MAX_PLY);
             }
             return beta;
           }
