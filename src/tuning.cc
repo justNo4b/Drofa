@@ -509,6 +509,7 @@ void CalculateGradient(tEntry* entries, tValueHolder grad, tValueHolder diff){
         }
     }
     mergeGradients();
+    shuffleData(entries);
 /*
     #pragma omp parallel shared(grad)
     {
