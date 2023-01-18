@@ -57,7 +57,7 @@ void  HASH::HASH_Store(U64 posKey, int cMove, int eval, CutOffState bound, int s
         score = (score > 0) ? (score - ply) : (score + ply);
       }
 
-      U64 index = posKey % TableSize;
+      U64 index = shortKey % TableSize;
       if (index < TableSize){
         hashTable[index] = HASH_Entry(shortKey, cMove, eval, (int16_t)score, depth, bound);
       }
@@ -65,8 +65,9 @@ void  HASH::HASH_Store(U64 posKey, int cMove, int eval, CutOffState bound, int s
 
 
 HASH_Entry  HASH::HASH_Get(U64 posKey){
-  U64 index = ((uint32_t) posKey) % TableSize;
-  if (hashTable[index].posKey == posKey){
+  uint32_t shortKey = (uint32_t) posKey;
+  U64 index = shortKey % TableSize;
+  if (hashTable[index].posKey == shortKey){
     return  hashTable[index];
   }
   return HASH_Entry();
