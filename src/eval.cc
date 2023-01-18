@@ -629,7 +629,7 @@ inline int Eval::probePawnStructure(const Board & board, Color color, evalBits *
   #endif
   {
     pScore += evaluatePAWNS(board, WHITE, eB) - evaluatePAWNS(board, BLACK, eB);
-    pScore += evaluatePNN(board, eB);
+    pScore += evaluatePNN(board);
     myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB->Passers[WHITE], eB->Passers[BLACK], pScore);
     return color == WHITE ? pScore : -pScore;
   }
@@ -742,13 +742,13 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   return s;
 }
 
-inline int Eval::evaluatePNN(const Board & board, evalBits * eB){
+inline int Eval::evaluatePNN(const Board & board){
     int output = 0;
     int hidden_values[N_HIDDEN] = {0};
     U64 wPawns = board.getPieces(WHITE, PAWN);
     U64 bPawns = board.getPieces(BLACK, PAWN);
-    U64 wPass  = eB->Passers[WHITE];
-    U64 bPass  = eB->Passers[BLACK];
+    U64 wDoubl = wPawns & (wPawns << 8);
+    U64 bDoubl = bPawns & (bPawns >> 8);
 
     while (wPawns){
         int sq = _popLsb(wPawns);
@@ -765,24 +765,24 @@ inline int Eval::evaluatePNN(const Board & board, evalBits * eB){
         }
     }
 
-    while (wPass){
-        int sq = _popLsb(wPass);
+    while (wDoubl){
+        int sq = _popLsb(wDoubl);
         int pCol = _col(sq);
         for (int i = 0; i < N_HIDDEN; i++){
             hidden_values[i] += HIDDEN_WEIGHTS[i * N_INPUTS + pCol];
         }
         // remove potential double passers
-        wPass = wPass & ~detail::FILES[pCol];
+        wDoubl = wDoubl & ~detail::FILES[pCol];
     }
 
-    while (bPass){
-        int sq = _popLsb(bPass);
+    while (bDoubl){
+        int sq = _popLsb(bDoubl);
         int pCol = _col(sq);
         for (int i = 0; i < N_HIDDEN; i++){
             hidden_values[i] += HIDDEN_WEIGHTS[i * N_INPUTS + pCol + 56];
         }
         // remove potential double passers
-        bPass = bPass & ~detail::FILES[pCol];
+        bDoubl = bDoubl & ~detail::FILES[pCol];
     }
 
     // Now calculate output
