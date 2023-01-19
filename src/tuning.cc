@@ -536,16 +536,18 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
     double eval = TuningEval(entry, diff);
     double sigm = Sigmoid(eval);
     double X = (entry->result - sigm) * sigm * (1.0 - sigm) * TUNING_K / 400;
+    double scale = entry->FinalEvalScale / 4;
 
-    double sigmaOut1 = X * entry->pFactors[OPENING];
-    double sigmaOut2 = X * entry->pFactors[ENDGAME];
+    double sigmaOut1 = X * entry->pFactors[OPENING] * scale;
+    double sigmaOut2 = X * entry->pFactors[ENDGAME] * scale;
+
 
     propagateReverse(entry, sigmaOut1, sigmaOut2);
 
 /*
     double opBase = X * entry->pFactors[OPENING];
     double egBase = X * entry->pFactors[ENDGAME];
-    double scale = entry->FinalEvalScale / 4;
+
 
     for (int i = 0; i < entry->tracesCount; i++){
         int index = entry->traces[i].index;
