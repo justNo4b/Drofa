@@ -21,14 +21,19 @@ posFeatured ft, zero;
 double tuneHIDDEN_WEIGHTS[N_INPUTS * N_HIDDEN] = {0};
 double tuneHIDDEN_BIAS[N_HIDDEN] = {0};
 
-double tuneOUTPUT_WEIGHTS[N_HIDDEN] = {0};
-double tuneOUTPUT_BIAS = 0;
+double tuneOUTPUT_WEIGHTS1[N_HIDDEN] = {0};
+double tuneOUTPUT_WEIGHTS2[N_HIDDEN] = {0};
+double tuneOUTPUT_BIAS1 = 0;
+double tuneOUTPUT_BIAS2 = 0;
 
 double hidden_values[N_HIDDEN]= {0};
 
 double wTweaksHIDDEN[3][N_INPUTS * N_HIDDEN] = {0};
-double wTweaksOUTPUT[3][N_HIDDEN] = {0};
-double wTweakOBias[3] = {0};
+double wTweaksOUTPUT1[3][N_HIDDEN] = {0};
+double wTweaksOUTPUT2[3][N_HIDDEN] = {0};
+
+double wTweakOBias1[3] = {0};
+double wTweakOBias2[3] = {0};
 double wTweakHBias[3][N_HIDDEN] = {0};
 
 double E = 0.01;
@@ -532,9 +537,10 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
     double sigm = Sigmoid(eval);
     double X = (entry->result - sigm) * sigm * (1.0 - sigm) * TUNING_K / 400;
 
-    double sigmaOut = X * entry->pFactors[OPENING];
+    double sigmaOut1 = X * entry->pFactors[OPENING];
+    double sigmaOut2 = X * entry->pFactors[ENDGAME];
 
-    propagateReverse(entry, sigmaOut);
+    propagateReverse(entry, sigmaOut1, sigmaOut2);
 
 /*
     double opBase = X * entry->pFactors[OPENING];
@@ -573,8 +579,9 @@ double TuningEval(tEntry* entry, tValueHolder diff){
         egScore += (double) entry->traces[i].count * diff[entry->traces[i].index][ENDGAME];
     }
 
-    double net = propagateForward(entry);
-    opScore += net;
+    netResult net = propagateForward(entry);
+    opScore += net.out1;
+    egScore += net.out2;
 
     //std::cout << egScore << " net: " << net << std::endl;
 
@@ -679,7 +686,8 @@ void printWeights(){
 
     std::cout << std::endl << std::endl;
 
-    std::cout << "int OUTPUT_BIAS = " << round(tuneOUTPUT_BIAS) << ";" << std::endl;
+    std::cout << "int OUTPUT_BIAS1 = " << round(tuneOUTPUT_BIAS1) << ";" << std::endl;
+    std::cout << "int OUTPUT_BIAS2 = " << round(tuneOUTPUT_BIAS2) << ";" << std::endl;
 
     std::cout << "int HIDDEN_BIAS[N_HIDDEN] = {";
     for (int i = 0; i < N_HIDDEN; i++){
@@ -687,9 +695,15 @@ void printWeights(){
     }
     std::cout << "};" << std::endl;
 
-    std::cout << "int OUTPUT_WEIGHTS[N_HIDDEN] = {";
+    std::cout << "int OUTPUT_WEIGHTS1[N_HIDDEN] = {";
     for (int i = 0; i < N_HIDDEN; i++){
-        std::cout << round(tuneOUTPUT_WEIGHTS[i]) << ", ";
+        std::cout << round(tuneOUTPUT_WEIGHTS1[i]) << ", ";
+    }
+    std::cout << "};" << std::endl;
+
+    std::cout << "int OUTPUT_WEIGHTS2[N_HIDDEN] = {";
+    for (int i = 0; i < N_HIDDEN; i++){
+        std::cout << round(tuneOUTPUT_WEIGHTS2[i]) << ", ";
     }
     std::cout << "};" << std::endl;
 
@@ -712,8 +726,10 @@ void printWeights(){
 }
 
 
-double propagateForward(tEntry* entry){
-    double output = 0;
+netResult propagateForward(tEntry* entry){
+    netResult nr;
+    nr.out1 = 0;
+    nr.out2 = 0;
 
     int total = 0;
     for (int i = 0; i < N_HIDDEN; i++){
@@ -730,32 +746,36 @@ double propagateForward(tEntry* entry){
 
     // Now calculate output
     for (int k = 0; k < N_HIDDEN; k++){
-        output += hidden_values[k] * tuneOUTPUT_WEIGHTS[k];
+        nr.out1 += hidden_values[k] * tuneOUTPUT_WEIGHTS1[k];
+        nr.out2 += hidden_values[k] * tuneOUTPUT_WEIGHTS2[k];
     }
 
-    output += tuneOUTPUT_BIAS;
+    nr.out1 += tuneOUTPUT_BIAS1;
+    nr.out2 += tuneOUTPUT_BIAS2;
 
-    return output;
+    return nr;
 
 }
 
-void propagateReverse(tEntry* entry, double sigmOut){
+void propagateReverse(tEntry* entry, double sigmOut1, double sigmOut2){
 
     double hidden_sigmas[N_HIDDEN] = {0};
 
     // For the output bias gradient is just sigmOut
-    wTweakOBias[gradient] += sigmOut;
+    wTweakOBias1[gradient] += sigmOut1;
+    wTweakOBias2[gradient] += sigmOut2;
+
 
     // for hidden - to output
     // Use sum of (weight * sigmaHigher) for all weights to higher
     // Only higher now is output
     for (int i = 0; i < N_HIDDEN; i++){
-        hidden_sigmas[i] = (1 - hidden_values[i]) * hidden_values[i] * (sigmOut * tuneOUTPUT_WEIGHTS[i]);
+        hidden_sigmas[i] = (1 - hidden_values[i]) * hidden_values[i] * (sigmOut1 * tuneOUTPUT_WEIGHTS1[i] + sigmOut2 * tuneOUTPUT_WEIGHTS2[i]);
         // use Sigmas to calculate grad and upgrade gradient
         // Grad(AB) = sigmaB * outA => for hidden weights (hidden_output * sigma_result)
-        double grad   = hidden_values[i] * sigmOut;
         // calculate weight tweak using gradients
-        wTweaksOUTPUT[gradient][i] +=  grad;
+        wTweaksOUTPUT1[gradient][i] +=  hidden_values[i] * sigmOut1;
+        wTweaksOUTPUT2[gradient][i] +=  hidden_values[i] * sigmOut2;
 
         // For hidden biases Grad will be just hiddenSigma
         wTweakHBias[gradient][i] += hidden_sigmas[i];
@@ -775,17 +795,29 @@ void propagateReverse(tEntry* entry, double sigmOut){
 
 void mergeGradients(){
 
-    wTweakOBias[gradient] = wTweakOBias[gradient];
-    wTweakOBias[momentum] = 0.9 * wTweakOBias[momentum] + 0.1 * wTweakOBias[gradient];
-    wTweakOBias[velocity] = 0.999 * wTweakOBias[velocity] + 0.001 * wTweakOBias[gradient] * wTweakOBias[gradient];
-    tuneOUTPUT_BIAS +=  0.01 * wTweakOBias[momentum] / (sqrtf(wTweakOBias[velocity]) + 1e-8);
-    wTweakOBias[gradient] = 0;
+    wTweakOBias1[gradient] = wTweakOBias1[gradient];
+    wTweakOBias1[momentum] = 0.9 * wTweakOBias1[momentum] + 0.1 * wTweakOBias1[gradient];
+    wTweakOBias1[velocity] = 0.999 * wTweakOBias1[velocity] + 0.001 * wTweakOBias1[gradient] * wTweakOBias1[gradient];
+    tuneOUTPUT_BIAS1 +=  0.01 * wTweakOBias1[momentum] / (sqrtf(wTweakOBias1[velocity]) + 1e-8);
+    wTweakOBias1[gradient] = 0;
+
+    wTweakOBias2[gradient] = wTweakOBias2[gradient];
+    wTweakOBias2[momentum] = 0.9 * wTweakOBias2[momentum] + 0.1 * wTweakOBias2[gradient];
+    wTweakOBias2[velocity] = 0.999 * wTweakOBias2[velocity] + 0.001 * wTweakOBias2[gradient] * wTweakOBias2[gradient];
+    tuneOUTPUT_BIAS2 +=  0.01 * wTweakOBias2[momentum] / (sqrtf(wTweakOBias2[velocity]) + 1e-8);
+    wTweakOBias2[gradient] = 0;
+
 
     for (int i = 0; i < N_HIDDEN; i++){
-        wTweaksOUTPUT[momentum][i] = 0.9 * wTweaksOUTPUT[momentum][i] + 0.1 * wTweaksOUTPUT[gradient][i];
-        wTweaksOUTPUT[velocity][i] = 0.999 * wTweaksOUTPUT[velocity][i] + 0.001 * wTweaksOUTPUT[gradient][i] * wTweaksOUTPUT[gradient][i];
-        tuneOUTPUT_WEIGHTS[i]+= 0.01 * wTweaksOUTPUT[momentum][i] / (sqrtf(wTweaksOUTPUT[velocity][i]) + 1e-8);
-        wTweaksOUTPUT[gradient][i] = 0;
+        wTweaksOUTPUT1[momentum][i] = 0.9 * wTweaksOUTPUT1[momentum][i] + 0.1 * wTweaksOUTPUT1[gradient][i];
+        wTweaksOUTPUT1[velocity][i] = 0.999 * wTweaksOUTPUT1[velocity][i] + 0.001 * wTweaksOUTPUT1[gradient][i] * wTweaksOUTPUT1[gradient][i];
+        tuneOUTPUT_WEIGHTS1[i]+= 0.01 * wTweaksOUTPUT1[momentum][i] / (sqrtf(wTweaksOUTPUT1[velocity][i]) + 1e-8);
+        wTweaksOUTPUT1[gradient][i] = 0;
+
+        wTweaksOUTPUT2[momentum][i] = 0.9 * wTweaksOUTPUT2[momentum][i] + 0.1 * wTweaksOUTPUT2[gradient][i];
+        wTweaksOUTPUT2[velocity][i] = 0.999 * wTweaksOUTPUT2[velocity][i] + 0.001 * wTweaksOUTPUT2[gradient][i] * wTweaksOUTPUT2[gradient][i];
+        tuneOUTPUT_WEIGHTS2[i]+= 0.01 * wTweaksOUTPUT2[momentum][i] / (sqrtf(wTweaksOUTPUT2[velocity][i]) + 1e-8);
+        wTweaksOUTPUT2[gradient][i] = 0;
         // hidden bias
         wTweakHBias[momentum][i] = 0.9 * wTweakHBias[momentum][i] + 0.1 * wTweakHBias[gradient][i];
         wTweakHBias[velocity][i] = 0.999 * wTweakHBias[velocity][i] + 0.001 * wTweakHBias[gradient][i] * wTweakHBias[gradient][i];
@@ -813,10 +845,12 @@ inline double getRandomWeight(){
 void initializeWeights(){
     std::srand(std::time(NULL));
 
-    tuneOUTPUT_BIAS = getRandomWeight();
+    tuneOUTPUT_BIAS1 = getRandomWeight();
+    tuneOUTPUT_BIAS2 = getRandomWeight();
 
     for (int i = 0; i < N_HIDDEN; i++){
-        tuneOUTPUT_WEIGHTS[i] = getRandomWeight();
+        tuneOUTPUT_WEIGHTS1[i] = getRandomWeight();
+        tuneOUTPUT_WEIGHTS2[i] = getRandomWeight();
         tuneHIDDEN_BIAS[i] = getRandomWeight();
     }
 

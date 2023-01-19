@@ -110,6 +110,11 @@ enum gType{
     velocity
 };
 
+struct netResult{
+    double out1;
+    double out2;
+};
+
 struct tEntry {
     int16_t statEval;
     int16_t phase;
@@ -210,9 +215,9 @@ struct tEntry {
 
  void mergeGradients();
 
- void propagateReverse(tEntry*, double);
+ void propagateReverse(tEntry*, double, double);
 
- double propagateForward (tEntry*);
+ netResult propagateForward (tEntry*);
 
  void printWeights();
 
