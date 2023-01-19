@@ -944,6 +944,7 @@ inline int Eval::TaperAndScale(const Board &board, Color color, int score){
   Color strong   = egS(score) > 0 ? color : otherColor;
   int StrongPawn = _popCount(board.getPieces(strong, PAWN));
   int Scale = std::min(EG_SCALE_NORMAL, EG_SCALE_MINIMAL + EG_SCALE_PAWN * StrongPawn);
+  ft.PawnScale = Scale;
 
 
   // Interpolate between opening/endgame scores depending on the phase

@@ -241,6 +241,7 @@ void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
     // 6. Also save modifiers to know is it is
     // OCBEndgame
     positionList[pCount].FinalEvalScale = ft.Scale;
+    positionList[pCount].FinalEvalPawnScale = ft.PawnScale;
 
 }
 
@@ -539,7 +540,7 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
     double scale = entry->FinalEvalScale / 4;
 
     double sigmaOut1 = X * entry->pFactors[OPENING] * scale;
-    double sigmaOut2 = X * entry->pFactors[ENDGAME] * scale;
+    double sigmaOut2 = X * entry->pFactors[ENDGAME] * scale * entry->FinalEvalPawnScale / 64;
 
 
     propagateReverse(entry, sigmaOut1, sigmaOut2);
@@ -587,7 +588,7 @@ double TuningEval(tEntry* entry, tValueHolder diff){
 
     //std::cout << egScore << " net: " << net << std::endl;
 
-    double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase)) / 256.0;
+    double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase * entry->FinalEvalPawnScale / 64)) / 256.0;
 
     final_eval = final_eval * entry->FinalEvalScale / 4;
 
