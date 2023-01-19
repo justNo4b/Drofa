@@ -14,6 +14,7 @@ struct posFeatured{
     int FinalEval;
     //scaling consts
     int Scale;
+    int PawnScale;
 
     // Simple features
     int BishopPair[2];
@@ -108,6 +109,7 @@ struct tEntry {
     int16_t tracesCount;
     int FinalEval;
     int FinalEvalScale;
+    int PawnScale;
     double result;
     double pFactors[2];
     bool stm;
@@ -131,7 +133,7 @@ struct tEntry {
   const int         TUNING_L_STEP      = 1500;
   const double      TUNING_K           = 3.305061299; //2.829175699;
   const double      TUNING_L_DROP      = 1.0;
-  const double      TUNING_L_RATE      = 10.0;
+  const double      TUNING_L_RATE      = 1.0;
 
   const int         TUNING_STACK_SIZE = ((int)((double) TUNING_POS_COUNT * TUNING_TERMS_COUNT / 64));
   /**@}*/

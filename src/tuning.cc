@@ -175,7 +175,7 @@ bool InitTuningPositions(tEntry * positionList){
 
 void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
     // 1. Construct position for us.
-    Board b = Board(myFen);
+    Board b = Board(myFen, false);
 
     // 2. Calculate phase-related stuff
     double phase = simplifyPhaseCalculation(b);
@@ -208,6 +208,8 @@ void InitSinglePosition(int pCount, std::string myFen, tEntry * positionList){
     // 6. Also save modifiers to know is it is
     // OCBEndgame
     positionList[pCount].FinalEvalScale = ft.Scale;
+    positionList[pCount].PawnScale = ft.PawnScale;
+
 
 }
 
@@ -493,6 +495,7 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
     double opBase = X * entry->pFactors[OPENING];
     double egBase = X * entry->pFactors[ENDGAME];
     double scale = entry->FinalEvalScale / 4;
+    double pawnScale = entry->PawnScale / 64;
 
     for (int i = 0; i < entry->tracesCount; i++){
         int index = entry->traces[i].index;
@@ -502,7 +505,7 @@ void UpdateSingleGrad(tEntry* entry, tValueHolder local, tValueHolder diff){
         // and the actually update gradient
 
         if (FeatureTypeMap[index] == ALL || FeatureTypeMap[index] == OP_ONLY) local[index][OPENING] +=  opBase * count * scale;
-        if (FeatureTypeMap[index] == ALL || FeatureTypeMap[index] == EG_ONLY) local[index][ENDGAME] +=  egBase * count * scale;
+        if (FeatureTypeMap[index] == ALL || FeatureTypeMap[index] == EG_ONLY) local[index][ENDGAME] +=  egBase * count * scale * pawnScale;
 
     }
 }
@@ -525,7 +528,7 @@ double TuningEval(tEntry* entry, tValueHolder diff){
         egScore += (double) entry->traces[i].count * diff[entry->traces[i].index][ENDGAME];
     }
 
-    double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase)) / 256.0;
+    double final_eval = ((opScore * (256.0 - entry->phase)) + (egScore * entry->phase * entry->PawnScale / 64)) / 256.0;
 
     final_eval = final_eval * entry->FinalEvalScale / 4;
 
