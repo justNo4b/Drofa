@@ -767,7 +767,7 @@ inline int Eval::evaluatePNN(const Board & board){
     for (int k = 0; k < N_HIDDEN; k++){
         // add bias and apply sigmoid
         hidden_values[k] +=  HIDDEN_BIAS[k];
-        hidden_values[k] = sigmoid(hidden_values[k]);
+        hidden_values[k] = step(hidden_values[k]);
 
         output += hidden_values[k] * OUTPUT_WEIGHTS[k];
     }
