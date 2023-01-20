@@ -718,7 +718,7 @@ void printWeights(){
     for (int i = 0; i < N_HIDDEN; i++){
         for (int j = 0; j < N_INPUTS; j++){
             std::cout << round(tuneHIDDEN_WEIGHTS[total]) << ", ";
-            if (total != 0 && total % 8 == 0){
+            if (total != 0 && total % 32 == 0){
                 std::cout << "\n          ";
             }
             total++;
