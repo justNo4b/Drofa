@@ -18,7 +18,7 @@ class HASH{
   void          HASH_Clear();
   void          HASH_Initalize_MB(const int MB);
   HASH_Entry    HASH_Get  (U64 posKey);
-  void          HASH_Store(U64 posKey, int cMove, int eval, CutOffState bound, int score, int depth, int ply);
+  void          HASH_Store(U64 posKey, int cMove, CutOffState bound, int score, int depth, int ply);
   U64           HASH_Size();
   void          HASH_Prefetch(U64 posKey);
 

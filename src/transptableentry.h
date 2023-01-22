@@ -19,16 +19,15 @@ enum CutOffState{
  */
 struct HASH_Entry
 {
-  uint32_t posKey;      // 4
+  U64 posKey;           // 8
   int move;             // 4
-  int eval;             // 4
   int16_t score;        // 2
   uint8_t depth;        // 1
   uint8_t Flag;         // 1
 
-  HASH_Entry() : posKey(0), move(0), eval(0),  score(0), depth(0), Flag(NONE) {}
-  HASH_Entry( uint32_t key, int cMove, int e, int16_t s, uint8_t d, CutOffState state) :
-      posKey(key), move(cMove), eval(e), score(s), depth(d), Flag(state) {}
+  HASH_Entry() : posKey(0), move(0),  score(0), depth(0), Flag(NONE) {}
+  HASH_Entry( U64 key, int cMove, int16_t s, uint8_t d, CutOffState state) :
+      posKey(key), move(cMove), score(s), depth(d), Flag(state) {}
 };
 
 /**
