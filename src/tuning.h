@@ -143,7 +143,7 @@ struct tEntry {
   const int         TUNING_TERMS_COUNT = 928;
   const int         TUNING_BATCH_SIZE  = 0;
   const int         TUNIGN_MAX_ITER    = 51;
-  const int         TUNIGN_PRINT       = 10;
+  const int         TUNIGN_PRINT       = 5;
   const int         TUNING_K_PRECISION = 10;
   const int         TUNING_L_STEP      = 1500;
   const double      TUNING_K           = 3.305061299; //2.829175699;

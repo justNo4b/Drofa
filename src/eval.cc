@@ -754,6 +754,8 @@ inline int Eval::evaluatePNN(const Board & board){
     // Can be optimized with hidden activation at least
     U64 wPawns = board.getPieces(WHITE, PAWN);
     U64 bPawns = board.getPieces(BLACK, PAWN);
+    int wKing = _bitscanForward(board.getPieces(WHITE, KING));
+    int bKing = _bitscanForward(board.getPieces(BLACK, KING));
 
     while (wPawns){
         int sq = _popLsb(wPawns);
@@ -764,6 +766,9 @@ inline int Eval::evaluatePNN(const Board & board){
         int sq = _popLsb(bPawns);
         inputs[64 + sq] = 1;
     }
+
+    inputs[64 * 2 + wKing] = 1;
+    inputs[64 * 3 + bKing] = 1;
 
     if (TRACK) std::memcpy(std::begin(ft.kpInput), std::begin(inputs), sizeof(inputs));
 

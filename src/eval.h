@@ -8,7 +8,7 @@
 #include "math.h"
 
 // use net Pnet => 128x16x2 => opS /egS outputs
-#define N_INPUTS   (64 * 2)
+#define N_INPUTS   (64 * 2 * 2)
 #define N_HIDDEN   (8)
 
 
