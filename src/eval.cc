@@ -759,12 +759,9 @@ inline int Eval::evaluatePNN(const Board & board, evalBits * eB){
         int sq = _popLsb(wPawns);
         int col = _col(sq);
         inputs[sq] = 1;
-        if ((bPawns & detail::PASSED_PAWN_MASKS[WHITE][sq]) == ZERO){
-            inputs[col] = 1;
-        }
         if (_popCount(wPawns & detail::FILES[col]) > 0 &&
         !((ONE << sq) & eB->EnemyPawnAttackMap[WHITE])){
-            inputs[col + 64] = 1;
+            inputs[col] = 1;
         }
     }
 
@@ -772,12 +769,9 @@ inline int Eval::evaluatePNN(const Board & board, evalBits * eB){
         int sq = _popLsb(bPawns);
         int col = _col(sq);
         inputs[64 + sq] = 1;
-        if ((wPawns & detail::PASSED_PAWN_MASKS[BLACK][sq]) == ZERO){
-            inputs[56 + col] = 1;
-        }
         if (_popCount(bPawns & detail::FILES[col]) > 0 &&
         !((ONE << sq) & eB->EnemyPawnAttackMap[BLACK])){
-            inputs[col + 64 + 56] = 1;
+            inputs[col + 56] = 1;
         }
     }
 
