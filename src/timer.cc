@@ -90,7 +90,7 @@ void Timer::startIteration(){
     _lastPlyTime = 0;
 }
 
-bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes){
+bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes, int score){
     int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
     _lastPlyTime =  elapsed - _lastPlyTime;
 
@@ -102,11 +102,16 @@ bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes){
 
     double nodesCoeff = 1.0 + (50.0 - nodesConfidance) / 50.0;
 
+    // We want to think a bit harder if eval is indecisive (~ abs(1));
+    double s = abs(score);
+    double scoreCoeff = -1* s * s + 8 * s - 2;
+    scoreCoeff = std::max(1.0, scoreCoeff);
+
 
 
 
     *elapsedTime = elapsed;
-    if (_wasThoughtProlonged ||  (elapsed >= (_timeAllocated * nodesCoeff * 0.5))){
+    if (_wasThoughtProlonged ||  (elapsed >= (_timeAllocated * nodesCoeff * scoreCoeff * 0.5))){
         return true;
     }
 
