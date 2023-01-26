@@ -739,12 +739,12 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
     }
   }
 
-  s += evaluatePNN(board);
+  s += evaluatePNN(board, eB);
 
   return s;
 }
 
-inline int Eval::evaluatePNN(const Board & board){
+inline int Eval::evaluatePNN(const Board & board, evalBits * eB){
     double output;
     int8_t inputs[N_INPUTS] = {0};
     double hidden_values[N_HIDDEN] = {0};
@@ -757,12 +757,28 @@ inline int Eval::evaluatePNN(const Board & board){
 
     while (wPawns){
         int sq = _popLsb(wPawns);
+        int col = _col(sq);
         inputs[sq] = 1;
+        if ((bPawns & detail::PASSED_PAWN_MASKS[WHITE][sq]) == ZERO){
+            inputs[col] = 1;
+        }
+        if (_popCount(wPawns & detail::FILES[col]) > 0 &&
+        !((ONE << sq) & eB->EnemyPawnAttackMap[WHITE])){
+            inputs[col + 64] = 1;
+        }
     }
 
     while (bPawns){
         int sq = _popLsb(bPawns);
+        int col = _col(sq);
         inputs[64 + sq] = 1;
+        if ((wPawns & detail::PASSED_PAWN_MASKS[BLACK][sq]) == ZERO){
+            inputs[56 + col] = 1;
+        }
+        if (_popCount(bPawns & detail::FILES[col]) > 0 &&
+        !((ONE << sq) & eB->EnemyPawnAttackMap[BLACK])){
+            inputs[col + 64 + 56] = 1;
+        }
     }
 
     if (TRACK) std::memcpy(std::begin(ft.kpInput), std::begin(inputs), sizeof(inputs));
