@@ -628,20 +628,23 @@ inline int Eval::probePawnStructure(const Board & board, Color color, evalBits *
   else
   #endif
   {
-    pScore += evaluatePAWNS(board, WHITE, eB) - evaluatePAWNS(board, BLACK, eB);
-    pScore += evaluatePNN(board);
+    U64 extraInput = 0;
+    pScore += evaluatePAWNS(board, WHITE, eB, &extraInput) - evaluatePAWNS(board, BLACK, eB, &extraInput);
+    pScore += evaluatePNN(board, extraInput);
     myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB->Passers[WHITE], eB->Passers[BLACK], pScore);
     return color == WHITE ? pScore : -pScore;
   }
 }
 
-inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
+inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB, U64 * pnnIn){
   int s = 0;
   Color otherColor = getOppositeColor(color);
 
   U64 pawns = board.getPieces(color, PAWN);
   U64 otherPawns = board.getPieces(otherColor, PAWN);
   U64 tmpPawns = pawns;
+
+  int inputMargin = color == WHITE ? 0 : 56;
 
   while (tmpPawns != ZERO) {
 
@@ -706,6 +709,8 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
         !((ONE << square) & eB->EnemyPawnAttackMap[color])){
       if (TRACK) ft.PawnDoubled[color]++;
       s += DOUBLED_PAWN_PENALTY;
+      // add as additional inputs
+      *pnnIn = *pnnIn & (ONE << (pawnCol + inputMargin));
     }
 
     // score a pawn if it is isolated
@@ -742,35 +747,12 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   return s;
 }
 
-inline int Eval::evaluatePNN(const Board & board){
+inline int Eval::evaluatePNN(const Board & board, U64 dInput){
     int output1 = 0;
     int output2 = 0;
     int hidden_values[N_HIDDEN] = {0};
-    U64 wPawns = board.getPieces(WHITE, PAWN);
+    U64 wPawns = board.getPieces(WHITE, PAWN) | (dInput);
     U64 bPawns = board.getPieces(BLACK, PAWN);
-    U64 wDoubl = wPawns & (wPawns << 8);
-    U64 bDoubl = bPawns & (bPawns >> 8);
-
-    while (wDoubl)
-    {
-        int sq = _popLsb(wDoubl);
-        int col = _col(sq);
-        for (int i = 0; i < N_HIDDEN; i++){
-            hidden_values[i] += HIDDEN_WEIGHTS[i * N_INPUTS + col];
-        }
-        wDoubl = wDoubl & ~detail::FILES[col];
-    }
-
-    while (bDoubl)
-    {
-        int sq = _popLsb(bDoubl);
-        int col = _col(sq);
-        for (int i = 0; i < N_HIDDEN; i++){
-            hidden_values[i] += HIDDEN_WEIGHTS[i * N_INPUTS + col + 56];
-        }
-        bDoubl = bDoubl & ~detail::FILES[col];
-    }
-
 
     while (wPawns){
         int sq = _popLsb(wPawns);

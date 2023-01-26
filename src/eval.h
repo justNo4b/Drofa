@@ -478,11 +478,11 @@ int getMaterialValue(int, PieceType);
    inline int evaluateROOK(const Board &, Color, evalBits *);
    inline int evaluateBISHOP(const Board &, Color, evalBits *);
    inline int evaluateKNIGHT(const Board &, Color, evalBits *);
-   inline int evaluatePAWNS(const Board &, Color, evalBits *);
+   inline int evaluatePAWNS(const Board &, Color, evalBits *, U64 *);
    inline int evaluateKING(const Board &, Color, evalBits *);
    inline int probePawnStructure(const Board &, Color, evalBits *);
    inline int winnableEndgame(const Board &, Color, evalBits *, int);
-   inline int evaluatePNN(const Board &);
+   inline int evaluatePNN(const Board &, U64);
 
   /**@}*/
 
