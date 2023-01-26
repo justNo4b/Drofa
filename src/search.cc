@@ -99,7 +99,7 @@ void Search::iterDeep() {
         if (_stop) break;
 
         int elapsed = 0;
-        bool shouldStop = _timer.finishOnThisDepth(&elapsed, _nodes, _rootNodesSpent[_bestMove.getPieceType()][_bestMove.getTo()]);
+        bool shouldStop = _timer.finishOnThisDepth(&elapsed, _nodes, _rootNodesSpent[_bestMove.getPieceType()][_bestMove.getTo()], _bestScore);
         if (_logUci) {
             _logUciInfo(_getPv(), currDepth, _bestScore, _nodes, elapsed);
         }
