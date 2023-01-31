@@ -17,7 +17,7 @@ struct posFeatured{
     // pawn scale
     int PawnScale;
 
-    int8_t kpInput[128];
+    int8_t kpInput[N_INPUTS];
 
     // Simple features
     int BishopPair[2];
@@ -129,7 +129,7 @@ struct tEntry {
     bool stm;
     bool noPawns;
     eTrace *traces;
-    int8_t net[128];
+    int8_t net[N_INPUTS];
 };
 
 
@@ -159,7 +159,7 @@ struct tEntry {
   typedef double featureCoeff[TUNING_TERMS_COUNT];
 
   // stuff for net training
-  #define NN_BATCH_SIZE        (16384)
+  #define NN_BATCH_SIZE        (8192)
   #define BASIC_RANDOM_WEIGHT  (10)
 
 
