@@ -743,10 +743,14 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 }
 
 inline int Eval::evaluatePNN(const Board & board){
-    int output = 0;
+    int output1 = 0;
+    int output2 = 0;
     int hidden_values[N_HIDDEN] = {0};
     U64 wPawns = board.getPieces(WHITE, PAWN);
     U64 bPawns = board.getPieces(BLACK, PAWN);
+
+    int wKing = _bitscanForward(board.getPieces(WHITE, KING));
+    int bKing = _bitscanForward(board.getPieces(BLACK, KING));
 
     while (wPawns){
         int sq = _popLsb(wPawns);
@@ -763,19 +767,26 @@ inline int Eval::evaluatePNN(const Board & board){
         }
     }
 
+    for (int i = 0; i < N_HIDDEN; i++){
+        hidden_values[i] += HIDDEN_WEIGHTS[i * N_INPUTS + wKing + 64 * 2];
+        hidden_values[i] += HIDDEN_WEIGHTS[i * N_INPUTS + bKing + 64 * 3];
+    }
+
     // Now calculate output
     for (int k = 0; k < N_HIDDEN; k++){
         // add bias and apply sigmoid
         hidden_values[k] +=  HIDDEN_BIAS[k];
         hidden_values[k] = sigmoid(hidden_values[k]);
 
-        output += hidden_values[k] * OUTPUT_WEIGHTS[k];
+        output1 += hidden_values[k] * OUTPUT_WEIGHTS1[k];
+        output2 += hidden_values[k] * OUTPUT_WEIGHTS2[k];
     }
     // add bias to output
-    output += OUTPUT_BIAS;
+    output1 += OUTPUT_BIAS1;
+    output2 += OUTPUT_BIAS2;
 
     // Make gameScore from opening and endgame values and return
-    return gS(output, 0);
+    return gS(output1, output2);
 }
 
 inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits * eB){
