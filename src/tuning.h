@@ -137,8 +137,8 @@ struct tEntry {
   * @brief Main tuning constants are defined here
   * @{
   */
-  const std::string TUNING_DATA        = "LiChessBOOK.txt";
-  const int         TUNING_POS_COUNT   = 7153653; //9996883 42484641
+  const std::string TUNING_DATA        = "BOOK_downsampled.txt";
+  const int         TUNING_POS_COUNT   = 71536530; //9996883 42484641
   const int         TUNING_THREADS     = 16;
   const int         TUNING_TERMS_COUNT = 928;
   const int         TUNING_BATCH_SIZE  = 0;
