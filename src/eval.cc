@@ -743,10 +743,11 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 }
 
 inline int Eval::evaluatePNN(const Board & board){
-    int output = 0;
     int hidden_values[N_HIDDEN] = {0};
     U64 wPawns = board.getPieces(WHITE, PAWN);
     U64 bPawns = board.getPieces(BLACK, PAWN);
+
+    int output = OUTPUT_BIAS;
 
     while (wPawns){
         int sq = _popLsb(wPawns);
@@ -771,8 +772,6 @@ inline int Eval::evaluatePNN(const Board & board){
 
         output += hidden_values[k] * OUTPUT_WEIGHTS[k];
     }
-    // add bias to output
-    output += OUTPUT_BIAS;
 
     // Make gameScore from opening and endgame values and return
     return gS(output, 0);
