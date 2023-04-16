@@ -7,6 +7,7 @@
 #include "transptable.h"
 #include "tuning.h"
 #include "kpnn.h"
+#include <cstring>
 
 extern HASH * myHASH;
 extern posFeatured ft;
@@ -743,11 +744,12 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
 }
 
 inline int Eval::evaluatePNN(const Board & board){
-    int hidden_values[N_HIDDEN] = {0};
+    int hidden_values[N_HIDDEN];
     U64 wPawns = board.getPieces(WHITE, PAWN);
     U64 bPawns = board.getPieces(BLACK, PAWN);
 
     int output = OUTPUT_BIAS;
+    std::memcpy(std::begin(hidden_values), std::begin(HIDDEN_BIAS), sizeof(hidden_values));
 
     while (wPawns){
         int sq = _popLsb(wPawns);
@@ -766,11 +768,7 @@ inline int Eval::evaluatePNN(const Board & board){
 
     // Now calculate output
     for (int k = 0; k < N_HIDDEN; k++){
-        // add bias and apply sigmoid
-        hidden_values[k] +=  HIDDEN_BIAS[k];
-        hidden_values[k] = sigmoid(hidden_values[k]);
-
-        output += hidden_values[k] * OUTPUT_WEIGHTS[k];
+        output += sigmoid(hidden_values[k]) * OUTPUT_WEIGHTS[k];
     }
 
     // Make gameScore from opening and endgame values and return
