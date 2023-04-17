@@ -623,7 +623,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           reduction -= giveCheck;
 
           // reduce less for a position where singular move exists
-          reduction -= singularExists;
+          reduction -= singularExists && !nmpTree;
 
           // reduce more/less based on the hitory
           reduction -= moveHistory / 8192;
