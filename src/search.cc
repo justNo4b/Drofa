@@ -550,7 +550,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
             probedHASHentry.move == move.getMoveINT() &&
             abs(probedHASHentry.score) < WON_IN_X / 4){
               int sDepth = depth / 2;
-              int sBeta = probedHASHentry.score - depth * 2;
+              int sBeta = probedHASHentry.score - depth * 3 / 2;
               Board sBoard = board;
               int score = depth > 8 ? _negaMax(sBoard, &thisPV, sDepth, sBeta - 1, sBeta, true, cutNode) : statEVAL;
               if (sBeta > score){
