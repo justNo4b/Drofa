@@ -936,6 +936,7 @@ inline int Eval::PiecePawnInteraction(const Board &board, Color color, evalBits 
 
 inline int Eval::kingDanger(Color color, const evalBits * eB){
   int attackScore = eB->KingAttackPower[color] * COUNT_TO_POWER[std::min(7, eB->KingAttackers[color])] / COUNT_TO_POWER_DIVISOR;
+  if (TRACK) ft.AttackSideMultyplier[color] = COUNT_TO_POWER[std::min(7, eB->KingAttackers[color])];
   return gS(std::max(0, attackScore), 0);
 }
 

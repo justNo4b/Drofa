@@ -16,6 +16,7 @@ struct posFeatured{
     int Scale;
     // pawn scale
     int PawnScale;
+    int AttackSideMultyplier[2];
 
     int8_t kpInput[N_INPUTS];
 
@@ -115,6 +116,8 @@ enum gType{
 struct netResult{
     double out1;
     double out2;
+    double out3;
+    double out4;
 };
 
 struct tEntry {
@@ -124,6 +127,8 @@ struct tEntry {
     int FinalEval;
     int FinalEvalScale;
     int FinalEvalPawnScale;
+
+    int attackForSide[2];
     double result;
     double pFactors[2];
     bool stm;
@@ -137,8 +142,8 @@ struct tEntry {
   * @brief Main tuning constants are defined here
   * @{
   */
-  const std::string TUNING_DATA        = "BOOK_downsampled.txt";
-  const int         TUNING_POS_COUNT   = 71536530; //9996883 42484641
+  const std::string TUNING_DATA        = "LiChessBOOK.txt";
+  const int         TUNING_POS_COUNT   = 7153653; //9996883 42484641
   const int         TUNING_THREADS     = 16;
   const int         TUNING_TERMS_COUNT = 928;
   const int         TUNING_BATCH_SIZE  = 0;
@@ -159,13 +164,17 @@ struct tEntry {
   typedef double featureCoeff[TUNING_TERMS_COUNT];
 
   // stuff for net training
-  #define NN_BATCH_SIZE        (8192)
+  #define NN_BATCH_SIZE        (128)
   #define BASIC_RANDOM_WEIGHT  (10)
 
 
   #define strFail (std::string::npos)
  /**
-  * @brief run the tuner using data specified in the TUNING_DATA
+  * @brief run the tuner using data spe    std::cout << "int OUTPUT_WEIGHTS2[N_HIDDEN] = {";
+    for (int i = 0; i < N_HIDDEN; i++){
+        std::cout << round(tuneOUTPUT_WEIGHTS2[i]) << ", ";
+    }
+    std::cout << "};" << std::endl;cified in the TUNING_DATA
   *        All other stuff is private because it is not needed anywhere else.
   */
  void TunerStart();
