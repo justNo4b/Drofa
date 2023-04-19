@@ -795,6 +795,8 @@ inline int Eval::evaluatePNN(const Board & board, int * safetyScore){
     }
 
     // Make gameScore from opening and endgame values and return
+    int tmp = gS(output3, output4);
+    *safetyScore = tmp;
     return gS(output1, output2);
 }
 
