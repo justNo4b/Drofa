@@ -623,14 +623,21 @@ inline int Eval::probePawnStructure(const Board & board, Color color, evalBits *
     eB->Passers[WHITE] = pENTRY.wPassers;
     eB->Passers[BLACK] = pENTRY.bPassers;
 
+    eB->KingAttackPower[WHITE] += opS(pENTRY.safetyScore);
+    eB->KingAttackPower[BLACK] += egS(pENTRY.safetyScore);
+
+
     return color == WHITE ? pENTRY.score : -pENTRY.score;
   }
   else
   #endif
   {
+    int safetyScore = 0;
     pScore += evaluatePAWNS(board, WHITE, eB) - evaluatePAWNS(board, BLACK, eB);
-    pScore += evaluatePNN(board);
-    myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB->Passers[WHITE], eB->Passers[BLACK], pScore);
+    pScore += evaluatePNN(board, &safetyScore);
+    eB->KingAttackPower[WHITE] += opS(safetyScore);
+    eB->KingAttackPower[BLACK] += egS(safetyScore);
+    myHASH->pHASH_Store(board.getPawnStructureZKey().getValue(), eB->Passers[WHITE], eB->Passers[BLACK], pScore, safetyScore);
     return color == WHITE ? pScore : -pScore;
   }
 }
@@ -742,9 +749,12 @@ inline int Eval::evaluatePAWNS(const Board & board, Color color, evalBits * eB){
   return s;
 }
 
-inline int Eval::evaluatePNN(const Board & board){
-    int output1 = 0;
-    int output2 = 0;
+inline int Eval::evaluatePNN(const Board & board, int * safetyScore){
+    int output1 = OUTPUT_BIAS1;
+    int output2 = OUTPUT_BIAS2;
+    int output3 = OUTPUT_BIAS3;
+    int output4 = OUTPUT_BIAS4;
+
     int hidden_values[N_HIDDEN] = {0};
     U64 wPawns = board.getPieces(WHITE, PAWN);
     U64 bPawns = board.getPieces(BLACK, PAWN);
@@ -780,10 +790,9 @@ inline int Eval::evaluatePNN(const Board & board){
 
         output1 += hidden_values[k] * OUTPUT_WEIGHTS1[k];
         output2 += hidden_values[k] * OUTPUT_WEIGHTS2[k];
+        output3 += hidden_values[k] * OUTPUT_WEIGHTS3[k];
+        output4 += hidden_values[k] * OUTPUT_WEIGHTS4[k];
     }
-    // add bias to output
-    output1 += OUTPUT_BIAS1;
-    output2 += OUTPUT_BIAS2;
 
     // Make gameScore from opening and endgame values and return
     return gS(output1, output2);
