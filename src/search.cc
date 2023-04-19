@@ -387,7 +387,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   // Check if we are doing pre-move pruning techniques
   // We do not do them InCheck, in pvNodes and when proving singularity
-  bool isPrune = !pvNode && !AreWeInCheck && !sing;
+  bool isPrune = !pvNode && !AreWeInCheck && !sing && board.isThereMajorPiece();
 
   // 1. RAZORING
   // In the very leaf nodes (d == 1) with stat eval << beta we can assume that no
@@ -409,7 +409,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // No nmp in pvNode, InCheck, when doing singular, or just after Null move was made
   // Use SF-like conditional of requsting Eval being higher than beta at low depth
   // Drofa track NMP_failure to use for extending decisions
-  if (isPrune && pMove != 0 && statEVAL >= beta + std::max(0, 120 - 20 * depth) && board.isThereMajorPiece()){
+  if (isPrune && pMove != 0 && statEVAL >= beta + std::max(0, 120 - 20 * depth)){
           Board movedBoard = board;
           _posHist.Add(board.getZKey().getValue());
           _sStack.AddNullMove(getOppositeColor(board.getActivePlayer()));
