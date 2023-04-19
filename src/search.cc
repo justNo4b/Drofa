@@ -660,6 +660,13 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         if (doLMR){
           if (score > alpha){
             score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -alpha - 1, -alpha, false, !cutNode);
+
+            if (score >= beta){
+                _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
+            } else{
+                _orderingInfo.decrementCounterHistory(board.getActivePlayer(), pMoveIndx, move.getPieceType(), move.getTo(), depth);
+            }
+
           }
         } else if (!pvNode || LegalMoveCount > 1){
           score = -_negaMax(movedBoard, &thisPV, tDepth - 1, -alpha - 1, -alpha, false, !cutNode);
