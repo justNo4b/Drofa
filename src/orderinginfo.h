@@ -6,6 +6,8 @@
 #include "movegen.h"
 #include "move.h"
 
+#define cmhCalculateIndex(moveInt) (((moveInt & 0x7) + ((moveInt >> 15) & 0x3f) * 6))
+
 /**
  * @brief Contains information related to a search in progress
  * for move ordering purposes.

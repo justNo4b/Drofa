@@ -176,6 +176,8 @@ class Search {
 
   inline bool _isRepetitionDraw(U64, int);
 
+  inline int _makeDrawScore();
+
   /**
    * @brief Root negamax function.
    *
