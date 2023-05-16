@@ -5,6 +5,9 @@
 #include "board.h"
 #include "orderinginfo.h"
 
+#define  MAX_HISTORY_SCORE      (16384)
+#define  HALFMAX_HISTORY_SCORE  (8192)
+
 /**
  * @brief Abstract base class for an object that picks moves from a move list in an optimal order.
  *
