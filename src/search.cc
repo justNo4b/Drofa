@@ -58,11 +58,15 @@ void Search::iterDeep() {
   _selDepth = 0;
   std::memset(_rootNodesSpent, 0, sizeof(_rootNodesSpent));
   _timer.startIteration();
+  int maxDepthSearched = 0;
+
   int targetDepth = _timer.getSearchDepth();
   int aspWindow = 25;
   int aspDelta  = 50;
 
     for (int currDepth = 1; currDepth <= targetDepth; currDepth++) {
+        maxDepthSearched = std::max(maxDepthSearched, currDepth);
+
 
         int aspAlpha = LOST_SCORE;
         int aspBeta  =-LOST_SCORE;
@@ -103,6 +107,10 @@ void Search::iterDeep() {
 
     }
 
+  // It can be the case where we exited before finishing iteration, and our PV etc can changed.
+  // So update search info one more time
+  if (_logUci) _logUciInfo(_getPv(), maxDepthSearched, _bestScore, _nodes, _timer.getElapsed());
+
   if (_logUci) std::cout << "bestmove " << getBestMove().getNotation(_initialBoard.getFrcMode()) << std::endl;
 
   if (_logUci){
@@ -141,16 +149,18 @@ MoveList Search::_getPv() {
 
 void Search::_logUciInfo(const MoveList &pv, int depth, int bestScore, U64 nodes, int elapsed) {
   std::string pvString;
+
   for (auto move : pv) {
     pvString += move.getNotation(_initialBoard.getFrcMode()) + " ";
   }
 
   std::string scoreString;
-  if (bestScore == LOST_SCORE) {
-    scoreString = "mate " + std::to_string(pv.size());
-  } else if (_bestScore == -LOST_SCORE) {
-    scoreString = "mate -" + std::to_string(pv.size());
-  } else {
+  if (abs(bestScore) >= WON_IN_X) {
+    int dist = (-LOST_SCORE - abs(bestScore) + 1) / 2;
+    scoreString = "mate " + std::to_string(bestScore > 0 ? dist : -dist);
+  }else if (abs(bestScore) <= 7){
+   scoreString = "cp " + std::to_string(0);
+  }else{
     scoreString = "cp " + std::to_string(bestScore);
   }
 
@@ -159,10 +169,11 @@ void Search::_logUciInfo(const MoveList &pv, int depth, int bestScore, U64 nodes
   // Avoid _selDepth being smaller than depth when entire path to score is in TT
   _selDepth = std::max(depth, _selDepth);
 
-  //collect info about nodes from all Threads
+  //collect info about nodes and seldepth from all Threads
   for (int i = 1; i < myTHREADSCOUNT; i++){
     if (cSearch[i] != nullptr){
       nodes += cSearch[i]->getNodes();
+      _selDepth = std::max(cSearch[i]->getSeldepth(), _selDepth);
     }
   }
 
@@ -170,7 +181,7 @@ void Search::_logUciInfo(const MoveList &pv, int depth, int bestScore, U64 nodes
   std::cout << "seldepth " + std::to_string(_selDepth) + " ";
   std::cout << "nodes " + std::to_string(nodes) + " ";
   std::cout << "score " + scoreString + " ";
-  std::cout << "nps " + std::to_string((nodes / elapsed)* 1000)  + " ";
+  std::cout << "nps " + std::to_string((nodes / elapsed) * 1000)  + " ";
   std::cout << "time " + std::to_string(elapsed) + " ";
   std::cout << "pv " + pvString;
   std::cout << std::endl;
@@ -186,6 +197,10 @@ Move Search::getBestMove() {
 
 int Search::getNodes(){
   return _nodes;
+}
+
+int Search::getSeldepth(){
+  return _selDepth;
 }
 
 int Search::getBestScore(){

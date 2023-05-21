@@ -58,6 +58,11 @@ class Search {
    */
   int getNodes();
 
+  /**
+   * @brief get selective depth of the search thread
+   */
+  int getSeldepth();
+
  private:
 
   /**
