@@ -99,6 +99,7 @@ void Timer::startIteration(){
 
 bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes){
     int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
+    *elapsedTime = elapsed;
     if (_moveTimeMode) return false;
 
     _lastPlyTime =  elapsed - _lastPlyTime;
