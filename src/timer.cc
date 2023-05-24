@@ -5,6 +5,7 @@
 Timer::Timer(Limits l, Color color, int movenum){
     _limits = l;
     _wasThoughtProlonged = false;
+    _moveTimeMode = false;
     if (_limits.infinite) { // Infinite search
         _searchDepth = INF;
         _timeAllocated = INF;
@@ -13,7 +14,8 @@ Timer::Timer(Limits l, Color color, int movenum){
         _timeAllocated = INF;
     } else if (_limits.moveTime != 0) {
         _searchDepth = MAX_SEARCH_DEPTH;
-        _timeAllocated = _limits.moveTime;
+        _timeAllocated = _limits.moveTime - 10;
+        _moveTimeMode = true;
     } else if (_limits.time[color] != 0) {
         _setupTimer(color, movenum);
     } else { // No limits specified, use default depth
@@ -53,9 +55,14 @@ void Timer::_setupTimer(Color color, int movenum){
 }
 
 bool Timer::checkLimits(U64 nodes){
+
   int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
 
   if (_limits.nodes != 0 && (nodes >= _limits.nodes)) return true;
+  if (_moveTimeMode){
+    if (elapsed >= (_timeAllocated)) return true;
+    return false;
+  }
 
   // when searching at a time control we will try to use time efficiatnly.
   // If we already started the search, but it took way longer than expected
@@ -92,6 +99,9 @@ void Timer::startIteration(){
 
 bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes){
     int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
+    *elapsedTime = elapsed;
+    if (_moveTimeMode) return false;
+
     _lastPlyTime =  elapsed - _lastPlyTime;
 
     double nodesConfidance = bestNodes * 100.0 / totalNodes;
@@ -111,6 +121,10 @@ bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes){
     }
 
     return false;
+}
+
+int Timer::getElapsed(){
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _start).count();
 }
 
 int Timer::getSearchDepth(){

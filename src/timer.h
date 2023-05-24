@@ -52,6 +52,8 @@
      */
     bool _wasThoughtProlonged;
 
+    bool _moveTimeMode;
+
     /**
      *  @brief We track how much time we spended while
      *  searching last ply. It is used to estimate how much time
@@ -117,6 +119,8 @@
       bool finishOnThisDepth(int *, U64, U64);
 
       int getSearchDepth();
+
+      int getElapsed();
   };
 
 #endif
