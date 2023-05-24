@@ -335,6 +335,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   Move ttMove = Move(0);
   Move bestMove;
   pV   thisPV = pV();
+  up_pV->length = 0;
   Color behindColor = _sStack.sideBehind;
 
   bool isPmQuietCounter = (pMoveScore >= 50000 && pMoveScore <= 200000);
@@ -342,7 +343,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   _nodes++;
   // Check if we are out of time
   if (_stop || _checkLimits()) {
-    up_pV->length = 0;
     _stop = true;
     return 0;
   }
@@ -350,7 +350,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // Check for threefold repetition draws and 50 - move rule draw
   // cut pV out if we found draw
   if (board.getHalfmoveClock() >= 100 || _isRepetitionDraw(board.getZKey().getValue(), board.getHalfmoveClock())) {
-    up_pV->length = 0;
     return _makeDrawScore();
   }
 
@@ -361,7 +360,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // Cut out pV and update our seldepth before dropping into qSearch
   if ((depth <= 0 && !incheckNode) || ply >= MAX_PLY) {
     _selDepth = std::max(ply, _selDepth);
-    up_pV->length = 0;
     return _qSearch(board, alpha, beta);
   }
 
@@ -746,7 +744,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // Check for checkmate and stalemate
   if (legalCount == 0) {
     score = incheckNode ? LOST_SCORE + ply : 0; // LOST_SCORE = checkmate, 0 = stalemate (draw)
-    up_pV->length = 0;
     return score;
   }
 
