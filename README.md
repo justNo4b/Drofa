@@ -66,8 +66,8 @@ setoption name BookPath value /path/to/book.bin
 
 ## License
 
-I dont know shit about licensing and Drofa is too weak to be plagiarised.
-So it is under the same MIT license as Shallow Blue.
+During developement, many concepts found in GPL-3 engines were used.
+Thus, as of 4.0.0, Drofa also will be licensed as GPL-3.
 
 2017 - 2019 © Rhys Rustad-Elliott (original Shallow Blue creator)
 

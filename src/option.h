@@ -1,3 +1,20 @@
+/*
+    Drofa - UCI compatable chess engine
+        Copyright (C) 2017 - 2019  Rhys Rustad-Elliott
+                      2020 - 2023  Litov Alexander
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 #ifndef OPTIONMANAGER_H
 #define OPTIONMANAGER_H
 
@@ -22,8 +39,8 @@ class Option {
   /**
    * @brief Constructs a new UCI check option with the specified default value
    * and OnChange callback
-   * 
-   * @param value Initial and default value of this option 
+   *
+   * @param value Initial and default value of this option
    * @param onChange Pointer to function to be called when this option changes
    */
   Option(bool, OnChange= nullptr);
@@ -31,7 +48,7 @@ class Option {
   /**
    * @brief Constructs a new UCI spin option with the specified default value
    * and OnChange callback
-   * 
+   *
    * @param value Initial and default value of this option
    * @param min Minimum value of this spin option
    * @param max Maximum value of this spin option
@@ -42,7 +59,7 @@ class Option {
   /**
    * @brief Constructs a new UCI string option with the specified default value
    * and OnChange callback
-   * 
+   *
    * @param value Initial and default value of this option
    * @param onChange Pointer to function to be called when this option changes
    */
@@ -50,46 +67,46 @@ class Option {
 
   /**
    * @brief Gets the current value of this option
-   * 
-   * @return The current value of this option 
+   *
+   * @return The current value of this option
    */
   std::string getValue() const;
 
   /**
    * @brief Returns the type of this option
-   * 
+   *
    * @return The type of this option
    */
   std::string getType() const;
 
   /**
    * @brief Returns the default value of this option
-   * 
-   * @return The default value of this option 
+   *
+   * @return The default value of this option
    */
   std::string getDefaultValue() const;
 
   /**
    * @brief Returns the minimum value of this option
-   * 
+   *
    * The return value of this method is only valid if this is a "spin" option.
-   * 
-   * @return The maximum value of this option 
+   *
+   * @return The maximum value of this option
    */
   int getMin() const;
 
   /**
    * @brief Returns the maximum value of this option
-   * 
+   *
    * The return value of this method is only valid if this is a "spin" option.
-   * 
-   * @return The maximum value of this option 
+   *
+   * @return The maximum value of this option
    */
   int getMax() const;
 
   /**
    * @brief Sets the value of this option to the specified string
-   * 
+   *
    * @param value The value to set this option to
    */
   void setValue(std::string);
@@ -102,7 +119,7 @@ class Option {
 
   /**
    * @brief Type of this option
-   * 
+   *
    * Currently, this can be one of "check", "spin" or "string"
    */
   std::string _type;
@@ -126,7 +143,7 @@ class Option {
 
   /**
    * @brief Pointer to function to be called when this option changes
-   * 
+   *
    * If this is nullptr, no function will be called when this option changes.
    */
   OnChange _onChange;
