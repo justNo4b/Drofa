@@ -544,7 +544,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       // 5. LATE MOVE PRUNING
       // If we made many quiet moves in the position already
       // we suppose other moves wont improve our situation
-      int pDepth = depth - isPmQuietCounter;
+      int pDepth = depth - _lmr_R_array[std::min(33, depth)][std::min(33, legalCount)];
       if ((qCount > _lmp_Array[pDepth][(improving || pvNode)]) && (moveHistory + cmHistory <= 0)) break;
 
       // 6. SEE pruning of quiet moves
