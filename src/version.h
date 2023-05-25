@@ -18,8 +18,8 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define VER_MAJ 3
-#define VER_MIN 3
-#define VER_PATCH 27
+#define VER_MAJ 4
+#define VER_MIN 0
+#define VER_PATCH 0
 
 #endif
