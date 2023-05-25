@@ -1014,15 +1014,24 @@ inline int Eval::winnableEndgame(const Board & board, Color color, evalBits * eB
                eGpart > 0  ? 1 :
                -1;
 
+
   Color otherColor = getOppositeColor(color);
-  U64 pawnsTotal = board.getPieces(color, PAWN) | board.getPieces(otherColor, PAWN);
+  Color strong     = egS(score) > 0 ? color : otherColor;
+  Color weak       = getOppositeColor(strong);
+  U64 pawnsTotal   = board.getPieces(color, PAWN) | board.getPieces(otherColor, PAWN);
+  U64 strongPieces = board.getAllPieces(strong) ^ board.getPieces(strong, KING) ^ board.getPieces(strong, PAWN);
 
   bool pawnsBothFlanks =  ((pawnsTotal & KING_SIDE) != 0) && ((pawnsTotal & QUEEN_SIDE) != 0);
   bool pawnEndgame     =  ((board.getAllPieces(WHITE) ^ board.getPieces(WHITE, KING) ^ board.getPieces(WHITE, PAWN)) == 0) &&
                           ((board.getAllPieces(BLACK) ^ board.getPieces(BLACK, KING) ^ board.getPieces(BLACK, PAWN)) == 0);
 
+  bool soloQueen       = (_popCount(strongPieces) == 1) &&
+                         (_popCount(board.getPieces(strong, QUEEN)) == 1) &&
+                         (_popCount(board.getPieces(weak, QUEEN)) == 0);
+
   int winnable = !pawnsBothFlanks * PAWNS_NOT_BOTH_PENALTY
-                 + pawnEndgame * PAWN_ENDGAME_BONUS;
+                 + pawnEndgame * PAWN_ENDGAME_BONUS
+                 - soloQueen * 25;
 
   s = gS(0, sign * std::max(winnable, -abs(eGpart)));
 
