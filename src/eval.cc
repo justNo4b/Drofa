@@ -296,8 +296,14 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     // Mobility calculations
     // Note: Queen NOT using scanning mobility
     U64 attackBitBoard = board.getMobilityForSquare(QUEEN, color, square, eB->EnemyPawnAttackMap[color]);
-    s += QUEEN_MOBILITY[_popCount(attackBitBoard)];
+
+    int mobilityScore = QUEEN_MOBILITY[_popCount(attackBitBoard)];
+    s += mobilityScore;
     if (TRACK) ft.QueenMobility[_popCount(attackBitBoard)][color]++;
+    // Add fraction of our mobility to safety calculations
+    eB->KingAttackPower[color] += opS(mobilityScore / 4);
+    eB->KingAttackPower[otherColor] = opS(mobilityScore / 4);
+
 
     // See if a Queen is attacking an enemy unprotected pawn
     s += HANGING_PIECE[PAWN] * _popCount(attackBitBoard & board.getPieces(getOppositeColor(color), PAWN));
@@ -437,8 +443,13 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
       // Mobility
       // Bishops mobility are scanning through bishops and queens
       U64 attackBitBoard = board.getMobilityForSquare(BISHOP, color, square, mobZoneAdjusted);
-      s += BISHOP_MOBILITY[_popCount(attackBitBoard)];
+      int mobilityScore = BISHOP_MOBILITY[_popCount(attackBitBoard)];
+      s += mobilityScore;
       if (TRACK) ft.BishopMobility[_popCount(attackBitBoard)][color]++;
+
+      // Add fraction of our mobility to safety calculations
+      eB->KingAttackPower[color] += opS(mobilityScore / 4);
+      eB->KingAttackPower[otherColor] = opS(mobilityScore / 4);
 
       // Save our attacks for further use
       eB->AttackedSquares[color] |= attackBitBoard;
@@ -521,8 +532,13 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
 
       // Mobility
       U64 attackBitBoard = board.getMobilityForSquare(KNIGHT, color, square, mobZoneAdjusted);
-      s += KNIGHT_MOBILITY[_popCount(attackBitBoard)];
+      int mobilityScore =  KNIGHT_MOBILITY[_popCount(attackBitBoard)];
+      s += mobilityScore;
       if (TRACK) ft.KnigthMobility[_popCount(attackBitBoard)][color]++;
+
+      // Add fraction of our mobility to safety calculations
+      eB->KingAttackPower[color] += opS(mobilityScore / 4);
+      eB->KingAttackPower[otherColor] = opS(mobilityScore / 4);
 
       // Save our attacks for further use
       eB->AttackedSquares[color] |= attackBitBoard;
