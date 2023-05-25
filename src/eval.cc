@@ -302,7 +302,7 @@ inline int Eval::evaluateQUEEN(const Board & board, Color color, evalBits * eB){
     if (TRACK) ft.QueenMobility[_popCount(attackBitBoard)][color]++;
     // Add fraction of our mobility to safety calculations
     eB->KingAttackPower[color] += opS(mobilityScore / 4);
-    eB->KingAttackPower[otherColor] = opS(mobilityScore / 4);
+    eB->KingAttackPower[otherColor] -= opS(mobilityScore / 4);
 
 
     // See if a Queen is attacking an enemy unprotected pawn
@@ -449,7 +449,7 @@ inline int Eval::evaluateBISHOP(const Board & board, Color color, evalBits * eB)
 
       // Add fraction of our mobility to safety calculations
       eB->KingAttackPower[color] += opS(mobilityScore / 4);
-      eB->KingAttackPower[otherColor] = opS(mobilityScore / 4);
+      eB->KingAttackPower[otherColor] -= opS(mobilityScore / 4);
 
       // Save our attacks for further use
       eB->AttackedSquares[color] |= attackBitBoard;
@@ -538,7 +538,7 @@ inline int Eval::evaluateKNIGHT(const Board & board, Color color, evalBits * eB)
 
       // Add fraction of our mobility to safety calculations
       eB->KingAttackPower[color] += opS(mobilityScore / 4);
-      eB->KingAttackPower[otherColor] = opS(mobilityScore / 4);
+      eB->KingAttackPower[otherColor] -= opS(mobilityScore / 4);
 
       // Save our attacks for further use
       eB->AttackedSquares[color] |= attackBitBoard;
