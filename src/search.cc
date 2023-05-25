@@ -591,6 +591,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
               if (sBeta > score){
                 tDepth += 1 + (fnNode && depth > 8);
                 singNode = true;
+              }else if (sBeta >= beta){
+                return beta;
               }
             }
 
