@@ -54,6 +54,8 @@
      */
     int _timeAllocated;
 
+    int _timeSavedAmount;
+
     /**
      * @brief This variable holds value of how much time left on our
      * clock. If it is too low, we do not prolong search.

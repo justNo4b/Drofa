@@ -23,6 +23,7 @@ Timer::Timer(Limits l, Color color, int movenum){
     _limits = l;
     _wasThoughtProlonged = false;
     _moveTimeMode = false;
+    _timeSavedAmount = 0;
     if (_limits.infinite) { // Infinite search
         _searchDepth = INF;
         _timeAllocated = INF;
@@ -56,14 +57,14 @@ void Timer::_setupTimer(Color color, int movenum){
           int div = ourIncrement != 0 ? MTG_CYC_INCR : MTG_NO_INCR;
           _timeAllocated = ourTime / div + ourIncrement;
       }
-      _timeAllocated = std::min(_timeAllocated, ourTime - 10);
+      _timeAllocated = std::min(_timeAllocated + _timeSavedAmount, ourTime - 10);
     } else {
       // when movetogo is specified, use different coefficients
 
       tCoefficient = CYCL_T_WIDTH_A / pow((CYCL_T_WIDTH + pow((movenum - CYCL_T_MOVE), 2)), 1.5);
       _timeAllocated = ourTime * tCoefficient;
       if (movenum > CYCL_CRIT_MOVE) _timeAllocated = ourTime / MTG_CYC_INCR + ourIncrement;
-      _timeAllocated = std::min(_timeAllocated, ourTime - 10);
+      _timeAllocated = std::min(_timeAllocated + _timeSavedAmount, ourTime - 10);
     }
 
     // Depth is infinity in a timed search (ends when time runs out)
@@ -134,6 +135,9 @@ bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes){
 
     *elapsedTime = elapsed;
     if (_wasThoughtProlonged ||  (elapsed >= (_timeAllocated * nodesCoeff * 0.5))){
+        // if we saved time record this
+        // be sure it is positive
+        _timeSavedAmount = std::max(0 , elapsed - _timeAllocated);
         return true;
     }
 
