@@ -777,6 +777,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   // Check search limits
    _nodes++;
    bool pvNode = alpha != beta - 1;
+   bool ttNode = false;
 
   if (_stop || _checkLimits()) {
     _stop = true;
@@ -786,6 +787,8 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   int standPat = Eval::evaluate(board, board.getActivePlayer());
 
   if (standPat >= beta) {
+    if (!_stop && !ttNode)
+        myHASH->HASH_Store(board.getZKey().getValue(), 0, BETA, beta, 0, MAX_PLY);
     return beta;
   }
 
@@ -797,6 +800,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   // If TT is causing a cuttoff, we update move ordering stuff
   const HASH_Entry ttEntry = myHASH->HASH_Get(board.getZKey().getValue());
   if (ttEntry.Flag != NONE){
+    ttNode = true;
     if (!pvNode){
       int hashScore = ttEntry.score;
 
@@ -844,7 +848,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
           if (score >= beta) {
             // Add a new tt entry for this node
-            if (!_stop){
+            if (!_stop && !ttNode){
                 myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, 0, MAX_PLY);
             }
             return beta;
