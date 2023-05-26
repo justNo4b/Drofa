@@ -262,9 +262,10 @@ void printEngineInfo() {
     std::cout << "option ";
     std::cout << "name " << optionPair.first << " ";
     std::cout << "type " << optionPair.second.getType() << " ";
-    std::cout << "default " << optionPair.second.getDefaultValue() << " ";
+    std::cout << "default " << optionPair.second.getDefaultValue();
 
     if (optionPair.second.getType() == "spin") {
+      std::cout << " ";
       std::cout << "min " << optionPair.second.getMin() << " ";
       std::cout << "max " << optionPair.second.getMax();
     }
