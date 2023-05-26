@@ -544,16 +544,17 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       // 5. LATE MOVE PRUNING
       // If we made many quiet moves in the position already
       // we suppose other moves wont improve our situation
-      if ((qCount > _lmp_Array[depth][(improving || pvNode)]) && (moveHistory + cmHistory <= 0)) break;
+      int pDepth = depth - isPmQuietCounter;
+      if ((qCount > _lmp_Array[pDepth][(improving || pvNode)]) && (moveHistory + cmHistory <= 0)) break;
 
       // 6. SEE pruning of quiet moves
       // At shallow depth prune highlyish -negative SEE-moves
       if (depth <= 10
           && isQuiet
-          && board.Calculate_SEE(move) < -51 * depth) continue;
+          && board.Calculate_SEE(move) < -51 * pDepth) continue;
 
       // 6. Prune quiet moves with poor CMH on the tips of the tree
-      if (depth <= 3 && isQuiet && cmHistory <= (-4096 * (depth - isPmQuietCounter))) continue;
+      if (depth <= 3 && isQuiet && cmHistory <= (-4096 * pDepth)) continue;
     }
 
     Board movedBoard = board;
