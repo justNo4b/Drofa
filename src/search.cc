@@ -556,7 +556,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
       // 5.3. COUNTER-MOVE HISTORY PRUNING
       // Prune quiet moves with poor CMH on the tips of the tree
-      if (depth <= 3 && isQuiet && cmHistory <= (-4096 * depth + 2048)) continue;
+      if (depth <= 3 && isQuiet && cmHistory <= (-4096 * depth + 6144)) continue;
     }
 
     Board movedBoard = board;
