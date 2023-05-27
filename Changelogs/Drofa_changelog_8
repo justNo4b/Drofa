@@ -11,11 +11,21 @@ SPRT  | 40.0+0.40s Threads=1 Hash=64MB
 LLR   | 2.97 (-2.94, 2.94) [0.00, 5.00]
 GAMES | N: 23328 W: 6216 L: 5947 D: 11165
 ------------------------------------------------------------------
-1. Introduce infiltration in calculation of the endgame winnability
+2. Introduce infiltration in calculation of the endgame winnability
 (4.0.2)
 ------------------------------------------------------------------
 ELO   | 3.94 +- 3.17 (95%)
 SPRT  | 40.0+0.40s Threads=1 Hash=64MB
 LLR   | 2.95 (-2.94, 2.94) [0.00, 5.00]
 GAMES | N: 24104 W: 6462 L: 6189 D: 11453
+------------------------------------------------------------------
+3. Latest pre-loop-move pruning patch might be good only because
+I was not agressive enough with pruning to begin with. This
+suggestion was confirmed. Thanks to Kimmy for pointing that out
+(4.0.3)
+------------------------------------------------------------------
+ELO   | 13.92 +- 7.74 (95%)
+SPRT  | 40.0+0.40s Threads=1 Hash=64MB
+LLR   | 2.94 (-2.94, 2.94) [-3.00, 1.00]
+GAMES | N: 4120 W: 1181 L: 1016 D: 1923
 ------------------------------------------------------------------
