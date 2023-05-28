@@ -47,8 +47,8 @@ void Search::init_LMR_array(){
   // 2. Initialization of the LMP array.
   // Current formula is completely based on the Weiss chess engine.
   for (int depth = 0; depth < MAX_PLY; depth++){
-    _lmp_Array[depth][0] = (int) ((3 + pow(depth, 2) * 2) / 2);
-    _lmp_Array[depth][1] = (int)  (3 + pow(depth, 2) * 2);
+    _lmp_Array[depth][0] = (int) ((3 + pow(depth, 2)) / 2);
+    _lmp_Array[depth][1] = (int)  (3 + pow(depth, 2));
   }
 
 }
@@ -546,7 +546,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       // 5.1 LATE MOVE PRUNING
       // If we made many quiet moves in the position already
       // we suppose other moves wont improve our situation
-      if ((qCount > _lmp_Array[depth - 1][(improving || pvNode)]) && (moveHistory + cmHistory <= 0)) break;
+      if ((qCount > _lmp_Array[depth][(improving || pvNode)]) && (moveHistory + cmHistory <= 0)) break;
 
       // 5.2. SEE pruning of quiet moves
       // At shallow depth prune highlyish -negative SEE-moves
