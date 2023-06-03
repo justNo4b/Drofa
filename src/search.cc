@@ -355,8 +355,6 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   up_pV->length = 0;
   Color behindColor = _sStack.sideBehind;
 
-  bool isPmQuietCounter = (pMoveScore >= 50000 && pMoveScore <= 200000);
-
   _nodes++;
   // Check if we are out of time
   if (_stop || _checkLimits()) {
@@ -719,7 +717,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // Add this move as a new killer move and update history if move is quiet
           _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * (nodeEval < alpha)));
           // Award counter-move history additionally if we refuted special quite previous move
-          if (isPmQuietCounter) _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
+          _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
           // Add a new tt entry for this node
           if (!_stop && !singSearch){
             myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
