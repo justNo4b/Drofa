@@ -64,7 +64,7 @@ void testSEE(){
         Board board = Board(SEE_POSITION[j], false);
         Move move = SEE_MOVE[j];
         int i = board.Calculate_SEE(move);
-        bool k = board.SEE_GreaterOrEqual(move, 150);
+        bool k = board.SEE_GreaterOrEqual(move, 0);
         std::cout << i << " " << k << std::endl;
     }
 

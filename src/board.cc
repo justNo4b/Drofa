@@ -582,17 +582,16 @@ bool Board::SEE_GreaterOrEqual(const Move move, int threshold) const{
     attBit = _getLeastValuableAttacker(side, aBoard[side], movingPt);
     if (!attBit) break;
 
+    occupied = occupied ^ attBit;
+    if (horiXray & attBit) aBoard[side] |= (_squareAttackedByRook(side, to, occupied) & occupied);
+    if (diagXray & attBit) aBoard[side] |= (_squareAttackedByBishop(side, to, occupied)  & occupied);
+
     side = getOppositeColor(side);
 
     value = -value - 1 - _SEE_cost[movingPt];
     if (value >= 0){
        break;
     }
-
-    occupied = occupied ^ attBit;
-    if (horiXray & attBit) aBoard[side] |= (_squareAttackedByRook(side, to, occupied) & occupied);
-    if (diagXray & attBit) aBoard[side] |= (_squareAttackedByBishop(side, to, occupied)  & occupied);
-
   }
 
 
