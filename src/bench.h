@@ -91,7 +91,7 @@ const std::string BENCH_POSITION[BENCH_POS_NUMBER] = {
 
 
 const std::string SEE_POSITION[9] = {
-        "4R3/2r3p1/5bk1/1p1r3p/p2PR1P1/P1BK1P2/1P6/8 b - -",
+        "r3k2r/2pb1ppp/5q2/3p4/Pn6/4P3/P1BN1PPP/R2Q1RK1 b - - 0 1",
         "4R3/2r3p1/5bk1/1p1r1p1p/p2PR1P1/P1BK1P2/1P6/8 b - -",
         "4r1k1/5pp1/nbp4p/1p2p2q/1P2P1b1/1BP2N1P/1B2QPPK/3R4 b - -",
         "2r1r1k1/pp1bppbp/3p1np1/q3P3/2P2P2/1P2B3/P1N1B1PP/2RQ1RK1 b - -",
@@ -104,7 +104,7 @@ const std::string SEE_POSITION[9] = {
 };
 
 const Move SEE_MOVE[9] = {
-        Move(h5, g4, PAWN, Move::CAPTURE),  // 0
+        Move(d7, a4, BISHOP, Move::CAPTURE),  // -200
         Move(h5, g4, PAWN, Move::CAPTURE),  // 0
         Move(g4, f3, BISHOP,Move::CAPTURE), // 0
         Move(d6, e5, PAWN, Move::CAPTURE),  // 100
