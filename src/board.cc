@@ -527,12 +527,81 @@ U64 Board::_getLeastValuableAttacker(Color color, U64 attackers, PieceType &piec
   return 0;
 }
 
-int  Board:: Calculate_SEE(const Move move) const{
+bool Board::SEE_GreaterOrEqual(const Move move, int threshold) const{
 
-  // in search we do not need full SEE
-  // but rather need to know if SEE
-  // of the move is good enough
-  // so we use limit to calculate it faster
+  // 0. Early exits
+  // If move is special case (promotion, enpass, castle)
+  // its SEE is at least 0 (well, not exactly, Prom could be -100, but still)
+  // so just return true
+
+  unsigned int flags = move.getFlags();
+  if ((flags & Move::EN_PASSANT) || (flags & Move::KSIDE_CASTLE) || (flags & Move::QSIDE_CASTLE)){
+       return 1024;
+     }
+
+  // 1. Set variables
+  int from = move.getFrom();
+  int to = move.getTo();
+  Color side = getActivePlayer();
+  PieceType movingPt = move.getPieceType();
+
+  // 2. Early exits 2.
+  // If we capture stuff and dont beat limit, we are done
+  int value = (flags & Move::CAPTURE) ? _SEE_cost[getPieceAtSquare(getOppositeColor(side), to)] : 0;
+  value -= threshold;
+  if (value < 0) return false;
+
+  // if we capture, lose a capturing piece and still beat limit,
+  // we are good
+  value -= _SEE_cost[movingPt];
+  if (value >= 0) return true;
+
+  // 3. Prepare variables for negamax
+  // Get pieces that attack target sqv
+  U64 aBoard[2];
+  aBoard[WHITE] = _squareAttackedBy(WHITE, to);
+  aBoard[BLACK] = _squareAttackedBy(BLACK, to);
+
+  // get occupied
+  U64 occupied = _occupied;
+
+  U64 horiXray = getPieces(WHITE, ROOK) | getPieces(WHITE, QUEEN) |  getPieces(BLACK, ROOK) | getPieces(BLACK, QUEEN);
+  U64 diagXray = getPieces(WHITE, PAWN) | getPieces(WHITE, BISHOP) | getPieces(WHITE, QUEEN) |
+                 getPieces(BLACK, PAWN) | getPieces(BLACK, BISHOP) | getPieces(BLACK, QUEEN);
+  U64 attBit = (ONE << from);
+
+
+
+  occupied = occupied ^ attBit;
+
+  side = getOppositeColor(side);
+
+  while(true)
+  {
+    aBoard[getOppositeColor(side)] = aBoard[getOppositeColor(side)] & ~attBit;
+    attBit = _getLeastValuableAttacker(side, aBoard[side], movingPt);
+    if (!attBit) break;
+
+    side = getOppositeColor(side);
+
+    value = -value - 1 - _SEE_cost[movingPt];
+    if (value >= 0){
+       break;
+    }
+
+    occupied = occupied ^ attBit;
+    if (horiXray & attBit) aBoard[side] |= (_squareAttackedByRook(side, to, occupied) & occupied);
+    if (diagXray & attBit) aBoard[side] |= (_squareAttackedByBishop(side, to, occupied)  & occupied);
+
+  }
+
+
+
+  return side != getActivePlayer();
+
+}
+
+int  Board:: Calculate_SEE(const Move move) const{
 
   // 0. Early exits
   // If move is special case (promotion, enpass, castle)

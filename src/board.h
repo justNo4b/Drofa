@@ -254,6 +254,7 @@ class Board {
    * @brief Calculates SEE of the Move
    */
   int Calculate_SEE(const Move move) const;
+  bool SEE_GreaterOrEqual(const Move, int) const;
 
   /**
    * @brief  get fully calculated phase value of the board
