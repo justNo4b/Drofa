@@ -42,13 +42,10 @@ void MovePicker::_scoreMoves(const Board *board) {
     if (_hashMove != 0 && moveINT == _hashMove) {
       move.setValue(INF);
     } else if (move.getFlags() & Move::CAPTURE) {
-      int see   = board->Calculate_SEE(move);
       int hist  = _orderingInfo->getCaptureHistory(move.getPieceType(),move.getCapturedPieceType(), move.getTo());
-      int thold = see + (hist / 8192) * 100;
-      int value = _ply == MAX_PLY ? see : opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]) + hist;
-      if (_ply != MAX_PLY){
-        value += thold >= 0 ? CAPTURE_BONUS : BAD_CAPTURE;
-      }
+      int value = opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]) + hist;
+      int th = -((hist / 8192) * 100);
+      value +=  board->SEE_GreaterOrEqual(move, th)  ? CAPTURE_BONUS : BAD_CAPTURE;
       move.setValue(value);
     } else if (move.getFlags() & Move::PROMOTION) {
       move.setValue(PROMOTION_SORT[move.getPromotionPieceType()]);
