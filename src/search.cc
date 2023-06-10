@@ -835,8 +835,8 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
     }
 
     // Use Halogen futility variation
-    //if (!(move.getFlags() & Move::PROMOTION) && standPat + move.getValue() + DELTA_MOVE_CONST < alpha)
-    //  break;
+    if (!(move.getFlags() & Move::PROMOTION) && !board.SEE_GreaterOrEqual(move, (alpha - standPat - DELTA_MOVE_CONST)))
+      break;
 
     Board movedBoard = board;
     movedBoard.doMove(move);
