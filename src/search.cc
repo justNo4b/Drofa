@@ -556,7 +556,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
       if (depth < 6
           && !isQuiet
-          && !board.SEE_GreaterOrEqual(move, (-99 * depth))) continue;
+          && !board.SEE_GreaterOrEqual(move, (-101 * depth))) continue;
 
       // 5.3. COUNTER-MOVE HISTORY PRUNING
       // Prune quiet moves with poor CMH on the tips of the tree
