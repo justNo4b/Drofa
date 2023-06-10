@@ -829,13 +829,13 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
     // in qSearch if Value < 0 it means it is a bad capture
     // and we should prune it
-    if (move.getValue() < 0){
+    if ( !board.SEE_GreaterOrEqual(move, 0)){
       break;
     }
 
     // Use Halogen futility variation
-    if (!(move.getFlags() & Move::PROMOTION) && standPat + move.getValue() + DELTA_MOVE_CONST < alpha)
-      break;
+    //if (!(move.getFlags() & Move::PROMOTION) && standPat + move.getValue() + DELTA_MOVE_CONST < alpha)
+    //  break;
 
     Board movedBoard = board;
     movedBoard.doMove(move);

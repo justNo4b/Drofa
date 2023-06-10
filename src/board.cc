@@ -573,6 +573,8 @@ bool Board::SEE_GreaterOrEqual(const Move move, int threshold) const{
 
 
   occupied = occupied ^ attBit;
+  if (horiXray & attBit) aBoard[side] |= (_squareAttackedByRook(side, to, occupied) & occupied);
+  if (diagXray & attBit) aBoard[side] |= (_squareAttackedByBishop(side, to, occupied)  & occupied);
 
   side = getOppositeColor(side);
 
