@@ -530,7 +530,9 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     if (move == ttEntry.move && singSearch){
       continue;
     }
+    bool skipQuiets = false;
     bool isQuiet = move.isQuiet();
+    if (skipQuiets) continue;
     qCount += isQuiet;
 
     int  moveHistory  = isQuiet ?
@@ -546,7 +548,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       // 5.1 LATE MOVE PRUNING
       // If we made many quiet moves in the position already
       // we suppose other moves wont improve our situation
-      if ((qCount > _lmp_Array[depth - 1][(improving || pvNode)]) && (moveHistory + cmHistory <= 0)) break;
+      if ((qCount > _lmp_Array[depth - 1][(improving || pvNode)]) && (moveHistory + cmHistory <= 0)){
+        skipQuiets = true;
+        continue;
+      }
 
       // 5.2. SEE pruning of quiet moves
       // At shallow depth prune highlyish -negative SEE-moves
