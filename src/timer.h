@@ -110,7 +110,7 @@
       const int INCR_T_WIDTH_A = 300;
       const int INCR_T_WIDTH   = 175;
       const int INCR_T_MOVE    = 20;
-      const int INCR_CRIT_MOVE = 28;
+      const int INCR_CRIT_MOVE = 1;
 
       const int CYCL_T_WIDTH_A = 750;
       const int CYCL_T_WIDTH   = 200;
