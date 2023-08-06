@@ -59,7 +59,6 @@ Search::Search(const Board &board, Limits limits, Hist positionHistory, Ordering
     _initialBoard(board),
     _logUci(logUci),
     _stop(false),
-    _limitCheckCount(0),
     _nodes(0),
     _bestScore(0)
      {
@@ -226,11 +225,10 @@ int Search::getBestScore(){
 
 bool Search::_checkLimits() {
 
-  if (--_limitCheckCount > 0) {
+  if (_nodes % 2048 != 0) {
     return false;
   }
 
-  _limitCheckCount = 2048;
   return _timer.checkLimits(_nodes);
 }
 

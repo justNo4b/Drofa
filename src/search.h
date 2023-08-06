@@ -161,11 +161,6 @@ class Search {
   bool _checkLimits();
 
   /**
-   * @brief Number of calls remaining to _checkLimits()
-   */
-  int _limitCheckCount;
-
-  /**
    * @brief Number of nodes searched in the last search.
    */
   U64 _nodes;
