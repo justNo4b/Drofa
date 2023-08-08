@@ -401,6 +401,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         _updateBeta(qttNode, ttMove, board.getActivePlayer(), pMove, ply, depth);
         return beta;
       }
+
+      if (ttEntry.Flag == ALPHA && hashScore <= alpha){
+        return alpha;
+      }
     }
   }
 
@@ -584,7 +588,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // that non other moves are even close to it, extend this move
         // At low depth use statEval instead of search (Kimmys idea)
         if (!incheckNode &&
-            ttNode &&
+            ttEntry.Flag != ALPHA &&
             ttEntry.depth >= depth - 2 &&
             ttEntry.move == move.getMoveINT() &&
             abs(ttEntry.score) < WON_IN_X / 4){
@@ -769,8 +773,12 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
   // Store bestScore in transposition table
-  if (!_stop && !singSearch && alpha > alphaOrig){
+  if (!_stop && !singSearch){
+      if (alpha <= alphaOrig) {
+        myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), ALPHA, alpha, depth, ply);
+      } else {
         myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), EXACT, alpha, depth, ply);
+      }
   }
 
   return alpha;
@@ -811,6 +819,9 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
       }
       if (ttEntry.Flag == BETA && hashScore >= beta){
         return beta;
+      }
+      if (ttEntry.Flag == ALPHA && hashScore <= alpha){
+        return alpha;
       }
     }
   }
