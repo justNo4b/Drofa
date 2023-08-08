@@ -789,28 +789,22 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   // Check search limits
    _nodes++;
    bool pvNode = alpha != beta - 1;
+   int alphaOrig = alpha;
+   Move ttMove = Move(0);
+   Move bestMove = Move(0);
 
   if (_stop || _checkLimits()) {
     _stop = true;
     return 0;
   }
 
-  int standPat = Eval::evaluate(board, board.getActivePlayer());
-
-  if (standPat >= beta) {
-    return beta;
-  }
-
-  if (alpha < standPat) {
-    alpha = standPat;
-  }
-
-  // Check transposition table cache
+   // Check transposition table cache
   // If TT is causing a cuttoff, we update move ordering stuff
   const HASH_Entry ttEntry = myHASH->HASH_Get(board.getZKey().getValue());
   if (ttEntry.Flag != NONE){
     if (!pvNode){
       int hashScore = ttEntry.score;
+      ttMove = Move(ttEntry.move);
 
       if (abs(hashScore) > WON_IN_X){
         hashScore = (hashScore > 0) ? (hashScore - MAX_PLY) :  (hashScore + MAX_PLY);
@@ -825,6 +819,18 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
         return alpha;
       }
     }
+  }
+
+  int standPat = Eval::evaluate(board, board.getActivePlayer());
+
+  if (standPat >= beta) {
+    int saveMove = ttMove.getMoveINT() != 0 ? ttMove.getMoveINT() : 0;
+    if (!_stop)  myHASH->HASH_Store(board.getZKey().getValue(), saveMove, BETA, beta, 0, MAX_PLY);
+    return beta;
+  }
+
+  if (alpha < standPat) {
+    alpha = standPat;
   }
 
   MoveGen movegen(board, true);
@@ -859,17 +865,27 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
           if (score >= beta) {
             // Add a new tt entry for this node
-            if (!_stop){
-                myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, 0, MAX_PLY);
-            }
+            if (!_stop)  myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, 0, MAX_PLY);
             return beta;
           }
           if (score > alpha) {
             alpha = score;
+            bestMove = move;
           }
         }
 
-
   }
+
+  // Store bestScore in transposition table
+  if (!_stop){
+      if (alpha <= alphaOrig) {
+        int saveMove = ttMove.getMoveINT() != 0 ? ttMove.getMoveINT() : 0;
+        myHASH->HASH_Store(board.getZKey().getValue(),  saveMove, ALPHA, alpha, 0, MAX_PLY);
+      } else {
+        myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), EXACT, alpha, 0, MAX_PLY);
+      }
+  }
+
+
   return alpha;
 }
