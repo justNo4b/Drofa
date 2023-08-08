@@ -775,7 +775,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   // Store bestScore in transposition table
   if (!_stop && !singSearch){
       if (alpha <= alphaOrig) {
-        myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), ALPHA, alpha, depth, ply);
+        int saveMove = ttMove.getMoveINT() != 0 ? ttMove.getMoveINT() : 0;
+        myHASH->HASH_Store(board.getZKey().getValue(),  saveMove, ALPHA, alpha, depth, ply);
       } else {
         myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), EXACT, alpha, depth, ply);
       }
