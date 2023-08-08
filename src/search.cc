@@ -485,10 +485,12 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   MovePicker movePicker(&_orderingInfo, &board, legalMoves, ttMove.getMoveINT(), board.getActivePlayer(), ply, pMove);
 
   // Probcut
+  int pcBeta = beta + 200;
   if (!pvNode &&
        depth >= 5 &&
-       alpha < WON_IN_X){
-        int pcBeta = beta + 200;
+       alpha < WON_IN_X &&
+       (!ttNode || ttEntry.Flag == BETA || ttEntry.score >= pcBeta)){
+
         while (movePicker.hasNext()){
             Move move = movePicker.getNext();
 
