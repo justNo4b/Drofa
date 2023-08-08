@@ -824,8 +824,6 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   int standPat = Eval::evaluate(board, board.getActivePlayer());
 
   if (standPat >= beta) {
-    int saveMove = ttMove.getMoveINT() != 0 ? ttMove.getMoveINT() : 0;
-    if (!_stop)  myHASH->HASH_Store(board.getZKey().getValue(), saveMove, BETA, beta, 0, MAX_PLY);
     return beta;
   }
 
