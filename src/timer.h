@@ -34,8 +34,9 @@
     int  time[2];       // time left for black and white
     int  increment[2];   // increment for black and white
     bool infinite;      // ignore limits (infinite search)
+    bool firstGameMove; // we track if this is a first move of the game
 
-    Limits() : nodes(0), depth(0),  moveTime(0), movesToGo(0), time{}, increment{}, infinite(false) {};
+    Limits() : nodes(0), depth(0),  moveTime(0), movesToGo(0), time{}, increment{}, infinite(false), firstGameMove(false) {};
   };
 
   class Timer

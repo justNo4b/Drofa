@@ -38,6 +38,7 @@ Book book;
 std::shared_ptr<Search> search;
 Board board;
 Hist positionHistory = Hist();
+bool firstMoveOfTheGame = false;
 
 void loadBook() {
   std::ifstream bookFile(optionsMap["BookPath"].getValue());
@@ -116,6 +117,7 @@ void initOptions() {
 void uciNewGame() {
   board.setToStartPos();
   positionHistory = Hist();
+  firstMoveOfTheGame = true;
 }
 
 void setPosition(std::istringstream &is) {
@@ -178,6 +180,8 @@ void go(std::istringstream &is) {
     else if (token == "movestogo") is >> limits.movesToGo;
   }
 
+  limits.firstGameMove = firstMoveOfTheGame;
+
 // if we have > 1 threads, run some additional threads
   if (myTHREADSCOUNT > 1){
     for (int i = 1; i < myTHREADSCOUNT; i++){
@@ -200,6 +204,7 @@ void go(std::istringstream &is) {
   std::thread searchThread(&pickBestMove);
   searchThread.detach();
 
+  firstMoveOfTheGame = false;
 
 }
 
