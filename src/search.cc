@@ -423,6 +423,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   // Clear Killers for the children node
   _orderingInfo.clearChildrenKillers(ply);
+  _sStack.fhCount[ply + 1] = 0;
 
   // Check if we are doing pre-move pruning techniques
   // We do not do them InCheck, in pvNodes and when proving singularity
@@ -653,6 +654,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
           // Reduce more in the cut-nodes - used by SF/Komodo/etc
           reduction += cutNode;
 
+          reduction -= _sStack.fhCount[ply + 1] < 4;
+
           // Reduce less if move on the previous ply was bad
           // Ie hystorycally bad quiet, see- capture or underpromotion
           reduction -= pMoveScore < -HALFMAX_HISTORY_SCORE;
@@ -721,6 +724,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
           _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * (nodeEval < alpha)));
+          // Add amount of FH produced
+          _sStack.fhCount[ply]++;
           // Award counter-move history additionally if we refuted special quite previous move
           if (isPmQuietCounter) _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
           // Add a new tt entry for this node

@@ -24,12 +24,13 @@
 struct SEARCH_Data
 {
     int     statEval  [MAX_INT_PLY];
+    int     fhCount   [MAX_INT_PLY];
     Move    moves     [MAX_INT_PLY];
     int8_t  ply;
     Color   sideBehind;
     bool    nmpTree;
 
-    SEARCH_Data() : statEval {0}, moves {0}, ply(0), sideBehind(WHITE), nmpTree(false) {};
+    SEARCH_Data() : statEval {0}, fhCount{0}, moves {0}, ply(0), sideBehind(WHITE), nmpTree(false) {};
 
     void AddEval(int e){
         statEval[ply] = e;
