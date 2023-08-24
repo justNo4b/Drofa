@@ -258,12 +258,18 @@ inline int Search::_makeDrawScore(){
 
 int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
   _nodes++;
+  int ply = _sStack.ply;
+  int pMove = 0;
+  int nodeEval = board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer());
+  bool pvNode = true;
+  pV rootPV = pV();
+
+  _orderingInfo.clearChildrenKillers(0);
 
   MoveGen movegen(board, false);
   MoveList * legalMoves = movegen.getMoves();
-  pV rootPV = pV();
 
-  _sStack.AddEval(board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer()));
+  _sStack.AddEval(nodeEval);
 
   // If no legal moves are available, just return, setting bestmove to a null move
   if (legalMoves->empty()) {
@@ -300,6 +306,15 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
         if (_stop || _checkLimits()) {
           _stop = true;
           break;
+        }
+
+        // Beta cutoff
+        if (currScore >= beta) {
+          // Add this move as a new killer move and update history if move is quiet
+          _updateBeta(move.isQuiet(), move, board.getActivePlayer(), pMove, ply, (depth + 2 * (nodeEval < alpha)));
+          // Add a new tt entry for this node
+          if (!_stop) myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, currScore, depth, ply);
+          return beta;
         }
 
         // If the current score is better than alpha, or this is the first move in the loop
