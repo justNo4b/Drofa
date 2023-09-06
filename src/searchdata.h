@@ -20,6 +20,7 @@
 
 #include "defs.h"
 #include "move.h"
+#include <cstdint>
 
 struct SEARCH_Data
 {

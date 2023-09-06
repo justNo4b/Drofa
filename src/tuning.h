@@ -16,6 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "eval.h"
+#include <cstdint>
 
 #ifdef _TUNE_
     #define TRACK (1)

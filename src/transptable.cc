@@ -17,6 +17,7 @@
 */
 #include "transptable.h"
 #include "transptableentry.h"
+#include <cstdint>
 
 HASH * myHASH;
 

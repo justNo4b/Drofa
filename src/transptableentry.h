@@ -19,6 +19,7 @@
 #define TRANSPTABLEENTRY_H
 
 #include "move.h"
+#include <cstdint>
 
 /**
  * @brief Represent CuttOffState of the node saved in the transposition table.

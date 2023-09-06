@@ -22,6 +22,7 @@
 #include "defs.h"
 #include "movegen.h"
 #include "move.h"
+#include <cstdint>
 
 #define cmhCalculateIndex(moveInt) (((moveInt & 0x7) + ((moveInt >> 15) & 0x3f) * 6))
 

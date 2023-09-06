@@ -21,6 +21,7 @@
 #include "defs.h"
 #include "board.h"
 #include "bitutils.h"
+#include <cstdint>
 
 
 #define EG_HASH_SIZE        (8192)
