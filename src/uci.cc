@@ -139,7 +139,7 @@ void setPosition(std::istringstream &is) {
       continue;
     }
 
-    MoveGen movegen(board, false);
+    MoveGen movegen(&board, false);
     MoveList * moves = movegen.getMoves();
     for (auto &move : *moves) {
       if (move.getNotation((optionsMap["UCI_Chess960"].getValue() == "true")) == token) {
@@ -203,7 +203,8 @@ void go(std::istringstream &is) {
 
 }
 
-unsigned long long perft(const Board &board, int depth) {
+unsigned long long perft(const Board *board, int depth) {
+    /*
   if (depth <= 0) {
     return 1;
   } else if (depth == 1) {
@@ -214,19 +215,20 @@ unsigned long long perft(const Board &board, int depth) {
   MoveList * moves = movegen.getMoves();
   unsigned long long nodes = 0;
   for (auto &move : *moves) {
-    Board movedBoard = board;
+    Board * movedBoard = board;
     movedBoard.doMove(move);
 
-    nodes += perft(movedBoard, depth - 1);
+    nodes += perft(&movedBoard, depth - 1);
   }
-
-  return nodes;
+ */
+  return 0;
 }
 
 void perftDivide(int depth) {
   unsigned long long total = 0;
 
-  MoveGen movegen(board, false);
+  Board b = Board();
+  MoveGen movegen(&b, false);
 
   std::cout << std::endl;
   auto start = std::chrono::steady_clock::now();
@@ -235,7 +237,7 @@ void perftDivide(int depth) {
     Board movedBoard = board;
     movedBoard.doMove(move);
 
-    unsigned long long perftRes = perft(movedBoard, depth - 1);
+    unsigned long long perftRes = perft(&movedBoard, depth - 1);
     total += perftRes;
 
     std::cout << move.getNotation(board.getFrcMode()) << ": " << perftRes << std::endl;
@@ -333,7 +335,8 @@ void loop() {
     else if (token == "printboard") {
       std::cout << std::endl << board.getStringRep() << std::endl;
     } else if (token == "printmoves") {
-      MoveGen movegen(board, false);
+
+      MoveGen movegen(&board, false);
       MoveList * moves = movegen.getMoves();
       for (auto &move : *moves) {
         std::cout << move.getNotation(board.getFrcMode()) << " ";
