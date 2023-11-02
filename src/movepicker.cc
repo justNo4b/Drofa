@@ -32,15 +32,17 @@ MovePicker::MovePicker(const OrderingInfo *orderingInfo, const Board *board, int
 }
 
 void MovePicker::_scoreMoves() {
-  _mg = MoveGen(_board, _ply == MAX_PLY);
-  _moves = _mg.getMoves();
+  _moves = MoveList();
+  _moves.reserve(MOVELIST_RESERVE_SIZE);
+
+  MoveGen(_board, _ply == MAX_PLY, &_moves);
 
   int Killer1  = _orderingInfo->getKiller1(_ply);
   int Killer2  = _orderingInfo->getKiller2(_ply);
   int Counter  = _orderingInfo->getCounterMoveINT(_color, _pMove);
   int pMoveInx = (_pMove & 0x7) + ((_pMove >> 15) & 0x3f) * 6;
 
-  for (auto &move : *_moves) {
+  for (auto &move : _moves) {
     int moveINT = move.getMoveINT();
     if (_hashMove != 0 && moveINT == _hashMove) {
       move.setValue(INF);
@@ -67,22 +69,22 @@ void MovePicker::_scoreMoves() {
 
 
 bool MovePicker::hasNext() const {
-  return _currHead < _moves->size();
+  return _currHead < _moves.size();
 }
 
 Move MovePicker::getNext() {
   size_t bestIndex;
   int bestScore = -INF;
 
-  for (size_t i = _currHead; i < _moves->size(); i++) {
-    if (_moves->at(i).getValue() > bestScore) {
-      bestScore = _moves->at(i).getValue();
+  for (size_t i = _currHead; i < _moves.size(); i++) {
+    if (_moves.at(i).getValue() > bestScore) {
+      bestScore = _moves.at(i).getValue();
       bestIndex = i;
     }
   }
 
-  std::swap(_moves->at(_currHead), _moves->at(bestIndex));
-  return _moves->at(_currHead++);
+  std::swap(_moves.at(_currHead), _moves.at(bestIndex));
+  return _moves.at(_currHead++);
 }
 
 void MovePicker::refreshPicker(){

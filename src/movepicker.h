@@ -74,11 +74,18 @@ class MovePicker {
 
    private:
   /**
-   * @brief List of moves this MovePicker picks from
+   * @brief A vector containing generated pseudo-legal moves
    */
-  MoveList *_moves;
+  MoveList _moves;
 
-  MoveGen _mg;
+  /**
+   * @brief Size of _moves to pre-reserve before generating moves.
+   *
+   * At the current time 218 seems to be an upper bound on the maximum number
+   * of moves from any one position.
+   */
+  static const int MOVELIST_RESERVE_SIZE = 218;
+  static const int MOVELIST_RESERVE_SIZE_CAPS = 32;
 
   const Board * _board;
 

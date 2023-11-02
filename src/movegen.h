@@ -37,12 +37,12 @@ class MoveGen {
    * @param board Board to generate moves for.
    * @param isCaptureGenerated if true, we generate only Captures (we are in QSearch)
    */
-  MoveGen(const Board *board, bool isCaptureGenerated);
+  MoveGen(const Board *board, bool isCaptureGenerated, MoveList *);
 
   /**
    * @brief Constructs a new MoveGen for an empty board.
    */
-  MoveGen();
+  MoveGen(MoveList *);
 
   /**
    * @brief Sets the board for this MoveGen to the specified board and generates moves for it.
@@ -63,19 +63,8 @@ class MoveGen {
   MoveList * getMoves();
 
  private:
-  /**
-   * @brief A vector containing generated pseudo-legal moves
-   */
-  MoveList _moves;
 
-  /**
-   * @brief Size of _moves to pre-reserve before generating moves.
-   *
-   * At the current time 218 seems to be an upper bound on the maximum number
-   * of moves from any one position.
-   */
-  static const int MOVELIST_RESERVE_SIZE = 218;
-  static const int MOVELIST_RESERVE_SIZE_CAPS = 32;
+  MoveList * _moves;
 
   /**
    * @brief Generates pseudo-legal moves for the active player of the given board

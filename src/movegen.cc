@@ -20,17 +20,18 @@
 #include "eval.h"
 
 
-MoveGen::MoveGen(const Board *board, bool isCaptureGenerated) {
+MoveGen::MoveGen(const Board *board, bool isCaptureGenerated, MoveList * ml) {
+  _moves = ml;
   setBoard(board, isCaptureGenerated);
 }
 
-MoveGen::MoveGen() {
+MoveGen::MoveGen(MoveList * ml) {
+    _moves = ml;
     Board b = Board();
   setBoard(&b, false);
 }
 
 void MoveGen::setBoard(const Board *board, bool isCaptureGenerated) {
-  _moves = MoveList();
   if (!isCaptureGenerated){
      _genMoves(board);
   } else{
@@ -39,12 +40,7 @@ void MoveGen::setBoard(const Board *board, bool isCaptureGenerated) {
 }
 
 
-MoveList * MoveGen::getMoves() {
-  return  &_moves;
-}
-
 void MoveGen::_genMoves(const Board *board) {
-    _moves.reserve(MOVELIST_RESERVE_SIZE);
     Color color = board->getActivePlayer();
     Color otherColor = getOppositeColor(color);
 
@@ -58,7 +54,6 @@ void MoveGen::_genMoves(const Board *board) {
 }
 
 void MoveGen::_genCaptures(const Board *board) {
-    _moves.reserve(MOVELIST_RESERVE_SIZE);
     Color color = board->getActivePlayer();
     Color otherColor = getOppositeColor(color);
 
@@ -80,19 +75,19 @@ inline void MoveGen::_genPawnPromotions(unsigned int from, unsigned int to, unsi
 
   Move queenPromotion = promotionBase;
   queenPromotion.setPromotionPieceType(QUEEN);
-  _moves.push_back(queenPromotion);
+  _moves->push_back(queenPromotion);
 
   Move rookPromotion = promotionBase;
   rookPromotion.setPromotionPieceType(ROOK);
-  _moves.push_back(rookPromotion);
+  _moves->push_back(rookPromotion);
 
   Move bishopPromotion = promotionBase;
   bishopPromotion.setPromotionPieceType(BISHOP);
-  _moves.push_back(bishopPromotion);
+  _moves->push_back(bishopPromotion);
 
   Move knightPromotion = promotionBase;
   knightPromotion.setPromotionPieceType(KNIGHT);
-  _moves.push_back(knightPromotion);
+  _moves->push_back(knightPromotion);
 }
 
 void MoveGen::_genPawnMoves(const Board *board, Color color) {
@@ -109,7 +104,7 @@ void MoveGen::_genPawnMoves(const Board *board, Color color) {
   // Generate single non promotion moves
   while (movedPawns) {
     int to = _popLsb(movedPawns);
-    _moves.push_back(Move(to + fromAdj, to, PAWN));
+    _moves->push_back(Move(to + fromAdj, to, PAWN));
   }
 
   // Generate promotions
@@ -120,7 +115,7 @@ void MoveGen::_genPawnMoves(const Board *board, Color color) {
 
   while (doublePushes) {
     int to = _popLsb(doublePushes);
-    _moves.push_back(Move(to + (2 * fromAdj), to, PAWN, Move::DOUBLE_PAWN_PUSH));
+    _moves->push_back(Move(to + (2 * fromAdj), to, PAWN, Move::DOUBLE_PAWN_PUSH));
   }
 }
 
@@ -135,7 +130,7 @@ inline void MoveGen::_getPromQonly(const Board *board, Color color){
     int to = _popLsb(promotions);
     Move m = Move(to + fromAdj, to, PAWN, Move::PROMOTION);
     m.setPromotionPieceType(QUEEN);
-    _moves.push_back(m);
+    _moves->push_back(m);
   }
 }
 
@@ -158,7 +153,7 @@ inline void MoveGen::_genPawnAttacks(const Board *board, Color color) {
     Move move = Move(to + fromAdj, to, PAWN, Move::CAPTURE);
     move.setCapturedPieceType(board->getPieceAtSquare(otherColor, to));
 
-    _moves.push_back(move);
+    _moves->push_back(move);
   }
 
   // Add promotion attacks
@@ -171,7 +166,7 @@ inline void MoveGen::_genPawnAttacks(const Board *board, Color color) {
   // There can only be one en passant square at a time, so no need for loop
   if (leftEnPassant) {
     int to = _popLsb(leftEnPassant);
-    _moves.push_back(Move(to + fromAdj, to, PAWN, Move::EN_PASSANT));
+    _moves->push_back(Move(to + fromAdj, to, PAWN, Move::EN_PASSANT));
   }
 
     U64 rightRegularAttacks = color == WHITE ? (board->getPieces(color, PAWN) << 9) & board->getAttackable(otherColor) & ~FILE_A
@@ -190,7 +185,7 @@ inline void MoveGen::_genPawnAttacks(const Board *board, Color color) {
     Move move = Move(to + fromAdj, to, PAWN, Move::CAPTURE);
     move.setCapturedPieceType(board->getPieceAtSquare(otherColor, to));
 
-    _moves.push_back(move);
+    _moves->push_back(move);
   }
 
   // Add promotion attacks
@@ -203,7 +198,7 @@ inline void MoveGen::_genPawnAttacks(const Board *board, Color color) {
   // There can only be one en passant square at a time, so no need for loop
   if (rightEnPassant) {
     int to = _popLsb(rightEnPassant);
-    _moves.push_back(Move(to + fromAdj, to, PAWN, Move::EN_PASSANT));
+    _moves->push_back(Move(to + fromAdj, to, PAWN, Move::EN_PASSANT));
   }
 }
 
@@ -243,7 +238,7 @@ void MoveGen::_genKingMoves(const Board *board, Color color, U64 king, U64 attac
                 }
         }
         Move::Flag flag = rookSquare > kingIndex ? Move::KSIDE_CASTLE : Move::QSIDE_CASTLE;
-        if (!pathAttacked) _moves.push_back(Move(kingIndex, rookSquare, KING, flag));
+        if (!pathAttacked) _moves->push_back(Move(kingIndex, rookSquare, KING, flag));
     }
 }
 
@@ -341,7 +336,7 @@ inline void MoveGen::_addMoves(const Board *board, int from, PieceType pieceType
   U64 nonAttacks = moves & ~attackable;
   while (nonAttacks) {
     int to = _popLsb(nonAttacks);
-    _moves.push_back(Move(from, to, pieceType));
+    _moves->push_back(Move(from, to, pieceType));
   }
 
   // Generate attacks
@@ -352,7 +347,7 @@ inline void MoveGen::_addMoves(const Board *board, int from, PieceType pieceType
     Move move(from, to, pieceType, Move::CAPTURE);
     move.setCapturedPieceType(board->getPieceAtSquare(board->getInactivePlayer(), to));
 
-    _moves.push_back(move);
+    _moves->push_back(move);
   }
 }
 
@@ -365,6 +360,6 @@ inline void MoveGen::_addCaps(const Board *board, int from, PieceType pieceType,
 
     Move move(from, to, pieceType, Move::CAPTURE);
     move.setCapturedPieceType(board->getPieceAtSquare(board->getInactivePlayer(), to));
-    _moves.push_back(move);
+    _moves->push_back(move);
   }
 }
