@@ -416,6 +416,15 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     _sStack.AddEval(nodeEval);
   }
 
+  if (ttNode && ttEntry.score != NOSCORE){
+    if (ttEntry.Flag == ALPHA && ttEntry.score < nodeEval){
+        nodeEval = ttEntry.score;
+    }
+    if (ttEntry.Flag == BETA && ttEntry.score > nodeEval){
+        nodeEval = ttEntry.score;
+    }
+  }
+
   // Check if we are improving
   // The idea is if we are not improving in this line we probably can prune a bit more
 
