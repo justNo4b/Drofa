@@ -27,10 +27,11 @@ MovePicker::MovePicker(const OrderingInfo *orderingInfo, const Board *board, int
   _ply = ply;
   _pMove = pMove;
   _currHead = 0;
+  _board = board;
 }
 
-void MovePicker::_scoreMoves(const Board &board) {
-  _mg = MoveGen(board, _ply == MAX_PLY);
+void MovePicker::_scoreMoves() {
+  _mg = MoveGen(_board, _ply == MAX_PLY);
   _moves = _mg.getMoves();
 
   int Killer1  = _orderingInfo->getKiller1(_ply);
@@ -46,7 +47,7 @@ void MovePicker::_scoreMoves(const Board &board) {
       int hist  = _orderingInfo->getCaptureHistory(move.getPieceType(),move.getCapturedPieceType(), move.getTo());
       int value = opS(Eval::MATERIAL_VALUES[move.getCapturedPieceType()]) + hist;
       int th = -((hist / 8192) * 100);
-      value +=  board.SEE_GreaterOrEqual(move, th)  ? CAPTURE_BONUS : BAD_CAPTURE;
+      value +=  _board->SEE_GreaterOrEqual(move, th)  ? CAPTURE_BONUS : BAD_CAPTURE;
       move.setValue(value);
     } else if (move.getFlags() & Move::PROMOTION) {
       move.setValue(PROMOTION_SORT[move.getPromotionPieceType()]);

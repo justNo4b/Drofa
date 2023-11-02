@@ -70,7 +70,7 @@ class MovePicker {
    * @brief Assigns a value to each move in this GeneralMovePicker's MoveList representing desirability
    * in a negamax search.
    */
-  void _scoreMoves(const Board &);
+  void _scoreMoves();
 
    private:
   /**
@@ -79,6 +79,8 @@ class MovePicker {
   MoveList *_moves;
 
   MoveGen _mg;
+
+  const Board * _board;
 
   /**
    * @brief Bonuses applied to specific move types.
