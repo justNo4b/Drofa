@@ -263,7 +263,7 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
   int hashMove = ttEntry.Flag != NONE ? ttEntry.move : 0;
 
   MovePicker movePicker(&_orderingInfo, &board, hashMove, board.getActivePlayer(), 0, 0);
-  movePicker._scoreMoves();
+
 
   _sStack.AddEval(board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer()));
   pV rootPV = pV();
@@ -471,7 +471,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   // No pruning occured, generate moves and recurse
   MovePicker movePicker(&_orderingInfo, &board, ttMove.getMoveINT(), board.getActivePlayer(), ply, pMove);
-    movePicker._scoreMoves();
+
 
   // Probcut
   if (!pvNode &&
@@ -817,7 +817,7 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   }
 
   MovePicker movePicker(&_orderingInfo, &board, 0, board.getActivePlayer(), MAX_PLY, 0);
-  movePicker._scoreMoves();
+
   // If node is quiet, just return eval
   if (!movePicker.hasNext()) {
     return standPat;

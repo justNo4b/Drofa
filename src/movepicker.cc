@@ -28,6 +28,7 @@ MovePicker::MovePicker(const OrderingInfo *orderingInfo, const Board *board, int
   _pMove = pMove;
   _currHead = 0;
   _board = board;
+  _scoreMoves();
 }
 
 void MovePicker::_scoreMoves() {
