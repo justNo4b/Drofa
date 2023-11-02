@@ -26,6 +26,11 @@
 #define  MAX_HISTORY_SCORE      (16384)
 #define  HALFMAX_HISTORY_SCORE  (8192)
 
+enum mp_stage {
+    mp_HashMove,
+    mp_Other
+};
+
 /**
  * @brief Abstract base class for an object that picks moves from a move list in an optimal order.
  *
@@ -137,6 +142,8 @@ class MovePicker {
    * Used to determine CounterMoves
    */
   int _pMove;
+
+  mp_stage _stage;
 };
 
 #endif
