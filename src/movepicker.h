@@ -84,8 +84,8 @@ class MovePicker {
    * At the current time 218 seems to be an upper bound on the maximum number
    * of moves from any one position.
    */
-  static const int MOVELIST_RESERVE_SIZE = 32;
-  static const int MOVELIST_RESERVE_SIZE_CAPS = 16;
+  static const int MOVELIST_RESERVE_SIZE = 64;
+  static const int MOVELIST_RESERVE_SIZE_CAPS = 24;
 
   const Board * _board;
 
