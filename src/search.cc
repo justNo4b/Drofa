@@ -259,12 +259,14 @@ inline int Search::_makeDrawScore(){
 int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
   _nodes++;
 
-  MoveGen movegen(board, false);
-  MoveList * legalMoves = movegen.getMoves();
-  pV rootPV = pV();
+  const HASH_Entry ttEntry = myHASH->HASH_Get(board.getZKey().getValue());
+  int hashMove = ttEntry.Flag != NONE ? ttEntry.move : 0;
+
+  MovePicker movePicker(&_orderingInfo, &board, hashMove, board.getActivePlayer(), 0, 0);
+  movePicker._scoreMoves(board);
 
   _sStack.AddEval(board.colorIsInCheck(board.getActivePlayer()) ? NOSCORE : Eval::evaluate(board, board.getActivePlayer()));
-
+  pV rootPV = pV();
   // If no legal moves are available, just return, setting bestmove to a null move
   if (legalMoves->empty()) {
     _bestMove = Move();
@@ -272,9 +274,8 @@ int Search::_rootMax(const Board &board, int alpha, int beta, int depth) {
     return 0;
   }
 
-  const HASH_Entry ttEntry = myHASH->HASH_Get(board.getZKey().getValue());
-  int hashMove = ttEntry.Flag != NONE ? ttEntry.move : 0;
-  MovePicker movePicker(&_orderingInfo, &board, legalMoves, hashMove, board.getActivePlayer(), 0, 0);
+
+
 
   int currScore;
 
@@ -478,9 +479,8 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
     depth--;
 
   // No pruning occured, generate moves and recurse
-  MoveGen movegen(board, false);
-  MoveList * legalMoves = movegen.getMoves();
-  MovePicker movePicker(&_orderingInfo, &board, legalMoves, ttMove.getMoveINT(), board.getActivePlayer(), ply, pMove);
+  MovePicker movePicker(&_orderingInfo, &board, ttMove.getMoveINT(), board.getActivePlayer(), ply, pMove);
+    movePicker._scoreMoves(board);
 
   // Probcut
   if (!pvNode &&
@@ -825,10 +825,8 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
     }
   }
 
-  MoveGen movegen(board, true);
-  MoveList * legalMoves = movegen.getMoves();
-  MovePicker movePicker(&_orderingInfo, &board, legalMoves, 0, board.getActivePlayer(), MAX_PLY, 0);
-
+  MovePicker movePicker(&_orderingInfo, &board, 0, board.getActivePlayer(), MAX_PLY, 0);
+  movePicker._scoreMoves(board);
   // If node is quiet, just return eval
   if (!movePicker.hasNext()) {
     return standPat;

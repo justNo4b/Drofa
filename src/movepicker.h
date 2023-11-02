@@ -21,6 +21,7 @@
 #include "defs.h"
 #include "board.h"
 #include "orderinginfo.h"
+#include "movegen.h"
 
 #define  MAX_HISTORY_SCORE      (16384)
 #define  HALFMAX_HISTORY_SCORE  (8192)
@@ -42,7 +43,7 @@ class MovePicker {
    * @param board Current board state for all moves in the provided MoveList
    * @param moveList Pointer to the MoveList to pick moves from
    */
-  MovePicker(const OrderingInfo *, const Board *, MoveList *, int, Color, int, int);
+  MovePicker(const OrderingInfo *, const Board *, int, Color, int, int);
 
   /**
    * @brief Returns the next best move from this MovePicker's MoveList.
@@ -65,11 +66,19 @@ class MovePicker {
    */
   void refreshPicker();
 
+    /**
+   * @brief Assigns a value to each move in this GeneralMovePicker's MoveList representing desirability
+   * in a negamax search.
+   */
+  void _scoreMoves(const Board &);
+
    private:
   /**
    * @brief List of moves this MovePicker picks from
    */
   MoveList *_moves;
+
+  MoveGen _mg;
 
   /**
    * @brief Bonuses applied to specific move types.
@@ -85,11 +94,7 @@ class MovePicker {
   const int PROMOTION_SORT[6] = {0, 0, 100000, -50000, 300000, 0};
   /**@}*/
 
-  /**
-   * @brief Assigns a value to each move in this GeneralMovePicker's MoveList representing desirability
-   * in a negamax search.
-   */
-  void _scoreMoves(const Board *);
+
 
   /**
    * @brief Position of the first unpicked move in this GeneralMovePicker's MoveList
