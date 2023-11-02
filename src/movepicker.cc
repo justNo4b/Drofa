@@ -33,7 +33,7 @@ MovePicker::MovePicker(const OrderingInfo *orderingInfo, const Board *board, int
 
 void MovePicker::_scoreMoves() {
   _moves = MoveList();
-  _moves.reserve(MOVELIST_RESERVE_SIZE);
+  _moves.reserve(_ply == MAX_PLY ? MOVELIST_RESERVE_SIZE : MOVELIST_RESERVE_SIZE_CAPS);
 
   MoveGen(_board, _ply == MAX_PLY, &_moves);
 
