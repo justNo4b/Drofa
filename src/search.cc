@@ -529,11 +529,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
 
   while (movePicker.hasNext()) {
     Move move = movePicker.getNext();
+    bool isQuiet = move.isQuiet();
+    qCount += isQuiet;
     if (move == ttEntry.move && singSearch){
       continue;
     }
-    bool isQuiet = move.isQuiet();
-    qCount += isQuiet;
 
     int  moveHistory  = isQuiet ?
                         _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) :
