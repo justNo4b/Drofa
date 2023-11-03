@@ -534,10 +534,11 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       continue;
     }
     bool isQuiet = move.isQuiet();
+    qCount += isQuiet;
     if (isQuiet && skipQuiet){
         continue;
     }
-    qCount += isQuiet;
+
 
     int  moveHistory  = isQuiet ?
                         _orderingInfo.getHistory(board.getActivePlayer(), move.getFrom(), move.getTo()) :
