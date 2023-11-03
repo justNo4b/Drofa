@@ -553,7 +553,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       // 5.2. SEE pruning of quiet moves
       // At shallow depth prune highlyish -negative SEE-moves
       if (depth <= 10
-          && !board.SEE_GreaterOrEqual(move, isQuiet ? (-51 * depth + 51) : (-151 * depth))) continue;
+          && !board.SEE_GreaterOrEqual(move, isQuiet ? (-51 * depth + 51) : (-151 * depth + 151))) continue;
 
       // 5.3. COUNTER-MOVE HISTORY PRUNING
       // Prune quiet moves with poor CMH on the tips of the tree
