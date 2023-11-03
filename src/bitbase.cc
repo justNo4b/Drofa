@@ -20,6 +20,7 @@
 #include "eval.h"
 #include "bitutils.h"
 #include "attacks.h"
+#include <cstdint>
 #include <cstring>
 
 uint8_t KPK_Bitbase[KPK_SIZE / 8];

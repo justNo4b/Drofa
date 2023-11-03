@@ -22,6 +22,7 @@
 #include "movegen.h"
 #include "bitutils.h"
 #include "endgame.h"
+#include <cstdint>
 
 #define gS(opS, egS) (int)((unsigned int)(opS) << 16) + (egS)
 #define opS(gS) (int16_t)((uint16_t)((unsigned)((gS) + 0x8000) >> 16))

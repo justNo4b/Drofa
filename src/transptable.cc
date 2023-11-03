@@ -17,6 +17,7 @@
 */
 #include "transptable.h"
 #include "transptableentry.h"
+#include <cstdint>
 
 HASH * myHASH;
 
@@ -74,8 +75,8 @@ void  HASH::HASH_Store(U64 posKey, int cMove, CutOffState bound, int score, int 
       }
 
       U64 index = posKey % TableSize;
-      if (index < TableSize){
-        hashTable[index] = HASH_Entry(posKey, cMove, (int16_t)score, depth, bound);
+      if (posKey !=  hashTable[index].posKey || depth * 2 >=  hashTable[index].depth || bound == EXACT){
+         hashTable[index] = HASH_Entry(posKey, cMove, (int16_t)score, depth, bound);
       }
 }
 

@@ -59,7 +59,6 @@ Search::Search(const Board &board, Limits limits, Hist positionHistory, Ordering
     _initialBoard(board),
     _logUci(logUci),
     _stop(false),
-    _limitCheckCount(0),
     _nodes(0),
     _bestScore(0)
      {
@@ -226,11 +225,10 @@ int Search::getBestScore(){
 
 bool Search::_checkLimits() {
 
-  if (--_limitCheckCount > 0) {
+  if (_nodes % 2048 != 0) {
     return false;
   }
 
-  _limitCheckCount = 2048;
   return _timer.checkLimits(_nodes);
 }
 
@@ -400,6 +398,10 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       if (ttEntry.Flag == BETA && hashScore >= beta){
         _updateBeta(qttNode, ttMove, board.getActivePlayer(), pMove, ply, depth);
         return beta;
+      }
+
+      if (ttEntry.Flag == ALPHA && hashScore <= alpha){
+        return alpha;
       }
     }
   }
@@ -582,7 +584,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // that non other moves are even close to it, extend this move
         // At low depth use statEval instead of search (Kimmys idea)
         if (!incheckNode &&
-            ttNode &&
+            ttEntry.Flag != ALPHA &&
             ttEntry.depth >= depth - 2 &&
             ttEntry.move == move.getMoveINT() &&
             abs(ttEntry.score) < WON_IN_X / 4){
@@ -767,8 +769,13 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
   }
 
   // Store bestScore in transposition table
-  if (!_stop && !singSearch && alpha > alphaOrig){
+  if (!_stop && !singSearch){
+      if (alpha <= alphaOrig) {
+        int saveMove = ttMove.getMoveINT() != 0 ? ttMove.getMoveINT() : 0;
+        myHASH->HASH_Store(board.getZKey().getValue(),  saveMove, ALPHA, alpha, depth, ply);
+      } else {
         myHASH->HASH_Store(board.getZKey().getValue(), bestMove.getMoveINT(), EXACT, alpha, depth, ply);
+      }
   }
 
   return alpha;
@@ -809,6 +816,9 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
       }
       if (ttEntry.Flag == BETA && hashScore >= beta){
         return beta;
+      }
+      if (ttEntry.Flag == ALPHA && hashScore <= alpha){
+        return alpha;
       }
     }
   }
