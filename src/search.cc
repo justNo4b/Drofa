@@ -232,12 +232,12 @@ bool Search::_checkLimits() {
   return _timer.checkLimits(_nodes);
 }
 
-inline void Search::_updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ply, int depth){
+inline void Search::_updateBeta(bool isQuiet, const Move move, Color color, int pMove, int ply, int depth, bool isPmQuietCounter){
 	if (isQuiet) {
     _orderingInfo.updateKillers(ply, move);
     _orderingInfo.incrementHistory(color, move.getFrom(), move.getTo(), depth);
     _orderingInfo.updateCounterMove(color, pMove, move.getMoveINT());
-    _orderingInfo.incrementCounterHistory(color, pMove, move.getPieceType(), move.getTo(), 2 * depth);
+    _orderingInfo.incrementCounterHistory(color, pMove, move.getPieceType(), move.getTo(), (2 + isPmQuietCounter) * depth);
   }else{
     _orderingInfo.incrementCapHistory(move.getPieceType(), move.getCapturedPieceType(), move.getTo(), depth);
   }
@@ -396,7 +396,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         return hashScore;
       }
       if (ttEntry.Flag == BETA && hashScore >= beta){
-        _updateBeta(qttNode, ttMove, board.getActivePlayer(), pMove, ply, depth);
+        _updateBeta(qttNode, ttMove, board.getActivePlayer(), pMove, ply, depth, isPmQuietCounter);
         return beta;
       }
 
@@ -720,9 +720,7 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
         // Beta cutoff
         if (score >= beta) {
           // Add this move as a new killer move and update history if move is quiet
-          _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * (nodeEval < alpha)));
-          // Award counter-move history additionally if we refuted special quite previous move
-          if (isPmQuietCounter) _orderingInfo.incrementCounterHistory(board.getActivePlayer(), pMove, move.getPieceType(), move.getTo(), depth);
+          _updateBeta(isQuiet, move, board.getActivePlayer(), pMove, ply, (depth + 2 * (nodeEval < alpha)), isPmQuietCounter);
           // Add a new tt entry for this node
           if (!_stop && !singSearch){
             myHASH->HASH_Store(board.getZKey().getValue(), move.getMoveINT(), BETA, score, depth, ply);
