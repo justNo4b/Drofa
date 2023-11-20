@@ -21,6 +21,18 @@
 
 Timer::Timer(Limits l, Color color, int movenum){
     _limits = l;
+    // setup basic constants
+    INCR_T_WIDTH_A = _limits.width_a;
+    INCR_T_WIDTH   = _limits.width;
+    INCR_CRIT_MOVE = _limits.c_move;
+    INCR_T_MOVE    = _limits.t_move;
+
+    MTG_CYC_INCR   = _limits.mtg_incr;
+    NODES_CONF_MAX = _limits.nodes_max;
+    NODES_CONF_MIN = _limits.nodes_min;
+    NODES_DIV      = _limits.nodes_div;
+    NODES_FACT     = _limits.nodes_fact;
+
     _wasThoughtProlonged = false;
     _moveTimeMode = false;
     if (_limits.infinite) { // Infinite search
@@ -124,10 +136,10 @@ bool Timer::finishOnThisDepth(int * elapsedTime, U64 totalNodes, U64 bestNodes){
     double nodesConfidance = bestNodes * 100.0 / totalNodes;
     // clamp coeff between 25 and 75
     // we assume that standart case is about ~50% of nodes go in bestMove
-    nodesConfidance = std::max(25.0, nodesConfidance);
-    nodesConfidance = std::min(85.0, nodesConfidance);
+    nodesConfidance = std::max(NODES_CONF_MIN, nodesConfidance);
+    nodesConfidance = std::min(NODES_CONF_MAX, nodesConfidance);
 
-    double nodesCoeff = 1.0 + (50.0 - nodesConfidance) / 50.0;
+    double nodesCoeff = 1.0 + (NODES_FACT - nodesConfidance) / NODES_DIV;
 
 
 

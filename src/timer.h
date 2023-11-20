@@ -35,6 +35,17 @@
     int  increment[2];   // increment for black and white
     bool infinite;      // ignore limits (infinite search)
 
+    // for tuning
+    int width_a;
+    int width;
+    int t_move;
+    int c_move;
+    int mtg_incr;
+    int nodes_max;
+    int nodes_min;
+    int nodes_fact;
+    int nodes_div;
+
     Limits() : nodes(0), depth(0),  moveTime(0), movesToGo(0), time{}, increment{}, infinite(false) {};
   };
 
@@ -107,18 +118,23 @@
      *
      * @{
      */
-      const int INCR_T_WIDTH_A = 300;
-      const int INCR_T_WIDTH   = 175;
-      const int INCR_T_MOVE    = 20;
-      const int INCR_CRIT_MOVE = 28;
+      int INCR_T_WIDTH_A = 300;
+      int INCR_T_WIDTH   = 175;
+      int INCR_T_MOVE    = 20;
+      int INCR_CRIT_MOVE = 28;
 
       const int CYCL_T_WIDTH_A = 750;
       const int CYCL_T_WIDTH   = 200;
       const int CYCL_T_MOVE    = 35;
       const int CYCL_CRIT_MOVE = 20;
 
-      const int MTG_CYC_INCR   = 10;
+      int MTG_CYC_INCR   = 10;
       const int MTG_NO_INCR    = 40;
+
+      double NODES_CONF_MAX = 85.0;
+      double NODES_CONF_MIN = 25.0;
+      double NODES_FACT     = 50.0;
+      double NODES_DIV      = 50.0;
 
 
     /**@}*/

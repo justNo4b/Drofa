@@ -33,6 +33,8 @@ OrderingInfo  * cOrdering[MAX_THREADS];
 Search        * cSearch[MAX_THREADS];
 std::thread     cThread[MAX_THREADS];
 
+Limits uci_timer;
+
 namespace {
 Book book;
 std::shared_ptr<Search> search;
@@ -77,16 +79,22 @@ void changeThreadsNumber(){
   }
 }
 
-#ifdef _TUNE_
+
 void loadCosts(){
 
-Eval::SetupTuning(KNIGHT, atoi(optionsMap["cKnight"].getValue().c_str()));
-Eval::SetupTuning(BISHOP, atoi(optionsMap["cBishop"].getValue().c_str()));
+uci_timer.width_a  = atoi(optionsMap["width_a"].getValue().c_str());
+uci_timer.width    = atoi(optionsMap["width"].getValue().c_str());
+uci_timer.t_move   = atoi(optionsMap["t_move"].getValue().c_str());
+uci_timer.c_move   = atoi(optionsMap["crit_move"].getValue().c_str());
 
-Eval::SetupTuning(ROOK, atoi(optionsMap["cRook"].getValue().c_str()));
-Eval::SetupTuning(QUEEN, atoi(optionsMap["cQueen"].getValue().c_str()));
+uci_timer.mtg_incr = atoi(optionsMap["mtg_cycl_incr"].getValue().c_str());
+uci_timer.nodes_max = atoi(optionsMap["nodes_max"].getValue().c_str());
+uci_timer.nodes_min = atoi(optionsMap["nodes_min"].getValue().c_str());
+uci_timer.nodes_div = atoi(optionsMap["nodes_div"].getValue().c_str());
+uci_timer.nodes_fact = atoi(optionsMap["nodes_fact"].getValue().c_str());
+
 }
-#endif
+
 
 void initOptions() {
   optionsMap["OwnBook"] = Option(false);
@@ -103,12 +111,17 @@ void initOptions() {
   // to change different parameters via communocation
   // with the engine.
 
-#ifdef _TUNE_
-  optionsMap["cKnight"] =   Option(0, 0, 150, &loadCosts);
-  optionsMap["cBishop"] =   Option(0, 0, 150, &loadCosts);
-  optionsMap["cRook"] =     Option(0, 0, 150, &loadCosts);
-  optionsMap["cQueen"] =    Option(0, 0, 150, &loadCosts);
-#endif
+
+  optionsMap["width_a"] =       Option(300, 100, 500, &loadCosts);
+  optionsMap["width"] =         Option(175, 50, 300, &loadCosts);
+  optionsMap["t_move"] =        Option(20, 8, 40, &loadCosts);
+  optionsMap["crit_move"] =     Option(28, 8, 40, &loadCosts);
+  optionsMap["mtg_cycl_incr"] = Option(10, 2, 30, &loadCosts);
+  optionsMap["nodes_max"] =     Option(85, 50, 100, &loadCosts);
+  optionsMap["nodes_min"] =     Option(25, 1, 50, &loadCosts);
+  optionsMap["nodes_fact"] =    Option(50, 25, 75, &loadCosts);
+  optionsMap["nodes_div"] =     Option(50, 25, 75, &loadCosts);
+
 
 
 }
@@ -164,18 +177,17 @@ void pickBestMove() {
 
 void go(std::istringstream &is) {
   std::string token;
-  Limits limits;
 
   while (is >> token) {
-    if (token == "depth") is >> limits.depth;
-    else if (token == "infinite") limits.infinite = true;
-    else if (token == "movetime") is >> limits.moveTime;
-    else if (token == "nodes") is >> limits.nodes;
-    else if (token == "wtime") is >> limits.time[WHITE];
-    else if (token == "btime") is >> limits.time[BLACK];
-    else if (token == "winc") is >> limits.increment[WHITE];
-    else if (token == "binc") is >> limits.increment[BLACK];
-    else if (token == "movestogo") is >> limits.movesToGo;
+    if (token == "depth") is >> uci_timer.depth;
+    else if (token == "infinite") uci_timer.infinite = true;
+    else if (token == "movetime") is >> uci_timer.moveTime;
+    else if (token == "nodes") is >> uci_timer.nodes;
+    else if (token == "wtime") is >> uci_timer.time[WHITE];
+    else if (token == "btime") is >> uci_timer.time[BLACK];
+    else if (token == "winc") is >> uci_timer.increment[WHITE];
+    else if (token == "binc") is >> uci_timer.increment[BLACK];
+    else if (token == "movestogo") is >> uci_timer.movesToGo;
   }
 
 // if we have > 1 threads, run some additional threads
@@ -183,7 +195,7 @@ void go(std::istringstream &is) {
     for (int i = 1; i < myTHREADSCOUNT; i++){
       // copy board stuff
       Board b = board;
-      Limits l = limits;
+      Limits l = uci_timer;
       Hist h = positionHistory;
 
       // clear killers for every ordering
@@ -195,7 +207,7 @@ void go(std::istringstream &is) {
   }
 
   myOrdering->clearKillers();
-  search = std::make_shared<Search>(board, limits, positionHistory, myOrdering);
+  search = std::make_shared<Search>(board, uci_timer, positionHistory, myOrdering);
 
   std::thread searchThread(&pickBestMove);
   searchThread.detach();
@@ -305,6 +317,21 @@ void loop() {
 
   std::string line;
   std::string token;
+  // load non-std uci options
+  loadCosts();
+  // dump shit we are tuning
+
+  std::cout << "width_a" << ", int, " << optionsMap["width_a"].getDefaultValue() << ", " << optionsMap["width_a"].getMin() << ", " << optionsMap["width_a"].getMax() << ", 5, 0.002";
+  std::cout << "width" << ", int, " << optionsMap["width"].getDefaultValue() << ", " << optionsMap["width"].getMin() << ", " << optionsMap["width"].getMax() << ", 5, 0.002";
+  std::cout << "t_move" << ", int, " << optionsMap["t_move"].getDefaultValue() << ", " << optionsMap["t_move"].getMin() << ", " << optionsMap["t_move"].getMax() << ", 1, 0.002";
+  std::cout << "crit_move" << ", int, " << optionsMap["crit_move"].getDefaultValue() << ", " << optionsMap["crit_move"].getMin() << ", " << optionsMap["crit_move"].getMax() << ", 1, 0.002";
+  std::cout << "mtg_cycl_incr" << ", int, " << optionsMap["mtg_cycl_incr"].getDefaultValue() << ", " << optionsMap["mtg_cycl_incr"].getMin() << ", " << optionsMap["mtg_cycl_incr"].getMax() << ", 1, 0.002";
+
+  std::cout << "nodes_max" << ", int, " << optionsMap["nodes_max"].getDefaultValue() << ", " << optionsMap["nodes_max"].getMin() << ", " << optionsMap["nodes_max"].getMax() << ", 1, 0.002";
+  std::cout << "nodes_min" << ", int, " << optionsMap["nodes_min"].getDefaultValue() << ", " << optionsMap["nodes_min"].getMin() << ", " << optionsMap["nodes_min"].getMax() << ", 1, 0.002";
+  std::cout << "nodes_fact" << ", int, " << optionsMap["nodes_fact"].getDefaultValue() << ", " << optionsMap["nodes_fact"].getMin() << ", " << optionsMap["nodes_fact"].getMax() << ", 1, 0.002";
+  std::cout << "nodes_div" << ", int, " << optionsMap["nodes_div"].getDefaultValue() << ", " << optionsMap["nodes_div"].getMin() << ", " << optionsMap["nodes_div"].getMax() << ", 1, 0.002";
+
 
   while (std::getline(std::cin, line)) {
     std::istringstream is(line);
