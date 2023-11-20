@@ -321,16 +321,16 @@ void loop() {
   loadCosts();
   // dump shit we are tuning
 
-  std::cout << "width_a" << ", int, " << optionsMap["width_a"].getDefaultValue() << ", " << optionsMap["width_a"].getMin() << ", " << optionsMap["width_a"].getMax() << ", 5, 0.002";
-  std::cout << "width" << ", int, " << optionsMap["width"].getDefaultValue() << ", " << optionsMap["width"].getMin() << ", " << optionsMap["width"].getMax() << ", 5, 0.002";
-  std::cout << "t_move" << ", int, " << optionsMap["t_move"].getDefaultValue() << ", " << optionsMap["t_move"].getMin() << ", " << optionsMap["t_move"].getMax() << ", 1, 0.002";
-  std::cout << "crit_move" << ", int, " << optionsMap["crit_move"].getDefaultValue() << ", " << optionsMap["crit_move"].getMin() << ", " << optionsMap["crit_move"].getMax() << ", 1, 0.002";
-  std::cout << "mtg_cycl_incr" << ", int, " << optionsMap["mtg_cycl_incr"].getDefaultValue() << ", " << optionsMap["mtg_cycl_incr"].getMin() << ", " << optionsMap["mtg_cycl_incr"].getMax() << ", 1, 0.002";
+  std::cout << "width_a" << ", int, " << optionsMap["width_a"].getDefaultValue() << ", " << optionsMap["width_a"].getMin() << ", " << optionsMap["width_a"].getMax() << ", 5, 0.002"<< std::endl;
+  std::cout << "width" << ", int, " << optionsMap["width"].getDefaultValue() << ", " << optionsMap["width"].getMin() << ", " << optionsMap["width"].getMax() << ", 5, 0.002"<< std::endl;
+  std::cout << "t_move" << ", int, " << optionsMap["t_move"].getDefaultValue() << ", " << optionsMap["t_move"].getMin() << ", " << optionsMap["t_move"].getMax() << ", 1, 0.002"<< std::endl;
+  std::cout << "crit_move" << ", int, " << optionsMap["crit_move"].getDefaultValue() << ", " << optionsMap["crit_move"].getMin() << ", " << optionsMap["crit_move"].getMax() << ", 1, 0.002"<< std::endl;
+  std::cout << "mtg_cycl_incr" << ", int, " << optionsMap["mtg_cycl_incr"].getDefaultValue() << ", " << optionsMap["mtg_cycl_incr"].getMin() << ", " << optionsMap["mtg_cycl_incr"].getMax() << ", 1, 0.002"<< std::endl;
 
-  std::cout << "nodes_max" << ", int, " << optionsMap["nodes_max"].getDefaultValue() << ", " << optionsMap["nodes_max"].getMin() << ", " << optionsMap["nodes_max"].getMax() << ", 1, 0.002";
-  std::cout << "nodes_min" << ", int, " << optionsMap["nodes_min"].getDefaultValue() << ", " << optionsMap["nodes_min"].getMin() << ", " << optionsMap["nodes_min"].getMax() << ", 1, 0.002";
-  std::cout << "nodes_fact" << ", int, " << optionsMap["nodes_fact"].getDefaultValue() << ", " << optionsMap["nodes_fact"].getMin() << ", " << optionsMap["nodes_fact"].getMax() << ", 1, 0.002";
-  std::cout << "nodes_div" << ", int, " << optionsMap["nodes_div"].getDefaultValue() << ", " << optionsMap["nodes_div"].getMin() << ", " << optionsMap["nodes_div"].getMax() << ", 1, 0.002";
+  std::cout << "nodes_max" << ", int, " << optionsMap["nodes_max"].getDefaultValue() << ", " << optionsMap["nodes_max"].getMin() << ", " << optionsMap["nodes_max"].getMax() << ", 1, 0.002"<< std::endl;
+  std::cout << "nodes_min" << ", int, " << optionsMap["nodes_min"].getDefaultValue() << ", " << optionsMap["nodes_min"].getMin() << ", " << optionsMap["nodes_min"].getMax() << ", 1, 0.002"<< std::endl;
+  std::cout << "nodes_fact" << ", int, " << optionsMap["nodes_fact"].getDefaultValue() << ", " << optionsMap["nodes_fact"].getMin() << ", " << optionsMap["nodes_fact"].getMax() << ", 1, 0.002"<< std::endl;
+  std::cout << "nodes_div" << ", int, " << optionsMap["nodes_div"].getDefaultValue() << ", " << optionsMap["nodes_div"].getMin() << ", " << optionsMap["nodes_div"].getMax() << ", 1, 0.002"<< std::endl;
 
 
   while (std::getline(std::cin, line)) {
