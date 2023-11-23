@@ -107,17 +107,17 @@
      *
      * @{
      */
-      const int INCR_T_WIDTH_A = 300;
-      const int INCR_T_WIDTH   = 175;
-      const int INCR_T_MOVE    = 20;
-      const int INCR_CRIT_MOVE = 28;
+      const int INCR_T_WIDTH_A = 322;
+      const int INCR_T_WIDTH   = 188;
+      const int INCR_T_MOVE    = 22;
+      const int INCR_CRIT_MOVE = 26;
 
       const int CYCL_T_WIDTH_A = 750;
       const int CYCL_T_WIDTH   = 200;
       const int CYCL_T_MOVE    = 35;
       const int CYCL_CRIT_MOVE = 20;
 
-      const int MTG_CYC_INCR   = 10;
+      const int MTG_CYC_INCR   = 5;
       const int MTG_NO_INCR    = 40;
 
 
