@@ -51,6 +51,7 @@ class HASH{
 
   pawn_HASH_Entry *pHASH;
   U64 pTableSize;
+  U64 pTableMask;
 
 };
 

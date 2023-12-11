@@ -35,13 +35,18 @@ HASH::HASH(){
   HASH_Clear();
 
   // Initalize pawn hash table for easier score computation
-
-  pTableSize = p_Size / (double) sizeof(pawn_HASH_Entry) * 0x100000;
-  pTableSize = pTableSize - 2;
+  // Сперва считаем максимальный объём таблицы
+  // Потом ближайшее число которое есть степень двойки (ускоряем вычисления id)
+  U64 pTableSizeMax = p_Size / (double) sizeof(pawn_HASH_Entry) * 0x100000;
+  pTableSize = 1;
+  while (pTableSize / 2 <= pTableSizeMax){
+    pTableSize *= 2;
+  }
   pHASH = new pawn_HASH_Entry[pTableSize];
-
   pHASH_Clear();
 
+  // save mask
+  pTableMask = pTableSize - 1;
 }
 
 void  HASH::HASH_Initalize_MB(const int MB){
@@ -104,14 +109,13 @@ void HASH::pHASH_Clear(){
 }
 
 void HASH::pHASH_Store(U64 posKey, U64 whitePassers, U64 blackPassers, int score){
-  U64 index = posKey % pTableSize;
-  if (index < pTableSize){
-    pHASH[index] = pawn_HASH_Entry(posKey, whitePassers, blackPassers, score);
-  }
+  U64 index = posKey & pTableMask;
+  pHASH[index] = pawn_HASH_Entry(posKey, whitePassers, blackPassers, score);
+
 }
 
 pawn_HASH_Entry HASH::pHASH_Get (U64 posKey){
-  U64 index = posKey % pTableSize;
+  U64 index = posKey & pTableMask;
   if (pHASH[index].posKey == posKey){
     return pHASH[index];
   }
