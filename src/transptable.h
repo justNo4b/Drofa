@@ -48,6 +48,7 @@ class HASH{
 
   HASH_Entry *hashTable;
   U64 TableSize;
+  U64 TableMask;
 
   pawn_HASH_Entry *pHASH;
   U64 pTableSize;
