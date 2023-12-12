@@ -26,22 +26,29 @@ HASH::HASH(){
   double hashSize = 16; // когда-нить я сделаю аллокацию через UCI
   double p_Size = 6;
 
-  TableSize = hashSize / (double) sizeof(HASH_Entry) *  0x100000;   // по идее это должно быть 1 МБ
+  U64 tableSizeMax = hashSize / (double) sizeof(HASH_Entry) *  0x100000;   // по идее это должно быть 1 МБ
+  TableSize = 1;
 
-  // Initalize main hash table for transpositions
-  TableSize = TableSize - 2;
+  while (TableSize / 2 <= tableSizeMax){
+    TableSize *= 2;
+  }
   hashTable = new HASH_Entry [TableSize];
-
   HASH_Clear();
+  TableMask = TableSize - 1;
 
   // Initalize pawn hash table for easier score computation
-
-  pTableSize = p_Size / (double) sizeof(pawn_HASH_Entry) * 0x100000;
-  pTableSize = pTableSize - 2;
+  // Сперва считаем максимальный объём таблицы
+  // Потом ближайшее число которое есть степень двойки (ускоряем вычисления id)
+  U64 ptableSizeMax = p_Size / (double) sizeof(pawn_HASH_Entry) * 0x100000;
+  pTableSize = 1;
+  while (pTableSize / 2 <= ptableSizeMax){
+    pTableSize *= 2;
+  }
   pHASH = new pawn_HASH_Entry[pTableSize];
-
   pHASH_Clear();
 
+  // save mask
+  pTableMask = pTableSize - 1;
 }
 
 void  HASH::HASH_Initalize_MB(const int MB){
@@ -51,11 +58,15 @@ void  HASH::HASH_Initalize_MB(const int MB){
 
   // set new size
   double hashSize = MB;
-  TableSize = hashSize / (double) sizeof(HASH_Entry) *  0x100000;
+  U64 tableSizeMax = hashSize / (double) sizeof(HASH_Entry) *  0x100000;
+  TableSize = 1;
 
-  // Initalize main hash table for transpositions
-  TableSize = TableSize - 2;
+  while (TableSize / 2 <= tableSizeMax){
+    TableSize *= 2;
+  }
   hashTable = new HASH_Entry [TableSize];
+  HASH_Clear();
+  TableMask = TableSize - 1;
 }
 
 U64 HASH::HASH_Size(){
@@ -74,7 +85,7 @@ void  HASH::HASH_Store(U64 posKey, int cMove, CutOffState bound, int score, int 
         score = (score > 0) ? (score - ply) : (score + ply);
       }
 
-      U64 index = posKey % TableSize;
+      U64 index = posKey & TableMask;
       if (posKey !=  hashTable[index].posKey || depth * 2 >=  hashTable[index].depth || bound == EXACT){
          hashTable[index] = HASH_Entry(posKey, cMove, (int16_t)score, depth, bound);
       }
@@ -82,7 +93,7 @@ void  HASH::HASH_Store(U64 posKey, int cMove, CutOffState bound, int score, int 
 
 
 HASH_Entry  HASH::HASH_Get(U64 posKey){
-  U64 index = posKey % TableSize;
+  U64 index = posKey & TableMask;
   if (hashTable[index].posKey == posKey){
     return  hashTable[index];
   }
@@ -90,7 +101,7 @@ HASH_Entry  HASH::HASH_Get(U64 posKey){
 }
 
 void HASH::HASH_Prefetch(U64 posKey){
-  __builtin_prefetch(&hashTable[posKey % TableSize]);
+  __builtin_prefetch(&hashTable[posKey & TableMask]);
 }
 
 U64 HASH::pHASH_Size(){
@@ -104,14 +115,13 @@ void HASH::pHASH_Clear(){
 }
 
 void HASH::pHASH_Store(U64 posKey, U64 whitePassers, U64 blackPassers, int score){
-  U64 index = posKey % pTableSize;
-  if (index < pTableSize){
-    pHASH[index] = pawn_HASH_Entry(posKey, whitePassers, blackPassers, score);
-  }
+  U64 index = posKey & pTableMask;
+  pHASH[index] = pawn_HASH_Entry(posKey, whitePassers, blackPassers, score);
+
 }
 
 pawn_HASH_Entry HASH::pHASH_Get (U64 posKey){
-  U64 index = posKey % pTableSize;
+  U64 index = posKey & pTableMask;
   if (pHASH[index].posKey == posKey){
     return pHASH[index];
   }
