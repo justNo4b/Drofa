@@ -29,7 +29,7 @@ HASH::HASH(){
   U64 tableSizeMax = hashSize / (double) sizeof(HASH_Entry) *  0x100000;   // по идее это должно быть 1 МБ
   TableSize = 1;
 
-  while (TableSize / 2 <= tableSizeMax){
+  while (TableSize * 2 <= tableSizeMax){
     TableSize *= 2;
   }
   hashTable = new HASH_Entry [TableSize];
@@ -41,7 +41,7 @@ HASH::HASH(){
   // Потом ближайшее число которое есть степень двойки (ускоряем вычисления id)
   U64 ptableSizeMax = p_Size / (double) sizeof(pawn_HASH_Entry) * 0x100000;
   pTableSize = 1;
-  while (pTableSize / 2 <= ptableSizeMax){
+  while (pTableSize * 2 <= ptableSizeMax){
     pTableSize *= 2;
   }
   pHASH = new pawn_HASH_Entry[pTableSize];
@@ -61,7 +61,7 @@ void  HASH::HASH_Initalize_MB(const int MB){
   U64 tableSizeMax = hashSize / (double) sizeof(HASH_Entry) *  0x100000;
   TableSize = 1;
 
-  while (TableSize / 2 <= tableSizeMax){
+  while (TableSize * 2 <= tableSizeMax){
     TableSize *= 2;
   }
   hashTable = new HASH_Entry [TableSize];
