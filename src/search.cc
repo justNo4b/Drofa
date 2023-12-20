@@ -796,7 +796,9 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   int standPat = Eval::evaluate(board, board.getActivePlayer());
 
   if (standPat >= beta) {
-    return beta;
+    if (!pvNode) return beta;
+
+    standPat = std::min((alpha + beta) / 2, beta - 1);
   }
 
   if (alpha < standPat) {
