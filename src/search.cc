@@ -401,6 +401,13 @@ int Search::_negaMax(const Board &board, pV *up_pV, int depth, int alpha, int be
       }
 
       if (ttEntry.Flag == ALPHA && hashScore <= alpha){
+          int dBonus = std::max(0, depth - (nodeEval < alpha) - (!ttNode && depth >= 4) + (pMoveScore < -HALFMAX_HISTORY_SCORE) + cutNode);
+          if (qttNode){
+                _orderingInfo.decrementHistory(board.getActivePlayer(), ttMove.getFrom(), ttMove.getTo(), dBonus);
+                _orderingInfo.decrementCounterHistory(board.getActivePlayer(), pMoveIndx, ttMove.getPieceType(), ttMove.getTo(), dBonus);
+            }else{
+                _orderingInfo.decrementCapHistory(ttMove.getPieceType(), ttMove.getCapturedPieceType(), ttMove.getTo(), dBonus);
+            }
         return alpha;
       }
     }
