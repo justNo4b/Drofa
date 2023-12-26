@@ -831,12 +831,6 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
   MoveList * legalMoves = movegen.getMoves();
   MovePicker movePicker(&_orderingInfo, &board, legalMoves, 0, board.getActivePlayer(), MAX_PLY, 0);
 
-  // If node is quiet, just return eval
-  if (!movePicker.hasNext()) {
-    return standPat;
-  }
-
-
   while (movePicker.hasNext()) {
     Move move = movePicker.getNext();
 
@@ -871,5 +865,6 @@ int Search::_qSearch(const Board &board, int alpha, int beta) {
 
 
   }
+
   return alpha;
 }
